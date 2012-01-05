@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Localization</RootNamespace>
+    <AssemblyName>LocalizationManager</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Output\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Output\Debug\LocalizationManager.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Output\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Output\Release\LocalizationManager.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CodeReader\ILReader.cs" />
+    <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="LocalizationManager.cs" />
+    <Compile Include="LocalizedStringCache.cs" />
+    <Compile Include="LocalizingInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\BingTranslatorService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="TransUnitUpdater.cs" />
+    <Compile Include="UI\ColorHelper.cs" />
+    <Compile Include="UI\CustomDropDownComboBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\CustomDropDownComboBox.Designer.cs">
+      <DependentUpon>CustomDropDownComboBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\EditSourceBeforeTranslatingDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\EditSourceBeforeTranslatingDlg.Designer.cs">
+      <DependentUpon>EditSourceBeforeTranslatingDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\FallbackLanguagesDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\FallbackLanguagesDlg.Designer.cs">
+      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\LocalizationExtender.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\LocalizeItemDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\LocalizeItemDlg.designer.cs">
+      <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\LocalizeItemDlgViewModel.cs" />
+    <Compile Include="UI\LocTreeNode.cs" />
+    <Compile Include="UI\PaintingHelper.cs" />
+    <Compile Include="UI\ProgressDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ProgressDlg.Designer.cs">
+      <DependentUpon>ProgressDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ShortcutKeysDropDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ShortcutKeysEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ShortcutKeysEditor.Designer.cs">
+      <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PopupControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\PopupControl.designer.cs">
+      <DependentUpon>PopupControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Grid\LmButtonCell.cs" />
+    <Compile Include="UI\Grid\LmButtonColumn.cs" />
+    <Compile Include="UI\Grid\LmGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\UILanguageComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\XButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Utils.cs" />
+    <Compile Include="TMXUtils\TMXBaseWithNotesAndProps.cs" />
+    <Compile Include="TMXUtils\TMXBody.cs" />
+    <Compile Include="TMXUtils\TMXDocument.cs" />
+    <Compile Include="TMXUtils\TMXHeader.cs" />
+    <Compile Include="TMXUtils\TMXNote.cs" />
+    <Compile Include="TMXUtils\TMXProp.cs" />
+    <Compile Include="TMXUtils\TMXSegment.cs" />
+    <Compile Include="TMXUtils\TMXTags.cs" />
+    <Compile Include="TMXUtils\TMXWriter.cs" />
+    <Compile Include="TMXUtils\TransUnit.cs" />
+    <Compile Include="TMXUtils\TransUnitVariant.cs" />
+    <Compile Include="TMXUtils\XmlSerializationHelper.cs" />
+    <Compile Include="Translators\BingTranslator.cs" />
+    <Compile Include="Translators\GoogleTranslator.cs" />
+    <Compile Include="Translators\TranslatorBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\CustomDropDownComboBox.resx">
+      <DependentUpon>CustomDropDownComboBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\EditSourceBeforeTranslatingDlg.resx">
+      <DependentUpon>EditSourceBeforeTranslatingDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\FallbackLanguagesDlg.resx">
+      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
+      <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ProgressDlg.resx">
+      <DependentUpon>ProgressDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ShortcutKeysEditor.resx">
+      <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PopupControl.resx">
+      <DependentUpon>PopupControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\bing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Copy_Translation %28toolbar%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Copy_Translation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Google.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Move_Next.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Resources\Move_Previous.png" />
+    <None Include="Service References\BingTranslatorService\Soap.wsdl" />
+    <None Include="Service References\BingTranslatorService\Soap.xsd" />
+    <None Include="Service References\BingTranslatorService\Soap1.xsd" />
+    <None Include="Service References\BingTranslatorService\Soap2.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\BingTranslatorService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BingTranslatorService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BingTranslatorService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BingTranslatorService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Move_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Move_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Move.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SelectAllRows.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
