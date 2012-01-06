@@ -12,6 +12,8 @@ namespace Localization.UI
 	/// ----------------------------------------------------------------------------------------
 	public partial class LocalizeItemDlg : Form
 	{
+		public static Font DefaultDisplayFont { get; set; }
+
 		/// ------------------------------------------------------------------------------------
 		public delegate void StringsLocalizedHandler();
 		/// ------------------------------------------------------------------------------------
@@ -37,6 +39,9 @@ namespace Localization.UI
 		internal static DialogResult ShowDialog(LocalizationManager callingManager, object obj,
 			bool runInReadonlyMode)
 		{
+			if (DefaultDisplayFont == null)
+				DefaultDisplayFont = SystemFonts.MenuFont;
+
 			if (callingManager != null && !callingManager.CanShowLocalizeItemDialogBox)
 				return DialogResult.Abort;
 
@@ -114,13 +119,14 @@ namespace Localization.UI
 			btnCopyToolTip.BackColor = _textBoxSrcTranslation.BackColor;
 			btnCopyShortcutKeys.BackColor = _textBoxSrcTranslation.BackColor;
 
-			_grid.Font = SystemFonts.IconTitleFont;
-			_shortcutKeysDropDown.Font = SystemFonts.MenuFont;
-			_textBoxSrcTranslation.Font = SystemFonts.DialogFont;
-			_colSrcToolTip.DefaultCellStyle.Font = SystemFonts.IconTitleFont;
-			_colTgtToolTip.DefaultCellStyle.Font = SystemFonts.IconTitleFont;
-			_treeView.Font = SystemFonts.IconTitleFont;
-			_textBoxSrcToolTip.Font = new Font(SystemFonts.IconTitleFont.FontFamily,
+			_grid.Font = DefaultDisplayFont;
+			_grid.ColumnHeadersDefaultCellStyle.Font = DefaultDisplayFont;
+			_shortcutKeysDropDown.Font = DefaultDisplayFont;
+			_textBoxSrcTranslation.Font = DefaultDisplayFont;
+			_colSrcToolTip.DefaultCellStyle.Font = DefaultDisplayFont;
+			_colTgtToolTip.DefaultCellStyle.Font = DefaultDisplayFont;
+			_treeView.Font = DefaultDisplayFont;
+			_textBoxSrcToolTip.Font = new Font(DefaultDisplayFont.FontFamily,
 				_textBoxSrcToolTip.Font.SizeInPoints, FontStyle.Regular);
 		}
 
@@ -211,11 +217,11 @@ namespace Localization.UI
 				(_viewModel.BingTranslator != null && _viewModel.CurrentNode != null);
 
 			_groupBoxImage.Visible = false;
+
 			_labelSrcToolTip.Enabled = _labelTgtToolTip.Enabled = false;
 			_textBoxSrcToolTip.Enabled = _textBoxTgtToolTip.Enabled = false;
 			_labelSrcShortcutKeys.Enabled = _labelTgtShortcutKeys.Enabled = false;
 			_textBoxSrcShortcutKeys.Enabled = _shortcutKeysDropDown.Enabled = false;
-			_textBoxTgtTranslation.Enabled = _textBoxTgtToolTip.Enabled = false;
 			_groupBoxComment.Enabled = _groupBoxSrcTranslation.Enabled = _groupBoxTgtTranslation.Enabled = false;
 			_labelStringId.Enabled = false;
 
@@ -241,10 +247,13 @@ namespace Localization.UI
 				return;
 			}
 
-			_labelStringIdValue.Text = _viewModel.CurrentNode.Id;
-			_textBoxTgtTranslation.Enabled = _textBoxTgtToolTip.Enabled = (_viewModel.CurrentNode.Id != null);
-			_groupBoxComment.Enabled = _groupBoxSrcTranslation.Enabled = _groupBoxTgtTranslation.Enabled = (_viewModel.CurrentNode.Id != null);
+			_textBoxTgtTranslation.Enabled = _textBoxTgtToolTip.Enabled = _groupBoxTgtTranslation.Enabled =
+				(_viewModel.CurrentNode.Id != null && !_viewModel.TgtLangId.StartsWith(LocalizationManager.kDefaultLang));
+
+			_groupBoxComment.Enabled = _groupBoxSrcTranslation.Enabled = (_viewModel.CurrentNode.Id != null);
+
 			_labelStringId.Enabled = (_viewModel.CurrentNode.Id != null);
+			_labelStringIdValue.Text = _viewModel.CurrentNode.Id;
 			_textBoxSrcTranslation.Text = _viewModel.CurrentNodeSourceText;
 			_textBoxTgtTranslation.Text = _viewModel.CurrentNodeTargetText;
 			_textBoxSrcToolTip.Text = _viewModel.CurrentNodeSourceToolTip;

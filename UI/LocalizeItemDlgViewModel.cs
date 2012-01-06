@@ -266,9 +266,9 @@ namespace Localization.UI
 				return;
 			}
 
-			if ((locInfo.Text ?? string.Empty) == (node.GetText(_tgtLangId) ?? string.Empty) &&
-				(locInfo.ToolTipText ?? string.Empty) == (node.GetToolTip(_tgtLangId) ?? string.Empty) &&
-				(locInfo.ShortcutKeys ?? string.Empty) == (node.GetShortcutKeys(_tgtLangId) ?? string.Empty))
+			if (locInfo.Text == (node.GetText(_tgtLangId) ?? string.Empty) &&
+				locInfo.ToolTipText == (node.GetToolTip(_tgtLangId) ?? string.Empty) &&
+				locInfo.ShortcutKeys == (node.GetShortcutKeys(_tgtLangId) ?? string.Empty))
 			{
 				return;
 			}
@@ -280,16 +280,16 @@ namespace Localization.UI
 			else
 			{
 				if ((locInfo.UpdateFields & UpdateFields.Text) == UpdateFields.Text)
-					node.SavedTranslationInfo[_tgtLangId].Text = locInfo.Text;
+					node.SavedTranslationInfo[_tgtLangId].Text = (locInfo.Text == string.Empty ? null : locInfo.Text);
 
 				if ((locInfo.UpdateFields & UpdateFields.ToolTip) == UpdateFields.ToolTip)
-					node.SavedTranslationInfo[_tgtLangId].ToolTipText = locInfo.ToolTipText;
+					node.SavedTranslationInfo[_tgtLangId].ToolTipText = (locInfo.ToolTipText == string.Empty ? null : locInfo.ToolTipText);
 
 				if ((locInfo.UpdateFields & UpdateFields.ShortcutKeys) == UpdateFields.ShortcutKeys)
-					node.SavedTranslationInfo[_tgtLangId].ShortcutKeys = locInfo.ShortcutKeys;
+					node.SavedTranslationInfo[_tgtLangId].ShortcutKeys = (locInfo.ShortcutKeys == string.Empty ? null : locInfo.ShortcutKeys);
 
 				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
-					node.SavedComment = locInfo.Comment;
+					node.SavedComment = (locInfo.Comment == string.Empty ? null : locInfo.Comment);
 
 				node.SavedTranslationInfo[_tgtLangId].UpdateFields |= locInfo.UpdateFields;
 			}
@@ -362,7 +362,7 @@ namespace Localization.UI
 		public Font GetFontForObject(object obj)
 		{
 			return (obj == null ? null :
-				Utils.GetProperty(obj, "Font") as Font) ?? SystemFonts.DialogFont;
+				Utils.GetProperty(obj, "Font") as Font) ?? LocalizeItemDlg.DefaultDisplayFont;
 		}
 
 		/// ------------------------------------------------------------------------------------
