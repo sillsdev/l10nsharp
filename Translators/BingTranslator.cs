@@ -66,6 +66,7 @@ namespace Localization.Translators
 					var availableLocales = m_translator.GetLanguages(kAppId);
 					m_srcCultureId = ValidateLocale(availableLocales, srcLangId);
 					m_tgtCultureId = ValidateLocale(availableLocales, tgtLangId);
+					break;
 				}
 				catch
 				{
