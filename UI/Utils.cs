@@ -8,11 +8,19 @@ namespace Localization.UI
 	/// ----------------------------------------------------------------------------------------
 	internal static class Utils
 	{
-		/// ------------------------------------------------------------------------------------
+
+#if !__MonoCS__
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
 		public static extern void SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+#else
+		public static void SendMessage(IntPtr hWnd, int msg, int wParam, int lParam)
+		{
+			Console.WriteLine("Warning--using unimplemented method SendMessage"); // FIXME Linux
+			return;
+		}
+#endif
 
-		/// ------------------------------------------------------------------------------------
+
 		private const int WM_SETREDRAW = 0xB;
 
 		/// ------------------------------------------------------------------------------------
@@ -31,7 +39,7 @@ namespace Localization.UI
 		{
 			if (ctrl != null && !ctrl.IsDisposed && ctrl.IsHandleCreated)
 			{
-#if !MONO
+#if !__MonoCS__
 				SendMessage(ctrl.Handle, WM_SETREDRAW, (turnOn ? 1 : 0), 0);
 #else
 				if (turnOn)
