@@ -290,7 +290,7 @@ namespace Localization.UI
 		public void PaintHeadingBackground(Graphics g, Rectangle rcHead)
 		{
 			using (LinearGradientBrush br = new LinearGradientBrush(rcHead,
-				kHeadDarkColor, kHeadLightColor, 0.0))
+				kHeadDarkColor, kHeadLightColor, 0.0f))
 			{
 				g.FillRectangle(br, rcHead);
 			}
