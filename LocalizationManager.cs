@@ -484,7 +484,9 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		public string GetLocalizedString(string id, string defaultText)
 		{
-			var text = (Enabled ? GetStringFromStringCache(UILanguageId, id) : null);
+			var text = (Enabled && UILanguageId != kDefaultLang ?
+				GetStringFromStringCache(UILanguageId, id) : null);
+
 			return (text ?? StripOffLocalizationInfoFromText(defaultText));
 		}
 
@@ -572,13 +574,18 @@ namespace Localization
 				return text;
 
 			text = text.Substring(kL10NPrefix.Length);
-			int i = text.IndexOf("!");
+			int i = text.IndexOf("!", StringComparison.Ordinal);
 			return (i < 0 ? text : text.Substring(i + 1));
 		}
 
 		/// ------------------------------------------------------------------------------------
 		private static string GetStringFromAnyLocalizationManager(string id)
 		{
+			// This will enforce that the text to localize is just returned to the caller
+			// when the default language id is the same as the current UI langauge id.
+			if (UILanguageId == kDefaultLang)
+				return null;
+
 			return LoadedManagers.Values.Where(m => m.Enabled)
 				.Select(lm => lm.StringCache.GetString(UILanguageId, id))
 				.FirstOrDefault(text => text != null);

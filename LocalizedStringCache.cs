@@ -219,7 +219,7 @@ namespace Localization
 			string y = tu2.GetPropValue(kGroupPropTag);
 
 			if (x == y)
-				return tu1.Id.CompareTo(tu2.Id);
+				return String.CompareOrdinal(tu1.Id, tu2.Id);
 
 			if (x == null)
 				return -1;
@@ -227,7 +227,7 @@ namespace Localization
 			if (y == null)
 				return 1;
 
-			return x.CompareTo(y);
+			return String.CompareOrdinal(x, y);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -451,13 +451,13 @@ namespace Localization
 		{
 			if (tuid.EndsWith(kToolTipSuffix))
 			{
-				int i = tuid.LastIndexOf(kToolTipSuffix);
+				int i = tuid.LastIndexOf(kToolTipSuffix, StringComparison.Ordinal);
 				return tuid.Substring(0, i);
 			}
 
 			if (tuid.EndsWith(kShortcutSuffix))
 			{
-				int i = tuid.LastIndexOf(kShortcutSuffix);
+				int i = tuid.LastIndexOf(kShortcutSuffix, StringComparison.Ordinal);
 				return tuid.Substring(0, i);
 			}
 
