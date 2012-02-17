@@ -274,6 +274,12 @@ namespace Localization
 			LocalizeItemDlg.ShowDialog(GetLocalizationManagerForObject(ctrl), ctrl, false);
 		}
 
+		/// ------------------------------------------------------------------------------------
+		public static void ShowLocalizationDialogBox(string id)
+		{
+			LocalizeItemDlg.ShowDialog(GetLocalizationManagerForString(id), id, false);
+		}
+
 		#endregion
 
 		#region Public Properties

@@ -32,22 +32,31 @@ namespace Localization.UI
 		private DateTime _timeToGiveUpLookingForTranslator;
 
 		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Shows the localize items dialog box.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
 		internal static DialogResult ShowDialog(LocalizationManager callingManager, object obj,
 			bool runInReadonlyMode)
 		{
-			if (DefaultDisplayFont == null)
-				DefaultDisplayFont = SystemFonts.MenuFont;
-
 			if (callingManager != null && !callingManager.CanShowLocalizeItemDialogBox)
 				return DialogResult.Abort;
 
 			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
 
-			using (var dlg = new LocalizeItemDlg(viewModel, callingManager, obj))
+			var id = (callingManager == null ? viewModel.GetObjIdFromAnyCache(obj) :
+				callingManager.ObjectCache.FirstOrDefault(kvp => kvp.Key == obj).Value);
+
+			using (var dlg = new LocalizeItemDlg(viewModel, id))
+				return dlg.ShowDialog();
+		}
+
+		/// ------------------------------------------------------------------------------------
+		internal static DialogResult ShowDialog(LocalizationManager callingManager, string id,
+			bool runInReadonlyMode)
+		{
+			if (callingManager != null && !callingManager.CanShowLocalizeItemDialogBox)
+				return DialogResult.Abort;
+
+			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
+
+			using (var dlg = new LocalizeItemDlg(viewModel, id))
 				return dlg.ShowDialog();
 		}
 
@@ -55,19 +64,18 @@ namespace Localization.UI
 		/// ------------------------------------------------------------------------------------
 		private LocalizeItemDlg()
 		{
+			if (DefaultDisplayFont == null)
+				DefaultDisplayFont = SystemFonts.MenuFont;
+
 			InitializeComponent();
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private LocalizeItemDlg(LocalizeItemDlgViewModel viewModel,
-			LocalizationManager callingManager, object obj) : this()
+		private LocalizeItemDlg(LocalizeItemDlgViewModel viewModel, string id) : this()
 		{
 			_viewModel = viewModel;
 
 			Initialize();
-
-			var id = (callingManager == null ? _viewModel.GetObjIdFromAnyCache(obj) :
-				callingManager.ObjectCache.FirstOrDefault(kvp => kvp.Key == obj).Value);
 
 			if (id == null)
 				return;
