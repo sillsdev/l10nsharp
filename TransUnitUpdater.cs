@@ -111,7 +111,7 @@ namespace Localization
 		/// Updates the value for the specified translation unit with the specified new value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private TransUnit UpdateValue(TransUnit tu, string newValue, LocalizingInfo locInfo, string newId)
+		private TransUnit UpdateValue(TransUnit tu, string newValue, LocalizingInfo locInfo, string tuId)
 		{
 			newValue = newValue ?? string.Empty;
 
@@ -134,7 +134,7 @@ namespace Localization
 			if (tu == null)
 			{
 				tu = new TransUnit();
-				tu.Id = newId;
+				tu.Id = tuId;
 				_tmxDoc.AddTransUnit(tu);
 			}
 

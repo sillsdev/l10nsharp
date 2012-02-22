@@ -224,7 +224,7 @@ namespace Localization
 			if (text.StartsWith(LocalizationManager.kL10NPrefix))
 				text = text.Substring(LocalizationManager.kL10NPrefix.Length);
 
-			int i = text.IndexOf("!");
+			int i = text.IndexOf("!", StringComparison.Ordinal);
 			return (i < 0 ? string.Empty : text.Substring(0, i));
 		}
 
