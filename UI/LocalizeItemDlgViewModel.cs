@@ -227,7 +227,7 @@ namespace Localization.UI
 			{
 				stringsLocalized = true;
 
-				foreach (var locInfo in node.SavedTranslationInfo.Values.Where(li => !li.IsEmpty))
+				foreach (var locInfo in node.SavedTranslationInfo.Values)
 					node.Manager.StringCache.UpdateLocalizedInfo(locInfo);
 
 				// Update each object with the specified id, with the localized string(s).
