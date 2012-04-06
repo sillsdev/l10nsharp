@@ -673,9 +673,6 @@ namespace Localization
 			if (!Enabled)
 				return;
 
-			foreach (var ttctrl in ToolTipCtrls.Values)
-				ttctrl.Dispose();
-
 			ToolTipCtrls.Clear();
 
 			foreach (var kvp in ObjectCache.Where(x => x.Key is Control))

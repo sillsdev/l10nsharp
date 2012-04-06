@@ -91,7 +91,7 @@ namespace Localization.UI
 			cultureList.Add(CultureInfo.GetCultureInfo("en"));
 
 			Items.Clear();
-			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.ToString()).ToArray());
+			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
 			var currCulture = CultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
 			SelectedItem = currCulture;
 		}
