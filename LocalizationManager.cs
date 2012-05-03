@@ -400,12 +400,21 @@ namespace Localization
 			if (!Enabled || obj == null || id == null || id.Trim() == string.Empty)
 				return;
 
-			// If this is the first time this object has passed this way, then
-			// prepare it to be available for end-user localization.
-			if (!ObjectCache.ContainsKey(obj))
+			// This if/else used to be more concise but sometimes there were occassions
+			// adding an item the first time using ObjectCache[obj] = id would throw an
+			// index outside the bounds of the array exception. I have no clue why nor
+			// can I reliably reproduce the error nor do I know if this change will solve
+			// the problem. Hopefully it will, but my guess is the same underlying code
+			// will be called.
+			if (ObjectCache.ContainsKey(obj))
+				ObjectCache[obj] = id;
+			else
+			{
+				// If this is the first time this object has passed this way, then
+				// prepare it to be available for end-user localization.
 				PrepareObjectForRuntimeLocalization(obj);
-
-			ObjectCache[obj] = id;
+				ObjectCache.Add(obj, id);
+			}
 
 			ApplyLocalization(obj);
 		}
@@ -675,10 +684,14 @@ namespace Localization
 
 			ToolTipCtrls.Clear();
 
-			foreach (var kvp in ObjectCache.Where(x => x.Key is Control))
+			// This used to be a for-each, but on rare occassions, a "Collection was
+			// modified; enumeration operation may not execute" exception would be
+			// thrown. This should solve the problem.
+			var controls = ObjectCache.Where(x => x.Key is Control).ToArray();
+			for (int i = 0; i < controls.Length; i++)
 			{
-				string toolTipText = GetTooltipFromStringCache(UILanguageId, kvp.Value);
-				ApplyLocalizedToolTipToControl((Control)kvp.Key, toolTipText);
+				var toolTipText = GetTooltipFromStringCache(UILanguageId, controls[i].Value);
+				ApplyLocalizedToolTipToControl((Control)controls[i].Key, toolTipText);
 			}
 		}
 
