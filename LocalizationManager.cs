@@ -872,7 +872,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void HandleToolStripItemMouseDown(object sender, MouseEventArgs e)
 		{
-			if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+			if (!DoHandleMouseDown)
 				return;
 
 			// Make sure all drop-downs are closed that are in the
@@ -889,6 +889,19 @@ namespace Localization
 			}
 
 			LocalizeItemDlg.ShowDialog(this, sender, false);
+		}
+
+		/// <summary>
+		/// Set this to false to make Localization Manager ignore clicks on the UI
+		/// </summary>
+		public static bool EnableClickingOnControlToBringUpLocalizationDialog {get; set; }
+
+		private static bool DoHandleMouseDown
+		{
+			get
+			{
+				return EnableClickingOnControlToBringUpLocalizationDialog && Control.ModifierKeys == (Keys.Shift | Keys.Control);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -916,7 +929,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void HandleControlMouseDown(object sender, MouseEventArgs e)
 		{
-			if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+			if (!DoHandleMouseDown)
 				return;
 
 			var ctrl = sender as Control;
@@ -961,7 +974,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void HandleListViewColumnHeaderClicked(object sender, ColumnClickEventArgs e)
 		{
-			if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+			if (DoHandleMouseDown)
 				return;
 
 			var lv = sender as ListView;
@@ -990,7 +1003,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void HandleDataGridViewCellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
 		{
-			if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+			if (!DoHandleMouseDown)
 				return;
 
 			var grid = sender as DataGridView;
