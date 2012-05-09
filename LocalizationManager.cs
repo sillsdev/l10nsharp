@@ -691,7 +691,8 @@ namespace Localization
 			for (int i = 0; i < controls.Length; i++)
 			{
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, controls[i].Value);
-				ApplyLocalizedToolTipToControl((Control)controls[i].Key, toolTipText);
+				if(!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
+					ApplyLocalizedToolTipToControl((Control)controls[i].Key, toolTipText);
 			}
 		}
 
