@@ -75,6 +75,7 @@ namespace Localization
 				LoadedManagers[appId] = lm;
 			}
 
+			EnableClickingOnControlToBringUpLocalizationDialog = true;
 			VerifyThatUILangHasTranslations();
 			return lm;
 		}
@@ -980,16 +981,19 @@ namespace Localization
 			LocalizeItemDlg.ShowDialog(this, sender, false);
 		}
 
+		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Set this to false to make Localization Manager ignore clicks on the UI
 		/// </summary>
-		public static bool EnableClickingOnControlToBringUpLocalizationDialog {get; set; }
+		/// ------------------------------------------------------------------------------------
+		public static bool EnableClickingOnControlToBringUpLocalizationDialog { get; set; }
 
 		private static bool DoHandleMouseDown
 		{
 			get
 			{
-				return EnableClickingOnControlToBringUpLocalizationDialog && Control.ModifierKeys == (Keys.Shift | Keys.Control);
+				return EnableClickingOnControlToBringUpLocalizationDialog &&
+					Control.ModifierKeys == (Keys.Shift | Keys.Control);
 			}
 		}
 
