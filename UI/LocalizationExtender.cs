@@ -191,7 +191,9 @@ namespace Localization.UI
 			foreach (var locInfo in m_extendedCtrls.Values
 				.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
 			{
-				_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null);
+				if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+					_lm.ApplyLocalization(locInfo.Obj);
+
 			}
 
 			m_extendedCtrls = null;
@@ -270,7 +272,8 @@ namespace Localization.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column);
-			_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null);
+			if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+				_lm.ApplyLocalization(locInfo.Obj);
 		}
 
 		/// ------------------------------------------------------------------------------------

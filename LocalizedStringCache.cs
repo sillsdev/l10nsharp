@@ -124,7 +124,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void UpdateLocalizedInfo(LocalizingInfo locInfo)
 		{
-			if (_tuUpdater.Update(TmxDocument, locInfo) && !IsDirty)
+			if (_tuUpdater.Update(locInfo) && !IsDirty)
 				IsDirty = true;
 		}
 

@@ -134,7 +134,7 @@ namespace Localization
 			{
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)
-					tuUpdater.Update(tmxDoc, locInfo);
+					tuUpdater.Update(locInfo);
 			}
 
 			tmxDoc.Save(DefaultStringFilePath);
@@ -394,11 +394,11 @@ namespace Localization
 		/// localizeds and then applies localizations for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RegisterObjectForLocalizing(object obj, string id, string defaultText,
+		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
 			if (!Enabled || obj == null || id == null || id.Trim() == string.Empty)
-				return;
+				return false;
 
 			// This if/else used to be more concise but sometimes there were occassions
 			// adding an item the first time using ObjectCache[obj] = id would throw an
@@ -416,7 +416,7 @@ namespace Localization
 				ObjectCache.Add(obj, id);
 			}
 
-			ApplyLocalization(obj);
+			return true;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -527,7 +527,12 @@ namespace Localization
 
 		#region GetString static methods
 		/// ------------------------------------------------------------------------------------
-		public static string GetStringForObject(object obj, string defaultText)
+		/// <summary>
+		/// Gets the text for the specified object. The englishText is returned when the text
+		/// for the specified object cannot be found for the current UI language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetStringForObject(object obj, string englishText)
 		{
 			var lm = GetLocalizationManagerForObject(obj);
 
@@ -535,34 +540,54 @@ namespace Localization
 			{
 				string id;
 				if (lm.ObjectCache.TryGetValue(obj, out id))
-					return lm.GetLocalizedString(id, defaultText);
+					return lm.GetLocalizedString(id, englishText);
 			}
 
-			return (StripOffLocalizationInfoFromText(defaultText ??
+			return (StripOffLocalizationInfoFromText(englishText ??
 				Utils.GetProperty(obj, "Text") as string));
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string defaultText)
+		/// <summary>
+		/// Gets a string for the specified string id. The englishText is returned when
+		/// a string cannot be found for the specified id and the current UI language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string id, string englishText)
 		{
-			return GetString(id, defaultText, null, null, null, null);
+			return GetString(id, englishText, null, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string defaultText, string comment)
+		/// <summary>
+		/// Gets a string for the specified string id. The englishText is returned when
+		/// a string cannot be found for the specified id and the current UI language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string id, string englishText, string comment)
 		{
-			return GetString(id, defaultText, comment, null, null, null);
+			return GetString(id, englishText, comment, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string defaultText, string comment, object obj)
+		/// <summary>
+		/// Gets a string for the specified string id. The englishText is returned when
+		/// a string cannot be found for the specified id and the current UI language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string id, string englishText, string comment, object obj)
 		{
-			return GetString(id, defaultText, comment, null, null, obj);
+			return GetString(id, englishText, comment, null, null, obj);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string defaultText, string comment,
-			string defaultToolTipText, string defaultShortcutKey, object obj)
+		/// <summary>
+		/// Gets a string for the specified string id. The englishText is returned when
+		/// a string cannot be found for the specified id and the current UI language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string id, string englishText, string comment,
+			string englishToolTipText, string englishShortcutKey, object obj)
 		{
 			if (obj != null)
 			{
@@ -571,15 +596,72 @@ namespace Localization
 
 				if (lm != null)
 				{
-					lm.RegisterObjectForLocalizing(obj, id, defaultText,
-						defaultToolTipText, defaultShortcutKey, comment);
+					lm.RegisterObjectForLocalizing(obj, id, englishText,
+						englishToolTipText, englishShortcutKey, comment);
 
-					return lm.GetLocalizedString(id, defaultText);
+					return lm.GetLocalizedString(id, englishText);
 				}
 			}
 
 			return GetStringFromAnyLocalizationManager(id) ??
-				StripOffLocalizationInfoFromText(defaultText);
+				StripOffLocalizationInfoFromText(englishText);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a string for the specified application id and string id. When a string for the
+		/// specified id cannot be found, then one is added  using the specified englishText is
+		/// returned when a string cannot be found for the specified id and the current UI
+		/// language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetDynamicString(string appId, string id, string englishText)
+		{
+			return GetDynamicString(appId, id, englishText, null);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a string for the specified application id and string id. When a string for the
+		/// specified id cannot be found, then one is added  using the specified englishText is
+		/// returned when a string cannot be found for the specified id and the current UI
+		/// language.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetDynamicString(string appId, string id, string englishText, string comment)
+		{
+			LocalizationManager lm;
+			if (!LoadedManagers.TryGetValue(appId, out lm))
+			{
+				throw new ArgumentException(
+					string.Format("The application id '{0}' does not have an associated localization manager.",
+					appId));
+			}
+
+			var text = lm.GetStringFromStringCache(UILanguageId, id);
+			if (text != null)
+				return text;
+
+			var locInfo = new LocalizingInfo(id) { LangId = kDefaultLang, Text = englishText };
+			locInfo.UpdateFields = UpdateFields.Text;
+
+			if (!string.IsNullOrEmpty(comment))
+			{
+				locInfo.Comment = comment;
+				locInfo.UpdateFields |= UpdateFields.Comment;
+			}
+
+			lm.StringCache.UpdateLocalizedInfo(locInfo);
+			lm.StringCache.SaveIfDirty();
+			return englishText;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		public static bool GetIsStringAvailableForLangId(string id, string langId)
+		{
+			return LoadedManagers.Values.Where(lm => lm.Enabled)
+				.Select(lm => lm.StringCache.GetString(langId, id))
+				.FirstOrDefault(txt => txt != null) != null;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -682,6 +764,9 @@ namespace Localization
 			if (!Enabled)
 				return;
 
+			foreach (var toolTipCtrl in ToolTipCtrls.Values)
+				toolTipCtrl.Dispose();
+
 			ToolTipCtrls.Clear();
 
 			// This used to be a for-each, but on rare occassions, a "Collection was
@@ -756,6 +841,9 @@ namespace Localization
 			ToolTip ttctrl;
 			if (!ToolTipCtrls.TryGetValue(topctrl, out ttctrl))
 			{
+				if (string.IsNullOrEmpty(toolTipText))
+					return;
+
 				ttctrl = new ToolTip();
 				ToolTipCtrls[topctrl] = ttctrl;
 				topctrl.ParentChanged += HandleToolTipRefChanged;

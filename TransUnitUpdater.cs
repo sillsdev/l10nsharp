@@ -36,7 +36,7 @@ namespace Localization
 		/// LocalizedObjectInfo.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal bool Update(TMXDocument tmxDoc, LocalizingInfo locInfo)
+		internal bool Update(LocalizingInfo locInfo)
 		{
 			_updated = false;
 
