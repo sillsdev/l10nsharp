@@ -181,22 +181,32 @@ namespace Localization.UI
 		/// ------------------------------------------------------------------------------------
 		public void EndInit()
 		{
-			if (DesignMode || m_extendedCtrls == null || _lm == null || !_lm.Enabled)
-				return;
-
-			FinalizationForListViewColumnHeaders();
-			FinalizationForDataGridViewColumns();
-
-			// Now make sure each extended control is localized.
-			foreach (var locInfo in m_extendedCtrls.Values
-				.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
+			try
 			{
-				if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
-					_lm.ApplyLocalization(locInfo.Obj);
+				if (DesignMode || m_extendedCtrls == null || _lm == null || !_lm.Enabled)
+					return;
+
+				FinalizationForListViewColumnHeaders();
+				FinalizationForDataGridViewColumns();
+
+				// Now make sure each extended control is localized.
+				foreach (var locInfo in m_extendedCtrls.Values
+					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
+				{
+					if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+						_lm.ApplyLocalization(locInfo.Obj);
+
+				}
+
+				m_extendedCtrls = null;
 
 			}
-
-			m_extendedCtrls = null;
+			catch (Exception)
+			{
+#if DEBUG
+				throw;
+#endif
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------

@@ -392,7 +392,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Adds the specified object to the localization manager's cache of objects to be
-		/// localizeds and then applies localizations for the current UI language.
+		/// localized and then applies localizations for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
@@ -401,23 +401,34 @@ namespace Localization
 			if (!Enabled || obj == null || id == null || id.Trim() == string.Empty)
 				return false;
 
-			// This if/else used to be more concise but sometimes there were occassions
-			// adding an item the first time using ObjectCache[obj] = id would throw an
-			// index outside the bounds of the array exception. I have no clue why nor
-			// can I reliably reproduce the error nor do I know if this change will solve
-			// the problem. Hopefully it will, but my guess is the same underlying code
-			// will be called.
-			if (ObjectCache.ContainsKey(obj))
-				ObjectCache[obj] = id;
-			else
+			try
 			{
-				// If this is the first time this object has passed this way, then
-				// prepare it to be available for end-user localization.
-				PrepareObjectForRuntimeLocalization(obj);
-				ObjectCache.Add(obj, id);
-			}
 
-			return true;
+				// This if/else used to be more concise but sometimes there were occassions
+				// adding an item the first time using ObjectCache[obj] = id would throw an
+				// index outside the bounds of the array exception. I have no clue why nor
+				// can I reliably reproduce the error nor do I know if this change will solve
+				// the problem. Hopefully it will, but my guess is the same underlying code
+				// will be called.
+				if (ObjectCache.ContainsKey(obj))
+					ObjectCache[obj] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
+				else
+				{
+					// If this is the first time this object has passed this way, then
+					// prepare it to be available for end-user localization.
+					PrepareObjectForRuntimeLocalization(obj);
+					ObjectCache.Add(obj, id);
+				}
+
+				return true;
+			}
+			catch (Exception)
+			{
+				#if DEBUG
+				throw; // if you hit this ( Index was outside the bounds of the array) try to figure out why. What is the hash (?) value for the obj?
+				#endif
+			}
+			return false;
 		}
 
 		/// ------------------------------------------------------------------------------------
