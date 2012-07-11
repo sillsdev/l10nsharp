@@ -32,7 +32,7 @@ namespace Localization.UI
 			this._labelMessage = new System.Windows.Forms.Label();
 			this._progressBar = new System.Windows.Forms.ProgressBar();
 			this._labelDetails = new System.Windows.Forms.Label();
-			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+			this._backgroundWorker = new System.ComponentModel.BackgroundWorker();
 			this._tableLayout.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -90,9 +90,12 @@ namespace Localization.UI
 			this._labelDetails.TabIndex = 3;
 			this._labelDetails.Text = "This process takes place only once with each new version of the application.";
 			// 
-			// backgroundWorker1
+			// _backgroundWorker
 			// 
-			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+			this._backgroundWorker.WorkerReportsProgress = true;
+			this._backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
+			this._backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
+			this._backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
 			// 
 			// InitializationProgressDlg
 			// 
@@ -119,6 +122,6 @@ namespace Localization.UI
 		private System.Windows.Forms.Label _labelMessage;
 		private System.Windows.Forms.ProgressBar _progressBar;
 		private System.Windows.Forms.Label _labelDetails;
-		private System.ComponentModel.BackgroundWorker backgroundWorker1;
+		private System.ComponentModel.BackgroundWorker _backgroundWorker;
 	}
 }

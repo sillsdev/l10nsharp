@@ -21,28 +21,13 @@ namespace Localization.CodeReader
 		private readonly HashSet<string> _scannedTypes = new HashSet<string>();
 
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<LocalizingInfo> ExtractFromNamespaces(Action<int> reportProgressAction,
-			params string[] namespaceBeginings)
+		public void ExtractFromNamespaces()
 		{
-			var worker = new BackgroundWorker();
-			worker.WorkerReportsProgress = true;
-
-			if (reportProgressAction != null)
-				worker.ProgressChanged += (s, e) => reportProgressAction(e.ProgressPercentage);
-
-			worker.DoWork += DoExtractingWork;
-			worker.RunWorkerAsync(namespaceBeginings ?? new string[0]);
-			while (worker.IsBusy) { Application.DoEvents(); }
-
-			return _getStringCallsInfo;
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void DoExtractingWork(object sender, DoWorkEventArgs e)
+		public IEnumerable<LocalizingInfo> DoExtractingWork(string[] namespaceBeginings, BackgroundWorker worker)
 		{
-			var worker = sender as BackgroundWorker;
-			var namespaceBeginnings = e.Argument as string[];
-
 			_getStringMethodOverloads = typeof(LocalizationManager)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
 				.Where(m => m.Name == "GetString").ToArray();
@@ -51,7 +36,7 @@ namespace Localization.CodeReader
 			_extenderInfo = new Dictionary<string, LocalizingInfo>();
 
 			int i = 1;
-			var typesToScan = GetTypesToScan(namespaceBeginnings).ToArray();
+			var typesToScan = GetTypesToScan(namespaceBeginings).ToArray();
 			foreach (var type in typesToScan)
 			{
 				FindLocalizedStringsInType(type);
@@ -70,7 +55,6 @@ namespace Localization.CodeReader
 			_getStringCallsInfo = _getStringCallsInfo.Distinct(new LocInfoDistinctComparer()).OrderBy(l => l.Id).ToList();
 
 			worker.ReportProgress(100);
-			Thread.Sleep(550);
 
 			foreach (var locInfo in _getStringCallsInfo)
 			{
@@ -86,6 +70,8 @@ namespace Localization.CodeReader
 				if (locInfo.ShortcutKeys != null)
 					locInfo.UpdateFields |= UpdateFields.ShortcutKeys;
 			}
+
+			return _getStringCallsInfo;
 		}
 
 		/// ------------------------------------------------------------------------------------

@@ -131,7 +131,7 @@ namespace Localization
 			tmxDoc.Header.SetPropValue(kAppVersionPropTag, AppVersion);
 			var tuUpdater = new TransUnitUpdater(tmxDoc);
 
-			using (var dlg = new ProgressDlg(Name, namespaceBeginnings))
+			using (var dlg = new InitializationProgressDlg(Name, namespaceBeginnings))
 			{
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)

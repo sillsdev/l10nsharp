@@ -121,11 +121,11 @@
     <Compile Include="UI\LocalizeItemDlgViewModel.cs" />
     <Compile Include="UI\LocTreeNode.cs" />
     <Compile Include="UI\PaintingHelper.cs" />
-    <Compile Include="UI\ProgressDlg.cs">
+    <Compile Include="UI\InitializationProgressDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\ProgressDlg.Designer.cs">
-      <DependentUpon>ProgressDlg.cs</DependentUpon>
+    <Compile Include="UI\InitializationProgressDlg.Designer.cs">
+      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\ShortcutKeysDropDown.cs">
       <SubType>UserControl</SubType>
@@ -187,8 +187,8 @@
     <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\ProgressDlg.resx">
-      <DependentUpon>ProgressDlg.cs</DependentUpon>
+    <EmbeddedResource Include="UI\InitializationProgressDlg.resx">
+      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ShortcutKeysEditor.resx">
       <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>
