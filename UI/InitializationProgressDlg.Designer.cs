@@ -1,6 +1,6 @@
 namespace Localization.UI
 {
-	partial class ProgressDlg
+	partial class InitializationProgressDlg
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -32,6 +32,7 @@ namespace Localization.UI
 			this._labelMessage = new System.Windows.Forms.Label();
 			this._progressBar = new System.Windows.Forms.ProgressBar();
 			this._labelDetails = new System.Windows.Forms.Label();
+			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
 			this._tableLayout.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -49,7 +50,7 @@ namespace Localization.UI
 			this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this._tableLayout.Size = new System.Drawing.Size(232, 91);
+			this._tableLayout.Size = new System.Drawing.Size(326, 91);
 			this._tableLayout.TabIndex = 1;
 			// 
 			// _labelMessage
@@ -61,9 +62,9 @@ namespace Localization.UI
 			this._labelMessage.Location = new System.Drawing.Point(0, 0);
 			this._labelMessage.Margin = new System.Windows.Forms.Padding(0, 0, 0, 6);
 			this._labelMessage.Name = "_labelMessage";
-			this._labelMessage.Size = new System.Drawing.Size(232, 15);
+			this._labelMessage.Size = new System.Drawing.Size(326, 15);
 			this._labelMessage.TabIndex = 1;
-			this._labelMessage.Text = "First Time Initialization...";
+			this._labelMessage.Text = "Preparing User Interface for Localization..";
 			// 
 			// _progressBar
 			// 
@@ -72,7 +73,7 @@ namespace Localization.UI
 			this._progressBar.Location = new System.Drawing.Point(0, 21);
 			this._progressBar.Margin = new System.Windows.Forms.Padding(0);
 			this._progressBar.Name = "_progressBar";
-			this._progressBar.Size = new System.Drawing.Size(232, 18);
+			this._progressBar.Size = new System.Drawing.Size(326, 18);
 			this._progressBar.TabIndex = 2;
 			// 
 			// _labelDetails
@@ -85,19 +86,22 @@ namespace Localization.UI
 			this._labelDetails.Location = new System.Drawing.Point(0, 49);
 			this._labelDetails.Margin = new System.Windows.Forms.Padding(0, 10, 0, 0);
 			this._labelDetails.Name = "_labelDetails";
-			this._labelDetails.Size = new System.Drawing.Size(232, 30);
+			this._labelDetails.Size = new System.Drawing.Size(326, 30);
 			this._labelDetails.TabIndex = 3;
-			this._labelDetails.Text = "This process takes place only once after the application is installed or updated." +
-    "";
+			this._labelDetails.Text = "This process takes place only once with each new version of the application.";
 			// 
-			// ProgressDlg
+			// backgroundWorker1
+			// 
+			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+			// 
+			// InitializationProgressDlg
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(262, 126);
+			this.ClientSize = new System.Drawing.Size(356, 126);
 			this.ControlBox = false;
 			this.Controls.Add(this._tableLayout);
-			this.Name = "ProgressDlg";
+			this.Name = "InitializationProgressDlg";
 			this.Padding = new System.Windows.Forms.Padding(15, 20, 15, 15);
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
@@ -115,5 +119,6 @@ namespace Localization.UI
 		private System.Windows.Forms.Label _labelMessage;
 		private System.Windows.Forms.ProgressBar _progressBar;
 		private System.Windows.Forms.Label _labelDetails;
+		private System.ComponentModel.BackgroundWorker backgroundWorker1;
 	}
 }
