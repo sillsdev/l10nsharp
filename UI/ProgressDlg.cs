@@ -36,7 +36,10 @@ namespace Localization.UI
 		void HandleApplicationIdle(object sender, EventArgs e)
 		{
 			if (_progressBar.Value == 100)
+			{
+				Application.Idle -= HandleApplicationIdle;
 				Close();
+			}
 		}
 	}
 }
