@@ -136,7 +136,8 @@ namespace Localization.TMXUtils
 			}
 			catch (Exception e)
 			{
-				Debug.Fail(e.Message);
+				//Debug.Fail(e.Message);
+				throw; //hatton says: I'd rather deal with the problem in the client app, then swallow it and have a mystery
 			}
 
 			return null;
@@ -163,7 +164,8 @@ namespace Localization.TMXUtils
 			}
 			catch (Exception e)
 			{
-				Debug.Fail(e.Message);
+				//Debug.Fail(e.Message);
+				throw; //hatton says: I'd rather deal with the problem in the client app, then swallow it and have a mystery
 			}
 
 			return false;
