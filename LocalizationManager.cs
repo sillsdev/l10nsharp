@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -24,10 +25,13 @@ namespace Localization
 		private static readonly Dictionary<string, LocalizationManager> s_loadedManagers =
 			new Dictionary<string, LocalizationManager>();
 
+		private static Icon _iconForProgressDialogInTaskBar;
+
 		internal Dictionary<object, string> ObjectCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
 
 		#region Static methods for creating a LocalizationManager
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Creates a new instance of a localization manager for the specifed application id.
@@ -49,15 +53,17 @@ namespace Localization
 		/// found in 'installedTmxFilePath' so they can be edited by the user. If the
 		/// value is null, the default location is used (which is appName combined with
 		/// Environment.SpecialFolder.CommonApplicationData)</param>
+		/// <param name="iconForProgressDialogInTaskBar"> </param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
 		/// 'Pa', then this value would only contain the string 'Pa'.</param>
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
-			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath,
+			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath, Icon iconForProgressDialogInTaskBar,
 			params string[] namespaceBeginnings)
 		{
+			_iconForProgressDialogInTaskBar = iconForProgressDialogInTaskBar;
 			if (targetTmxFilePath == null)
 			{
 				targetTmxFilePath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
@@ -133,6 +139,7 @@ namespace Localization
 
 			using (var dlg = new InitializationProgressDlg(Name, namespaceBeginnings))
 			{
+				dlg.Icon = _iconForProgressDialogInTaskBar;
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
