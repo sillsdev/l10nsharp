@@ -451,11 +451,14 @@ namespace Localization.UI
 		/// ------------------------------------------------------------------------------------
 		public string GetStringIdForGridIndex(int index, string prefixToRemove)
 		{
-			if (index >= AllLeafNodesShowingInGrid.Count)
+			if (index >= AllLeafNodesShowingInGrid.Count || index < 0)
 				return null;
 
 			var node = AllLeafNodesShowingInGrid[index];
-			return node.Id.Replace(prefixToRemove, string.Empty).Trim('.');
+			var id = node.Id;
+			if (!string.IsNullOrEmpty(prefixToRemove))
+				id = id.Replace(prefixToRemove, string.Empty).Trim('.');
+			return id;
 		}
 
 		/// ------------------------------------------------------------------------------------
