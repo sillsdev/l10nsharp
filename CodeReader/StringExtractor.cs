@@ -221,7 +221,7 @@ namespace Localization.CodeReader
 				else if (_instructions[instrIndex - i].opCode != OpCodes.Call)
 				{
 					parameterIndex--;
-					if (_instructions[instrIndex - i].opCode == OpCodes.Ldfld)
+					while (_instructions[instrIndex - i].opCode == OpCodes.Ldfld)
 						i++;
 				}
 
