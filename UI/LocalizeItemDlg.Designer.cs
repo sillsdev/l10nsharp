@@ -362,7 +362,7 @@ namespace Localization.UI
 			// 
 			// _colId
 			// 
-			this._colId.HeaderText = "Indentifier";
+			this._colId.HeaderText = "Identifier";
 			this._colId.Name = "_colId";
 			this._colId.ReadOnly = true;
 			// 
