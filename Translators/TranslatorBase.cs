@@ -1,5 +1,6 @@
 using System;
 using System.Web;
+using Palaso.Network;
 
 namespace Localization.Translators
 {
@@ -95,7 +96,7 @@ namespace Localization.Translators
 			if (text == null)
 				return null;
 
-			text = HttpUtility.HtmlDecode(text);
+			text = HttpUtilityFromMono.HtmlDecode(text);
 
 			if (paramCount > 0)
 			{

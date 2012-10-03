@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Web;
+using Palaso.Network;
 
 namespace Localization.Translators
 {
@@ -51,9 +52,9 @@ namespace Localization.Translators
 		/// ------------------------------------------------------------------------------------
 		protected override string InternalTranslate(string srcText)
 		{
-			var text = HttpUtility.UrlPathEncode(srcText);
-			var ver = HttpUtility.UrlEncode("1.0");
-			var langPair = HttpUtility.UrlEncode(string.Format("{0}|{1}", m_srcCultureId, m_tgtCultureId));
+			var text = HttpUtilityFromMono.UrlPathEncode(srcText);
+			var ver = HttpUtilityFromMono.UrlEncode("1.0");
+			var langPair = HttpUtilityFromMono.UrlEncode(string.Format("{0}|{1}", m_srcCultureId, m_tgtCultureId));
 			var encodedRequestUrlFragment = string.Format("?v={0}&q={1}&langpair={2}", ver, text, langPair);
 
 			try
