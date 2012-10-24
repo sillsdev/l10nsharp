@@ -116,8 +116,6 @@ namespace Localization
 			ObjectCache = new Dictionary<object, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new LocalizedStringCache(this);
-
-			Enabled = true;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -208,8 +206,7 @@ namespace Localization
 				return allLangs;
 
 			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
-				LoadedManagers.Values.Where(lm => lm.Enabled)
-				.SelectMany(lm => lm.StringCache.TmxDocument.GetAllVariantLanguagesFound())
+				LoadedManagers.Values.SelectMany(lm => lm.StringCache.TmxDocument.GetAllVariantLanguagesFound())
 				.Distinct().ToList());
 
 			return from ci in allLangs
@@ -331,13 +328,6 @@ namespace Localization
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a value indicating whether or not localization support is enabled.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public bool Enabled { get; set; }
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
 		/// This is what identifies a localization manager for a particular set of
 		/// localized strings. This would likely be a DLL or EXE name like 'PA' or 'SayMore'.
 		/// This will be the file name of the portion of the TMX file in which localized
@@ -388,9 +378,9 @@ namespace Localization
 		/// be shown. It will only be shown if the current UI language is not the default.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool CanShowLocalizeItemDialogBox
+		public bool CanCustomizeLocalizations
 		{
-			get { return Enabled; }
+			get { return true; }
 		}
 
 		#endregion
@@ -405,7 +395,7 @@ namespace Localization
 		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
-			if (!Enabled || obj == null || id == null || id.Trim() == string.Empty)
+			if (obj == null || id == null || id.Trim() == string.Empty)
 				return false;
 
 			try
@@ -518,8 +508,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		public string GetLocalizedString(string id, string defaultText)
 		{
-			var text = (Enabled && UILanguageId != kDefaultLang ?
-				GetStringFromStringCache(UILanguageId, id) : null);
+			var text = (UILanguageId != kDefaultLang ? GetStringFromStringCache(UILanguageId, id) : null);
 
 			return (text ?? StripOffLocalizationInfoFromText(defaultText));
 		}
@@ -678,8 +667,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
-			return LoadedManagers.Values.Where(lm => lm.Enabled)
-				.Select(lm => lm.StringCache.GetString(langId, id))
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(langId, id))
 				.FirstOrDefault(txt => txt != null) != null;
 		}
 
@@ -702,23 +690,21 @@ namespace Localization
 			if (UILanguageId == kDefaultLang)
 				return null;
 
-			return LoadedManagers.Values.Where(m => m.Enabled)
-				.Select(lm => lm.StringCache.GetString(UILanguageId, id))
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(UILanguageId, id))
 				.FirstOrDefault(text => text != null);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		private static LocalizationManager GetLocalizationManagerForObject(object obj)
 		{
-			return LoadedManagers.Values.Where(m => m.Enabled)
-				.FirstOrDefault(lm => lm.ObjectCache.ContainsKey(obj));
+			return LoadedManagers.Values.FirstOrDefault(lm => lm.ObjectCache.ContainsKey(obj));
 		}
 
 		/// ------------------------------------------------------------------------------------
 		private static LocalizationManager GetLocalizationManagerForString(string id)
 		{
 			return LoadedManagers.Values.FirstOrDefault(
-				lm => lm.Enabled && lm.StringCache.GetString(UILanguageId, id) != null);
+				lm => lm.StringCache.GetString(UILanguageId, id) != null);
 		}
 
 		#endregion
@@ -735,7 +721,7 @@ namespace Localization
 			if (LoadedManagers == null)
 				return;
 
-			foreach (var lm in LoadedManagers.Values.Where(lm => lm.Enabled))
+			foreach (var lm in LoadedManagers.Values)
 				lm.ReapplyLocalizationsToAllObjects();
 		}
 		/// ------------------------------------------------------------------------------------
@@ -762,9 +748,6 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		internal void ReapplyLocalizationsToAllObjects()
 		{
-			if (!Enabled)
-				return;
-
 			foreach (object obj in ObjectCache.Keys)
 				ApplyLocalization(obj);
 
@@ -780,9 +763,6 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		public void RefreshToolTips()
 		{
-			if (!Enabled)
-				return;
-
 			foreach (var toolTipCtrl in ToolTipCtrls.Values)
 				toolTipCtrl.Dispose();
 

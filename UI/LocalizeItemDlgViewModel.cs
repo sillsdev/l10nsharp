@@ -168,10 +168,9 @@ namespace Localization.UI
 		{
 			AllLeafNodes = new List<LocTreeNode>();
 
-			EnabledManagers = (from lm in LocalizationManager.LoadedManagers.Values
-							   where lm.CanShowLocalizeItemDialogBox
-							   orderby lm.Name
-							   select lm).ToList();
+			EnabledManagers = LocalizationManager.LoadedManagers.Values
+				.Where(lm => _runInReadonlyMode || lm.CanCustomizeLocalizations)
+				.OrderBy(lm => lm.Name).ToList();
 
 			foreach (var lm in EnabledManagers)
 			{
@@ -235,11 +234,8 @@ namespace Localization.UI
 					node.Manager.ApplyLocalization(obj);
 			}
 
-			foreach (var stringCache in LocalizationManager.LoadedManagers.Values
-				.Where(m => m.Enabled).Select(m => m.StringCache))
-			{
+			foreach (var stringCache in LocalizationManager.LoadedManagers.Values.Select(m => m.StringCache))
 				stringCache.SaveIfDirty();
-			}
 
 			return stringsLocalized;
 		}

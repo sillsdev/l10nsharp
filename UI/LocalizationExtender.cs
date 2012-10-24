@@ -154,7 +154,7 @@ namespace Localization.UI
 		/// ------------------------------------------------------------------------------------
 		public bool CanExtend(object extendee)
 		{
-			if (ControlsNotExtended.Contains(extendee.GetType()) || (!DesignMode && !_lm.Enabled))
+			if (ControlsNotExtended.Contains(extendee.GetType()))
 				return false;
 
 			return (extendee is Control || extendee is ToolStripItem || extendee is ColumnHeader);
@@ -183,7 +183,7 @@ namespace Localization.UI
 		{
 			try
 			{
-				if (DesignMode || m_extendedCtrls == null || _lm == null || !_lm.Enabled)
+				if (DesignMode || m_extendedCtrls == null || _lm == null)
 					return;
 
 				FinalizationForListViewColumnHeaders();

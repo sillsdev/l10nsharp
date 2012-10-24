@@ -35,8 +35,8 @@ namespace Localization.UI
 		internal static DialogResult ShowDialog(LocalizationManager callingManager, object obj,
 			bool runInReadonlyMode)
 		{
-			if (callingManager != null && !callingManager.CanShowLocalizeItemDialogBox)
-				return DialogResult.Abort;
+			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
+				runInReadonlyMode = true;
 
 			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
 
@@ -51,8 +51,8 @@ namespace Localization.UI
 		internal static DialogResult ShowDialog(LocalizationManager callingManager, string id,
 			bool runInReadonlyMode)
 		{
-			if (callingManager != null && !callingManager.CanShowLocalizeItemDialogBox)
-				return DialogResult.Abort;
+			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
+				runInReadonlyMode = true;
 
 			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
 
