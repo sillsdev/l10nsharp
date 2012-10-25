@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security;
+using System.Security.Permissions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -26,6 +28,7 @@ namespace Localization
 			new Dictionary<string, LocalizationManager>();
 
 		private static Icon _iconForProgressDialogInTaskBar;
+		private string m_tmxFileFolder;
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
@@ -102,16 +105,29 @@ namespace Localization
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
-			TmxFileFolder = tmxFolder;
 
-			// Make sure the folder exists.
-			if (!Directory.Exists(TmxFileFolder))
-				Directory.CreateDirectory(TmxFileFolder);
+			try
+			{
+				new FileIOPermission(FileIOPermissionAccess.Write, tmxFolder).Demand();
+				TmxFileFolder = tmxFolder;
+				CanCustomizeLocalizations = true;
+				// Make sure the folder exists.
+				if (!Directory.Exists(TmxFileFolder))
+					Directory.CreateDirectory(TmxFileFolder);
 
-			DefaultStringFilePath = Path.Combine(TmxFileFolder, Id + "." + kDefaultLang + ".tmx");
-
-			CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
-			CopyInstalledTmxFilesToWritableLocation(installedTmxFilePath);
+				CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
+				CopyInstalledTmxFilesToWritableLocation(installedTmxFilePath);
+			}
+			catch (Exception e)
+			{
+				if (e is SecurityException || e is UnauthorizedAccessException)
+				{
+					CanCustomizeLocalizations = false;
+					TmxFileFolder = installedTmxFilePath;
+				}
+				else
+					throw;
+			}
 
 			ObjectCache = new Dictionary<object, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
@@ -121,6 +137,8 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
 		{
+			if (!CanCustomizeLocalizations)
+				return;
 			if (File.Exists(DefaultStringFilePath))
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
@@ -149,7 +167,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		private void CopyInstalledTmxFilesToWritableLocation(string installedTmxFilePath)
 		{
-			if (installedTmxFilePath == null)
+			if (installedTmxFilePath == null || !CanCustomizeLocalizations)
 				return;
 
 			foreach (var installedFile in Directory.GetFiles(installedTmxFilePath, Id + "*.tmx"))
@@ -367,22 +385,25 @@ namespace Localization
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the full path (without file nanme) to the TMX file.
+		/// Gets a value indicating whether or not user has authority to change localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string TmxFileFolder { get; private set; }
+		public bool CanCustomizeLocalizations { get; private set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a value indicating whether or not the dialog box for localizing items can
-		/// be shown. It will only be shown if the current UI language is not the default.
+		/// Gets the full path (without file nanme) to the TMX file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool CanCustomizeLocalizations
+		public string TmxFileFolder
 		{
-			get { return true; }
+			get { return m_tmxFileFolder; }
+			private set
+			{
+				m_tmxFileFolder = value;
+				DefaultStringFilePath = Path.Combine(TmxFileFolder, Id + "." + kDefaultLang + ".tmx");
+			}
 		}
-
 		#endregion
 
 		#region Methods for caching and localizing objects.
