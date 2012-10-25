@@ -139,8 +139,6 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
 		{
-			if (!CanCustomizeLocalizations)
-				return;
 			if (File.Exists(DefaultStringFilePath))
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
@@ -148,7 +146,17 @@ namespace Localization
 					.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
+				{
+					try
+					{
+						new FileIOPermission(FileIOPermissionAccess.Write, DefaultStringFilePath).Demand();
+					}
+					catch (SecurityException)
+					{
+						CanCustomizeLocalizations = false;
+					}
 					return;
+				}
 			}
 
 			var tmxDoc = LocalizedStringCache.CreateEmptyStringFile();
@@ -169,7 +177,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		private void CopyInstalledTmxFilesToWritableLocation(string installedTmxFilePath)
 		{
-			if (installedTmxFilePath == null || !CanCustomizeLocalizations)
+			if (installedTmxFilePath == null)
 				return;
 
 			foreach (var installedFile in Directory.GetFiles(installedTmxFilePath, Id + "*.tmx"))
@@ -178,6 +186,17 @@ namespace Localization
 
 				if (!File.Exists(targetFile))
 					File.Copy(installedFile, targetFile);
+				else
+				{
+					try
+					{
+						new FileIOPermission(FileIOPermissionAccess.Write, targetFile).Demand();
+					}
+					catch (SecurityException)
+					{
+						CanCustomizeLocalizations = false;
+					}
+				}
 			}
 		}
 
