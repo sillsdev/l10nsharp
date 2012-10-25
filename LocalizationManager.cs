@@ -105,11 +105,11 @@ namespace Localization
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
+			TmxFileFolder = tmxFolder;
 
 			try
 			{
-				new FileIOPermission(FileIOPermissionAccess.Write, tmxFolder).Demand();
-				TmxFileFolder = tmxFolder;
+				new FileIOPermission(FileIOPermissionAccess.Write, TmxFileFolder).Demand();
 				CanCustomizeLocalizations = true;
 				// Make sure the folder exists.
 				if (!Directory.Exists(TmxFileFolder))
@@ -123,7 +123,9 @@ namespace Localization
 				if (e is SecurityException || e is UnauthorizedAccessException)
 				{
 					CanCustomizeLocalizations = false;
-					TmxFileFolder = installedTmxFilePath;
+					// If admin user has never run the application, fall back to the install location
+					if (!File.Exists(DefaultStringFilePath))
+						TmxFileFolder = installedTmxFilePath;
 				}
 				else
 					throw;

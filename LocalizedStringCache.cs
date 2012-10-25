@@ -68,7 +68,6 @@ namespace Localization
 		{
 			var defaultTmxDoc = TMXDocument.Read(OwningManager.DefaultStringFilePath);
 
-
 			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
 				var tmxDoc = TMXDocument.Read(file);
