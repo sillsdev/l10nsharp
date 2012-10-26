@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Windows.Forms;
 using Localization.Translators;
 
@@ -11,7 +13,7 @@ namespace Localization.UI
 {
 	internal class LocalizeItemDlgViewModel
 	{
-		private readonly bool _runInReadonlyMode;
+		private bool _runInReadonlyMode;
 		private readonly Color _untranslatedNodeColor = Color.Peru;
 		private string _tgtLangId;
 		private string _srcLangId;
@@ -169,11 +171,11 @@ namespace Localization.UI
 			AllLeafNodes = new List<LocTreeNode>();
 
 			EnabledManagers = LocalizationManager.LoadedManagers.Values
-				.Where(lm => _runInReadonlyMode || lm.CanCustomizeLocalizations)
 				.OrderBy(lm => lm.Name).ToList();
 
 			foreach (var lm in EnabledManagers)
 			{
+				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
 				var node = new LocTreeNode(lm, lm.Name, null, lm.Name);
 				treeVw.Nodes.Add(node);
 				var	childNodes = node.Nodes;
@@ -234,8 +236,12 @@ namespace Localization.UI
 					node.Manager.ApplyLocalization(obj);
 			}
 
-			foreach (var stringCache in LocalizationManager.LoadedManagers.Values.Select(m => m.StringCache))
-				stringCache.SaveIfDirty();
+			foreach (var lm in LocalizationManager.LoadedManagers.Values)
+			{
+				lm.SaveIfDirty();
+				// If saving fails, the LocalizationManager will record the problem .
+				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
+			}
 
 			return stringsLocalized;
 		}

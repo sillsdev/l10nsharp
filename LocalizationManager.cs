@@ -120,10 +120,11 @@ namespace Localization
 			}
 			catch (Exception e)
 			{
-				if (e is SecurityException || e is UnauthorizedAccessException)
+				if (e is SecurityException || e is UnauthorizedAccessException || e is IOException)
 				{
 					CanCustomizeLocalizations = false;
-					// If admin user has never run the application, fall back to the install location
+					// If a user with access to the target folder has never run the application,
+					// fall back to the install location.
 					if (!File.Exists(DefaultStringFilePath))
 						TmxFileFolder = installedTmxFilePath;
 				}
@@ -146,18 +147,12 @@ namespace Localization
 					.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
-				{
-					try
-					{
-						new FileIOPermission(FileIOPermissionAccess.Write, DefaultStringFilePath).Demand();
-					}
-					catch (SecurityException)
-					{
-						CanCustomizeLocalizations = false;
-					}
 					return;
-				}
 			}
+
+			// Before wasting a bunch of time, make sure we can open the file for writing.
+			var fileStream = File.Open(DefaultStringFilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+			fileStream.Close();
 
 			var tmxDoc = LocalizedStringCache.CreateEmptyStringFile();
 			tmxDoc.Header.SetPropValue(kAppVersionPropTag, AppVersion);
@@ -186,17 +181,6 @@ namespace Localization
 
 				if (!File.Exists(targetFile))
 					File.Copy(installedFile, targetFile);
-				else
-				{
-					try
-					{
-						new FileIOPermission(FileIOPermissionAccess.Write, targetFile).Demand();
-					}
-					catch (SecurityException)
-					{
-						CanCustomizeLocalizations = false;
-					}
-				}
 			}
 		}
 
@@ -422,7 +406,7 @@ namespace Localization
 			private set
 			{
 				m_tmxFileFolder = value;
-				DefaultStringFilePath = Path.Combine(TmxFileFolder, Id + "." + kDefaultLang + ".tmx");
+				DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang);
 			}
 		}
 		#endregion
@@ -506,6 +490,26 @@ namespace Localization
 			}
 		}
 
+		/// ------------------------------------------------------------------------------------
+		internal void SaveIfDirty()
+		{
+			try
+			{
+				StringCache.SaveIfDirty();
+			}
+			catch (IOException e)
+			{
+				CanCustomizeLocalizations = false;
+				MessageBox.Show(e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+
+		}
+
+		/// ------------------------------------------------------------------------------------
+		internal string GetTmxPathForLanguage(string langId)
+		{
+			return Path.Combine(TmxFileFolder, string.Format("{0}.{1}.tmx", Id, langId));
+		}
 		#endregion
 
 		#region Methods for adding localized strings to cache.
@@ -702,7 +706,7 @@ namespace Localization
 			}
 
 			lm.StringCache.UpdateLocalizedInfo(locInfo);
-			lm.StringCache.SaveIfDirty();
+			lm.SaveIfDirty();
 			return englishText;
 		}
 

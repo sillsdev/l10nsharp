@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security;
+using System.Text;
 using System.Windows.Forms;
 using Localization.TMXUtils;
 using Localization.UI;
@@ -10,7 +12,7 @@ using Localization.UI;
 namespace Localization
 {
 	/// ----------------------------------------------------------------------------------------
-	public class LocalizedStringCache
+	internal class LocalizedStringCache
 	{
 		internal const string kPriorityPropTag = "x-priority";
 		internal const string kGroupPropTag = "x-group";
@@ -47,7 +49,16 @@ namespace Localization
 			OwningManager = owningManager;
 
 			TmxDocument = CreateEmptyStringFile();
-			MergeTmxFilesIntoCache(Directory.GetFiles(OwningManager.TmxFileFolder, OwningManager.Id + ".*.tmx"));
+			try
+			{
+				MergeTmxFilesIntoCache(Directory.GetFiles(OwningManager.TmxFileFolder, OwningManager.Id + ".*.tmx"));
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Error occurred reading localization file:\r\n" + e.Message,
+					Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+			}
 
 			_tuUpdater = new TransUnitUpdater(TmxDocument);
 
@@ -68,21 +79,34 @@ namespace Localization
 		{
 			var defaultTmxDoc = TMXDocument.Read(OwningManager.DefaultStringFilePath);
 
+			Exception error = null;
 			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
-				var tmxDoc = TMXDocument.Read(file);
-				var langId = tmxDoc.Header.SourceLang;
-				foreach (var tu in tmxDoc.Body.TransUnits)
+				try
 				{
-					if (defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
-						!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
+					var tmxDoc = TMXDocument.Read(file);
+					var langId = tmxDoc.Header.SourceLang;
+					foreach (var tu in tmxDoc.Body.TransUnits)
 					{
-						tu.AddProp(kNoLongerUsedPropTag, "true");
-					}
+						if (defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
+							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
+						{
+							tu.AddProp(kNoLongerUsedPropTag, "true");
+						}
 
-					TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, langId);
+						TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, langId);
+					}
+				}
+				catch (Exception e)
+				{
+					// If error happened reading some localization file other than the one we care
+					// about right now, just ignore it.
+					if (file == OwningManager.GetTmxPathForLanguage(LocalizationManager.UILanguageId))
+						error = e;
 				}
 			}
+			if (error != null)
+				throw error;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -137,16 +161,42 @@ namespace Localization
 		/// Otherwise, false is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool SaveIfDirty()
+		internal void SaveIfDirty()
 		{
 			if (!IsDirty)
-				return false;
+				return;
 
+			StringBuilder errorMsg = null;
 			foreach (var langId in TmxDocument.GetAllVariantLanguagesFound())
-				SaveFileForLangId(langId);
+			{
+				try
+				{
+					SaveFileForLangId(langId);
+				}
+				catch (Exception e)
+				{
+					if (e is SecurityException || e is UnauthorizedAccessException || e is IOException)
+					{
+						if (errorMsg == null)
+						{
+							errorMsg = new StringBuilder();
+							errorMsg.AppendLine("Failed to save localization changes in the following files:");
+						}
+						errorMsg.AppendLine();
+						errorMsg.Append("File: ");
+						errorMsg.AppendLine(OwningManager.GetTmxPathForLanguage(langId));
+						errorMsg.Append("Error Type: ");
+						errorMsg.AppendLine(e.GetType().ToString());
+						errorMsg.Append("Message: ");
+						errorMsg.AppendLine(e.Message);
+					}
+				}
+			}
+
+			if (errorMsg != null)
+				throw new IOException(errorMsg.ToString());
 
 			IsDirty = false;
-			return true;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -172,8 +222,7 @@ namespace Localization
 
 			tmxDoc.Body.TransUnits.Sort(TuComparer);
 
-			var tmxFilePath = Path.Combine(OwningManager.TmxFileFolder,
-				string.Format("{0}.{1}.tmx", OwningManager.Id, langId));
+			var tmxFilePath = OwningManager.GetTmxPathForLanguage(langId);
 
 			tmxDoc.Save(tmxFilePath);
 		}
