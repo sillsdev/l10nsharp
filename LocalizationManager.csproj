@@ -65,11 +65,23 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="DontShowThisAgainButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DontShowThisAgainButton.Designer.cs">
+      <DependentUpon>DontShowThisAgainButton.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\HowToDistributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\HowToDistributeDialog.Designer.cs">
       <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TipDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\TipDialog.designer.cs">
+      <DependentUpon>TipDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility\HttpEncoderFromMono.cs" />
     <Compile Include="Utility\HttpUtilityFromMono.cs" />
@@ -195,6 +207,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\InitializationProgressDlg.resx">
       <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\TipDialog.resx">
+      <DependentUpon>TipDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ShortcutKeysEditor.resx">
       <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>

@@ -889,5 +889,10 @@ namespace Localization.UI
 				dlg.ShowDialog();
 			}
 		}
+
+		private void LocalizeItemDlg_Load(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

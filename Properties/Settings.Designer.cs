@@ -33,5 +33,17 @@ namespace Localization.Properties {
                 this["LocalizationDialogSettings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DontShowThisAgain {
+            get {
+                return ((string)(this["DontShowThisAgain"]));
+            }
+            set {
+                this["DontShowThisAgain"] = value;
+            }
+        }
     }
 }
