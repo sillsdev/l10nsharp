@@ -57,6 +57,8 @@ namespace Localization
 		/// value is null, the default location is used (which is appName combined with
 		/// Environment.SpecialFolder.CommonApplicationData)</param>
 		/// <param name="iconForProgressDialogInTaskBar"> </param>
+		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
+		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
@@ -64,8 +66,10 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath, Icon iconForProgressDialogInTaskBar,
+			string emailForSubmissions,
 			params string[] namespaceBeginnings)
 		{
+			EmailForSubmissions = emailForSubmissions;
 			_iconForProgressDialogInTaskBar = iconForProgressDialogInTaskBar;
 			if (targetTmxFilePath == null)
 			{
@@ -1040,6 +1044,8 @@ namespace Localization
 					Control.ModifierKeys == (Keys.Shift | Keys.Control);
 			}
 		}
+
+		public static string EmailForSubmissions;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

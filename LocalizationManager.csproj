@@ -65,6 +65,12 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="UI\HowToDistributeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\HowToDistributeDialog.Designer.cs">
+      <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utility\HttpEncoderFromMono.cs" />
     <Compile Include="Utility\HttpUtilityFromMono.cs" />
     <Compile Include="LocalizationManager.cs" />
@@ -180,6 +186,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\FallbackLanguagesDlg.resx">
       <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\HowToDistributeDialog.resx">
+      <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
