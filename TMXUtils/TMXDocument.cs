@@ -149,6 +149,17 @@ namespace Localization.TMXUtils
 		}
 
 		#endregion
+
+		/// <summary>
+		/// When we change ids after people have already been localizing, we have a BIG PROBLEM.
+		/// This helps with the common case were we just changed the hierarchical organizaiton of the id,
+		/// that is, the parts of the id before th final '.'.
+		/// </summary>
+		/// <param name="id"></param>
+		 public TransUnit GetTransUnitForOrphanWithId(string id)
+		{
+			 return Body.GetTransUnitForOrphanWithId(id);
+		}
 	}
 
 	#endregion

@@ -87,6 +87,17 @@ namespace Localization.TMXUtils
 			return _transUnits.FirstOrDefault(tu => tu.Id == id);
 		}
 
+		/// <summary>
+		/// When all but the last part of the id changed, this can help reunite thigns
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		internal TransUnit GetTransUnitForOrphanWithId(string id)
+		{
+			var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(id);
+			return _transUnits.FirstOrDefault(tu => LocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch);
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Adds the specified translation unit.

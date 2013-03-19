@@ -59,7 +59,7 @@ namespace SampleApp
             this.label1.AutoSize = true;
             this.localizationExtender1.SetLocalizableToolTip(this.label1, null);
             this.localizationExtender1.SetLocalizationComment(this.label1, null);
-            this.localizationExtender1.SetLocalizingId(this.label1, "label1.label1");
+            this.localizationExtender1.SetLocalizingId(this.label1, "Sample.label1");
             this.label1.Location = new System.Drawing.Point(23, 132);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(43, 13);
