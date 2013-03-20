@@ -332,7 +332,7 @@ namespace Localization.UI
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		[DefaultValue(LocalizationPriority.High)]
+		[DefaultValue(LocalizationPriority.Medium)]
 		public LocalizationPriority GetLocalizationPriority(object obj)
 		{
 			return GetLocalizedObjectInfo(obj).Priority;

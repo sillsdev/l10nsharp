@@ -116,7 +116,7 @@ namespace Localization
 		public LocalizingInfo(object obj)
 		{
 			_obj = obj;
-			Priority = LocalizationPriority.High;
+			Priority = LocalizationPriority.Medium;
 			Category = GetCategory(_obj);
 			UpdateFields = UpdateFields.All;
 

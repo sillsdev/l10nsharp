@@ -350,7 +350,7 @@ namespace Localization.CodeReader
 			if (_extenderInfo.TryGetValue(key, out locInfo))
 				return locInfo;
 
-			locInfo = new LocalizingInfo(null) { Priority = LocalizationPriority.High };
+			locInfo = new LocalizingInfo(null) { Priority = LocalizationPriority.Medium };
 			_extenderInfo[key] = locInfo;
 			return locInfo;
 		}
