@@ -26,7 +26,7 @@ namespace Localization
 		{
 			_tmxDoc = tmxDoc;
 
-			var replacement = _tmxDoc.Header.GetPropValue("x-hardlinebreakreplacement");
+			var replacement = _tmxDoc.Header.GetPropValue(LocalizedStringCache.kHardLineBreakReplacementProperty);
 			if (replacement != null)
 				_literalNewline = replacement;
 		}

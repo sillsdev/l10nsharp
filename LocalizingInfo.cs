@@ -224,7 +224,7 @@ namespace Localization
 		/// ------------------------------------------------------------------------------------
 		private static string MakeIdForColumnHeader(ColumnHeader hdr)
 		{
-			return (hdr == null ? null : GetIdFromText(hdr.Text));
+			return (hdr == null ? null : GetIdFromText(hdr.Name));
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -245,7 +245,9 @@ namespace Localization
 				text = text.Substring(LocalizationManager.kL10NPrefix.Length);
 
 			int i = text.IndexOf("!", StringComparison.Ordinal);
-			return (i < 0 ? string.Empty : text.Substring(0, i));
+			//review: this is what David had, but I don't understand it (and the unit test fails with it)
+					//return (i < 0 ? string.Empty : text.Substring(0, i));
+			return (i < 0 ? text : text.Substring(0, i));
 		}
 
 		/// ------------------------------------------------------------------------------------

@@ -26,6 +26,11 @@ namespace Localization
 		// character which, when included, messes up the display of text in controls.
 		internal const string kOSRealNewline = "\n";
 
+		/// <summary>
+		/// review: I (JH) don't knowhat this is about
+		/// </summary>
+		internal const string kHardLineBreakReplacementProperty = "x-hardlinebreakreplacement";
+
 		private readonly string _ampersandReplacement = "|amp|";
 
 		// This is the symbol for a newline that users put in their localized text when
@@ -67,7 +72,7 @@ namespace Localization
 			if (replacement != null)
 				_ampersandReplacement = replacement;
 
-			replacement = TmxDocument.Header.GetPropValue("x-hardlinebreakreplacement");
+			replacement = TmxDocument.Header.GetPropValue(kHardLineBreakReplacementProperty);
 			if (replacement != null)
 				s_literalNewline = replacement;
 
@@ -130,8 +135,9 @@ namespace Localization
 			tmxDoc.Header.CreationToolVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			tmxDoc.Header.SourceLang = LocalizationManager.kDefaultLang;
 			tmxDoc.Header.AddProp(LocalizationManager.kAppVersionPropTag, "0.0.0");
-			tmxDoc.Header.AddProp("x-hardlinebreakreplacement", s_literalNewline);
-			tmxDoc.Header.AddProp("x-hardlinebreakreplacement", s_literalNewline);
+			tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);
+			tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
+
 			return tmxDoc;
 		}
 

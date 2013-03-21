@@ -101,6 +101,11 @@ namespace Localization.TMXUtils
 			if (prop == null || prop.IsEmpty || propList == null)
 				return false;
 
+			//review: I (jh) was surprised to see that each setting of a property merely added it to this list, so we'd get dozens of the same thing over and over.
+			//From what I can tell looking around, it seems it is safe to treat these properites as atomic, so I've added this Remove before re-adding with the
+			//current value.
+			propList.RemoveAll(p => p.Type == prop.Type);
+
 			propList.Add(prop);
 			return true;
 		}
