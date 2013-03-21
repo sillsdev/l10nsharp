@@ -18,6 +18,7 @@ namespace Localization
 		internal const string kGroupPropTag = "x-group";
 		internal const string kCategoryPropTag = "x-category";
 		internal const string kNoLongerUsedPropTag = "x-nolongerused";
+		internal const string kDiscoveredDyanmically = "x-dynamic";
 		internal const string kToolTipSuffix = "_ToolTip_";
 		internal const string kShortcutSuffix = "_ShortcutKeys_";
 
@@ -92,7 +93,7 @@ namespace Localization
 							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 						{
 							var movedUnit = defaultTmxDoc.GetTransUnitForOrphanWithId(tu.Id);
-							if(movedUnit==null)
+							if(movedUnit==null && tu.GetPropValue(kDiscoveredDyanmically)!="true")
 							{
 								tu.AddProp(kNoLongerUsedPropTag, "true");
 							}
@@ -298,8 +299,8 @@ namespace Localization
 			var toolTip = GetValueForLangAndId(langId, id + kToolTipSuffix, false);
 			var shortcutKeys = GetValueForLangAndId(langId, id + kShortcutSuffix, false);
 
-			return (!string.IsNullOrEmpty(text) || !string.IsNullOrEmpty(toolTip) ||
-				!string.IsNullOrEmpty(shortcutKeys));
+			return (!String.IsNullOrEmpty(text) || !String.IsNullOrEmpty(toolTip) ||
+				!String.IsNullOrEmpty(shortcutKeys));
 		}
 
 		#region Methods for getting localized strings (including shortcut key strings)
@@ -536,7 +537,7 @@ namespace Localization
 				string id = GetBaseId(tu.Id);
 
 				var groupChain = ParseGroupAndId(GetGroup(tu.Id), id);
-				var nodeKey = string.Empty;
+				var nodeKey = String.Empty;
 				var nodeCollection = topCollection;
 				LocTreeNode newNode;
 
@@ -612,9 +613,9 @@ namespace Localization
 			var allPieces = new List<string>();
 			string[] pieces;
 
-			if (group != null)
+			if (@group != null)
 			{
-				pieces = group.Split('.');
+				pieces = @group.Split('.');
 				foreach (string piece in pieces)
 					allPieces.Insert(0, piece);
 			}

@@ -20,6 +20,7 @@ namespace Localization
 		private readonly TMXDocument _tmxDoc;
 		private bool _updated;
 
+
 		/// ------------------------------------------------------------------------------------
 		internal TransUnitUpdater(TMXDocument tmxDoc)
 		{
@@ -45,9 +46,9 @@ namespace Localization
 				return _updated;
 
 			var tuText = _tmxDoc.GetTransUnitForId(locInfo.Id);
+
 			var tuToolTip = _tmxDoc.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
 			var tuShortcutKeys = _tmxDoc.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
-
 			if (locInfo.Priority == LocalizationPriority.NotLocalizable)
 			{
 				_updated = (tuText != null || tuToolTip != null || tuShortcutKeys != null);
@@ -76,31 +77,46 @@ namespace Localization
 				tuText = UpdateValue(tuText, text, locInfo, locInfo.Id);
 			}
 
-			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment)
-				return _updated;
-
-			// Save the comments.
 			if (tuText != null)
 			{
-				tuText.Notes.Clear();
-				if (!string.IsNullOrEmpty(locInfo.Comment))
-					tuText.AddNote(locInfo.Comment);
-				return _updated;
+				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
+				{
+					tuText.Notes.Clear();
+					if (!string.IsNullOrEmpty(locInfo.Comment))
+						tuText.AddNote(locInfo.Comment);
+				}
+				if (locInfo.DiscoveredDynamically)
+				{
+					tuText.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
+				}
 			}
 
 			if (tuToolTip != null)
 			{
-				tuToolTip.Notes.Clear();
-				if (!string.IsNullOrEmpty(locInfo.Comment))
-					tuToolTip.AddNote(locInfo.Comment);
-				return _updated;
+				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
+				{
+					tuToolTip.Notes.Clear();
+					if (!string.IsNullOrEmpty(locInfo.Comment))
+						tuToolTip.AddNote(locInfo.Comment);
+				}
+				if (locInfo.DiscoveredDynamically)
+				{
+					tuToolTip.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
+				}
 			}
 
 			if (tuShortcutKeys != null)
 			{
-				tuShortcutKeys.Notes.Clear();
-				if (!string.IsNullOrEmpty(locInfo.Comment))
-					tuShortcutKeys.AddNote(locInfo.Comment);
+				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
+				{
+					tuShortcutKeys.Notes.Clear();
+					if (!string.IsNullOrEmpty(locInfo.Comment))
+						tuShortcutKeys.AddNote(locInfo.Comment);
+				}
+				if (locInfo.DiscoveredDynamically)
+				{
+					tuShortcutKeys.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
+				}
 			}
 
 			return _updated;
