@@ -36,6 +36,7 @@ namespace Localization.UI
 		private Dictionary<object, LocalizingInfo> m_extendedCtrls;
 		private LocalizationManager _lm;
 		private string _locManagerId;
+		//private string _idPrefixForThisForm="";
 
 		#region Constructors
 		/// ------------------------------------------------------------------------------------
@@ -80,6 +81,13 @@ namespace Localization.UI
 				}
 			}
 		}
+
+		/// <summary>
+		/// This id will be prepended to all new items added to this page.
+		/// </summary>
+		[Localizable(false)]
+		[Category("Localizing Properties")]
+		public string PrefixForNewItems{get;set;}
 
 		///// ------------------------------------------------------------------------------------
 		///// <summary>
@@ -306,7 +314,9 @@ namespace Localization.UI
 		[Category("Localizing Properties")]
 		public string GetLocalizingId(object obj)
 		{
-			return GetLocalizedObjectInfo(obj).Id;
+			var l = GetLocalizedObjectInfo(obj);
+			l.CreateIdIfMissing(PrefixForNewItems);
+			return l.Id;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -392,7 +402,8 @@ namespace Localization.UI
 			GetLocalizedObjectInfo(obj).ToolTipText = tip;
 		}
 
-		/// ------------------------------------------------------------------------------------
+
+			/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the localized object info. for the specified object.
 		/// </summary>

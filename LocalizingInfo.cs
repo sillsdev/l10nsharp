@@ -149,13 +149,29 @@ namespace Localization
 		#endregion
 
 		#region Methods for initializing the localization id.
+
+		internal void CreateIdIfMissing(string prefixForId)
+		{
+			if (prefixForId == null)
+				prefixForId = "";
+			if (string.IsNullOrEmpty(_id))
+				_id = MakeId(_obj, prefixForId);
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Sets the id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static string MakeId(object obj)
+		internal static string MakeId(object obj, string idPrefixFromFormExtender="")
 		{
+			if (idPrefixFromFormExtender == null)
+				idPrefixFromFormExtender = "";
+
+			idPrefixFromFormExtender = idPrefixFromFormExtender.Trim(new char[] { '.',' ' });
+			if (idPrefixFromFormExtender.Length > 0)
+				idPrefixFromFormExtender = idPrefixFromFormExtender + ".";
+
 			if (obj is Form)
 			{
 				Form frm = (Form)obj;
@@ -163,18 +179,18 @@ namespace Localization
 			}
 
 			if (obj is Control)
-				return MakeIdForCtrl(obj as Control);
+				return idPrefixFromFormExtender+MakeIdForCtrl(obj as Control);
 
 			if (obj is ColumnHeader)
-				return MakeIdForColumnHeader((ColumnHeader)obj);
+				return idPrefixFromFormExtender + MakeIdForColumnHeader((ColumnHeader)obj);
 
 			if (obj is DataGridViewColumn)
-				return MakeIdForDataGridViewColumn((DataGridViewColumn)obj);
+				return idPrefixFromFormExtender + MakeIdForDataGridViewColumn((DataGridViewColumn)obj);
 
 			if (obj is ToolStripItem)
 			{
 				string formName = OwningFormName(obj as ToolStripItem);
-				return (formName ?? "Miscellaneous") + "." + ((ToolStripItem)obj).Name;
+				return idPrefixFromFormExtender + (formName ?? "Miscellaneous") + "." + ((ToolStripItem)obj).Name;
 			}
 
 			return null;
@@ -194,7 +210,11 @@ namespace Localization
 				return GetIdFromText(ctrl.Text);
 
 			string prefix = GetIdPrefix(ctrl);
-			return (string.IsNullOrEmpty(prefix) ? string.Empty : prefix + "." + ctrl.Name);
+			if (string.IsNullOrEmpty(prefix))
+				return ctrl.Name;
+
+			//return (string.IsNullOrEmpty(prefix) ? string.Empty : prefix + "." + ctrl.Name);
+			return prefix.Trim(new char[] { '.' }) + "." + ctrl.Name.Trim(new char[] { '.' });
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -234,18 +254,21 @@ namespace Localization
 		/// used as the prefix for a localization id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static string GetIdPrefix(Control ctrl)
+		private static string GetIdPrefix(Control control)
 		{
-			if (ctrl == null)
+			if (control == null)
 				return "Miscellaneous";
+			if (control.Parent == null)
+				return "";
 
-			while (ctrl.Parent != null &&
-				!ctrl.Parent.GetType().FullName.StartsWith("System.Windows.Forms.Design"))
+			while (control.Parent != null &&
+				!control.Parent.GetType().FullName.StartsWith("System.Windows.Forms.Design"))
 			{
-				ctrl = ctrl.Parent;
+				control = control.Parent;
 			}
 
-			return (ctrl.Site != null && ctrl.Site.DesignMode ? ctrl.Site.Name : ctrl.Name);
+
+			return (control.Site != null && control.Site.DesignMode ? control.Site.Name : control.Name);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -346,7 +369,13 @@ namespace Localization
 			{
 				_id = value;
 				if (string.IsNullOrEmpty(_id))
+				{
 					Priority = LocalizationPriority.NotLocalizable;
+				}
+				else
+				{
+					_id = _id.Trim().Replace("..", ".");//it happens...
+				}
 			}
 		}
 
@@ -390,6 +419,13 @@ namespace Localization
 			get { return _comment; }
 			set { _comment = (value == "null" ? null : value); }
 		}
+
+
+		/// <summary>
+		/// We need to record this so that the string won't be marked as "unused" the next time the static scanner runs.
+		/// For dynamic strings, we actually have no way of knowing if they are still used or not.
+		/// </summary>
+		public bool DiscoveredDynamically;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

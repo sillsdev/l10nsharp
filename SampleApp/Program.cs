@@ -26,6 +26,7 @@ namespace SampleApp
 			Localization.LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
 
 			Application.Run(new Form1());
+			Settings.Default.Save();
 		}
 
 		public static void SetUpLocalization()
