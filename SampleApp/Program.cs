@@ -38,11 +38,18 @@ namespace SampleApp
 				//You sure won't want to use "temp" in your real app. Consider AppData/Product.
 				//Downside of that one is that the user needs write access to that folder.
 				var pathForStoringLocalizations = Path.GetTempPath();
-				LocalizationManager.Create(Settings.Default.UserInterfaceLanguage,
+
+				//if this is your first time running the app, the library will query the OS for the
+				//the default language. If it doesn't have that, it puts up a dialog listing what
+				//it does have to offer.
+
+				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
+
+				LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 										   "SampleApp", "SampleApp", Application.ProductVersion,
 										   installedStringFileFolder,
 										   Path.Combine(pathForStoringLocalizations, "Localizations"),
-										   SystemIcons.Application, //replace with your icon
+										   Resources.Icon, //replace with your icon
 										   "sampleappLocalizations@nowhere.com", "SampleApp");
 
 				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;

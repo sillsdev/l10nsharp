@@ -27,7 +27,7 @@ namespace Localization
 		private static readonly Dictionary<string, LocalizationManager> s_loadedManagers =
 			new Dictionary<string, LocalizationManager>();
 
-		private static Icon _iconForProgressDialogInTaskBar;
+		private static Icon _applicationIcon;
 		private string m_tmxFileFolder;
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
@@ -56,7 +56,7 @@ namespace Localization
 		/// found in 'installedTmxFilePath' so they can be edited by the user. If the
 		/// value is null, the default location is used (which is appName combined with
 		/// Environment.SpecialFolder.CommonApplicationData)</param>
-		/// <param name="iconForProgressDialogInTaskBar"> </param>
+		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
@@ -65,19 +65,17 @@ namespace Localization
 		/// 'Pa', then this value would only contain the string 'Pa'.</param>
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
-			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath, Icon iconForProgressDialogInTaskBar,
+			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath, Icon applicationIcon,
 			string emailForSubmissions,
 			params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
-			_iconForProgressDialogInTaskBar = iconForProgressDialogInTaskBar;
+			_applicationIcon = applicationIcon;
 			if (targetTmxFilePath == null)
 			{
 				targetTmxFilePath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 				targetTmxFilePath = Path.Combine(targetTmxFilePath, appName);
 			}
-
-			SetUILanguage(desiredUiLangId ?? kDefaultLang, false);
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
@@ -88,8 +86,28 @@ namespace Localization
 				LoadedManagers[appId] = lm;
 			}
 
+			if (string.IsNullOrEmpty(desiredUiLangId))
+			{
+				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+			}
+
+			var ci = CultureInfo.GetCultureInfo(desiredUiLangId);
+			if (!GetUILanguages(true).Contains(ci))
+			{
+				using (var dlg = new LanguageChoosingDialog(ci.DisplayName, applicationIcon))
+				{
+					dlg.ShowDialog();
+					desiredUiLangId = dlg.SelectedLanguage;
+				}
+			}
+
+			SetUILanguage(desiredUiLangId, false);
+
+
+
+
 			EnableClickingOnControlToBringUpLocalizationDialog = true;
-			VerifyThatUILangHasTranslations();
+
 			return lm;
 		}
 
@@ -165,7 +183,7 @@ namespace Localization
 
 			using (var dlg = new InitializationProgressDlg(Name, namespaceBeginnings))
 			{
-				dlg.Icon = _iconForProgressDialogInTaskBar;
+				dlg.Icon = _applicationIcon;
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
@@ -243,26 +261,6 @@ namespace Localization
 				   select ci;
 		}
 
-		/// ------------------------------------------------------------------------------------
-		public static bool VerifyThatUILangHasTranslations()
-		{
-			// REVIEW: Consider combining with SetUILanguage method
-
-			var ci = CultureInfo.GetCultureInfo(UILanguageId);
-			if (GetUILanguages(true).Contains(ci) || UILanguageId == kDefaultLang)
-				return true;
-
-			var defaultCultureInfo = CultureInfo.GetCultureInfo(kDefaultLang);
-			var msg = string.Format("Your user interface language was previously set to {0} " +
-				"but there are no localziations found for that language. Therefore, your user " +
-				"interface language will revert to {1}. It's possible the file that contains " +
-				"your localized strings is corrupt or missing.", ci.DisplayName,
-				defaultCultureInfo.DisplayName);
-
-			MessageBox.Show(msg, Application.ProductName);
-			SetUILanguage(kDefaultLang, false);
-			return false;
-		}
 
 		///// ------------------------------------------------------------------------------------
 		//public static string SetUILanguageFromCommandLineArgs(IEnumerable<string> commandLineArgs)
