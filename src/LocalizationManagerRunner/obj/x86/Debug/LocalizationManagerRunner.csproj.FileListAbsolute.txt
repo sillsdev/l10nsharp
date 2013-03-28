@@ -1,0 +1,6 @@
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\ResGen.read.1.tlog
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\ResGen.write.1.tlog
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\LocalizationManagerRunner.csprojResolveAssemblyReference.cache
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\LocalizationManagerRunner.Properties.Resources.resources
+C:\dev\localizationmanager\LocalizationManagerRunner\obj\x86\Debug\LocalizationManagerRunner.csproj.GenerateResource.Cache

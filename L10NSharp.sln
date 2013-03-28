@@ -1,11 +1,11 @@
 
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp", "L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp", "src\L10NSharp\L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharpTests", "LocalizationManagerTests\L10NSharpTests.csproj", "{BCE5B569-057C-4D7E-832E-E44A2DA705AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharpTests", "src\L10NSharpTests\L10NSharpTests.csproj", "{BCE5B569-057C-4D7E-832E-E44A2DA705AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{58923B30-FD84-4BCC-85E0-607DCA7E7C95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{58923B30-FD84-4BCC-85E0-607DCA7E7C95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
