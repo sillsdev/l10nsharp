@@ -21,7 +21,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	[ProvideProperty("LocalizingId", typeof(object))]

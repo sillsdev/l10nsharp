@@ -1,7 +1,7 @@
 using System;
-using Localization.TMXUtils;
+using L10NSharp.TMXUtils;
 
-namespace Localization
+namespace L10NSharp
 {
 	internal class TransUnitUpdater
 	{

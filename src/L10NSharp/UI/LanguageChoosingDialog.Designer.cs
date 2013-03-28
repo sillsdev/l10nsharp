@@ -1,4 +1,4 @@
-namespace Localization.UI
+namespace L10NSharp.UI
 {
     partial class LanguageChoosingDialog
     {
@@ -28,7 +28,7 @@ namespace Localization.UI
         /// </summary>
         private void InitializeComponent()
         {
-            this.uiLanguageComboBox1 = new Localization.UI.UILanguageComboBox();
+            this.uiLanguageComboBox1 = new UILanguageComboBox();
             this._messageLabel = new System.Windows.Forms.Label();
             this._OKButton = new System.Windows.Forms.Button();
             this.SuspendLayout();

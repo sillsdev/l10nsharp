@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	internal partial class PopupControl : UserControl

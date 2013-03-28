@@ -6,10 +6,10 @@ using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using Localization.TMXUtils;
-using Localization.UI;
+using L10NSharp.TMXUtils;
+using L10NSharp.UI;
 
-namespace Localization
+namespace L10NSharp
 {
 	/// ----------------------------------------------------------------------------------------
 	internal class LocalizedStringCache

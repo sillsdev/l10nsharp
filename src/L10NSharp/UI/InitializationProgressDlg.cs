@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Localization.CodeReader;
+using L10NSharp.CodeReader;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	internal partial class InitializationProgressDlg : Form

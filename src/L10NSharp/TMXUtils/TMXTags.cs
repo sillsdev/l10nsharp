@@ -1,6 +1,6 @@
 using System;
 
-namespace Localization.TMXUtils
+namespace L10NSharp.TMXUtils
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>

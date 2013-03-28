@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	internal static class ColorHelper
 	{

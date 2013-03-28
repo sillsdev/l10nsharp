@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using L10NSharp.Properties;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	public partial class LocalizeItemDlg : Form

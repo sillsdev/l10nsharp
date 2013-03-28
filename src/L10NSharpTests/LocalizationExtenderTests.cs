@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using Localization.UI;
+using L10NSharp.UI;
 using NUnit.Framework;
 
-namespace Localization.Tests
+namespace L10NSharp.Tests
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>

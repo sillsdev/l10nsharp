@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	public partial class HowToDistributeDialog : Form
 	{

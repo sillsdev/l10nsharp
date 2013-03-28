@@ -2,7 +2,7 @@ using System;
 using System.Web;
 using Palaso.Network;
 
-namespace Localization.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	public enum TranslatorTypes

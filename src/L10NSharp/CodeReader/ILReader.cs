@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Localization.CodeReader
+namespace L10NSharp.CodeReader
 {
 	/// ----------------------------------------------------------------------------------------
 	internal class ILInstruction

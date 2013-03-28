@@ -29,11 +29,11 @@ namespace SampleApp
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.localizationExtender1 = new Localization.UI.LocalizationExtender(this.components);
+            this.localizationExtender1 = new L10NSharp.UI.LocalizationExtender(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.uiLanguageComboBox1 = new Localization.UI.UILanguageComboBox();
+            this.uiLanguageComboBox1 = new L10NSharp.UI.UILanguageComboBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.localizationExtender1)).BeginInit();
             this.SuspendLayout();
@@ -137,11 +137,11 @@ namespace SampleApp
 
         #endregion
 
-        private Localization.UI.LocalizationExtender localizationExtender1;
+        private L10NSharp.UI.LocalizationExtender localizationExtender1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private Localization.UI.UILanguageComboBox uiLanguageComboBox1;
+        private L10NSharp.UI.UILanguageComboBox uiLanguageComboBox1;
         private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }

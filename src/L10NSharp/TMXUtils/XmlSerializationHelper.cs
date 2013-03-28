@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Xml;
 using System.Reflection;
 
-namespace Localization.TMXUtils
+namespace L10NSharp.TMXUtils
 {
 	internal static class XmlSerializationHelper
 	{

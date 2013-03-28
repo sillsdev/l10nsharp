@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Localization;
+using L10NSharp;
 using SampleApp.Properties;
 
 namespace SampleApp
@@ -23,7 +23,7 @@ namespace SampleApp
 
 			SetUpLocalization();
 
-			Localization.LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
+			L10NSharp.LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
 
 			Application.Run(new Form1());
 			Settings.Default.Save();

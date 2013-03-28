@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp.Properties;
 
-namespace Localization
+namespace L10NSharp
 {
 	public partial class DontShowThisAgainButton : CheckBox
 	{

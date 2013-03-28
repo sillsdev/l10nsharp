@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Localization.TMXUtils
+namespace L10NSharp.TMXUtils
 {
 	#region TMXBaseWithNotesAndProps class
 	/// ----------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-namespace Localization
+namespace L10NSharp
 {
     partial class DontShowThisAgainButton
     {

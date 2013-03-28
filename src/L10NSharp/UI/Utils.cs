@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	internal static class Utils

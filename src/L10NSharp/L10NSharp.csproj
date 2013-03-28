@@ -35,11 +35,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>Output\Release\</OutputPath>
+    <OutputPath>..\..\output\release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>Output\Release\L10NSharp.xml</DocumentationFile>
+    <DocumentationFile>..\..\output\release\L10NSharp.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
@@ -65,10 +65,10 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
-    <Compile Include="DontShowThisAgainButton.cs">
+    <Compile Include="UI\DontShowThisAgainButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DontShowThisAgainButton.Designer.cs">
+    <Compile Include="UI\DontShowThisAgainButton.Designer.cs">
       <DependentUpon>DontShowThisAgainButton.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\HowToDistributeDialog.cs">

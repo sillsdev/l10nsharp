@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp.Properties;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	public partial class TipDialog : Form
 	{

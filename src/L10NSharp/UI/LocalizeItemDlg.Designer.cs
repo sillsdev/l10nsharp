@@ -1,4 +1,4 @@
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	partial class LocalizeItemDlg
 	{
@@ -43,6 +43,15 @@ namespace Localization.UI
             this._treeView = new System.Windows.Forms.TreeView();
             this._toolStripLeftSide = new System.Windows.Forms.ToolStrip();
             this._labelGroups = new System.Windows.Forms.ToolStripLabel();
+            this._buttonMoveNext = new L10NSharp.UI.XButton();
+            this._grid = new L10NSharp.UI.LmGrid();
+            this._colId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._colSourceText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._colTargetText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._colSrcToolTip = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._colTgtToolTip = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._colComments = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._buttonMovePrev = new L10NSharp.UI.XButton();
             this._toolStripRightSide = new System.Windows.Forms.ToolStrip();
             this._buttonBingTranslator = new System.Windows.Forms.ToolStripSplitButton();
             this._menuTranslateUsingBing = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,9 +62,13 @@ namespace Localization.UI
             this._labelSourceLang = new System.Windows.Forms.ToolStripLabel();
             this._tableLayout = new System.Windows.Forms.TableLayoutPanel();
             this._panelIdentifier = new System.Windows.Forms.Panel();
+            this.btnCopyToolTip = new L10NSharp.UI.XButton();
+            this.btnCopyShortcutKeys = new L10NSharp.UI.XButton();
+            this.btnCopyText = new L10NSharp.UI.XButton();
             this._panelTargetText = new System.Windows.Forms.Panel();
             this._groupBoxTgtTranslation = new System.Windows.Forms.GroupBox();
             this._labelTgtShortcutKeys = new System.Windows.Forms.Label();
+            this._shortcutKeysDropDown = new L10NSharp.UI.ShortcutKeysDropDown();
             this._labelTgtToolTip = new System.Windows.Forms.Label();
             this._textBoxTgtToolTip = new System.Windows.Forms.TextBox();
             this._panelSourceText = new System.Windows.Forms.Panel();
@@ -84,19 +97,6 @@ namespace Localization.UI
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._labelCount = new System.Windows.Forms.ToolStripStatusLabel();
             this._progressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this._buttonMoveNext = new Localization.UI.XButton();
-            this._grid = new Localization.UI.LmGrid();
-            this._colId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._colSourceText = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._colTargetText = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._colSrcToolTip = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._colTgtToolTip = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._colComments = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._buttonMovePrev = new Localization.UI.XButton();
-            this.btnCopyToolTip = new Localization.UI.XButton();
-            this.btnCopyShortcutKeys = new Localization.UI.XButton();
-            this.btnCopyText = new Localization.UI.XButton();
-            this._shortcutKeysDropDown = new Localization.UI.ShortcutKeysDropDown();
             this._groupBoxComment.SuspendLayout();
             this._groupBoxImage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._pictureImage)).BeginInit();
@@ -105,6 +105,7 @@ namespace Localization.UI
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             this._toolStripLeftSide.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._grid)).BeginInit();
             this._toolStripRightSide.SuspendLayout();
             this._tableLayout.SuspendLayout();
             this._panelIdentifier.SuspendLayout();
@@ -115,7 +116,6 @@ namespace Localization.UI
             this._panelButtons.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this._statusStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._grid)).BeginInit();
             this.SuspendLayout();
             // 
             // _textBoxTgtTranslation
@@ -282,6 +282,138 @@ namespace Localization.UI
             this._labelGroups.Size = new System.Drawing.Size(50, 27);
             this._labelGroups.Text = "Groups:";
             // 
+            // _buttonMoveNext
+            // 
+            this._buttonMoveNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonMoveNext.BackColor = System.Drawing.Color.Transparent;
+            this._buttonMoveNext.CanBeChecked = false;
+            this._buttonMoveNext.Checked = false;
+            this._buttonMoveNext.DrawEmpty = false;
+            this._buttonMoveNext.DrawLeftArrowButton = false;
+            this._buttonMoveNext.DrawRightArrowButton = false;
+            this._buttonMoveNext.Font = new System.Drawing.Font("Marlett", 9F);
+            this._buttonMoveNext.Image = global::L10NSharp.Properties.Resources.kimidMoveNext;
+            this._buttonMoveNext.Location = new System.Drawing.Point(411, 133);
+            this._buttonMoveNext.Name = "_buttonMoveNext";
+            this._buttonMoveNext.Size = new System.Drawing.Size(20, 20);
+            this._buttonMoveNext.TabIndex = 2;
+            this._tooltip.SetToolTip(this._buttonMoveNext, "Move to next localizable string");
+            this._buttonMoveNext.Visible = false;
+            this._buttonMoveNext.Click += new System.EventHandler(this._buttonMoveNext_Click);
+            // 
+            // _grid
+            // 
+            this._grid.AllowUserToAddRows = false;
+            this._grid.AllowUserToDeleteRows = false;
+            this._grid.AllowUserToOrderColumns = true;
+            this._grid.AllowUserToResizeRows = false;
+            this._grid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            this._grid.BackgroundColor = System.Drawing.SystemColors.Window;
+            this._grid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this._grid.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+            this._grid.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this._grid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this._grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this._grid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this._colId,
+            this._colSourceText,
+            this._colTargetText,
+            this._colSrcToolTip,
+            this._colTgtToolTip,
+            this._colComments});
+            this._grid.DrawTextBoxEditControlBorder = false;
+            this._grid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this._grid.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold);
+            this._grid.FullRowFocusRectangleColor = System.Drawing.SystemColors.ControlDark;
+            this._grid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(225)))), ((int)(((byte)(225)))));
+            this._grid.IsDirty = true;
+            this._grid.Location = new System.Drawing.Point(13, 370);
+            this._grid.MultiSelect = false;
+            this._grid.Name = "_grid";
+            this._grid.PaintFullRowFocusRectangle = true;
+            this._grid.PaintHeaderAcrossFullGridWidth = true;
+            this._grid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this._grid.RowHeadersWidth = 22;
+            this._grid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this._grid.SelectedCellBackColor = System.Drawing.Color.Empty;
+            this._grid.SelectedCellForeColor = System.Drawing.Color.Empty;
+            this._grid.SelectedRowBackColor = System.Drawing.Color.Empty;
+            this._grid.SelectedRowForeColor = System.Drawing.Color.Empty;
+            this._grid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this._grid.ShowWaterMarkWhenDirty = false;
+            this._grid.Size = new System.Drawing.Size(514, 63);
+            this._grid.TabIndex = 1;
+            this._grid.TextBoxEditControlBorderColor = System.Drawing.Color.Silver;
+            this._grid.VirtualMode = true;
+            this._grid.WaterMark = "!";
+            this._grid.CurrentRowChanged += new System.EventHandler(this.HandleGridCurrentRowChanged);
+            this._grid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.HandleGridCellFormatting);
+            this._grid.CellMouseEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleGridCellMouseEnter);
+            this._grid.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleGridCellMouseLeave);
+            this._grid.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.HandleGridCellPainting);
+            this._grid.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.HandleGridCellValueNeeded);
+            this._grid.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.HandleGridCellValuePushed);
+            this._grid.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.HandleColumnHeaderMouseClick);
+            // 
+            // _colId
+            // 
+            this._colId.HeaderText = "Identifier";
+            this._colId.Name = "_colId";
+            this._colId.ReadOnly = true;
+            // 
+            // _colSourceText
+            // 
+            this._colSourceText.HeaderText = "#";
+            this._colSourceText.Name = "_colSourceText";
+            this._colSourceText.ReadOnly = true;
+            // 
+            // _colTargetText
+            // 
+            this._colTargetText.HeaderText = "#";
+            this._colTargetText.Name = "_colTargetText";
+            // 
+            // _colSrcToolTip
+            // 
+            this._colSrcToolTip.HeaderText = "#";
+            this._colSrcToolTip.Name = "_colSrcToolTip";
+            this._colSrcToolTip.ReadOnly = true;
+            // 
+            // _colTgtToolTip
+            // 
+            this._colTgtToolTip.HeaderText = "#";
+            this._colTgtToolTip.Name = "_colTgtToolTip";
+            // 
+            // _colComments
+            // 
+            this._colComments.HeaderText = "Comments";
+            this._colComments.Name = "_colComments";
+            // 
+            // _buttonMovePrev
+            // 
+            this._buttonMovePrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonMovePrev.BackColor = System.Drawing.Color.Transparent;
+            this._buttonMovePrev.CanBeChecked = false;
+            this._buttonMovePrev.Checked = false;
+            this._buttonMovePrev.DrawEmpty = false;
+            this._buttonMovePrev.DrawLeftArrowButton = false;
+            this._buttonMovePrev.DrawRightArrowButton = false;
+            this._buttonMovePrev.Font = new System.Drawing.Font("Marlett", 9F);
+            this._buttonMovePrev.Image = global::L10NSharp.Properties.Resources.kimidMovePrevious;
+            this._buttonMovePrev.Location = new System.Drawing.Point(411, 107);
+            this._buttonMovePrev.Name = "_buttonMovePrev";
+            this._buttonMovePrev.Size = new System.Drawing.Size(20, 20);
+            this._buttonMovePrev.TabIndex = 1;
+            this._tooltip.SetToolTip(this._buttonMovePrev, "Move to previous localizable string");
+            this._buttonMovePrev.Visible = false;
+            this._buttonMovePrev.Click += new System.EventHandler(this._buttonMovePrev_Click);
+            // 
             // _toolStripRightSide
             // 
             this._toolStripRightSide.AutoSize = false;
@@ -394,6 +526,63 @@ namespace Localization.UI
             this._panelIdentifier.Size = new System.Drawing.Size(326, 68);
             this._panelIdentifier.TabIndex = 0;
             // 
+            // btnCopyToolTip
+            // 
+            this.btnCopyToolTip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopyToolTip.BackColor = System.Drawing.Color.Transparent;
+            this.btnCopyToolTip.CanBeChecked = false;
+            this.btnCopyToolTip.Checked = false;
+            this.btnCopyToolTip.DrawEmpty = false;
+            this.btnCopyToolTip.DrawLeftArrowButton = false;
+            this.btnCopyToolTip.DrawRightArrowButton = false;
+            this.btnCopyToolTip.Font = new System.Drawing.Font("Marlett", 9F);
+            this.btnCopyToolTip.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
+            this.btnCopyToolTip.Location = new System.Drawing.Point(128, 6);
+            this.btnCopyToolTip.Name = "btnCopyToolTip";
+            this.btnCopyToolTip.Size = new System.Drawing.Size(11, 15);
+            this.btnCopyToolTip.TabIndex = 5;
+            this._tooltip.SetToolTip(this.btnCopyToolTip, "Copy Source Tool Tip to Target (Ctrl+Alt+O)");
+            this.btnCopyToolTip.Visible = false;
+            this.btnCopyToolTip.Click += new System.EventHandler(this.btnCopyToolTip_Click);
+            // 
+            // btnCopyShortcutKeys
+            // 
+            this.btnCopyShortcutKeys.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopyShortcutKeys.BackColor = System.Drawing.Color.Transparent;
+            this.btnCopyShortcutKeys.CanBeChecked = false;
+            this.btnCopyShortcutKeys.Checked = false;
+            this.btnCopyShortcutKeys.DrawEmpty = false;
+            this.btnCopyShortcutKeys.DrawLeftArrowButton = false;
+            this.btnCopyShortcutKeys.DrawRightArrowButton = false;
+            this.btnCopyShortcutKeys.Font = new System.Drawing.Font("Marlett", 9F);
+            this.btnCopyShortcutKeys.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
+            this.btnCopyShortcutKeys.Location = new System.Drawing.Point(187, 6);
+            this.btnCopyShortcutKeys.Name = "btnCopyShortcutKeys";
+            this.btnCopyShortcutKeys.Size = new System.Drawing.Size(11, 15);
+            this.btnCopyShortcutKeys.TabIndex = 7;
+            this._tooltip.SetToolTip(this.btnCopyShortcutKeys, "Copy Source Shortcut Keys to Target (Ctrl+Alt+S)");
+            this.btnCopyShortcutKeys.Visible = false;
+            this.btnCopyShortcutKeys.Click += new System.EventHandler(this.btnCopyShortcutKeys_Click);
+            // 
+            // btnCopyText
+            // 
+            this.btnCopyText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopyText.BackColor = System.Drawing.Color.Transparent;
+            this.btnCopyText.CanBeChecked = false;
+            this.btnCopyText.Checked = false;
+            this.btnCopyText.DrawEmpty = false;
+            this.btnCopyText.DrawLeftArrowButton = false;
+            this.btnCopyText.DrawRightArrowButton = false;
+            this.btnCopyText.Font = new System.Drawing.Font("Marlett", 9F);
+            this.btnCopyText.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
+            this.btnCopyText.Location = new System.Drawing.Point(155, 6);
+            this.btnCopyText.Name = "btnCopyText";
+            this.btnCopyText.Size = new System.Drawing.Size(11, 13);
+            this.btnCopyText.TabIndex = 6;
+            this._tooltip.SetToolTip(this.btnCopyText, "Copy Source Translation to Target (Ctrl+Alt+T)");
+            this.btnCopyText.Visible = false;
+            this.btnCopyText.Click += new System.EventHandler(this.btnCopyText_Click);
+            // 
             // _panelTargetText
             // 
             this._panelTargetText.Controls.Add(this._groupBoxTgtTranslation);
@@ -430,6 +619,19 @@ namespace Localization.UI
             this._labelTgtShortcutKeys.Size = new System.Drawing.Size(79, 13);
             this._labelTgtShortcutKeys.TabIndex = 3;
             this._labelTgtShortcutKeys.Text = "Shortcut &Keys:";
+            // 
+            // _shortcutKeysDropDown
+            // 
+            this._shortcutKeysDropDown.AlignDropToLeft = false;
+            this._shortcutKeysDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._shortcutKeysDropDown.BackColor = System.Drawing.SystemColors.Window;
+            this._shortcutKeysDropDown.Location = new System.Drawing.Point(198, 61);
+            this._shortcutKeysDropDown.Name = "_shortcutKeysDropDown";
+            this._shortcutKeysDropDown.Padding = new System.Windows.Forms.Padding(1);
+            this._shortcutKeysDropDown.ShortcutKeys = System.Windows.Forms.Keys.None;
+            this._shortcutKeysDropDown.ShortcutKeysAsString = "None";
+            this._shortcutKeysDropDown.Size = new System.Drawing.Size(122, 22);
+            this._shortcutKeysDropDown.TabIndex = 4;
             // 
             // _labelTgtToolTip
             // 
@@ -733,208 +935,6 @@ namespace Localization.UI
             this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this._progressBar.Visible = false;
             // 
-            // _buttonMoveNext
-            // 
-            this._buttonMoveNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonMoveNext.BackColor = System.Drawing.Color.Transparent;
-            this._buttonMoveNext.CanBeChecked = false;
-            this._buttonMoveNext.Checked = false;
-            this._buttonMoveNext.DrawEmpty = false;
-            this._buttonMoveNext.DrawLeftArrowButton = false;
-            this._buttonMoveNext.DrawRightArrowButton = false;
-            this._buttonMoveNext.Font = new System.Drawing.Font("Marlett", 9F);
-            this._buttonMoveNext.Image = global::L10NSharp.Properties.Resources.kimidMoveNext;
-            this._buttonMoveNext.Location = new System.Drawing.Point(413, 133);
-            this._buttonMoveNext.Name = "_buttonMoveNext";
-            this._buttonMoveNext.Size = new System.Drawing.Size(20, 20);
-            this._buttonMoveNext.TabIndex = 2;
-            this._tooltip.SetToolTip(this._buttonMoveNext, "Move to next localizable string");
-            this._buttonMoveNext.Visible = false;
-            this._buttonMoveNext.Click += new System.EventHandler(this._buttonMoveNext_Click);
-            // 
-            // _grid
-            // 
-            this._grid.AllowUserToAddRows = false;
-            this._grid.AllowUserToDeleteRows = false;
-            this._grid.AllowUserToOrderColumns = true;
-            this._grid.AllowUserToResizeRows = false;
-            this._grid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
-            this._grid.BackgroundColor = System.Drawing.SystemColors.Window;
-            this._grid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this._grid.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
-            this._grid.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this._grid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this._grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this._grid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this._colId,
-            this._colSourceText,
-            this._colTargetText,
-            this._colSrcToolTip,
-            this._colTgtToolTip,
-            this._colComments});
-            this._grid.DrawTextBoxEditControlBorder = false;
-            this._grid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this._grid.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F, System.Drawing.FontStyle.Bold);
-            this._grid.FullRowFocusRectangleColor = System.Drawing.SystemColors.ControlDark;
-            this._grid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(225)))), ((int)(((byte)(225)))));
-            this._grid.IsDirty = true;
-            this._grid.Location = new System.Drawing.Point(13, 370);
-            this._grid.MultiSelect = false;
-            this._grid.Name = "_grid";
-            this._grid.PaintFullRowFocusRectangle = true;
-            this._grid.PaintHeaderAcrossFullGridWidth = true;
-            this._grid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this._grid.RowHeadersWidth = 22;
-            this._grid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this._grid.SelectedCellBackColor = System.Drawing.Color.Empty;
-            this._grid.SelectedCellForeColor = System.Drawing.Color.Empty;
-            this._grid.SelectedRowBackColor = System.Drawing.Color.Empty;
-            this._grid.SelectedRowForeColor = System.Drawing.Color.Empty;
-            this._grid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this._grid.ShowWaterMarkWhenDirty = false;
-            this._grid.Size = new System.Drawing.Size(514, 63);
-            this._grid.TabIndex = 1;
-            this._grid.TextBoxEditControlBorderColor = System.Drawing.Color.Silver;
-            this._grid.VirtualMode = true;
-            this._grid.WaterMark = "!";
-            this._grid.CurrentRowChanged += new System.EventHandler(this.HandleGridCurrentRowChanged);
-            this._grid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.HandleGridCellFormatting);
-            this._grid.CellMouseEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleGridCellMouseEnter);
-            this._grid.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleGridCellMouseLeave);
-            this._grid.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.HandleGridCellPainting);
-            this._grid.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.HandleGridCellValueNeeded);
-            this._grid.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.HandleGridCellValuePushed);
-            this._grid.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.HandleColumnHeaderMouseClick);
-            // 
-            // _colId
-            // 
-            this._colId.HeaderText = "Identifier";
-            this._colId.Name = "_colId";
-            this._colId.ReadOnly = true;
-            // 
-            // _colSourceText
-            // 
-            this._colSourceText.HeaderText = "#";
-            this._colSourceText.Name = "_colSourceText";
-            this._colSourceText.ReadOnly = true;
-            // 
-            // _colTargetText
-            // 
-            this._colTargetText.HeaderText = "#";
-            this._colTargetText.Name = "_colTargetText";
-            // 
-            // _colSrcToolTip
-            // 
-            this._colSrcToolTip.HeaderText = "#";
-            this._colSrcToolTip.Name = "_colSrcToolTip";
-            this._colSrcToolTip.ReadOnly = true;
-            // 
-            // _colTgtToolTip
-            // 
-            this._colTgtToolTip.HeaderText = "#";
-            this._colTgtToolTip.Name = "_colTgtToolTip";
-            // 
-            // _colComments
-            // 
-            this._colComments.HeaderText = "Comments";
-            this._colComments.Name = "_colComments";
-            // 
-            // _buttonMovePrev
-            // 
-            this._buttonMovePrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonMovePrev.BackColor = System.Drawing.Color.Transparent;
-            this._buttonMovePrev.CanBeChecked = false;
-            this._buttonMovePrev.Checked = false;
-            this._buttonMovePrev.DrawEmpty = false;
-            this._buttonMovePrev.DrawLeftArrowButton = false;
-            this._buttonMovePrev.DrawRightArrowButton = false;
-            this._buttonMovePrev.Font = new System.Drawing.Font("Marlett", 9F);
-            this._buttonMovePrev.Image = global::L10NSharp.Properties.Resources.kimidMovePrevious;
-            this._buttonMovePrev.Location = new System.Drawing.Point(413, 107);
-            this._buttonMovePrev.Name = "_buttonMovePrev";
-            this._buttonMovePrev.Size = new System.Drawing.Size(20, 20);
-            this._buttonMovePrev.TabIndex = 1;
-            this._tooltip.SetToolTip(this._buttonMovePrev, "Move to previous localizable string");
-            this._buttonMovePrev.Visible = false;
-            this._buttonMovePrev.Click += new System.EventHandler(this._buttonMovePrev_Click);
-            // 
-            // btnCopyToolTip
-            // 
-            this.btnCopyToolTip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCopyToolTip.BackColor = System.Drawing.Color.Transparent;
-            this.btnCopyToolTip.CanBeChecked = false;
-            this.btnCopyToolTip.Checked = false;
-            this.btnCopyToolTip.DrawEmpty = false;
-            this.btnCopyToolTip.DrawLeftArrowButton = false;
-            this.btnCopyToolTip.DrawRightArrowButton = false;
-            this.btnCopyToolTip.Font = new System.Drawing.Font("Marlett", 9F);
-            this.btnCopyToolTip.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
-            this.btnCopyToolTip.Location = new System.Drawing.Point(128, 6);
-            this.btnCopyToolTip.Name = "btnCopyToolTip";
-            this.btnCopyToolTip.Size = new System.Drawing.Size(11, 15);
-            this.btnCopyToolTip.TabIndex = 5;
-            this._tooltip.SetToolTip(this.btnCopyToolTip, "Copy Source Tool Tip to Target (Ctrl+Alt+O)");
-            this.btnCopyToolTip.Visible = false;
-            this.btnCopyToolTip.Click += new System.EventHandler(this.btnCopyToolTip_Click);
-            // 
-            // btnCopyShortcutKeys
-            // 
-            this.btnCopyShortcutKeys.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCopyShortcutKeys.BackColor = System.Drawing.Color.Transparent;
-            this.btnCopyShortcutKeys.CanBeChecked = false;
-            this.btnCopyShortcutKeys.Checked = false;
-            this.btnCopyShortcutKeys.DrawEmpty = false;
-            this.btnCopyShortcutKeys.DrawLeftArrowButton = false;
-            this.btnCopyShortcutKeys.DrawRightArrowButton = false;
-            this.btnCopyShortcutKeys.Font = new System.Drawing.Font("Marlett", 9F);
-            this.btnCopyShortcutKeys.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
-            this.btnCopyShortcutKeys.Location = new System.Drawing.Point(187, 6);
-            this.btnCopyShortcutKeys.Name = "btnCopyShortcutKeys";
-            this.btnCopyShortcutKeys.Size = new System.Drawing.Size(11, 15);
-            this.btnCopyShortcutKeys.TabIndex = 7;
-            this._tooltip.SetToolTip(this.btnCopyShortcutKeys, "Copy Source Shortcut Keys to Target (Ctrl+Alt+S)");
-            this.btnCopyShortcutKeys.Visible = false;
-            this.btnCopyShortcutKeys.Click += new System.EventHandler(this.btnCopyShortcutKeys_Click);
-            // 
-            // btnCopyText
-            // 
-            this.btnCopyText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCopyText.BackColor = System.Drawing.Color.Transparent;
-            this.btnCopyText.CanBeChecked = false;
-            this.btnCopyText.Checked = false;
-            this.btnCopyText.DrawEmpty = false;
-            this.btnCopyText.DrawLeftArrowButton = false;
-            this.btnCopyText.DrawRightArrowButton = false;
-            this.btnCopyText.Font = new System.Drawing.Font("Marlett", 9F);
-            this.btnCopyText.Image = global::L10NSharp.Properties.Resources.kimidCopyTranslation;
-            this.btnCopyText.Location = new System.Drawing.Point(155, 6);
-            this.btnCopyText.Name = "btnCopyText";
-            this.btnCopyText.Size = new System.Drawing.Size(11, 13);
-            this.btnCopyText.TabIndex = 6;
-            this._tooltip.SetToolTip(this.btnCopyText, "Copy Source Translation to Target (Ctrl+Alt+T)");
-            this.btnCopyText.Visible = false;
-            this.btnCopyText.Click += new System.EventHandler(this.btnCopyText_Click);
-            // 
-            // _shortcutKeysDropDown
-            // 
-            this._shortcutKeysDropDown.AlignDropToLeft = false;
-            this._shortcutKeysDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._shortcutKeysDropDown.BackColor = System.Drawing.SystemColors.Window;
-            this._shortcutKeysDropDown.Location = new System.Drawing.Point(198, 61);
-            this._shortcutKeysDropDown.Name = "_shortcutKeysDropDown";
-            this._shortcutKeysDropDown.Padding = new System.Windows.Forms.Padding(1);
-            this._shortcutKeysDropDown.ShortcutKeys = System.Windows.Forms.Keys.None;
-            this._shortcutKeysDropDown.ShortcutKeysAsString = "None";
-            this._shortcutKeysDropDown.Size = new System.Drawing.Size(122, 22);
-            this._shortcutKeysDropDown.TabIndex = 4;
-            // 
             // LocalizeItemDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -952,7 +952,7 @@ namespace Localization.UI
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "Translate Items";
+            this.Text = "Localize User Interface (L10NSharp)";
             this.Load += new System.EventHandler(this.LocalizeItemDlg_Load);
             this._groupBoxComment.ResumeLayout(false);
             this._groupBoxComment.PerformLayout();
@@ -964,6 +964,7 @@ namespace Localization.UI
             this.splitContainer.ResumeLayout(false);
             this._toolStripLeftSide.ResumeLayout(false);
             this._toolStripLeftSide.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._grid)).EndInit();
             this._toolStripRightSide.ResumeLayout(false);
             this._toolStripRightSide.PerformLayout();
             this._tableLayout.ResumeLayout(false);
@@ -981,7 +982,6 @@ namespace Localization.UI
             this.toolStrip.PerformLayout();
             this._statusStrip.ResumeLayout(false);
             this._statusStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._grid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

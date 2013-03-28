@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace Localization.TMXUtils
+namespace L10NSharp.TMXUtils
 {
 	#region TMXProp class
 	/// ----------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	internal class ShortcutKeysDropDown : CustomDropDownComboBox

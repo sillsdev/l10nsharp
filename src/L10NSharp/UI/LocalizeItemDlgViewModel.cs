@@ -7,9 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Windows.Forms;
-using Localization.Translators;
+using L10NSharp.Translators;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	internal class LocalizeItemDlgViewModel
 	{

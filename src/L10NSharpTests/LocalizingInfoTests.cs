@@ -1,7 +1,7 @@
 using System.Windows.Forms;
 using NUnit.Framework;
 
-namespace Localization.Tests
+namespace L10NSharp.Tests
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>

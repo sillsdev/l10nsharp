@@ -1,9 +1,9 @@
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
-using Localization.Translators;
+using L10NSharp.Translators;
 
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	public partial class EditSourceBeforeTranslatingDlg : Form
 	{

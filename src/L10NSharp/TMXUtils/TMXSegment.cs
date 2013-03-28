@@ -15,7 +15,7 @@
 // ---------------------------------------------------------------------------------------------
 using System.Xml.Serialization;
 
-namespace Localization.TMXUtils
+namespace L10NSharp.TMXUtils
 {
 	#region TMXSegment class
 	/// ----------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	partial class PopupControl
 	{

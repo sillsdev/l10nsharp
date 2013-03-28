@@ -6,7 +6,7 @@ using System.ServiceModel.Security;
 using System.Text;
 using L10NSharp.BingTranslatorService;
 
-namespace Localization.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	public class BingTranslator : TranslatorBase

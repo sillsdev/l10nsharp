@@ -1,4 +1,4 @@
-namespace Localization.UI
+namespace L10NSharp.UI
 {
 	partial class TipDialog
 	{
@@ -32,7 +32,7 @@ namespace Localization.UI
 			this.tableLayout = new System.Windows.Forms.TableLayoutPanel();
 			this._icon = new System.Windows.Forms.PictureBox();
 			this._message = new System.Windows.Forms.TextBox();
-			this.dontShowThisAgainButton1 = new Localization.DontShowThisAgainButton();
+			this.dontShowThisAgainButton1 = new DontShowThisAgainButton();
 			this.tableLayout.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this._icon)).BeginInit();
 			this.SuspendLayout();

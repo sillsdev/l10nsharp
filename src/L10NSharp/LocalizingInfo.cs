@@ -1,8 +1,8 @@
 using System;
 using System.Windows.Forms;
-using Localization.UI;
+using L10NSharp.UI;
 
-namespace Localization
+namespace L10NSharp
 {
 	#region Enumerations
 	/// ----------------------------------------------------------------------------------------

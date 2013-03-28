@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace Localization.CodeReader
+namespace L10NSharp.CodeReader
 {
 	/// ------------------------------------------------------------------------------------
 	public class StringExtractor

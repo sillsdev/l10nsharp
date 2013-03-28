@@ -6,7 +6,7 @@ using System.Text;
 using System.Web;
 using Palaso.Network;
 
-namespace Localization.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>

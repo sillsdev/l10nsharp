@@ -9,9 +9,9 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Localization.UI;
+using L10NSharp.UI;
 
-namespace Localization
+namespace L10NSharp
 {
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizationManager : IDisposable
