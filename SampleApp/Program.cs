@@ -6,10 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Localization;
+using Localization.CodeReader;
 using SampleApp.Properties;
 
 namespace SampleApp
 {
+	[LocalizationPackage("SampleApp")]
 	static class Program
 	{
 		/// <summary>

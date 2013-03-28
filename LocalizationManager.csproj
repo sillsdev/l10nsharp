@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
+    <Compile Include="CodeReader\LocalizationPackageAttribute.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
     <Compile Include="DontShowThisAgainButton.cs">
       <SubType>Component</SubType>
@@ -71,6 +72,7 @@
     <Compile Include="DontShowThisAgainButton.Designer.cs">
       <DependentUpon>DontShowThisAgainButton.cs</DependentUpon>
     </Compile>
+    <Compile Include="LocalizationExtensions.cs" />
     <Compile Include="UI\HowToDistributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
