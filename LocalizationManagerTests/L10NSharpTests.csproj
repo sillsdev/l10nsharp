@@ -8,8 +8,8 @@
     <ProjectGuid>{BCE5B569-057C-4D7E-832E-E44A2DA705AC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Localization.Tests</RootNamespace>
-    <AssemblyName>LocalizationManagerTests</AssemblyName>
+    <RootNamespace>L10NSharp.Tests</RootNamespace>
+    <AssemblyName>L10NSharpTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -66,13 +66,9 @@
     <Compile Include="ReflectionHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LocalizationManager.csproj">
+    <ProjectReference Include="..\L10NSharp.csproj">
       <Project>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</Project>
-      <Name>LocalizationManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LocalizationManager.csproj">
-      <Project>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</Project>
-      <Name>LocalizationManager</Name>
+      <Name>L10NSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

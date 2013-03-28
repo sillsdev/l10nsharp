@@ -81,9 +81,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LocalizationManager.csproj">
+    <ProjectReference Include="..\L10NSharp.csproj">
       <Project>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</Project>
-      <Name>LocalizationManager</Name>
+      <Name>L10NSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
