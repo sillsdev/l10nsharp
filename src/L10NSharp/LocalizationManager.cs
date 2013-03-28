@@ -128,6 +128,7 @@ namespace L10NSharp
 			Name = appName;
 			AppVersion = appVersion;
 			TmxFileFolder = tmxFolder;
+			NamespaceBeginnings = namespaceBeginnings;
 
 			try
 			{
@@ -415,6 +416,9 @@ namespace L10NSharp
 				DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang);
 			}
 		}
+
+		public string[] NamespaceBeginnings { get; set; }
+
 		#endregion
 
 		#region Methods for caching and localizing objects.

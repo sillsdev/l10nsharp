@@ -29,7 +29,7 @@ namespace SampleApp
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.localizationExtender1 = new L10NSharp.UI.LocalizationExtender(this.components);
+            this.localizationExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -137,7 +137,7 @@ namespace SampleApp
 
         #endregion
 
-        private L10NSharp.UI.LocalizationExtender localizationExtender1;
+        private L10NSharp.UI.L10NSharpExtender localizationExtender1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;

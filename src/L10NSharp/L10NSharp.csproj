@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="L10NStringExtensions.cs" />
     <Compile Include="UI\DontShowThisAgainButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -210,6 +211,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LanguageChoosingDialog.resx">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\LocalizationExtender.resx">
+      <DependentUpon>LocalizationExtender.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
