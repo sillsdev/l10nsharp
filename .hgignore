@@ -2,3 +2,8 @@ syntax: glob
 _ReSharper*
 Output/
 obj/
+*.suo
+*.user
+bin/
+*.ncrunchsolution
+*Copy*.bat
