@@ -21,6 +21,8 @@ namespace SampleApp
 			uiLanguageComboBox1.SelectedLanguage = Settings.Default.UserInterfaceLanguage;
 			UpdateDynamicLabel();
 			this.Controls.Add(_dynamicLabel);
+
+			var unused = "Something".Localize();
 		}
 
 		//This demonstrates how to handle strings which aren't hard-coded, so can't be discovered
