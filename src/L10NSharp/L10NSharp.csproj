@@ -131,7 +131,7 @@
     <Compile Include="UI\FallbackLanguagesDlg.Designer.cs">
       <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\LocalizationExtender.cs">
+    <Compile Include="UI\L10NExtender.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\LocalizeItemDlg.cs">
@@ -212,8 +212,8 @@
     <EmbeddedResource Include="UI\LanguageChoosingDialog.resx">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\LocalizationExtender.resx">
-      <DependentUpon>LocalizationExtender.cs</DependentUpon>
+    <EmbeddedResource Include="UI\L10NExtender.resx">
+      <DependentUpon>L10NExtender.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>

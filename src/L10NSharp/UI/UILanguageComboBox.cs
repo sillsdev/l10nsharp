@@ -93,7 +93,14 @@ namespace L10NSharp.UI
 			Items.Clear();
 			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
 			var currCulture = CultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
-			SelectedItem = currCulture;
+			if (Items.Contains(currCulture))
+			{
+				SelectedItem = currCulture;
+			}
+			else
+			{
+				SelectedItem = "en";
+			}
 		}
 	}
 }
