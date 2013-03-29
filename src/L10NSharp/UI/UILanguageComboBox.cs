@@ -99,7 +99,7 @@ namespace L10NSharp.UI
 			}
 			else
 			{
-				SelectedItem = "en";
+				SelectedItem =  CultureInfo.GetCultureInfo("en");
 			}
 		}
 	}

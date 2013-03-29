@@ -94,7 +94,7 @@ namespace L10NSharp
 			var ci = CultureInfo.GetCultureInfo(desiredUiLangId);
 			if (!GetUILanguages(true).Contains(ci))
 			{
-				using (var dlg = new LanguageChoosingDialog(ci.DisplayName, applicationIcon))
+				using (var dlg = new LanguageChoosingDialog(ci, applicationIcon))
 				{
 					dlg.ShowDialog();
 					desiredUiLangId = dlg.SelectedLanguage;
