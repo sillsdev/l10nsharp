@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Security;
 using System.Text;
+using System.Threading;
 using L10NSharp.BingTranslatorService;
 
 namespace L10NSharp.Translators
@@ -54,8 +55,11 @@ namespace L10NSharp.Translators
 			binding.Security.Message.ClientCredentialType = BasicHttpMessageCredentialType.UserName;
 			binding.Security.Message.AlgorithmSuite = SecurityAlgorithmSuite.Default;
 
-			// I found that sometimes kAppId is not recognized as a valid application
+			//I (olson) found that sometimes kAppId is not recognized as a valid application
 			// Id. When that happens, attempt a few more times then give up.
+
+			//I (hatton) read that you only get a max of 7 per second, so that's a likely reason
+			//for the failure. On the assumption that this is the problem, I'll add a delay.
 			int retryCount = 4;
 			while (m_translator == null && retryCount > 0)
 			{
@@ -71,6 +75,7 @@ namespace L10NSharp.Translators
 				catch
 				{
 					m_translator = null;
+					Thread.Sleep(300);//we only get 7 per second.
 					retryCount--;
 				}
 			}
