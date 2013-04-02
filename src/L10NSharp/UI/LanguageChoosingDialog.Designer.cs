@@ -28,10 +28,31 @@ namespace L10NSharp.UI
         /// </summary>
         private void InitializeComponent()
         {
-            this.uiLanguageComboBox1 = new UILanguageComboBox();
             this._messageLabel = new System.Windows.Forms.Label();
             this._OKButton = new System.Windows.Forms.Button();
+            this.uiLanguageComboBox1 = new L10NSharp.UI.UILanguageComboBox();
             this.SuspendLayout();
+            // 
+            // _messageLabel
+            // 
+            this._messageLabel.AutoSize = true;
+            this._messageLabel.Location = new System.Drawing.Point(23, 25);
+            this._messageLabel.MaximumSize = new System.Drawing.Size(220, 0);
+            this._messageLabel.Name = "_messageLabel";
+            this._messageLabel.Size = new System.Drawing.Size(220, 39);
+            this._messageLabel.TabIndex = 1;
+            this._messageLabel.Text = "Our apologies, this program has not yet been localized for {0} ({1}). Please choo" +
+    "se from one of the following languages:";
+            // 
+            // _OKButton
+            // 
+            this._OKButton.Location = new System.Drawing.Point(168, 150);
+            this._OKButton.Name = "_OKButton";
+            this._OKButton.Size = new System.Drawing.Size(75, 23);
+            this._OKButton.TabIndex = 2;
+            this._OKButton.Text = "&OK";
+            this._OKButton.UseVisualStyleBackColor = true;
+            this._OKButton.Click += new System.EventHandler(this._OKButton_Click);
             // 
             // uiLanguageComboBox1
             // 
@@ -46,27 +67,6 @@ namespace L10NSharp.UI
             this.uiLanguageComboBox1.ShowOnlyLanguagesHavingLocalizations = true;
             this.uiLanguageComboBox1.Size = new System.Drawing.Size(217, 23);
             this.uiLanguageComboBox1.TabIndex = 0;
-            // 
-            // _messageLabel
-            // 
-            this._messageLabel.AutoSize = true;
-            this._messageLabel.Location = new System.Drawing.Point(23, 25);
-            this._messageLabel.MaximumSize = new System.Drawing.Size(220, 0);
-            this._messageLabel.Name = "_messageLabel";
-            this._messageLabel.Size = new System.Drawing.Size(220, 39);
-            this._messageLabel.TabIndex = 1;
-            this._messageLabel.Text = "Our apologies, this program has not yet been localized for {0}. Please choose fro" +
-    "m one of the following languages:";
-            // 
-            // _OKButton
-            // 
-            this._OKButton.Location = new System.Drawing.Point(168, 150);
-            this._OKButton.Name = "_OKButton";
-            this._OKButton.Size = new System.Drawing.Size(75, 23);
-            this._OKButton.TabIndex = 2;
-            this._OKButton.Text = "&OK";
-            this._OKButton.UseVisualStyleBackColor = true;
-            this._OKButton.Click += new System.EventHandler(this._OKButton_Click);
             // 
             // LanguageChoosingDialog
             // 

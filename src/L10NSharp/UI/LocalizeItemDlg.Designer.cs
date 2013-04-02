@@ -293,7 +293,7 @@ namespace L10NSharp.UI
             this._buttonMoveNext.DrawRightArrowButton = false;
             this._buttonMoveNext.Font = new System.Drawing.Font("Marlett", 9F);
             this._buttonMoveNext.Image = global::L10NSharp.Properties.Resources.kimidMoveNext;
-            this._buttonMoveNext.Location = new System.Drawing.Point(411, 133);
+            this._buttonMoveNext.Location = new System.Drawing.Point(407, 133);
             this._buttonMoveNext.Name = "_buttonMoveNext";
             this._buttonMoveNext.Size = new System.Drawing.Size(20, 20);
             this._buttonMoveNext.TabIndex = 2;
@@ -406,7 +406,7 @@ namespace L10NSharp.UI
             this._buttonMovePrev.DrawRightArrowButton = false;
             this._buttonMovePrev.Font = new System.Drawing.Font("Marlett", 9F);
             this._buttonMovePrev.Image = global::L10NSharp.Properties.Resources.kimidMovePrevious;
-            this._buttonMovePrev.Location = new System.Drawing.Point(411, 107);
+            this._buttonMovePrev.Location = new System.Drawing.Point(407, 107);
             this._buttonMovePrev.Name = "_buttonMovePrev";
             this._buttonMovePrev.Size = new System.Drawing.Size(20, 20);
             this._buttonMovePrev.TabIndex = 1;

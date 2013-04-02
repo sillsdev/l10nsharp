@@ -14,7 +14,7 @@ namespace L10NSharp.Tests
 	[TestFixture]
 	public class LocalizationExtenderTests
 	{
-		private LocalizationExtender m_extender;
+		private L10NSharpExtender m_extender;
 		private Dictionary<object, LocalizingInfo> m_extCtrls;
 
 		/// ------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ namespace L10NSharp.Tests
 		[SetUp]
 		public void TestSetup()
 		{
-			m_extender = new LocalizationExtender();
+			m_extender = new L10NSharpExtender();
 			m_extCtrls = ReflectionHelper.GetField(m_extender, "m_extendedCtrls") as
 				Dictionary<object, LocalizingInfo>;
 		}
@@ -51,6 +51,15 @@ namespace L10NSharp.Tests
 			Assert.AreEqual("tigers", m_extender.GetLocalizationComment(lbl));
 			Assert.AreEqual("bears", m_extender.GetLocalizingId(lbl));
 			Assert.AreEqual(LocalizationPriority.MediumLow, m_extender.GetLocalizationPriority(lbl));
+		}
+
+		/// <summary>
+		/// designers will have null if the developer didn't type anything in
+		/// </summary>
+		[Test, Ignore("by hand only because has UI")]
+		public void SetId_Null_DoesNotCrash()
+		{
+			new L10NSharpExtender().LocalizationManagerId = null;
 		}
 
 		/// ------------------------------------------------------------------------------------

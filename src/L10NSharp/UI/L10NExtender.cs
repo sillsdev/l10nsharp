@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -28,13 +29,13 @@ namespace L10NSharp.UI
 	[ProvideProperty("LocalizableToolTip", typeof(object))]
 	[ProvideProperty("LocalizationPriority", typeof(object))]
 	[ProvideProperty("LocalizationComment", typeof(object))]
-	public class LocalizationExtender : Component, IExtenderProvider, ISupportInitialize
+	public class L10NSharpExtender : Component, IExtenderProvider, ISupportInitialize
 	{
 		private static HashSet<Type> s_doNotExtend;
 
 		private Container components = null;
 		private Dictionary<object, LocalizingInfo> m_extendedCtrls;
-		private LocalizationManager _lm;
+		private LocalizationManager _manager;
 		private string _locManagerId;
 		//private string _idPrefixForThisForm="";
 
@@ -44,13 +45,13 @@ namespace L10NSharp.UI
 		/// Constructor for instance that supports Class Composition designer.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizationExtender(IContainer container) : this()
+		public L10NSharpExtender(IContainer container) : this()
 		{
 			container.Add(this);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public LocalizationExtender()
+		public L10NSharpExtender()
 		{
 			// Required for Windows.Forms Class Composition Designer support
 			components = new Container();
@@ -73,12 +74,28 @@ namespace L10NSharp.UI
 			get { return _locManagerId; }
 			set
 			{
+				if (LocalizationManager.LoadedManagers == null)
+				{
+					return;
+				}
+
+				Debug.Assert(ReallyDesignMode || value != null, "You need to enter the manager/package id for this L10NExtender");
+
 				_locManagerId = value;
-				if (!DesignMode && LocalizationManager.LoadedManagers != null &&
+				if (value!=null && !DesignMode && LocalizationManager.LoadedManagers != null &&
 					LocalizationManager.LoadedManagers.ContainsKey(_locManagerId))
 				{
-					_lm = LocalizationManager.LoadedManagers[_locManagerId];
+					_manager = LocalizationManager.LoadedManagers[_locManagerId];
 				}
+			}
+		}
+
+		protected new bool ReallyDesignMode
+		{
+			get
+			{
+				return (base.DesignMode || GetService(typeof(IDesignerHost)) != null) ||
+					(LicenseManager.UsageMode == LicenseUsageMode.Designtime);
 			}
 		}
 
@@ -127,7 +144,7 @@ namespace L10NSharp.UI
 					s_doNotExtend.Add(typeof(Panel));
 					s_doNotExtend.Add(typeof(TableLayoutPanel));
 					s_doNotExtend.Add(typeof(FlowLayoutPanel));
-					s_doNotExtend.Add(typeof(LocalizationExtender));
+					s_doNotExtend.Add(typeof(L10NSharpExtender));
 				}
 
 				return s_doNotExtend;
@@ -191,7 +208,7 @@ namespace L10NSharp.UI
 		{
 			try
 			{
-				if (DesignMode || m_extendedCtrls == null || _lm == null)
+				if (DesignMode || m_extendedCtrls == null || _manager == null)
 					return;
 
 				FinalizationForListViewColumnHeaders();
@@ -201,8 +218,8 @@ namespace L10NSharp.UI
 				foreach (var locInfo in m_extendedCtrls.Values
 					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
 				{
-					if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
-						_lm.ApplyLocalization(locInfo.Obj);
+					if (_manager.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+						_manager.ApplyLocalization(locInfo.Obj);
 
 				}
 
@@ -290,8 +307,8 @@ namespace L10NSharp.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column);
-			if (_lm.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
-				_lm.ApplyLocalization(locInfo.Obj);
+			if (_manager.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+				_manager.ApplyLocalization(locInfo.Obj);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -420,5 +437,10 @@ namespace L10NSharp.UI
 		}
 
 		#endregion
+
+		private void InitializeComponent()
+		{
+
+		}
 	}
 }
