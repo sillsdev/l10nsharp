@@ -694,6 +694,13 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicString(string appId, string id, string englishText, string comment)
 		{
+			//this happens in unit test environments or apps that
+			//have imported a library that is L10N'ized, but the app
+			//itself isn't initializing L10N yet.
+			if(LoadedManagers.Count==0)
+			{
+				return id;
+			}
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
