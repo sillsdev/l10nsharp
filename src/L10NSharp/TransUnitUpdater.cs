@@ -131,6 +131,9 @@ namespace L10NSharp
 		{
 			newValue = newValue ?? string.Empty;
 
+			// Get rid of the variant we are about to set if it is present.
+			// If no variants remain get rid of the whole thing.
+			// Later we will create whatever we need.
 			if (tu != null)
 			{
 				var tuv = tu.GetVariantForLang(locInfo.LangId);
@@ -139,7 +142,10 @@ namespace L10NSharp
 					_updated = true;
 					tu.RemoveVariant(tuv);
 					if (tu.Variants.Count == 0)
+					{
 						_tmxDoc.RemoveTransUnit(tu);
+						tu = null; // so we will make a new one if needed.
+					}
 				}
 			}
 
