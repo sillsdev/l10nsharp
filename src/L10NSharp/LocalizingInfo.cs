@@ -119,9 +119,14 @@ namespace L10NSharp
 			Priority = LocalizationPriority.Medium;
 			Category = GetCategory(_obj);
 			UpdateFields = UpdateFields.All;
+			UpdateTextFromObject();
+		}
 
-			Text = LocalizationManager.StripOffLocalizationInfoFromText(_obj is DataGridViewColumn ?
-				((DataGridViewColumn)_obj).HeaderText : Utils.GetProperty(_obj, "Text") as string);
+		public void UpdateTextFromObject()
+		{
+			Text = LocalizationManager.StripOffLocalizationInfoFromText(_obj is DataGridViewColumn
+																			? ((DataGridViewColumn) _obj).HeaderText
+																			: Utils.GetProperty(_obj, "Text") as string);
 		}
 
 		/// ------------------------------------------------------------------------------------

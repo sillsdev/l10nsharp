@@ -21,6 +21,13 @@ namespace L10NSharp
 		internal const string kAppVersionPropTag = "x-appversion";
 		internal const string kL10NPrefix = "_L10N_:";
 
+		/// <summary>
+		/// These two events allow us to know when the localization dialog is running.
+		/// For example, HearThis needs to turn off some event prefiltering.
+		/// </summary>
+		public static event EventHandler LaunchingLocalizationDialog;
+		public static event EventHandler ClosingLocalizationDialog;
+
 		private static string s_uiLangId;
 		private static List<string> s_fallbackLanguageIds = new List<string>(new[] { kDefaultLang });
 
@@ -431,6 +438,19 @@ namespace L10NSharp
 		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
+			return RegisterObjectForLocalizing(new LocalizingInfo(obj, id)
+											{
+												Text = defaultText,
+												ToolTipText = defaultTooltip,
+												ShortcutKeys = defaultShortcutKeys,
+												Comment = comment
+											});
+		}
+
+		internal bool RegisterObjectForLocalizing(LocalizingInfo info)
+		{
+			var obj = info.Obj;
+			var id = info.Id;
 			if (obj == null || id == null || id.Trim() == string.Empty)
 				return false;
 
@@ -451,6 +471,8 @@ namespace L10NSharp
 					// prepare it to be available for end-user localization.
 					PrepareObjectForRuntimeLocalization(obj);
 					ObjectCache.Add(obj, id);
+					// Make it available for the config dialog to localize.
+					StringCache.UpdateLocalizedInfo(info);
 				}
 
 				return true;
@@ -1104,8 +1126,11 @@ namespace L10NSharp
 					}
 				}
 			}
-
+			if (LaunchingLocalizationDialog != null)
+				LaunchingLocalizationDialog(this, new EventArgs());
 			LocalizeItemDlg.ShowDialog(this, ctrl, false);
+			if (ClosingLocalizationDialog != null)
+				ClosingLocalizationDialog(this, new EventArgs());
 		}
 
 		/// ------------------------------------------------------------------------------------

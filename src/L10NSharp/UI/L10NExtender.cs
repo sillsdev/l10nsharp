@@ -218,7 +218,13 @@ namespace L10NSharp.UI
 				foreach (var locInfo in m_extendedCtrls.Values
 					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
 				{
-					if (_manager.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+					if (string.IsNullOrEmpty(locInfo.LangId))
+						locInfo.LangId = LocalizationManager.kDefaultLang;
+					// Depending on the order in which VS Designer decides to initialize fields, locInfo may be originally created before the Text of the
+					// control is set. If so, obtain it again.
+					if (string.IsNullOrWhiteSpace(locInfo.Text))
+						locInfo.UpdateTextFromObject();
+					if (_manager.RegisterObjectForLocalizing(locInfo))
 						_manager.ApplyLocalization(locInfo.Obj);
 
 				}
@@ -307,7 +313,7 @@ namespace L10NSharp.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column);
-			if (_manager.RegisterObjectForLocalizing(locInfo.Obj, locInfo.Id, null, null, null, null))
+			if (_manager.RegisterObjectForLocalizing(locInfo))
 				_manager.ApplyLocalization(locInfo.Obj);
 		}
 
