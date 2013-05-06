@@ -431,6 +431,19 @@ namespace L10NSharp
 		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
+			return RegisterObjectForLocalizing(new LocalizingInfo(obj, id)
+											{
+												Text = defaultText,
+												ToolTipText = defaultTooltip,
+												ShortcutKeys = defaultShortcutKeys,
+												Comment = comment
+											});
+		}
+
+		internal bool RegisterObjectForLocalizing(LocalizingInfo info)
+		{
+			var obj = info.Obj;
+			var id = info.Id;
 			if (obj == null || id == null || id.Trim() == string.Empty)
 				return false;
 
@@ -451,6 +464,8 @@ namespace L10NSharp
 					// prepare it to be available for end-user localization.
 					PrepareObjectForRuntimeLocalization(obj);
 					ObjectCache.Add(obj, id);
+					// Make it available for the config dialog to localize.
+					StringCache.UpdateLocalizedInfo(info);
 				}
 
 				return true;
