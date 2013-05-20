@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Localization Manager")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("L10NSharp")]
+[assembly: AssemblyDescription("Localization For .net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LocalizationManager")]
-[assembly: AssemblyCopyright("Copyright © Palaso 2010-2012")]
+[assembly: AssemblyProduct("L10NSharp")]
+[assembly: AssemblyCopyright("Copyright © SIL 2010-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
