@@ -4,7 +4,7 @@ using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Web;
-using Palaso.Network;
+using L10NSharp.Utility;
 
 namespace L10NSharp.Translators
 {
