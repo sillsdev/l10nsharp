@@ -1,4 +1,7 @@
-//This is here to enable using the .net client profile, which lacks this class
+//This is here to enable using the .net client profile, which lacks this class.
+// It is duplicated (apart from this comment) in Palaso.Network namespace, part of the main Palaso DLL.
+// I think this is because L10NSharp needs it, but so do some Palaso clients;
+// and since Palaso references L10NSharp, L10NSharp can't reference Palaso.
 //
 // System.Web.HttpUtility
 //
@@ -34,13 +37,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
-using System.Security.Permissions;
 using System.Text;
 using System.Web.Util;
 
-namespace Palaso.Network
+namespace L10NSharp.Utility
 {
 
 #if NET_4_0
