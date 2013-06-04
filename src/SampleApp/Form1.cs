@@ -14,23 +14,14 @@ namespace SampleApp
 		{
 			InitializeComponent();
 
-			_dynamicLabel = new Label()
-			{
-				Location = new Point(label1.Location.X+120, label1.Location.Y)
-			};
-			uiLanguageComboBox1.SelectedLanguage = Settings.Default.UserInterfaceLanguage;
-			UpdateDynamicLabel();
-			this.Controls.Add(_dynamicLabel);
 
-			var unused = "Something".Localize();
 		}
 
-		//This demonstrates how to handle strings which aren't hard-coded, so can't be discovered
-		//by the runtime code scanner. Instead, we ue this GetDynamicString
+
 		private void UpdateDynamicLabel()
 		{
-			var someRuntimeThing = "some " + "runtime " + "thing";
-			_dynamicLabel.Text = LocalizationManager.GetDynamicString("SampleApp", someRuntimeThing, someRuntimeThing);
+			if(_dynamicLabel!=null)
+				_dynamicLabel.Text = LocalizationManager.GetDynamicString("SampleApp", "The User Name", Environment.UserName);
 		}
 
 		private void uiLanguageComboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -44,6 +35,21 @@ namespace SampleApp
 		{
 			LocalizationManager.ShowLocalizationDialogBox(this);
 			UpdateDynamicLabel();
+		}
+
+		//This demonstrates how to handle strings which aren't hard-coded, so can't be discovered
+		//by the runtime code scanner. Instead, we ue this GetDynamicString
+		private void button1_Click(object sender, EventArgs e)
+		{
+			_getDynamicStringButton.Enabled = false;
+
+			_dynamicLabel = new Label()
+			{
+				Location = new Point(_getDynamicStringButton.Location.X + 180, _getDynamicStringButton.Location.Y+10)
+			};
+			uiLanguageComboBox1.SelectedLanguage = Settings.Default.UserInterfaceLanguage;
+			UpdateDynamicLabel();
+			this.Controls.Add(_dynamicLabel);
 		}
 	}
 }

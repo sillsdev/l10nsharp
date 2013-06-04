@@ -31,13 +31,15 @@ namespace SampleApp
 
 		public static void SetUpLocalization()
 		{
-			var installedStringFileFolder = "../../";
+			//your installer should have a folder where you place the tmx files you're shipping with the program
+			var directoryOfInstalledTmxFiles = "../../LocalizationFilesFromInstaller";
 
 			try
 			{
-				//You sure won't want to use "temp" in your real app. Consider AppData/Product.
-				//Downside of that one is that the user needs write access to that folder.
-				var pathForStoringLocalizations = Path.GetTempPath();
+				//When a user does some translation, their work goes in this directory.
+				//By using "null", we get AppData/Product. Note: non-admin-rights users can't write to that folder.
+
+				string directoryOfUserModifiedTmxFiles = null;
 
 				//if this is your first time running the app, the library will query the OS for the
 				//the default language. If it doesn't have that, it puts up a dialog listing what
@@ -47,8 +49,8 @@ namespace SampleApp
 
 				LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 										   "SampleApp", "SampleApp", Application.ProductVersion,
-										   installedStringFileFolder,
-										   Path.Combine(pathForStoringLocalizations, "Localizations"),
+										   directoryOfInstalledTmxFiles,
+										   directoryOfUserModifiedTmxFiles,
 										   Resources.Icon, //replace with your icon
 										   "sampleappLocalizations@nowhere.com", "SampleApp");
 

@@ -57,10 +57,10 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="installedTmxFilePath">The full file path of the original TMX files
+		/// <param name="directoryOfInstalledTmxFiles">The full file path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="targetTmxFilePath">The full file path where to copy the TMX files
-		/// found in 'installedTmxFilePath' so they can be edited by the user. If the
+		/// <param name="directoryOfUserModifiedTmxFiles">The full file path where to copy the TMX files
+		/// found in 'directoryOfInstalledTmxFiles' so they can be edited by the user. If the
 		/// value is null, the default location is used (which is appName combined with
 		/// Environment.SpecialFolder.CommonApplicationData)</param>
 		/// <param name="applicationIcon"> </param>
@@ -72,23 +72,23 @@ namespace L10NSharp
 		/// 'Pa', then this value would only contain the string 'Pa'.</param>
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
-			string appName, string appVersion, string installedTmxFilePath, string targetTmxFilePath, Icon applicationIcon,
+			string appName, string appVersion, string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles, Icon applicationIcon,
 			string emailForSubmissions,
 			params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
 			_applicationIcon = applicationIcon;
-			if (targetTmxFilePath == null)
+			if (string.IsNullOrEmpty(directoryOfUserModifiedTmxFiles))
 			{
-				targetTmxFilePath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-				targetTmxFilePath = Path.Combine(targetTmxFilePath, appName);
+				directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+				directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, appName);
 			}
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
 				lm = new LocalizationManager(appId, appName, appVersion,
-					installedTmxFilePath, targetTmxFilePath, namespaceBeginnings);
+					directoryOfInstalledTmxFiles, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
 			}
@@ -129,12 +129,12 @@ namespace L10NSharp
 		#region LocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
 		private LocalizationManager(string appId, string appName, string appVersion,
-			string installedTmxFilePath, string tmxFolder, params string[] namespaceBeginnings)
+			string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
 		{
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
-			TmxFileFolder = tmxFolder;
+			TmxFileFolder = directoryOfUserModifiedTmxFiles;
 			NamespaceBeginnings = namespaceBeginnings;
 
 			try
@@ -146,7 +146,7 @@ namespace L10NSharp
 					Directory.CreateDirectory(TmxFileFolder);
 
 				CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
-				CopyInstalledTmxFilesToWritableLocation(installedTmxFilePath);
+				CopyInstalledTmxFilesToWritableLocation(directoryOfInstalledTmxFiles);
 			}
 			catch (Exception e)
 			{
@@ -156,7 +156,7 @@ namespace L10NSharp
 					// If a user with access to the target folder has never run the application,
 					// fall back to the install location.
 					if (!File.Exists(DefaultStringFilePath))
-						TmxFileFolder = installedTmxFilePath;
+						TmxFileFolder = directoryOfInstalledTmxFiles;
 				}
 				else
 					throw;
@@ -177,8 +177,10 @@ namespace L10NSharp
 				var verElement = xmlDoc.Element("header").Elements("prop")
 					.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 
+#if !DEBUG //!!!!!!!!!!!!**************REMOVE
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
+#endif
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
@@ -201,12 +203,12 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void CopyInstalledTmxFilesToWritableLocation(string installedTmxFilePath)
+		private void CopyInstalledTmxFilesToWritableLocation(string directoryOfInstalledTmxFiles)
 		{
-			if (installedTmxFilePath == null)
+			if (directoryOfInstalledTmxFiles == null)
 				return;
 
-			foreach (var installedFile in Directory.GetFiles(installedTmxFilePath, Id + "*.tmx"))
+			foreach (var installedFile in Directory.GetFiles(directoryOfInstalledTmxFiles, Id + "*.tmx"))
 			{
 				var targetFile = Path.Combine(TmxFileFolder, Path.GetFileName(installedFile));
 
