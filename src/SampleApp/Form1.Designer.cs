@@ -35,6 +35,9 @@ namespace SampleApp
 			this.label2 = new System.Windows.Forms.Label();
 			this.uiLanguageComboBox1 = new L10NSharp.UI.UILanguageComboBox();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+			this.listView1 = new System.Windows.Forms.ListView();
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			((System.ComponentModel.ISupportInitialize)(this.localizationExtender1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -43,7 +46,7 @@ namespace SampleApp
 			this.localizationExtender1.LocalizationManagerId = "SampleApp";
 			this.localizationExtender1.PrefixForNewItems = "TheSampleForm";
 			// 
-			// button1
+			// _getDynamicStringButton
 			// 
 			this.localizationExtender1.SetLocalizableToolTip(this._getDynamicStringButton, null);
 			this.localizationExtender1.SetLocalizationComment(this._getDynamicStringButton, null);
@@ -112,11 +115,38 @@ namespace SampleApp
 			this.linkLabel1.Text = "Open Translation Dialog,";
 			this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
 			// 
+			// listView1
+			// 
+			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+			this.listView1.Location = new System.Drawing.Point(28, 280);
+			this.listView1.Name = "listView1";
+			this.listView1.Size = new System.Drawing.Size(338, 97);
+			this.listView1.TabIndex = 5;
+			this.listView1.UseCompatibleStateImageBehavior = false;
+			this.listView1.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader1
+			// 
+			this.localizationExtender1.SetLocalizableToolTip(this.columnHeader1, null);
+			this.localizationExtender1.SetLocalizationComment(this.columnHeader1, null);
+			this.localizationExtender1.SetLocalizingId(this.columnHeader1, "TheSampleForm.columnHeader1");
+			this.columnHeader1.Text = "One";
+			// 
+			// columnHeader2
+			// 
+			this.localizationExtender1.SetLocalizableToolTip(this.columnHeader2, null);
+			this.localizationExtender1.SetLocalizationComment(this.columnHeader2, null);
+			this.localizationExtender1.SetLocalizingId(this.columnHeader2, "TheSampleForm.columnHeader2");
+			this.columnHeader2.Text = "Two";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(381, 280);
+			this.ClientSize = new System.Drawing.Size(400, 436);
+			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.linkLabel1);
 			this.Controls.Add(this.uiLanguageComboBox1);
 			this.Controls.Add(this.label2);
@@ -144,6 +174,9 @@ namespace SampleApp
         private System.Windows.Forms.Label label2;
         private L10NSharp.UI.UILanguageComboBox uiLanguageComboBox1;
         private System.Windows.Forms.LinkLabel linkLabel1;
+		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
     }
 }
 
