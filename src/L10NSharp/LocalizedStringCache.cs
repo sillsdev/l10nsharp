@@ -97,10 +97,18 @@ namespace L10NSharp
 						if (defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
 							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 						{
+							//if we couldn't find it, maybe the id just changed and then if so re-id it.
 							var movedUnit = defaultTmxDoc.GetTransUnitForOrphanWithId(tu.Id);
-							if(movedUnit==null && tu.GetPropValue(kDiscoveredDyanmically)!="true")
+							if (movedUnit == null)
 							{
-								tu.AddProp(kNoLongerUsedPropTag, "true");
+								if (tu.GetPropValue(kDiscoveredDyanmically) == "true")
+								{
+									//ok, no big deal, that what we expect with dynamic strings, by definition... that we won't find them during a static code scan
+								}
+								else
+								{
+									tu.AddProp(kNoLongerUsedPropTag, "true");
+								}
 							}
 							else
 							{
@@ -113,6 +121,12 @@ namespace L10NSharp
 				}
 				catch (Exception e)
 				{
+	#if DEBUG
+					throw e;
+	#endif
+
+					//REVIEW: Better explain the conditions where we get an error on a file but don't care about it?
+
 					// If error happened reading some localization file other than the one we care
 					// about right now, just ignore it.
 					if (file == OwningManager.GetTmxPathForLanguage(LocalizationManager.UILanguageId))
