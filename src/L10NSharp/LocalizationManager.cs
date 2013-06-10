@@ -177,10 +177,8 @@ namespace L10NSharp
 				var verElement = xmlDoc.Element("header").Elements("prop")
 					.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 
-#if !DEBUG //!!!!!!!!!!!!**************REMOVE
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
-#endif
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
