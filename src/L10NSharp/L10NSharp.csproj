@@ -137,7 +137,7 @@
     <Compile Include="UI\LocalizeItemDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\LocalizeItemDlg.designer.cs">
+    <Compile Include="UI\LocalizeItemDlg.Designer.cs">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\LocalizeItemDlgViewModel.cs" />
