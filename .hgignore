@@ -1,6 +1,6 @@
 syntax: glob
 _ReSharper*
-Output/
+output/
 obj/
 *.suo
 *.user
