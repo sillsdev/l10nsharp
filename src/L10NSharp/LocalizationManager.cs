@@ -1078,7 +1078,7 @@ namespace L10NSharp
 			get
 			{
 				return EnableClickingOnControlToBringUpLocalizationDialog &&
-					Control.ModifierKeys == (Keys.Shift | Keys.Control);
+					Control.ModifierKeys == (Keys.Alt | Keys.Shift);
 			}
 		}
 
