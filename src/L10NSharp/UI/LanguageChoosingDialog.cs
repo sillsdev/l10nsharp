@@ -29,9 +29,14 @@ namespace L10NSharp.UI
 			{
 				var s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName, _requestedCulture.NativeName));
 				if (!string.IsNullOrEmpty(s))
+				{
 					_messageLabel.Text = s;
-				_OKButton.Text = translator.TranslateText("OK");
-				Text = translator.TranslateText(Text);
+					// In general, we will be able to translate OK and the title bar text iff we were able to translate
+					// the message.  This assumption saves a few processor cycles and prevents disappearing text when
+					// a language has not been localized (as is likely the case when we display this dialog).
+					_OKButton.Text = translator.TranslateText("OK");
+					Text = translator.TranslateText(Text);
+				}
 			}
 			catch (Exception)
 			{
