@@ -354,9 +354,16 @@ namespace L10NSharp
 				if (s_uiLangId == null)
 				{
 					s_uiLangId = Thread.CurrentThread.CurrentUICulture.Name;
-					int i = s_uiLangId.IndexOf('-');
+#if __MonoCS__
+					// The current version of Mono does not define a CultureInfo for "zh", so
+					// it tends to throw exceptions when we try to use just plain "zh".
+					if (s_uiLangId == "zh-CN")
+						return s_uiLangId;
+					// Otherwise, we want the culture.neutral version.
+#endif
+					int i = s_uiLangId.IndexOf ('-');
 					if (i >= 0)
-						s_uiLangId = s_uiLangId.Substring(0, i);
+						s_uiLangId = s_uiLangId.Substring (0, i);
 				}
 
 				return s_uiLangId;
