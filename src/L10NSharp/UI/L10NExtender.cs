@@ -38,6 +38,7 @@ namespace L10NSharp.UI
 		private LocalizationManager _manager;
 		private string _locManagerId;
 		//private string _idPrefixForThisForm="";
+		private bool _okayToLocalizeControls = false;
 
 		#region Constructors
 		/// ------------------------------------------------------------------------------------
@@ -82,10 +83,10 @@ namespace L10NSharp.UI
 				Debug.Assert(ReallyDesignMode || value != null, "You need to enter the manager/package id for this L10NExtender");
 
 				_locManagerId = value;
-				if (value!=null && !DesignMode && LocalizationManager.LoadedManagers != null &&
-					LocalizationManager.LoadedManagers.ContainsKey(_locManagerId))
+				if (value != null && !DesignMode && LocalizationManager.LoadedManagers.ContainsKey(_locManagerId))
 				{
 					_manager = LocalizationManager.LoadedManagers[_locManagerId];
+					LocalizeControls();
 				}
 			}
 		}
@@ -199,44 +200,20 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Signals the object that initialization is complete. This method will go through
-		/// the collection of the controls that have been extended and adds to or udates the
-		/// default values in the string files. Then each extended control is localized.
+		/// Signals the object that initialization is complete. If the manager has been set
+		/// (i.e., a valid LocalizationManagerId was supplied), then the controls will be
+		/// localized.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public void EndInit()
 		{
 			try
 			{
-				if (DesignMode || m_extendedCtrls == null || _manager == null)
+				if (DesignMode)
 					return;
 
-				FinalizationForListViewColumnHeaders();
-				FinalizationForDataGridViewColumns();
-
-				// Now make sure each extended control is localized.
-				foreach (var locInfo in m_extendedCtrls.Values
-					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
-				{
-					if (string.IsNullOrEmpty(locInfo.LangId))
-						locInfo.LangId = LocalizationManager.kDefaultLang;
-					// Depending on the order in which VS Designer decides to initialize fields, locInfo may be originally created before the Text of the
-					// control is set. If so, obtain it again.
-					if (string.IsNullOrWhiteSpace(locInfo.Text))
-						locInfo.UpdateTextFromObject();
-					// Special case: the Text of a column header is "ColumnHeader" before it is ever set.
-					// This means that if we first processed the CH before we set its text, we have noted
-					// "ColumnHeader" as its default English name. Get the real one if it has since been updated.
-					var ch = locInfo.Obj as ColumnHeader;
-					if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
-						locInfo.UpdateTextFromObject();
-					if (_manager.RegisterObjectForLocalizing(locInfo))
-						_manager.ApplyLocalization(locInfo.Obj);
-
-				}
-
-				m_extendedCtrls = null;
-
+				_okayToLocalizeControls = true;
+				LocalizeControls();
 			}
 			catch (Exception)
 			{
@@ -244,6 +221,45 @@ namespace L10NSharp.UI
 				throw;
 #endif
 			}
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// This method goes through the collection of the controls that have been extended
+		/// and adds to or udates the default values in the string files. Then each extended
+		/// control is localized.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private void LocalizeControls()
+		{
+			if (!_okayToLocalizeControls || m_extendedCtrls == null || _manager == null)
+				return;
+
+			FinalizationForListViewColumnHeaders();
+			FinalizationForDataGridViewColumns();
+
+			// Now make sure each extended control is localized.
+			foreach (var locInfo in m_extendedCtrls.Values
+				.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
+			{
+				if (string.IsNullOrEmpty(locInfo.LangId))
+					locInfo.LangId = LocalizationManager.kDefaultLang;
+				// Depending on the order in which VS Designer decides to initialize fields, locInfo may be originally created before the Text of the
+				// control is set. If so, obtain it again.
+				if (string.IsNullOrWhiteSpace(locInfo.Text))
+					locInfo.UpdateTextFromObject();
+				// Special case: the Text of a column header is "ColumnHeader" before it is ever set.
+				// This means that if we first processed the CH before we set its text, we have noted
+				// "ColumnHeader" as its default English name. Get the real one if it has since been updated.
+				var ch = locInfo.Obj as ColumnHeader;
+				if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
+					locInfo.UpdateTextFromObject();
+				if (_manager.RegisterObjectForLocalizing(locInfo))
+					_manager.ApplyLocalization(locInfo.Obj);
+			}
+
+			m_extendedCtrls = null;
+			_okayToLocalizeControls = false;
 		}
 
 		/// ------------------------------------------------------------------------------------
