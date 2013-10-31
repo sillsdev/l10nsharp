@@ -529,8 +529,15 @@ namespace L10NSharp
 			}
 		}
 
+		public enum WhatToDoIfCannotSave
+		{
+			Nothing,
+			MessageBox,
+			Exception
+		};
+
 		/// ------------------------------------------------------------------------------------
-		internal void SaveIfDirty()
+		internal void SaveIfDirty(WhatToDoIfCannotSave whatToDoIfCannotSave)
 		{
 			try
 			{
@@ -539,7 +546,18 @@ namespace L10NSharp
 			catch (IOException e)
 			{
 				CanCustomizeLocalizations = false;
-				MessageBox.Show(e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				switch (whatToDoIfCannotSave)
+				{
+					case WhatToDoIfCannotSave.Nothing:
+						break;
+					case WhatToDoIfCannotSave.MessageBox:
+						MessageBox.Show(e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+						break;
+					case WhatToDoIfCannotSave.Exception:
+						throw e;
+					default:
+						throw new ArgumentOutOfRangeException("whatToDoIfCannotSave");
+				}
 			}
 
 		}
@@ -754,7 +772,7 @@ namespace L10NSharp
 
 
 			lm.StringCache.UpdateLocalizedInfo(locInfo);
-			lm.SaveIfDirty();
+			lm.SaveIfDirty(WhatToDoIfCannotSave.Nothing);// this will be common for GetDynamic string on users restricted from writing to ProgramData
 			return englishText;
 		}
 

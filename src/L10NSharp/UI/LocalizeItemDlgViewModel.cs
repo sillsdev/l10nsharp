@@ -238,7 +238,8 @@ namespace L10NSharp.UI
 
 			foreach (var lm in LocalizationManager.LoadedManagers.Values)
 			{
-				lm.SaveIfDirty();
+				lm.SaveIfDirty(LocalizationManager.WhatToDoIfCannotSave.MessageBox);
+
 				// If saving fails, the LocalizationManager will record the problem .
 				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
 			}
