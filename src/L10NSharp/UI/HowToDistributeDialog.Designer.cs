@@ -40,7 +40,6 @@ namespace L10NSharp.UI
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(34, 263);
             this.label1.MaximumSize = new System.Drawing.Size(300, 0);
@@ -62,7 +61,6 @@ namespace L10NSharp.UI
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(34, 161);
             this.label2.MaximumSize = new System.Drawing.Size(300, 0);
@@ -108,7 +106,6 @@ namespace L10NSharp.UI
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(34, 35);
             this.label4.MaximumSize = new System.Drawing.Size(300, 0);
