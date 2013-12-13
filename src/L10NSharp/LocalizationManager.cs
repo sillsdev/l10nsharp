@@ -136,6 +136,7 @@ namespace L10NSharp
 			AppVersion = appVersion;
 			TmxFileFolder = directoryOfUserModifiedTmxFiles;
 			NamespaceBeginnings = namespaceBeginnings;
+			CollectUpNewStringsDiscoveredDynamically = true;
 
 			try
 			{
@@ -767,7 +768,7 @@ namespace L10NSharp
 			if (text != null)
 				return text;
 
-			if (!CollectUpNewStringsDiscoveredDynamically)
+			if (!lm.CollectUpNewStringsDiscoveredDynamically)
 				return englishText;
 
 			var locInfo = new LocalizingInfo(id) { LangId = kDefaultLang, Text = englishText };
@@ -794,7 +795,7 @@ namespace L10NSharp
 		/// with Bloom. So it sets this to False unless the app was compiled in DEBUG mode.
 		/// Default is true.
 		/// </summary>
-		public static bool CollectUpNewStringsDiscoveredDynamically { get; set; }
+		public bool CollectUpNewStringsDiscoveredDynamically { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
