@@ -767,6 +767,9 @@ namespace L10NSharp
 			if (text != null)
 				return text;
 
+			if (!CollectUpNewStringsDiscoveredDynamically)
+				return englishText;
+
 			var locInfo = new LocalizingInfo(id) { LangId = kDefaultLang, Text = englishText };
 			locInfo.DiscoveredDynamically = true;
 			locInfo.UpdateFields = UpdateFields.Text;
@@ -782,6 +785,16 @@ namespace L10NSharp
 			lm.SaveIfDirty(WhatToDoIfCannotSave.Nothing);// this will be common for GetDynamic string on users restricted from writing to ProgramData
 			return englishText;
 		}
+
+		/// <summary>
+		/// Set this to false if you don't want users to pollute tmx files they might send to you
+		/// with strings that are unique to their documents. For example, Bloom looks for strings
+		/// in html that might have been localized; but Bloom doesn't want to ship an ever-growing
+		/// list of discovered strings for people to translate that aren't actually part of what you get
+		/// with Bloom. So it sets this to False unless the app was compiled in DEBUG mode.
+		/// Default is true.
+		/// </summary>
+		public static bool CollectUpNewStringsDiscoveredDynamically { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
