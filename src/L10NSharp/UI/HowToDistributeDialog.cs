@@ -11,6 +11,11 @@ namespace L10NSharp.UI
 		{
 			_targetTmxFilePath = targetTmxFilePath;
 			InitializeComponent();
+
+#if MONO
+			//Steve M set these all to false in the Designer.cs, but that makes them all disappear on Windows
+			label1.AutoSize = label2.AutoSize = label3.AutoSize = label4.AutoSize = false;
+#endif
 			_emailLabel.Text=emailForSubmissions;
 		}
 

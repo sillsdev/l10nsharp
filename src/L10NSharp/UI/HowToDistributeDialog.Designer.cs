@@ -40,8 +40,9 @@ namespace L10NSharp.UI
             // 
             // label1
             // 
+            this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(34, 263);
+            this.label1.Location = new System.Drawing.Point(34, 276);
             this.label1.MaximumSize = new System.Drawing.Size(300, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(284, 95);
@@ -52,7 +53,7 @@ namespace L10NSharp.UI
             // 
             this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._okButton.Location = new System.Drawing.Point(243, 383);
+            this._okButton.Location = new System.Drawing.Point(243, 389);
             this._okButton.Name = "_okButton";
             this._okButton.Size = new System.Drawing.Size(75, 23);
             this._okButton.TabIndex = 1;
@@ -61,8 +62,9 @@ namespace L10NSharp.UI
             // 
             // label2
             // 
+            this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(34, 161);
+            this.label2.Location = new System.Drawing.Point(34, 167);
             this.label2.MaximumSize = new System.Drawing.Size(300, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 38);
@@ -73,7 +75,7 @@ namespace L10NSharp.UI
             // 
             this._showTMXFile.AutoSize = true;
             this._showTMXFile.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this._showTMXFile.Location = new System.Drawing.Point(34, 199);
+            this._showTMXFile.Location = new System.Drawing.Point(34, 222);
             this._showTMXFile.Name = "_showTMXFile";
             this._showTMXFile.Size = new System.Drawing.Size(90, 19);
             this._showTMXFile.TabIndex = 3;
@@ -85,7 +87,7 @@ namespace L10NSharp.UI
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(130, 199);
+            this.label3.Location = new System.Drawing.Point(130, 222);
             this.label3.MaximumSize = new System.Drawing.Size(300, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(22, 19);
@@ -96,7 +98,7 @@ namespace L10NSharp.UI
             // 
             this._emailLabel.AutoSize = true;
             this._emailLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this._emailLabel.Location = new System.Drawing.Point(34, 218);
+            this._emailLabel.Location = new System.Drawing.Point(34, 241);
             this._emailLabel.Name = "_emailLabel";
             this._emailLabel.Size = new System.Drawing.Size(177, 19);
             this._emailLabel.TabIndex = 5;
@@ -106,11 +108,12 @@ namespace L10NSharp.UI
             // 
             // label4
             // 
+            this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(34, 35);
+            this.label4.Location = new System.Drawing.Point(34, 34);
             this.label4.MaximumSize = new System.Drawing.Size(300, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(299, 95);
+            this.label4.Size = new System.Drawing.Size(300, 95);
             this.label4.TabIndex = 6;
             this.label4.Text = resources.GetString("label4.Text");
             // 
@@ -120,7 +123,7 @@ namespace L10NSharp.UI
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this._okButton;
-            this.ClientSize = new System.Drawing.Size(347, 418);
+            this.ClientSize = new System.Drawing.Size(362, 424);
             this.Controls.Add(this.label4);
             this.Controls.Add(this._emailLabel);
             this.Controls.Add(this.label3);

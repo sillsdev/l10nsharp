@@ -121,6 +121,6 @@
     <value>If you can't wait for a new version of the application installer to be published, you can still share your localization with others by placing a copy the TMX file into the same location on their computers.</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
-    <value>Note: It's up to you to make sure you aren't stomping on someone else's work, who may also be translating into the same language.  To reduce the risk of that, make sure you are using the latest version of the program.</value>
+    <value>Note: If someone else is also translating into the same language, you could be duplicating or even deleting their work.  To reduce the risk of that, make sure you are using the latest version of this program before doing translation.</value>
   </data>
 </root>
