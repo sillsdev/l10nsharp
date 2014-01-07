@@ -352,8 +352,19 @@ namespace L10NSharp.CodeReader
 
 				string fldName = null;
 
-				var mi = module.ResolveMethod((int)_instructions[i].operand,
-					genericTypeArguments, genericMethodArguments);
+				MethodBase mi = null;
+				try
+				{
+					mi = module.ResolveMethod((int)_instructions[i].operand,
+						genericTypeArguments, genericMethodArguments);
+
+				}
+				catch (Exception)
+				{
+					//We started getting this with Palaso.ClearShare.LicenseInfo.Token, which is abstract. Could not determine just what causes it, could not reproduce in a test.
+					//So it's not worth stopping the train over....
+					continue;
+				}
 
 				if (mi.Name.Equals("SetLocalizationPriority", StringComparison.Ordinal))
 				{
