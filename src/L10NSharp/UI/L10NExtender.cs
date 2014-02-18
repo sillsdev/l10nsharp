@@ -405,7 +405,7 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the tooltip for the specified control.
+		/// Gets the localization comment for the specified control.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
@@ -417,7 +417,7 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Sets the tooltip for the specified control.
+		/// Sets the localization comment for the specified control.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public void SetLocalizationComment(object obj, string cmnt)

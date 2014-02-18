@@ -986,6 +986,18 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
+		public static string GetLocalizedToolTipForControl(Control ctrl)
+		{
+			LocalizationManager lm = GetLocalizationManagerForObject(ctrl);
+			var topctrl = GetRealTopLevelControl(ctrl);
+			if (topctrl == null || lm == null)
+				return null;
+
+			ToolTip ttctrl;
+			return (lm.ToolTipCtrls.TryGetValue(topctrl, out ttctrl)) ? ttctrl.GetToolTip(ctrl) : null;
+		}
+
+		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the real top level control (using the control's TopLevelControl property
 		/// seems to return null until the control is on a form).
