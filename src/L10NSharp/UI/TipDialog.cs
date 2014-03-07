@@ -19,7 +19,7 @@ namespace L10NSharp.UI
 			set { _message.Text = value; }
 		}
 
-		public Image Icon
+		public new Image Icon
 		{
 			get { return _icon.Image; }
 			set { _icon.Image = value; }
