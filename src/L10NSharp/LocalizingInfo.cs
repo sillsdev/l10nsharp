@@ -113,13 +113,14 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object obj)
+		public LocalizingInfo(object obj, bool initTextFromObj)
 		{
 			_obj = obj;
 			Priority = LocalizationPriority.Medium;
 			Category = GetCategory(_obj);
 			UpdateFields = UpdateFields.All;
-			UpdateTextFromObject();
+			if (initTextFromObj)
+				UpdateTextFromObject();
 		}
 
 		public void UpdateTextFromObject()
@@ -134,7 +135,7 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object obj, string id) : this(obj)
+		public LocalizingInfo(object obj, string id) : this(obj, true)
 		{
 			Id = id;
 		}
@@ -411,7 +412,7 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the comment.
+		/// Gets or sets the update fields.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal UpdateFields UpdateFields { get; set; }

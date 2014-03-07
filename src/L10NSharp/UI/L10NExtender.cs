@@ -91,7 +91,7 @@ namespace L10NSharp.UI
 			}
 		}
 
-		protected new bool ReallyDesignMode
+		protected bool ReallyDesignMode
 		{
 			get
 			{
@@ -213,6 +213,7 @@ namespace L10NSharp.UI
 					return;
 
 				_okayToLocalizeControls = true;
+
 				LocalizeControls();
 			}
 			catch (Exception)
@@ -285,7 +286,7 @@ namespace L10NSharp.UI
 				var lv = kvp.Key as ListView;
 				foreach (ColumnHeader hdr in lv.Columns)
 				{
-					var loi = GetLocalizedObjectInfo(hdr);
+					var loi = GetLocalizedObjectInfo(hdr, true);
 					loi.Comment = kvp.Value.Comment;
 					m_extendedCtrls[hdr] = loi;
 				}
@@ -318,7 +319,7 @@ namespace L10NSharp.UI
 				var grid = kvp.Key as DataGridView;
 				foreach (DataGridViewColumn col in grid.Columns)
 				{
-					var loi = GetLocalizedObjectInfo(col);
+					var loi = GetLocalizedObjectInfo(col, true);
 					loi.Comment = kvp.Value.Comment;
 					m_extendedCtrls[col] = loi;
 				}
@@ -334,7 +335,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
-			var locInfo = new LocalizingInfo(e.Column);
+			var locInfo = new LocalizingInfo(e.Column, true);
 			if (_manager.RegisterObjectForLocalizing(locInfo))
 				_manager.ApplyLocalization(locInfo.Obj);
 		}
@@ -359,7 +360,7 @@ namespace L10NSharp.UI
 		[Category("Localizing Properties")]
 		public string GetLocalizingId(object obj)
 		{
-			var l = GetLocalizedObjectInfo(obj);
+			var l = GetLocalizedObjectInfo(obj, true);
 			l.CreateIdIfMissing(PrefixForNewItems);
 			return l.Id;
 		}
@@ -373,7 +374,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void SetLocalizingId(object obj, string id)
 		{
-			var loi = GetLocalizedObjectInfo(obj);
+			var loi = GetLocalizedObjectInfo(obj, false);
 			loi.Id = (string.IsNullOrEmpty(id) ? null : id);
 
 			if (m_extendedCtrls != null && !DesignMode)
@@ -390,7 +391,7 @@ namespace L10NSharp.UI
 		[DefaultValue(LocalizationPriority.Medium)]
 		public LocalizationPriority GetLocalizationPriority(object obj)
 		{
-			return GetLocalizedObjectInfo(obj).Priority;
+			return GetLocalizedObjectInfo(obj, true).Priority;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -400,7 +401,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void SetLocalizationPriority(object obj, LocalizationPriority priority)
 		{
-			GetLocalizedObjectInfo(obj).Priority = priority;
+			GetLocalizedObjectInfo(obj, false).Priority = priority;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -412,7 +413,7 @@ namespace L10NSharp.UI
 		[Category("Localizing Properties")]
 		public string GetLocalizationComment(object obj)
 		{
-			return GetLocalizedObjectInfo(obj).Comment;
+			return GetLocalizedObjectInfo(obj, true).Comment;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -422,7 +423,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void SetLocalizationComment(object obj, string cmnt)
 		{
-			GetLocalizedObjectInfo(obj).Comment = cmnt;
+			GetLocalizedObjectInfo(obj, false).Comment = cmnt;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -434,7 +435,7 @@ namespace L10NSharp.UI
 		[Category("Localizing Properties")]
 		public string GetLocalizableToolTip(object obj)
 		{
-			return GetLocalizedObjectInfo(obj).ToolTipText;
+			return GetLocalizedObjectInfo(obj, true).ToolTipText;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -444,7 +445,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void SetLocalizableToolTip(object obj, string tip)
 		{
-			GetLocalizedObjectInfo(obj).ToolTipText = tip;
+			GetLocalizedObjectInfo(obj, false).ToolTipText = tip;
 		}
 
 
@@ -453,13 +454,13 @@ namespace L10NSharp.UI
 		/// Gets the localized object info. for the specified object.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private LocalizingInfo GetLocalizedObjectInfo(object obj)
+		private LocalizingInfo GetLocalizedObjectInfo(object obj, bool initTextFromObjIfNewlyCreated)
 		{
 			LocalizingInfo loi;
-			if (m_extendedCtrls.TryGetValue(obj, out loi))
+			if (m_extendedCtrls.TryGetValue(obj, out loi)) // && !string.IsNullOrEmpty(loi.Id) && loi.Priority != LocalizationPriority.NotLocalizable)
 				return loi;
 
-			loi = new LocalizingInfo(obj);
+			loi = new LocalizingInfo(obj, initTextFromObjIfNewlyCreated);
 			m_extendedCtrls[obj] = loi;
 			return loi;
 		}
