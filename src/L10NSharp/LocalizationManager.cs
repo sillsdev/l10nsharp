@@ -35,13 +35,14 @@ namespace L10NSharp
 			new Dictionary<string, LocalizationManager>();
 
 		private static Icon _applicationIcon;
-		private string m_tmxFileFolder;
+		private readonly string _installedTmxFileFolder;
+		private readonly string _defaultTmxFileFolder;
+		private readonly string _customTmxFileFolder;
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
 
 		#region Static methods for creating a LocalizationManager
-
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Creates a new instance of a localization manager for the specifed application id.
@@ -57,11 +58,13 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledTmxFiles">The full file path of the original TMX files
+		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="directoryOfUserModifiedTmxFiles">The full file path where to copy the TMX files
-		/// found in 'directoryOfInstalledTmxFiles' so they can be edited by the user. If the
-		/// value is null, the default location is used (which is appName combined with
+		/// <param name="directoryOfDefaultTmxFile">The full folder path where the default TMX file
+		/// will be created (can be the same as directoryOfUserModifiedTmxFiles)</param>
+		/// <param name="directoryOfUserModifiedTmxFiles">The full folder path where TMX files
+		/// created/modified by the user will be created. If the value is null, the default
+		/// location is used (which is appName combined with
 		/// Environment.SpecialFolder.CommonApplicationData)</param>
 		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
@@ -72,9 +75,9 @@ namespace L10NSharp
 		/// 'Pa', then this value would only contain the string 'Pa'.</param>
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
-			string appName, string appVersion, string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles, Icon applicationIcon,
-			string emailForSubmissions,
-			params string[] namespaceBeginnings)
+			string appName, string appVersion, string directoryOfInstalledTmxFiles,
+			string directoryOfDefaultTmxFile, string directoryOfUserModifiedTmxFiles,
+			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
 			_applicationIcon = applicationIcon;
@@ -83,12 +86,14 @@ namespace L10NSharp
 				directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 				directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, appName);
 			}
+			if (string.IsNullOrEmpty(directoryOfDefaultTmxFile))
+				directoryOfDefaultTmxFile = directoryOfUserModifiedTmxFiles;
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
 				lm = new LocalizationManager(appId, appName, appVersion,
-					directoryOfInstalledTmxFiles, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
+					directoryOfInstalledTmxFiles, directoryOfDefaultTmxFile, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
 			}
@@ -129,45 +134,41 @@ namespace L10NSharp
 		#region LocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
 		private LocalizationManager(string appId, string appName, string appVersion,
-			string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
+			string directoryOfInstalledTmxFiles, string directoryOfDefaultTmxFile,
+			string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
 		{
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
-			TmxFileFolder = directoryOfUserModifiedTmxFiles;
+			_installedTmxFileFolder = directoryOfInstalledTmxFiles;
+			_defaultTmxFileFolder = directoryOfDefaultTmxFile;
+			DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang, false);
+
 			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
-			try
-			{
-				new FileIOPermission(FileIOPermissionAccess.Write, TmxFileFolder).Demand();
-				CanCustomizeLocalizations = true;
-				// Make sure the folder exists.
-				if (!Directory.Exists(TmxFileFolder))
-					Directory.CreateDirectory(TmxFileFolder);
+			CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
 
-#if !__MonoCS__
-				// This method is crashing with a segmentation fault on Linux whenever this code
-				// is run over Palaso.dll, trying to create a new Palaso.en.tmx.  This appears to
-				// be a bug in MethodBase.GetMethodBytes() called in ILReader.ILReader(MethodBase).
-				// Other assemblies are processed with any trouble, and most of Palaso.dll is
-				// processed before the crash occurs.
-				CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
-#endif
-				CopyInstalledTmxFilesToWritableLocation(directoryOfInstalledTmxFiles);
-			}
-			catch (Exception e)
+			_customTmxFileFolder = directoryOfUserModifiedTmxFiles;
+			if (string.IsNullOrEmpty(_customTmxFileFolder))
 			{
-				if (e is SecurityException || e is UnauthorizedAccessException || e is IOException)
+				_customTmxFileFolder = null;
+				CanCustomizeLocalizations = false;
+			}
+			else
+			{
+				try
 				{
-					CanCustomizeLocalizations = false;
-					// If a user with access to the target folder has never run the application,
-					// fall back to the install location.
-					if (!File.Exists(DefaultStringFilePath))
-						TmxFileFolder = directoryOfInstalledTmxFiles;
+					new FileIOPermission(FileIOPermissionAccess.Write, _customTmxFileFolder).Demand();
+					CanCustomizeLocalizations = true;
 				}
-				else
-					throw;
+				catch (Exception e)
+				{
+					if (e is SecurityException)
+						CanCustomizeLocalizations = false;
+					else
+						throw;
+				}
 			}
 
 			ObjectCache = new Dictionary<object, string>();
@@ -207,29 +208,6 @@ namespace L10NSharp
 
 			tmxDoc.Save(DefaultStringFilePath);
 		}
-
-		/// ------------------------------------------------------------------------------------
-		private void CopyInstalledTmxFilesToWritableLocation(string directoryOfInstalledTmxFiles)
-		{
-			if (directoryOfInstalledTmxFiles == null)
-				return;
-
-			foreach (var installedFile in Directory.GetFiles(directoryOfInstalledTmxFiles, Id + "*.tmx"))
-			{
-				var targetFile = Path.Combine(TmxFileFolder, Path.GetFileName(installedFile));
-
-				if (!File.Exists(targetFile))
-					File.Copy(installedFile, targetFile);
-			}
-		}
-
-		///// ------------------------------------------------------------------------------------
-		//private string GetLangIdFromTmxFileName(string fileName)
-		//{
-		//    fileName = fileName.Substring(0, fileName.Length - 4);
-		//    int i = fileName.LastIndexOf('.');
-		//    return (i < 0 ? null : fileName.Substring(i + 1));
-		//}
 
 		/// ------------------------------------------------------------------------------------
 		public void Dispose()
@@ -308,13 +286,6 @@ namespace L10NSharp
 		{
 			LocalizeItemDlg.ShowDialog(this, null, runInReadonlyMode);
 		}
-
-		/// ------------------------------------------------------------------------------------
-//		public static void ShowLocalizationDialogBox()
-//		{
-//            TipDialog.Show("If you click on an item while you hold alt and shift keys down, this tool will open up with that item already selected.");
-//            LocalizeItemDlg.ShowDialog(null, null, false);
-//		}
 
 		/// ------------------------------------------------------------------------------------
 		public static void ShowLocalizationDialogBox(object ctrl)
@@ -424,23 +395,40 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public bool CanCustomizeLocalizations { get; private set; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the full path (without file nanme) to the TMX file.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public string TmxFileFolder
-		{
-			get { return m_tmxFileFolder; }
-			private set
-			{
-				m_tmxFileFolder = value;
-				DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang);
-			}
-		}
-
 		public string[] NamespaceBeginnings { get; set; }
 
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Enumerates all existing files with .
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public IEnumerable<string> NonDefaultTmxFilenames
+		{
+			get
+			{
+				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
+				string langId;
+				if (_customTmxFileFolder != null && Directory.Exists(_customTmxFileFolder))
+				foreach (var tmxFile in Directory.GetFiles(_customTmxFileFolder, Id + ".*.tmx"))
+				{
+					langId = GetLangIdFromTmxFileName(tmxFile);
+					if (langId != kDefaultLang) // should never happen for customized languages
+					{
+						langIdsOfCustomizedLocales.Add(langId);
+						yield return tmxFile;
+					}
+				}
+				if (_installedTmxFileFolder != null)
+				{
+					foreach (var tmxFile in Directory.GetFiles(_installedTmxFileFolder, Id + ".*.tmx"))
+					{
+						langId = GetLangIdFromTmxFileName(tmxFile);
+						if (langId != kDefaultLang && !langIdsOfCustomizedLocales.Contains(langId))
+							yield return tmxFile;
+					}
+				}
+			}
+		}
 		#endregion
 
 		#region Methods for caching and localizing objects.
@@ -454,12 +442,12 @@ namespace L10NSharp
 			string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
 			return RegisterObjectForLocalizing(new LocalizingInfo(obj, id)
-											{
-												Text = defaultText,
-												ToolTipText = defaultTooltip,
-												ShortcutKeys = defaultShortcutKeys,
-												Comment = comment
-											});
+			{
+				Text = defaultText,
+				ToolTipText = defaultTooltip,
+				ShortcutKeys = defaultShortcutKeys,
+				Comment = comment
+			});
 		}
 
 		internal bool RegisterObjectForLocalizing(LocalizingInfo info)
@@ -537,43 +525,78 @@ namespace L10NSharp
 			}
 		}
 
-		public enum WhatToDoIfCannotSave
-		{
-			Nothing,
-			MessageBox,
-			Exception
-		};
-
 		/// ------------------------------------------------------------------------------------
-		internal void SaveIfDirty(WhatToDoIfCannotSave whatToDoIfCannotSave)
+		internal void SaveIfDirty(ICollection<string> langIdsToForceCreate)
 		{
 			try
 			{
-				StringCache.SaveIfDirty();
+				StringCache.SaveIfDirty(langIdsToForceCreate);
 			}
 			catch (IOException e)
 			{
 				CanCustomizeLocalizations = false;
-				switch (whatToDoIfCannotSave)
-				{
-					case WhatToDoIfCannotSave.Nothing:
-						break;
-					case WhatToDoIfCannotSave.MessageBox:
-						MessageBox.Show(e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-						break;
-					case WhatToDoIfCannotSave.Exception:
-						throw e;
-					default:
-						throw new ArgumentOutOfRangeException("whatToDoIfCannotSave");
-				}
+				if (langIdsToForceCreate != null && langIdsToForceCreate.Any())
+					MessageBox.Show(e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
-
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal string GetTmxPathForLanguage(string langId)
+		private string GetLangIdFromTmxFileName(string fileName)
 		{
-			return Path.Combine(TmxFileFolder, string.Format("{0}.{1}.tmx", Id, langId));
+			fileName = fileName.Substring(0, fileName.Length - 4);
+			int i = fileName.LastIndexOf('.');
+			return (i < 0 ? null : fileName.Substring(i + 1));
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private string GetTmxFileNameForLanguage(string langId)
+		{
+			return GetTmxFileNameForLanguage(Id, langId);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		internal string GetTmxPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent)
+		{
+			var filename = GetTmxFileNameForLanguage(langId);
+			if (langId == kDefaultLang)
+				return Path.Combine(_defaultTmxFileFolder, filename);
+			if (_customTmxFileFolder != null)
+			{
+				var customTmxFile = Path.Combine(_customTmxFileFolder, filename);
+				if (getCustomPathEvenIfNonexistent || File.Exists(customTmxFile))
+					return customTmxFile;
+			}
+			return _installedTmxFileFolder != null ? Path.Combine(_installedTmxFileFolder, filename) : null /* Pretty sure this isn't going to end well*/;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		public bool DoesCustomizedTmxExistForLanguage(string langId)
+		{
+			return File.Exists(GetTmxPathForLanguage(langId, true));
+		}
+
+		/// ------------------------------------------------------------------------------------
+		public void PrepareToCustomizeLocalizations()
+		{
+			if (_customTmxFileFolder == null)
+				throw new InvalidOperationException("Localization manager for " + Id + "has no folder specified for customizing localizations");
+			if (!CanCustomizeLocalizations)
+				throw new InvalidOperationException("User does not have sufficient privilege to customize localizations for " + Id);
+			try
+			{
+				// Make sure the folder exists.
+				if (!Directory.Exists(_customTmxFileFolder))
+					Directory.CreateDirectory(_customTmxFileFolder);
+			}
+			catch (Exception e)
+			{
+				if (e is SecurityException || e is UnauthorizedAccessException || e is IOException)
+				{
+					CanCustomizeLocalizations = false;
+				}
+				else
+					throw;
+			}
 		}
 		#endregion
 
@@ -783,7 +806,7 @@ namespace L10NSharp
 
 
 			lm.StringCache.UpdateLocalizedInfo(locInfo);
-			lm.SaveIfDirty(WhatToDoIfCannotSave.Nothing);// this will be common for GetDynamic string on users restricted from writing to ProgramData
+			lm.SaveIfDirty(null);// this will be common for GetDynamic string on users restricted from writing to ProgramData
 			return englishText;
 		}
 
@@ -825,6 +848,12 @@ namespace L10NSharp
 
 			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(UILanguageId, id))
 				.FirstOrDefault(text => text != null);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		public static string GetTmxFileNameForLanguage(string appId, string langId)
+		{
+			return string.Format("{0}.{1}.tmx", appId, langId);
 		}
 
 		/// ------------------------------------------------------------------------------------

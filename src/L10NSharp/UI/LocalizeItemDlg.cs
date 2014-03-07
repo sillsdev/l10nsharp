@@ -884,7 +884,7 @@ namespace L10NSharp.UI
 
 		private void _howToDistribute_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			using(var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,_callingManager.GetTmxPathForLanguage(_viewModel.TgtLangId)))
+			using(var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,_callingManager.GetTmxPathForLanguage(_viewModel.TgtLangId, true)))
 			{
 				dlg.ShowDialog();
 			}

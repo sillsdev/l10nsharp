@@ -27,7 +27,7 @@ namespace L10NSharp
 		internal const string kOSRealNewline = "\n";
 
 		/// <summary>
-		/// review: I (JH) don't knowhat this is about
+		/// review: I (JH) don't know what this is about
 		/// </summary>
 		internal const string kHardLineBreakReplacementProperty = "x-hardlinebreakreplacement";
 
@@ -57,7 +57,7 @@ namespace L10NSharp
 			TmxDocument = CreateEmptyStringFile();
 			try
 			{
-				MergeTmxFilesIntoCache(Directory.GetFiles(OwningManager.TmxFileFolder, OwningManager.Id + ".*.tmx"));
+				MergeTmxFilesIntoCache(OwningManager.NonDefaultTmxFilenames);
 			}
 			catch (Exception e)
 			{
@@ -123,14 +123,15 @@ namespace L10NSharp
 				{
 	#if DEBUG
 					throw e;
-	#endif
+	#else
 
 					//REVIEW: Better explain the conditions where we get an error on a file but don't care about it?
 
 					// If error happened reading some localization file other than the one we care
 					// about right now, just ignore it.
-					if (file == OwningManager.GetTmxPathForLanguage(LocalizationManager.UILanguageId))
+					if (file == OwningManager.GetTmxPathForLanguage(LocalizationManager.UILanguageId, false))
 						error = e;
+	#endif
 				}
 			}
 			if (error != null)
@@ -164,7 +165,6 @@ namespace L10NSharp
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public bool IsDirty { get; private set; }
-
 		#endregion
 
 		#region Methods for updating values in cache
@@ -190,7 +190,7 @@ namespace L10NSharp
 		/// Otherwise, false is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void SaveIfDirty()
+		internal void SaveIfDirty(ICollection<string> langIdsToForceCreate)
 		{
 			if (!IsDirty)
 				return;
@@ -200,7 +200,7 @@ namespace L10NSharp
 			{
 				try
 				{
-					SaveFileForLangId(langId);
+					SaveFileForLangId(langId, langIdsToForceCreate != null && langIdsToForceCreate.Contains(langId));
 				}
 				catch (Exception e)
 				{
@@ -213,7 +213,7 @@ namespace L10NSharp
 						}
 						errorMsg.AppendLine();
 						errorMsg.Append("File: ");
-						errorMsg.AppendLine(OwningManager.GetTmxPathForLanguage(langId));
+						errorMsg.AppendLine(OwningManager.GetTmxPathForLanguage(langId, true));
 						errorMsg.Append("Error Type: ");
 						errorMsg.AppendLine(e.GetType().ToString());
 						errorMsg.Append("Message: ");
@@ -229,7 +229,7 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void SaveFileForLangId(string langId)
+		private void SaveFileForLangId(string langId, bool forceCreation)
 		{
 			var tmxDoc = CreateEmptyStringFile();
 			tmxDoc.Header.SourceLang = langId;
@@ -251,9 +251,8 @@ namespace L10NSharp
 
 			tmxDoc.Body.TransUnits.Sort(TuComparer);
 
-			var tmxFilePath = OwningManager.GetTmxPathForLanguage(langId);
-
-			tmxDoc.Save(tmxFilePath);
+			if (forceCreation || OwningManager.DoesCustomizedTmxExistForLanguage(langId))
+				tmxDoc.Save(OwningManager.GetTmxPathForLanguage(langId, true));
 		}
 
 		///// ------------------------------------------------------------------------------------

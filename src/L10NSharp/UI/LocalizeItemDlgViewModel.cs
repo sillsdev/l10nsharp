@@ -24,6 +24,7 @@ namespace L10NSharp.UI
 		public List<LocTreeNode> AllLeafNodesShowingInGrid { get; private set; }
 		public List<LocTreeNode> AllLeafNodes { get; private set; }
 		public List<LocalizationManager> EnabledManagers;
+		private HashSet<string> _modifiedLanguages = new HashSet<string>();
 		public ITranslator BingTranslator { get; private set; }
 		public NodeComparer.SortField GridSortField { get; set; }
 		public SortOrder GridSortOrder { get; set; }
@@ -238,7 +239,8 @@ namespace L10NSharp.UI
 
 			foreach (var lm in LocalizationManager.LoadedManagers.Values)
 			{
-				lm.SaveIfDirty(LocalizationManager.WhatToDoIfCannotSave.MessageBox);
+				lm.PrepareToCustomizeLocalizations();
+				lm.SaveIfDirty(_modifiedLanguages);
 
 				// If saving fails, the LocalizationManager will record the problem .
 				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
@@ -277,6 +279,7 @@ namespace L10NSharp.UI
 			}
 
 			locInfo.LangId = _tgtLangId;
+			_modifiedLanguages.Add(_tgtLangId);
 
 			if (!node.SavedTranslationInfo.ContainsKey(_tgtLangId))
 				node.SavedTranslationInfo[_tgtLangId] = locInfo;
