@@ -21,7 +21,7 @@ namespace L10NSharp.Tests
 		{
 			Form frm = new Form();
 			frm.Name = "hamster";
-			var loi = new LocalizingInfo(frm);
+			var loi = new LocalizingInfo(frm, true);
 			Assert.AreEqual("hamster.WindowTitle", loi.Id);
 		}
 
@@ -40,7 +40,7 @@ namespace L10NSharp.Tests
 			btn.Name = "fox";
 			frm.Controls.Add(btn);
 
-			var loi = new LocalizingInfo(btn);
+			var loi = new LocalizingInfo(btn, true);
 			Assert.AreEqual("racoon.fox", loi.Id);
 
 			var lbl = new Label();
@@ -50,7 +50,7 @@ namespace L10NSharp.Tests
 			pnl1.Controls.Add(pnl2);
 			pnl2.Controls.Add(lbl);
 			frm.Controls.Add(pnl1);
-			loi = new LocalizingInfo(lbl);
+			loi = new LocalizingInfo(lbl, true);
 			Assert.AreEqual("racoon.opossum", loi.Id);
 		}
 
@@ -69,13 +69,13 @@ namespace L10NSharp.Tests
 			hdr.Name = "monkey";
 			lv.Columns.Add(hdr);
 
-			var loi = new LocalizingInfo(hdr);
+			var loi = new LocalizingInfo(hdr, true);
 			Assert.AreEqual("fish.Colmonkey", loi.Id);
 
 			Form frm = new Form();
 			frm.Name = "wolf";
 			frm.Controls.Add(lv);
-			loi = new LocalizingInfo(hdr);
+			loi = new LocalizingInfo(hdr, true);
 			Assert.AreEqual("wolf.fishColmonkey", loi.Id);
 		}
 
@@ -94,14 +94,14 @@ namespace L10NSharp.Tests
 			col.Name = "cheetah";
 			grid.Columns.Add(col);
 
-			var loi = new LocalizingInfo(col);
+			var loi = new LocalizingInfo(col, true);
 			Assert.AreEqual("hippo.Colcheetah", loi.Id);
 
 			Form frm = new Form();
 			frm.Name = "jackal";
 			frm.Controls.Add(grid);
 
-			loi = new LocalizingInfo(col);
+			loi = new LocalizingInfo(col, true);
 			Assert.AreEqual("jackal.hippoColcheetah", loi.Id);
 		}
 	}

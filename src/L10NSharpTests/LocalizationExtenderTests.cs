@@ -92,7 +92,7 @@ namespace L10NSharp.Tests
 			// that LocalizingInfo for the object.
 			var lbl2 = new Label();
 			lbl2.Text = "apples";
-			loi = new LocalizingInfo(lbl2);
+			loi = new LocalizingInfo(lbl2, true);
 			m_extCtrls[lbl2] = loi;
 			Assert.AreEqual(2, m_extCtrls.Count);
 
