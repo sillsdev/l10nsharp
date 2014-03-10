@@ -1191,7 +1191,7 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Handles Ctrl-Shift-Click on controls.
+		/// Handles Alt-Shift-Click on controls.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal void HandleControlMouseDown(object sender, MouseEventArgs e)

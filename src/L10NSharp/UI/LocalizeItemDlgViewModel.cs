@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Security;
 using System.Windows.Forms;
 using L10NSharp.Translators;
 
