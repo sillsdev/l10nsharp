@@ -77,13 +77,13 @@ namespace L10NSharp.Tests
 
 			// Make sure calling GetLocalizedObjectInfo creates a LocalizingInfo object when
 			// one doesn't exist for the label.
-			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", lbl1) as LocalizingInfo;
+			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl1, true}) as LocalizingInfo;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
 			// Make sure calling GetLocalizedObjectInfo does not create a LocalizingInfo object when
 			// one already exists for the label.
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", lbl1) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl1, true}) as LocalizingInfo;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
@@ -96,7 +96,7 @@ namespace L10NSharp.Tests
 			m_extCtrls[lbl2] = loi;
 			Assert.AreEqual(2, m_extCtrls.Count);
 
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", lbl2) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl2, true}) as LocalizingInfo;
 			Assert.AreEqual(2, m_extCtrls.Count);
 			Assert.AreEqual("apples", loi.Text);
 		}
@@ -119,7 +119,7 @@ namespace L10NSharp.Tests
 			lv.Columns.Add("venison", "venisontext");
 			frm.Controls.Add(lv);
 
-			ReflectionHelper.CallMethod(m_extender, "GetLocalizedObjectInfo", lv);
+			ReflectionHelper.CallMethod(m_extender, "GetLocalizedObjectInfo", new object[] {lv, true});
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.IsTrue(m_extCtrls.ContainsKey(lv));
 
@@ -161,7 +161,7 @@ namespace L10NSharp.Tests
 			grid.Columns.Add("orange", "orangetext");
 			frm.Controls.Add(grid);
 
-			ReflectionHelper.CallMethod(m_extender, "GetLocalizedObjectInfo", grid);
+			ReflectionHelper.CallMethod(m_extender, "GetLocalizedObjectInfo", new object[] {grid, true});
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.IsTrue(m_extCtrls.ContainsKey(grid));
 
