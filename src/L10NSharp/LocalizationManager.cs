@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
@@ -36,7 +37,7 @@ namespace L10NSharp
 
 		private static Icon _applicationIcon;
 		private readonly string _installedTmxFileFolder;
-		private readonly string _defaultTmxFileFolder;
+		private readonly string _generatedDefaultTmxFileFolder;
 		private readonly string _customTmxFileFolder;
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
@@ -60,8 +61,17 @@ namespace L10NSharp
 		/// <param name="appVersion"></param>
 		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="directoryOfDefaultTmxFile">The full folder path where the default TMX file
-		/// will be created (can be the same as directoryOfUserModifiedTmxFiles)</param>
+		/// <param name="attemptMigrationOfLocalizationFiles">Indicates whether an attempt should
+		/// be made to delete unneeded (and outdated) copies of installed localization files
+		/// before creating the LocalizationManager. As part of this, any custom (non-installed)
+		/// TMX files will also be moved from the old location (directoryForGeneratedEnglishTmxFile)
+		/// to the new location (directoryOfUserModifiedTmxFiles). This flag is ignored if
+		/// directoryForGeneratedEnglishTmxFile and directoryOfUserModifiedTmxFiles are the same
+		/// or unspecified. Applications that did not use version 1 of L10NSharp can safely pass
+		/// false.</param>
+		/// <param name="directoryForGeneratedEnglishTmxFile">The full folder path where the default
+		/// (English) TMX file will be created (can be the same as directoryOfUserModifiedTmxFiles;
+		/// and if not specified, it will be)</param>
 		/// <param name="directoryOfUserModifiedTmxFiles">The full folder path where TMX files
 		/// created/modified by the user will be created. If the value is null, the default
 		/// location is used (which is appName combined with
@@ -76,7 +86,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			string directoryOfDefaultTmxFile, string directoryOfUserModifiedTmxFiles,
+			bool attemptMigrationOfLocalizationFiles,
+			string directoryForGeneratedEnglishTmxFile, string directoryOfUserModifiedTmxFiles,
 			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
@@ -86,14 +97,20 @@ namespace L10NSharp
 				directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 				directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, appName);
 			}
-			if (string.IsNullOrEmpty(directoryOfDefaultTmxFile))
-				directoryOfDefaultTmxFile = directoryOfUserModifiedTmxFiles;
+			if (string.IsNullOrEmpty(directoryForGeneratedEnglishTmxFile))
+				directoryForGeneratedEnglishTmxFile = directoryOfUserModifiedTmxFiles;
+
+			if (attemptMigrationOfLocalizationFiles && directoryOfUserModifiedTmxFiles != directoryForGeneratedEnglishTmxFile)
+			{
+				AttemptMigrationOfLocalizationFiles(appName, directoryOfInstalledTmxFiles,
+					directoryForGeneratedEnglishTmxFile, directoryOfUserModifiedTmxFiles);
+			}
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
-				lm = new LocalizationManager(appId, appName, appVersion,
-					directoryOfInstalledTmxFiles, directoryOfDefaultTmxFile, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
+				lm = new LocalizationManager(appId, appName, appVersion, directoryOfInstalledTmxFiles,
+					directoryForGeneratedEnglishTmxFile, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
 			}
@@ -115,12 +132,49 @@ namespace L10NSharp
 
 			SetUILanguage(desiredUiLangId, false);
 
-
-
-
 			EnableClickingOnControlToBringUpLocalizationDialog = true;
 
 			return lm;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private static void AttemptMigrationOfLocalizationFiles(string appName,
+			string directoryOfInstalledTmxFiles, string oldTmxFolder,
+			string directoryOfUserModifiedTmxFiles)
+		{
+			var defaultTmxFilename = GetTmxFileNameForLanguage(appName, kDefaultLang);
+			// Move any non-installed tmx files to the new location.
+
+			var entryAssembly = Assembly.GetEntryAssembly();
+			if (entryAssembly == null)
+				return; // Being called in a unit test maybe.
+
+			foreach (var oldTmxFile in Directory.GetFiles(oldTmxFolder,
+				GetTmxFileNameForLanguage(appName, "*")))
+			{
+				var filename = Path.GetFileName(oldTmxFile);
+				if (filename != null && filename != defaultTmxFilename)
+				{
+					if (File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
+					{
+						// This is a copy of factory localization file, so we can safely delete it.
+						try
+						{
+							File.Delete(oldTmxFile);
+						}
+						catch
+						{
+							// Oh, well, just leave it. It's not going to hurt anything.
+						}
+					}
+					else
+					{
+						if (!Directory.Exists(directoryOfUserModifiedTmxFiles))
+							Directory.CreateDirectory(directoryOfUserModifiedTmxFiles);
+						File.Move(oldTmxFile, Path.Combine(directoryOfUserModifiedTmxFiles, filename));
+					}
+				}
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -134,14 +188,14 @@ namespace L10NSharp
 		#region LocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
 		private LocalizationManager(string appId, string appName, string appVersion,
-			string directoryOfInstalledTmxFiles, string directoryOfDefaultTmxFile,
+			string directoryOfInstalledTmxFiles, string directoryForGeneratedDefaultTmxFile,
 			string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
 		{
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
 			_installedTmxFileFolder = directoryOfInstalledTmxFiles;
-			_defaultTmxFileFolder = directoryOfDefaultTmxFile;
+			_generatedDefaultTmxFileFolder = directoryForGeneratedDefaultTmxFile;
 			DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang, false);
 
 			NamespaceBeginnings = namespaceBeginnings;
@@ -559,7 +613,7 @@ namespace L10NSharp
 		{
 			var filename = GetTmxFileNameForLanguage(langId);
 			if (langId == kDefaultLang)
-				return Path.Combine(_defaultTmxFileFolder, filename);
+				return Path.Combine(_generatedDefaultTmxFileFolder, filename);
 			if (_customTmxFileFolder != null)
 			{
 				var customTmxFile = Path.Combine(_customTmxFileFolder, filename);
