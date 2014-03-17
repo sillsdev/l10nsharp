@@ -55,6 +55,7 @@ namespace L10NSharp
 			OwningManager = owningManager;
 
 			TmxDocument = CreateEmptyStringFile();
+
 			try
 			{
 				MergeTmxFilesIntoCache(OwningManager.NonDefaultTmxFilenames);
@@ -84,6 +85,8 @@ namespace L10NSharp
 		private void MergeTmxFilesIntoCache(IEnumerable<string> tmxFiles)
 		{
 			var defaultTmxDoc = TMXDocument.Read(OwningManager.DefaultStringFilePath);
+			foreach (var tu in defaultTmxDoc.Body.TransUnits)
+				TmxDocument.Body.AddTransUnit(tu);
 
 			Exception error = null;
 			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
@@ -151,7 +154,7 @@ namespace L10NSharp
 			tmxDoc.Header.SourceLang = LocalizationManager.kDefaultLang;
 			tmxDoc.Header.AddProp(LocalizationManager.kAppVersionPropTag, "0.0.0");
 			tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);
-			tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
+			//tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
 
 			return tmxDoc;
 		}
