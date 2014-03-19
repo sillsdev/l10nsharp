@@ -201,8 +201,14 @@ namespace L10NSharp
 			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
+#if !__MonoCS__
+			// This method is crashing with a segmentation fault on Linux whenever this code
+			// is run over Palaso.dll, trying to create a new Palaso.en.tmx.  This appears to
+			// be a bug in MethodBase.GetMethodBytes() called in ILReader.ILReader(MethodBase).
+			// Other assemblies are processed without any trouble, and most of Palaso.dll is
+			// processed before the crash occurs.
 			CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
-
+#endif
 			_customTmxFileFolder = directoryOfUserModifiedTmxFiles;
 			if (string.IsNullOrEmpty(_customTmxFileFolder))
 			{
