@@ -61,21 +61,13 @@ namespace L10NSharp
 		/// <param name="appVersion"></param>
 		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="attemptMigrationOfLocalizationFiles">Indicates whether an attempt should
-		/// be made to delete unneeded (and outdated) copies of installed localization files
-		/// before creating the LocalizationManager. As part of this, any custom (non-installed)
-		/// TMX files will also be moved from the old location (directoryForGeneratedEnglishTmxFile)
-		/// to the new location (directoryOfUserModifiedTmxFiles). This flag is ignored if
-		/// directoryForGeneratedEnglishTmxFile and directoryOfUserModifiedTmxFiles are the same
-		/// or unspecified. Applications that did not use version 1 of L10NSharp can safely pass
-		/// false.</param>
-		/// <param name="directoryForGeneratedEnglishTmxFile">The full folder path where the default
-		/// (English) TMX file will be created (can be the same as directoryOfUserModifiedTmxFiles;
-		/// and if not specified, it will be)</param>
-		/// <param name="directoryOfUserModifiedTmxFiles">The full folder path where TMX files
-		/// created/modified by the user will be created. If the value is null, the default
-		/// location is used (which is appName combined with
-		/// Environment.SpecialFolder.CommonApplicationData)</param>
+		/// <param name="relativePathForWritableTmxFiles">The relative folder path where TMX files
+		/// created/modified by the user will be created. The default English TMX file will get
+		/// created in the user's app-data folder. Localized TMX files will get created in the
+		/// common app-data folder (and can therefore only be created by an admin user). Note:
+		/// for backwards compatibility, if a rooted path is passed which begins with the common
+		/// app-data location, that part of the path will simply be taken off. otherwise, a
+		/// rooted path will cause an exception to be thrown.</param>
 		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
@@ -86,25 +78,27 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			bool attemptMigrationOfLocalizationFiles,
-			string directoryForGeneratedEnglishTmxFile, string directoryOfUserModifiedTmxFiles,
+			string relativePathForWritableTmxFiles,
 			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
 			_applicationIcon = applicationIcon;
-			if (string.IsNullOrEmpty(directoryOfUserModifiedTmxFiles))
-			{
-				directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-				directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, appName);
-			}
-			if (string.IsNullOrEmpty(directoryForGeneratedEnglishTmxFile))
-				directoryForGeneratedEnglishTmxFile = directoryOfUserModifiedTmxFiles;
+			var directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+			var directoryForGeneratedEnglishTmxFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-			if (attemptMigrationOfLocalizationFiles && directoryOfUserModifiedTmxFiles != directoryForGeneratedEnglishTmxFile)
+			if (string.IsNullOrEmpty(relativePathForWritableTmxFiles))
+				relativePathForWritableTmxFiles = appName;
+			else if (Path.IsPathRooted(relativePathForWritableTmxFiles))
 			{
-				AttemptMigrationOfLocalizationFiles(appName, directoryOfInstalledTmxFiles,
-					directoryForGeneratedEnglishTmxFile, directoryOfUserModifiedTmxFiles);
+				if (relativePathForWritableTmxFiles.StartsWith(directoryOfUserModifiedTmxFiles))
+					relativePathForWritableTmxFiles = relativePathForWritableTmxFiles.Remove(0, directoryOfUserModifiedTmxFiles.Length);
+				else
+					throw new ArgumentException("Relative (non-rooted) path expected", "relativePathForWritableTmxFiles");
 			}
+			directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, relativePathForWritableTmxFiles);
+			directoryForGeneratedEnglishTmxFile = Path.Combine(directoryForGeneratedEnglishTmxFile, relativePathForWritableTmxFiles);
+
+			DeleteUnmodifiedCopiesOfInstalledLocalizationFiles(appName, directoryOfInstalledTmxFiles, directoryOfUserModifiedTmxFiles);
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
@@ -138,40 +132,32 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private static void AttemptMigrationOfLocalizationFiles(string appName,
-			string directoryOfInstalledTmxFiles, string oldTmxFolder,
-			string directoryOfUserModifiedTmxFiles)
+		private static void DeleteUnmodifiedCopiesOfInstalledLocalizationFiles(string appName,
+			string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles)
 		{
-			var defaultTmxFilename = GetTmxFileNameForLanguage(appName, kDefaultLang);
-			// Move any non-installed tmx files to the new location.
+			if (Assembly.GetEntryAssembly() == null || !Directory.Exists(directoryOfUserModifiedTmxFiles))
+				return; // Possibly being called in a unit test.
 
-			var entryAssembly = Assembly.GetEntryAssembly();
-			if (entryAssembly == null)
-				return; // Being called in a unit test maybe.
+			var oldDefaultTmxFilePath = Path.Combine(directoryOfUserModifiedTmxFiles, GetTmxFileNameForLanguage(appName, kDefaultLang));
+			if (!File.Exists(oldDefaultTmxFilePath))
+				return; // This was already done previously
 
-			foreach (var oldTmxFile in Directory.GetFiles(oldTmxFolder,
+			File.Delete(oldDefaultTmxFilePath);
+
+			foreach (var oldTmxFile in Directory.GetFiles(directoryOfUserModifiedTmxFiles,
 				GetTmxFileNameForLanguage(appName, "*")))
 			{
 				var filename = Path.GetFileName(oldTmxFile);
-				if (filename != null && filename != defaultTmxFilename)
+				if (File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
 				{
-					if (File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
+					// This is a copy of factory localization file, so we can safely delete it.
+					try
 					{
-						// This is a copy of factory localization file, so we can safely delete it.
-						try
-						{
-							File.Delete(oldTmxFile);
-						}
-						catch
-						{
-							// Oh, well, just leave it. It's not going to hurt anything.
-						}
+						File.Delete(oldTmxFile);
 					}
-					else
+					catch
 					{
-						if (!Directory.Exists(directoryOfUserModifiedTmxFiles))
-							Directory.CreateDirectory(directoryOfUserModifiedTmxFiles);
-						File.Move(oldTmxFile, Path.Combine(directoryOfUserModifiedTmxFiles, filename));
+						// Oh, well, just leave it. It's not going to hurt anything unless/until user switches to this locale.
 					}
 				}
 			}
@@ -240,7 +226,7 @@ namespace L10NSharp
 		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
 		{
 			if (File.Exists(DefaultStringFilePath) &&
-				File.ReadAllText(DefaultStringFilePath).Trim()!=string.Empty)  //I've seen this happen.
+				File.ReadAllText(DefaultStringFilePath).Trim() != string.Empty)  //I've seen this happen.
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
 				var verElement = xmlDoc.Element("header").Elements("prop")
@@ -249,6 +235,11 @@ namespace L10NSharp
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
 			}
+
+			// Make sure the folder exists.
+			var dir = Path.GetDirectoryName(DefaultStringFilePath);
+			if (dir != null && !Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
