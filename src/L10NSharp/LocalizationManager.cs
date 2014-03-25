@@ -62,12 +62,7 @@ namespace L10NSharp
 		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
 		/// <param name="relativePathForWritableTmxFiles">The relative folder path where TMX files
-		/// created/modified by the user will be created. The default English TMX file will get
-		/// created in the user's app-data folder. Localized TMX files will get created in the
-		/// common app-data folder (and can therefore only be created by an admin user). Note:
-		/// for backwards compatibility, if a rooted path is passed which begins with the common
-		/// app-data location, that part of the path will simply be taken off. otherwise, a
-		/// rooted path will cause an exception to be thrown.</param>
+		/// created/modified by the user will be created (e.g., "SIL\SayMore").</param>
 		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
@@ -83,28 +78,20 @@ namespace L10NSharp
 		{
 			EmailForSubmissions = emailForSubmissions;
 			_applicationIcon = applicationIcon;
-			var directoryOfUserModifiedTmxFiles = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-			var directoryForGeneratedEnglishTmxFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
 			if (string.IsNullOrEmpty(relativePathForWritableTmxFiles))
 				relativePathForWritableTmxFiles = appName;
 			else if (Path.IsPathRooted(relativePathForWritableTmxFiles))
-			{
-				if (relativePathForWritableTmxFiles.StartsWith(directoryOfUserModifiedTmxFiles))
-					relativePathForWritableTmxFiles = relativePathForWritableTmxFiles.Remove(0, directoryOfUserModifiedTmxFiles.Length);
-				else
-					throw new ArgumentException("Relative (non-rooted) path expected", "relativePathForWritableTmxFiles");
-			}
-			directoryOfUserModifiedTmxFiles = Path.Combine(directoryOfUserModifiedTmxFiles, relativePathForWritableTmxFiles);
-			directoryForGeneratedEnglishTmxFile = Path.Combine(directoryForGeneratedEnglishTmxFile, relativePathForWritableTmxFiles);
+				throw new ArgumentException("Relative (non-rooted) path expected", "relativePathForWritableTmxFiles");
 
-			DeleteUnmodifiedCopiesOfInstalledLocalizationFiles(appName, directoryOfInstalledTmxFiles, directoryOfUserModifiedTmxFiles);
+			var directoryOfWritableTmxFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				relativePathForWritableTmxFiles);
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
 				lm = new LocalizationManager(appId, appName, appVersion, directoryOfInstalledTmxFiles,
-					directoryForGeneratedEnglishTmxFile, directoryOfUserModifiedTmxFiles, namespaceBeginnings);
+					directoryOfWritableTmxFiles, directoryOfWritableTmxFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
 			}
@@ -132,32 +119,46 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private static void DeleteUnmodifiedCopiesOfInstalledLocalizationFiles(string appName,
-			string directoryOfInstalledTmxFiles, string directoryOfUserModifiedTmxFiles)
+		/// <summary>
+		/// Now that L10NSharp creates all writable TMX files under LocalApplicationData
+		/// instead of the common/shared AppData folder, applications can use this method to
+		/// purge old TMX files.</summary>
+		/// <param name="appId">ID of the application used for creating the TMX files (typically
+		/// the same ID passed as the 2nd parameter to LocalizationManager.Create).</param>
+		/// <param name="directoryOfWritableTmxFiles">Folder from which to delete TMX files.
+		/// </param>
+		/// <param name="directoryOfInstalledTmxFiles">Used to limit file deletion to only
+		/// include copies of the installed TMX files (plus the generated default file). If this
+		/// is <c>null</c>, then all TMX files for the given appID will be deleted from
+		/// <paramref name="directoryOfWritableTmxFiles"/></param>
+		/// ------------------------------------------------------------------------------------
+		public static void DeleteOldTmxFiles(string appId, string directoryOfWritableTmxFiles,
+			string directoryOfInstalledTmxFiles)
 		{
-			if (Assembly.GetEntryAssembly() == null || !Directory.Exists(directoryOfUserModifiedTmxFiles))
-				return; // Possibly being called in a unit test.
+			//if (Assembly.GetEntryAssembly() == null)
+			//    return; // Probably being called in a unit test.
+			if (!Directory.Exists(directoryOfWritableTmxFiles))
+				return; // Nothing to do.
 
-			var oldDefaultTmxFilePath = Path.Combine(directoryOfUserModifiedTmxFiles, GetTmxFileNameForLanguage(appName, kDefaultLang));
+			var oldDefaultTmxFilePath = Path.Combine(directoryOfWritableTmxFiles, GetTmxFileNameForLanguage(appId, kDefaultLang));
 			if (!File.Exists(oldDefaultTmxFilePath))
-				return; // This was already done previously
+				return; // Cleanup was apparently done previously
 
 			File.Delete(oldDefaultTmxFilePath);
 
-			foreach (var oldTmxFile in Directory.GetFiles(directoryOfUserModifiedTmxFiles,
-				GetTmxFileNameForLanguage(appName, "*")))
+			foreach (var oldTmxFile in Directory.GetFiles(directoryOfWritableTmxFiles,
+				GetTmxFileNameForLanguage(appId, "*")))
 			{
 				var filename = Path.GetFileName(oldTmxFile);
-				if (File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
+				if (string.IsNullOrEmpty(directoryOfInstalledTmxFiles) || File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
 				{
-					// This is a copy of factory localization file, so we can safely delete it.
 					try
 					{
 						File.Delete(oldTmxFile);
 					}
 					catch
 					{
-						// Oh, well, just leave it. It's not going to hurt anything unless/until user switches to this locale.
+						// Oh, well, we tried.
 					}
 				}
 			}
