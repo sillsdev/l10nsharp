@@ -61,8 +61,8 @@ namespace L10NSharp
 		/// <param name="appVersion"></param>
 		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="relativePathForWritableTmxFiles">The relative folder path where TMX files
-		/// created/modified by the user will be created (e.g., "SIL\SayMore").</param>
+		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to %appdata%, where your
+		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "localizations" will be created there.</param>
 		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
@@ -73,19 +73,20 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			string relativePathForWritableTmxFiles,
+			string relativeSettingPathForLocalizationFolder,
 			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
 			EmailForSubmissions = emailForSubmissions;
 			_applicationIcon = applicationIcon;
 
-			if (string.IsNullOrEmpty(relativePathForWritableTmxFiles))
-				relativePathForWritableTmxFiles = appName;
-			else if (Path.IsPathRooted(relativePathForWritableTmxFiles))
-				throw new ArgumentException("Relative (non-rooted) path expected", "relativePathForWritableTmxFiles");
+			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
+				relativeSettingPathForLocalizationFolder = appName;
+			else if (Path.IsPathRooted(relativeSettingPathForLocalizationFolder))
+				throw new ArgumentException("Relative (non-rooted) path expected", "relativeSettingPathForLocalizationFolder");
 
 			var directoryOfWritableTmxFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-				relativePathForWritableTmxFiles);
+				relativeSettingPathForLocalizationFolder);
+			directoryOfWritableTmxFiles = Path.Combine(directoryOfWritableTmxFiles,"localizations");
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
