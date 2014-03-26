@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace L10NSharp.UI
@@ -10,6 +11,13 @@ namespace L10NSharp.UI
 		public HowToDistributeDialog(string emailForSubmissions, string targetTmxFilePath)
 		{
 			_targetTmxFilePath = targetTmxFilePath;
+			if (!File.Exists(_targetTmxFilePath))
+			{
+				_targetTmxFilePath = Path.GetDirectoryName(_targetTmxFilePath);
+				Debug.Assert(_targetTmxFilePath != null);
+				if (!Directory.Exists(_targetTmxFilePath))
+					Directory.CreateDirectory(_targetTmxFilePath);
+			}
 			InitializeComponent();
 
 #if MONO
