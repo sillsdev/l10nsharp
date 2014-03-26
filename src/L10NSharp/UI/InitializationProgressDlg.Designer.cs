@@ -88,7 +88,7 @@ namespace L10NSharp.UI
 			this._labelDetails.Name = "_labelDetails";
 			this._labelDetails.Size = new System.Drawing.Size(326, 30);
 			this._labelDetails.TabIndex = 3;
-			this._labelDetails.Text = "This process takes place only once with each new version of the application.";
+			this._labelDetails.Text = "Looking for user interface text that can be localized...";
 			// 
 			// _backgroundWorker
 			// 

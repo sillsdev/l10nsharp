@@ -50,8 +50,8 @@ namespace SampleApp
 
 				LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 										   "SampleApp", "SampleApp", Application.ProductVersion,
-										   directoryOfInstalledTmxFiles, false, directoryOfDefaultTmxFile,
-										   directoryOfUserModifiedTmxFiles,
+										   directoryOfInstalledTmxFiles,
+										   "MyCompany/L10NSharpSample",
 										   Resources.Icon, //replace with your icon
 										   "sampleappLocalizations@nowhere.com", "SampleApp");
 
