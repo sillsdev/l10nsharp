@@ -62,7 +62,7 @@ namespace L10NSharp
 			}
 			catch (Exception e)
 			{
-				MessageBox.Show("Error occurred reading localization file:\r\n" + e.Message,
+				MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
 					Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
 			}

@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace L10NSharp.UI
 {
     partial class LanguageChoosingDialog
@@ -35,17 +37,24 @@ namespace L10NSharp.UI
             // 
             // _messageLabel
             // 
-            this._messageLabel.AutoSize = true;
-            this._messageLabel.Location = new System.Drawing.Point(23, 25);
+			this._messageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top 
+				| System.Windows.Forms.AnchorStyles.Left) 
+				| System.Windows.Forms.AnchorStyles.Right));
+			this._messageLabel.AutoSize = false;
+			this._messageLabel.AutoEllipsis = true;
+			this._messageLabel.Location = new System.Drawing.Point(23, 5);
             this._messageLabel.MaximumSize = new System.Drawing.Size(220, 0);
             this._messageLabel.Name = "_messageLabel";
-            this._messageLabel.Size = new System.Drawing.Size(220, 39);
+			this._messageLabel.Size = new System.Drawing.Size(220, 80);
+			this._messageLabel.TextAlign = ContentAlignment.BottomLeft;
             this._messageLabel.TabIndex = 1;
             this._messageLabel.Text = "Our apologies, this program has not yet been localized for {0} ({1}). Please choo" +
     "se from one of the following languages:";
             // 
             // _OKButton
             // 
+			this._OKButton.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top 
+				| System.Windows.Forms.AnchorStyles.Right));
             this._OKButton.Location = new System.Drawing.Point(168, 150);
             this._OKButton.Name = "_OKButton";
             this._OKButton.Size = new System.Drawing.Size(75, 23);
@@ -56,6 +65,9 @@ namespace L10NSharp.UI
             // 
             // uiLanguageComboBox1
             // 
+			this.uiLanguageComboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top 
+				| System.Windows.Forms.AnchorStyles.Left) 
+				| System.Windows.Forms.AnchorStyles.Right));
             this.uiLanguageComboBox1.DisplayMember = "NativeName";
             this.uiLanguageComboBox1.DropDownHeight = 200;
             this.uiLanguageComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
