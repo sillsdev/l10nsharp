@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
@@ -61,8 +60,9 @@ namespace L10NSharp
 		/// <param name="appVersion"></param>
 		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
 		/// installed with the application.</param>
-		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to %appdata%, where your
-		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "localizations" will be created there.</param>
+		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
+		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
+		/// A folder named "localizations" will be created there.</param>
 		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
@@ -85,8 +85,7 @@ namespace L10NSharp
 				throw new ArgumentException("Relative (non-rooted) path expected", "relativeSettingPathForLocalizationFolder");
 
 			var directoryOfWritableTmxFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-				relativeSettingPathForLocalizationFolder);
-			directoryOfWritableTmxFiles = Path.Combine(directoryOfWritableTmxFiles,"localizations");
+				relativeSettingPathForLocalizationFolder, "localizations");
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
@@ -551,30 +550,59 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private void PrepareObjectForRuntimeLocalization(object obj)
 		{
-			if (obj is ToolStripItem)
+			var toolStripItem = obj as ToolStripItem;
+			if (toolStripItem != null)
 			{
-				((ToolStripItem)obj).MouseDown += HandleToolStripItemMouseDown;
-				((ToolStripItem)obj).Disposed += HandleToolStripItemDisposed;
+				toolStripItem.MouseDown += HandleToolStripItemMouseDown;
+				toolStripItem.Disposed += HandleToolStripItemDisposed;
+				return;
 			}
-			else if (obj is Control)
-			{
-				((Control)obj).HandleDestroyed += HandleControlHandleDestroyed;
 
-				TabPage tpg = obj as TabPage;
+			// For objects that are part of an owning parent control that needs to
+			// do some special handling when the user wants to localize, we need
+			// the parent to subscribe to the mouse event, but we don't want to
+			// subscribe once per column/page, so we first unsubscribe and then
+			// subscribe. It's a little ugly, but there doesn't seem to be a better way:
+			// http://stackoverflow.com/questions/399648/preventing-same-event-handler-assignment-multiple-times
+
+			var ctrl = obj as Control;
+			if (ctrl != null)
+			{
+				ctrl.Disposed += HandleControlDisposed;
+
+				TabPage tpg = ctrl as TabPage;
 				if (tpg != null && tpg.Parent is TabControl)
+				{
+					tpg.Parent.MouseDown -= HandleControlMouseDown;
 					tpg.Parent.MouseDown += HandleControlMouseDown;
-				else
-					((Control)obj).MouseDown += HandleControlMouseDown;
+					tpg.Parent.Disposed -= HandleControlDisposed;
+					tpg.Parent.Disposed += HandleControlDisposed;
+					tpg.Disposed += HandleTabPageDisposed;
+					return;
+				}
+
+				ctrl.MouseDown += HandleControlMouseDown;
+				return;
 			}
-			else if (obj is ColumnHeader && ((ColumnHeader)obj).ListView != null)
+
+			var columnHeader = obj as ColumnHeader;
+			if (columnHeader != null && columnHeader.ListView != null)
 			{
-				((ColumnHeader)obj).ListView.HandleDestroyed += HandleListViewHandleDestroyed;
-				((ColumnHeader)obj).ListView.ColumnClick += HandleListViewColumnHeaderClicked;
+				columnHeader.ListView.Disposed -= HandleListViewDisposed;
+				columnHeader.ListView.Disposed += HandleListViewDisposed;
+				columnHeader.ListView.ColumnClick -= HandleListViewColumnHeaderClicked;
+				columnHeader.ListView.ColumnClick += HandleListViewColumnHeaderClicked;
+				columnHeader.Disposed += HandleListViewColumnDisposed;
 			}
-			else if (obj is DataGridViewColumn && ((DataGridViewColumn)obj).DataGridView != null)
+
+			var dataGridViewColumn = obj as DataGridViewColumn;
+			if (dataGridViewColumn != null && dataGridViewColumn.DataGridView != null)
 			{
-				((DataGridViewColumn)obj).DataGridView.HandleDestroyed += HandleDataGridViewHandleDestroyed;
-				((DataGridViewColumn)obj).DataGridView.CellMouseDown += HandleDataGridViewCellMouseDown;
+				dataGridViewColumn.DataGridView.CellMouseDown -= HandleDataGridViewCellMouseDown;
+				dataGridViewColumn.DataGridView.CellMouseDown += HandleDataGridViewCellMouseDown;
+				dataGridViewColumn.DataGridView.Disposed -= HandleDataGridViewDisposed;
+				dataGridViewColumn.DataGridView.Disposed += HandleDataGridViewDisposed;
+				dataGridViewColumn.Disposed += HandleColumnDisposed;
 			}
 		}
 
@@ -1237,8 +1265,7 @@ namespace L10NSharp
 				item.MouseDown -= HandleToolStripItemMouseDown;
 				item.Disposed -= HandleToolStripItemDisposed;
 
-				if (ObjectCache.ContainsKey(item))
-					ObjectCache.Remove(item);
+				ObjectCache.Remove(item);
 			}
 		}
 
@@ -1274,17 +1301,52 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal void HandleControlHandleDestroyed(object sender, EventArgs e)
+		/// <summary>
+		/// When controls get destroyed, do a little clean up.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void HandleControlDisposed(object sender, EventArgs e)
 		{
 			var ctrl = sender as Control;
 			if (ctrl == null)
 				return;
 
-			ctrl.HandleDestroyed -= HandleControlHandleDestroyed;
+			ctrl.Disposed -= HandleControlDisposed;
 			ctrl.MouseDown -= HandleControlMouseDown;
 
-			if (ObjectCache.ContainsKey(ctrl))
-				ObjectCache.Remove(ctrl);
+			ObjectCache.Remove(ctrl);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// When a TabPage gets disposed, remove reference to it from the object cache.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void HandleTabPageDisposed(object sender, EventArgs e)
+		{
+			var tabPage = sender as TabPage;
+			if (tabPage == null)
+				return;
+
+			tabPage.Disposed -= HandleTabPageDisposed;
+			ObjectCache.Remove(tabPage);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// When DataGridView controls get disposed, do a little clean up.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void HandleDataGridViewDisposed(object sender, EventArgs e)
+		{
+			var grid = sender as DataGridView;
+			if (grid == null)
+				return;
+
+			grid.Disposed -= HandleControlDisposed;
+			grid.CellMouseDown -= HandleDataGridViewCellMouseDown;
+
+			ObjectCache.Remove(grid);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1307,20 +1369,33 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// When controls get destroyed, do a little clean up.
+		/// When ListView controls get disposed, do a little clean up.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void HandleListViewHandleDestroyed(object sender, EventArgs e)
+		internal void HandleListViewDisposed(object sender, EventArgs e)
 		{
 			var lv = sender as ListView;
 			if (lv == null)
 				return;
 
-			lv.HandleDestroyed -= HandleListViewHandleDestroyed;
+			lv.Disposed -= HandleListViewDisposed;
 			lv.ColumnClick -= HandleListViewColumnHeaderClicked;
+		}
 
-			foreach (var hdr in lv.Columns.Cast<ColumnHeader>().Where(h => ObjectCache.ContainsKey(h)))
-				ObjectCache.Remove(hdr);
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// When ListView ColumnHeader controls get disposed, remove the reference to it from the
+		/// object cache.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void HandleListViewColumnDisposed(object sender, EventArgs e)
+		{
+			var column = sender as ColumnHeader;
+			if (column == null)
+				return;
+
+			column.Disposed -= HandleListViewColumnDisposed;
+			ObjectCache.Remove(column);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1336,25 +1411,19 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// When controls get destroyed, do a little clean up.
+		/// When DataGridViewColumn controls get disposed, remove the reference to it from the
+		/// object cache.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void HandleDataGridViewHandleDestroyed(object sender, EventArgs e)
+		internal void HandleColumnDisposed(object sender, EventArgs e)
 		{
-			var grid = sender as DataGridView;
-			if (grid == null)
+			var column = sender as DataGridViewColumn;
+			if (column == null)
 				return;
 
-			grid.HandleDestroyed -= HandleDataGridViewHandleDestroyed;
-			grid.CellMouseDown -= HandleDataGridViewCellMouseDown;
-
-			foreach (DataGridViewColumn col in grid.Columns.Cast<DataGridViewColumn>()
-				.Where(col => ObjectCache.ContainsKey(col)))
-			{
-				ObjectCache.Remove(col);
-			}
+			column.Disposed -= HandleColumnDisposed;
+			ObjectCache.Remove(column);
 		}
-
 		#endregion
 
 		/// ------------------------------------------------------------------------------------
