@@ -480,7 +480,7 @@ namespace L10NSharp
 		{
 			get
 			{
-				if (_shortcutKeys == null && _obj != null)
+				if (_shortcutKeys == null && _obj != null && Utils.HasProperty(_obj, "ShortcutKeys"))
 				{
 					object keysobj = Utils.GetProperty(_obj, "ShortcutKeys");
 					if (keysobj != null && keysobj.GetType() == typeof(Keys))
