@@ -86,6 +86,12 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public static object GetProperty(object binding, string propertyName)
 		{
+			// It's not clear why this is needed. There is some indication (http://stackoverflow.com/questions/3546580/why-is-it-not-possible-to-catch-missingmethodexception)
+			// that MissingMethodException cannot be caught. In one situation in Bloom, with a ToolStripButton (which does not implement ShortcutKeys),
+			// it was indeed not caught, and Bloom failed to start. But a simple unit test trying to get the ShortcutKeys of a ToolStripButton returns null successfully even without
+			// this check. It seems safest to leave it in, since it currently seems to prevent that crash.
+			if (!HasProperty(binding, propertyName))
+				return null;
 			const BindingFlags flags =
 				(BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public);
 
@@ -102,7 +108,7 @@ namespace L10NSharp.UI
 				return binding.GetType().InvokeMember(propertyName,
 					flags | BindingFlags.Instance, null, binding, null);
 			}
-			// Warning: this will NOT catch the most likely exception, MissingMethodException, because it has been defined as unrecoverable.
+			// Warning: this will (sometimes?) NOT catch the most likely exception, MissingMethodException, because it has been defined as unrecoverable.
 			catch { }
 
 			return null;
