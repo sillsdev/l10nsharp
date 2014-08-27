@@ -475,7 +475,8 @@ namespace L10NSharp
 					foreach (var tmxFile in Directory.GetFiles(_installedTmxFileFolder, Id + ".*.tmx"))
 					{
 						langId = GetLangIdFromTmxFileName(tmxFile);
-						if (langId != kDefaultLang && !langIdsOfCustomizedLocales.Contains(langId))
+						if (  //langId != kDefaultLang &&    //REVIEW: removed August 26/2014 because this effectively means "Completely ignore the installed en.tmx file, and any dynamic strings that were careful shipped with that... why would we want to do that???
+							!langIdsOfCustomizedLocales.Contains(langId))
 							yield return tmxFile;
 					}
 				}
