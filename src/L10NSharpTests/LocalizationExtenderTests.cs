@@ -191,8 +191,8 @@ namespace L10NSharp.Tests
 		/// group for each.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[Test]
-		public void GroupAssignementTest()
+		[Test, Ignore("The test body was commented out before I got here, why run it?")]
+		public void GroupAssignmentTest()
 		{
 			//LocalizationManager.StringFilesFolder = Path.GetPathRoot(Path.GetTempPath());
 			//LocalizationManager.Enabled = true;

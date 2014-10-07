@@ -50,10 +50,15 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\Lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Palaso.TestUtilities">
+	  <SpecificVersion>false</SpecificVersion>
+      <HintPath>..\..\Lib\Palaso.TestUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -65,6 +70,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMultiStringContainerTests.cs" />
+    <Compile Include="MockMultiStringContainer.cs" />
     <Compile Include="UtilsTests.cs" />
     <Compile Include="LocalizationExtenderTests.cs" />
     <Compile Include="LocalizingInfoTests.cs" />
@@ -76,6 +83,10 @@
       <Project>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</Project>
       <Name>L10NSharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestTmx\Test.en.tmx" />
+    <None Include="TestTmx\Test.fr.tmx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
