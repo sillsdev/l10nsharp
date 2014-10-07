@@ -41,6 +41,7 @@ namespace L10NSharp
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
+		internal Dictionary<IMultiStringContainer, Dictionary<string, LocalizingInfo>> MultiStringContainers { get; private set; }
 
 		#region Static methods for creating a LocalizationManager
 		/// ------------------------------------------------------------------------------------
@@ -215,6 +216,7 @@ namespace L10NSharp
 			ObjectCache = new Dictionary<object, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new LocalizedStringCache(this);
+			MultiStringContainers = new Dictionary<IMultiStringContainer, Dictionary<string, LocalizingInfo>>();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -523,12 +525,17 @@ namespace L10NSharp
 					ObjectCache[obj] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
 				else
 				{
-					// If this is the first time this object has passed this way, then
-					// prepare it to be available for end-user localization.
-					PrepareObjectForRuntimeLocalization(obj);
-					ObjectCache.Add(obj, id);
-					// Make it available for the config dialog to localize.
-					StringCache.UpdateLocalizedInfo(info);
+					if (obj is IMultiStringContainer)
+						ObjectCache.Add(obj, id);
+					else
+					{
+						// If this is the first time this object has passed this way, then
+						// prepare it to be available for end-user localization.
+						PrepareObjectForRuntimeLocalization(obj);
+						ObjectCache.Add(obj, id);
+						// Make it available for the config dialog to localize.
+						StringCache.UpdateLocalizedInfo(info);
+					}
 				}
 
 				return true;
@@ -1038,6 +1045,17 @@ namespace L10NSharp
 			if (!ObjectCache.TryGetValue(obj, out id))
 				return;
 
+			var msc = obj as IMultiStringContainer;
+			if (msc != null)
+			{
+				Dictionary<string, LocalizingInfo> idToLocInfo;
+				if (MultiStringContainers.TryGetValue(msc, out idToLocInfo))
+				{
+					ApplyLocalizationsToMultiStringContainer(msc, idToLocInfo);
+					return;
+				}
+			}
+
 			if (ApplyLocalizationsToControl(obj as Control, id))
 				return;
 
@@ -1048,6 +1066,24 @@ namespace L10NSharp
 				return;
 
 			ApplyLocalizationsToDataGridViewColumn(obj as DataGridViewColumn, id);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Initializes the specified IMultiStringContainer.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void ApplyLocalizationsToMultiStringContainer(IMultiStringContainer msc, Dictionary<string, LocalizingInfo> idToLocInfo)
+		{
+			if (msc == null)
+				return;
+
+			foreach (var kvp in idToLocInfo)
+			{
+				var id = kvp.Key;
+				var locInfo = kvp.Value;
+				msc.ApplyLocalizationToString(locInfo.Obj, id, GetLocalizedString(id, locInfo.Text));
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------

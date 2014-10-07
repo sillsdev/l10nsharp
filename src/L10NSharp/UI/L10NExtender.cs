@@ -259,6 +259,21 @@ namespace L10NSharp.UI
 					_manager.ApplyLocalization(locInfo.Obj);
 			}
 
+			// Now make sure each IMultiStringContainer is localized.
+			foreach (var kvp in _manager.MultiStringContainers)
+			{
+				var msc = kvp.Key;
+				var idToLocInfo = kvp.Value;
+				foreach (var locInfo in idToLocInfo.Values
+					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
+				{
+					if (string.IsNullOrEmpty(locInfo.LangId))
+						locInfo.LangId = LocalizationManager.kDefaultLang;
+				}
+				if(_manager.RegisterObjectForLocalizing(new LocalizingInfo(msc, "dummy")))
+					_manager.ApplyLocalizationsToMultiStringContainer(msc, idToLocInfo);
+			}
+
 			m_extendedCtrls = null;
 			_okayToLocalizeControls = false;
 		}
@@ -379,6 +394,31 @@ namespace L10NSharp.UI
 
 			if (m_extendedCtrls != null && !DesignMode)
 				m_extendedCtrls[obj] = loi;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Adds multiple strings from a IMultiStringContainer control. This interface was initially
+		/// motivated by Bloom's BetterToolTip. This method should be run before EndInit(), but
+		/// after all the designer code has finished executing in InitializeComponents().
+		/// </summary>
+		/// <remarks>The method needs to be called just before designer InitializeComponent() calls
+		/// L10NSharpExtender.EndInit(), otherwise m_extendedCtrls will be null.</remarks>
+		/// ------------------------------------------------------------------------------------
+		public void AddMultipleStrings(IMultiStringContainer msc)
+		{
+			if (m_extendedCtrls == null) // no can do! (can happen during view setup)
+				return;
+			var lios = msc.GetAllLocalizingInfoObjects();
+			var idToLocInfo = new Dictionary<string, LocalizingInfo>();
+			foreach (var localizingInfo in lios)
+			{
+				if (string.IsNullOrEmpty(localizingInfo.Id))
+					continue;
+				_manager.AddString(localizingInfo.Id, localizingInfo.Text, null, null, null);
+				idToLocInfo.Add(localizingInfo.Id, localizingInfo);
+			}
+			_manager.MultiStringContainers.Add(msc, idToLocInfo);
 		}
 
 		/// ------------------------------------------------------------------------------------

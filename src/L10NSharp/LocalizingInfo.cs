@@ -68,6 +68,8 @@ namespace L10NSharp
 		/// <summary></summary>
 		UndoRedoMessage,
 		/// <summary></summary>
+		MultiStringContainer,
+		/// <summary></summary>
 		GeneralMessage,
 		/// <summary></summary>
 		Other,
@@ -339,6 +341,8 @@ namespace L10NSharp
 				return LocalizationCategory.ListViewColumnHeading;
 			if (obj is DataGridViewColumn)
 				return LocalizationCategory.ListViewColumnHeading;
+			if (obj is IMultiStringContainer)
+				return LocalizationCategory.MultiStringContainer;
 
 			return LocalizationCategory.Other;
 		}
