@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
@@ -27,6 +28,12 @@ namespace L10NSharp.UI
 			_buttonCopyAndClose.Text = string.Format(_buttonCopyAndClose.Text, _lableTarget.Text);
 
 			_textBoxSource.Text = sourceText;
+
+			_buttonCopyAndClose.Enabled = false;
+			_textBoxTarget.TextChanged += delegate
+			{
+				_buttonCopyAndClose.Enabled = !String.IsNullOrEmpty(_textBoxTarget.Text);
+			};
 
 			_buttonCopyAndClose.Click += delegate
 			{
