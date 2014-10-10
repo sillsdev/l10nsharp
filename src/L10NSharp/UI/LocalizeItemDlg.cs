@@ -34,7 +34,7 @@ namespace L10NSharp.UI
 
 
 		/// ------------------------------------------------------------------------------------
-		internal static DialogResult ShowDialog(LocalizationManager callingManager, object obj,
+		internal static DialogResult ShowDialog(LocalizationManager callingManager, object component,
 			bool runInReadonlyMode)
 		{
 			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
@@ -42,8 +42,8 @@ namespace L10NSharp.UI
 
 			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
 
-			var id = (callingManager == null ? viewModel.GetObjIdFromAnyCache(obj) :
-				callingManager.ObjectCache.FirstOrDefault(kvp => kvp.Key == obj).Value);
+			var id = (callingManager == null ? viewModel.GetObjIdFromAnyCache(component) :
+				callingManager.ObjectCache.FirstOrDefault(kvp => kvp.Key == component).Value);
 
 			using (var dlg = new LocalizeItemDlg(viewModel, id, callingManager))
 				return dlg.ShowDialog();
@@ -287,7 +287,7 @@ namespace L10NSharp.UI
 			var obj = _viewModel.GetFirstObjectForId();
 
 			if (obj != null)
-				UpdateSingleItemViewForObject(obj);
+				UpdateSingleItemViewForComponent(obj);
 
 			var fnt = _viewModel.GetFontForObject(obj);
 
@@ -300,26 +300,26 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void UpdateSingleItemViewForObject(object obj)
+		private void UpdateSingleItemViewForComponent(object component)
 		{
-			var img = _viewModel.GetObjectsImage(obj);
+			var img = _viewModel.GetObjectsImage(component);
 			if (img != null)
 			{
 				_pictureImage.Image = img;
 				_groupBoxImage.Visible = true;
 			}
 
-			if (obj is Control)
+			if (component is Control)
 			{
 				_labelSrcToolTip.Enabled = _labelTgtToolTip.Enabled = true;
 				_textBoxSrcToolTip.Enabled = _textBoxTgtToolTip.Enabled = true;
 			}
-			else if (obj is ToolStripItem)
+			else if (component is ToolStripItem)
 			{
 				_labelSrcToolTip.Enabled = _labelTgtToolTip.Enabled = true;
 				_textBoxSrcToolTip.Enabled = _textBoxTgtToolTip.Enabled = true;
 
-				if (obj is ToolStripMenuItem)
+				if (component is ToolStripMenuItem)
 				{
 					_labelSrcShortcutKeys.Enabled = _labelTgtShortcutKeys.Enabled = true;
 					_textBoxSrcShortcutKeys.Enabled = _shortcutKeysDropDown.Enabled = true;

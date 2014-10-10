@@ -17,13 +17,14 @@ namespace L10NSharp
 		IEnumerable<LocalizingInfo> GetAllLocalizingInfoObjects(L10NSharpExtender extender);
 
 		/// <summary>
-		/// L10NSharp sends the localized string back to the ILocalizableComponent to be
-		/// applied, since L10NSharp doesn't know the internal workings of the container.
+		/// L10NSharp will call this for each localized string so that the component can set
+		/// the correct value in the control.
 		/// </summary>
-		/// <param name="obj">if non-null this object contains a string to be localized</param>
+		/// <param name="control">The control that was returned via the LocalizingInfo in
+		/// GetAllLocalizingInfoObjects(). Will be null if that value was null.</param>
 		/// <param name="id">a key into the ILocalizableComponent allowing it to know what
-		///  string to localize</param>
+		/// string to localize</param>
 		/// <param name="localization">the actual localized string</param>
-		void ApplyLocalizationToString(object obj, string id, string localization);
+		void ApplyLocalizationToString(object control, string id, string localization);
 	}
 }

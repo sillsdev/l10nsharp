@@ -317,18 +317,18 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Goes through each loaded LocalizationManager, looking for the one whose object
-		/// cache contains the specified object. When it's found, that object's id is returned.
+		/// Goes through each loaded LocalizationManager, looking for the one whose component
+		/// cache contains the specified component. When it's found, that component's id is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetObjIdFromAnyCache(object obj)
+		public string GetObjIdFromAnyCache(object component)
 		{
-			if (obj != null)
+			if (component != null)
 			{
 				foreach (var manager in LocalizationManager.LoadedManagers.Values)
 				{
 					string id;
-					if (manager.ObjectCache.TryGetValue(obj, out id))
+					if (manager.ObjectCache.TryGetValue(component, out id))
 						return id;
 				}
 			}
