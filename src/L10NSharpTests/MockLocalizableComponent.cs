@@ -63,17 +63,18 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		/// L10NSharp sends the localized string back to the ILocalizableComponent to be
-		/// applied, since L10NSharp doesn't know the internal workings of the container.
+		///	L10NSharp will call this for each localized string so that the component can set
+		/// the correct value in the control.
 		/// </summary>
-		/// <param name="obj">if non-null this object contains a string to be localized</param>
+		/// <param name="control">The control that was returned via the LocalizingInfo in
+		/// GetAllLocalizingInfoObjects(). Will be null if that value was null.</param>
 		/// <param name="id">a key into the ILocalizableComponent allowing it to know what
-		///  string to localize</param>
+		/// string to localize</param>
 		/// <param name="localization">the actual localized string</param>
-		public void ApplyLocalizationToString(object obj, string id, string localization)
+		public void ApplyLocalizationToString(object control, string id, string localization)
 		{
-			var control = obj as Control;
-			var key = new Tuple<Control, string>(control, id);
+			var control1 = control as Control;
+			var key = new Tuple<Control, string>(control1, id);
 			string currentLocalization;
 			if (StringContainer.TryGetValue(key, out currentLocalization))
 			{
