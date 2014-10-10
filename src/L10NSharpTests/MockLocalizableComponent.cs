@@ -63,7 +63,7 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		///	L10NSharp will call this for each localized string so that the component can set
+		/// L10NSharp will call this for each localized string so that the component can set
 		/// the correct value in the control.
 		/// </summary>
 		/// <param name="control">The control that was returned via the LocalizingInfo in
