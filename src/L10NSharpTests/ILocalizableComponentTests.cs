@@ -16,7 +16,7 @@ namespace L10NSharp.Tests
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
 	[TestFixture]
-	class IMultiStringContainerTests
+	class ILocalizableComponentTests
 	{
 		private LocalizationManager m_manager;
 		private L10NSharpExtender m_extender;
@@ -53,20 +53,20 @@ namespace L10NSharp.Tests
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Tests that we can localize an IMultiStringContainer object.
+		/// Tests that we can localize an ILocalizableComponent object.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Test]
-		public void TestLocalizingAMultiStringContainer()
+		public void TestLocalizingALocalizableComponent()
 		{
 			// Setup test
 			m_extender.BeginInit(); // Doesn't currently do anything, but for completeness...
-			var myMsc = new MockMultiStringContainer(m_extender);
+			var myMsc = new MockLocalizableComponent(m_extender);
 
 			// SUT
-			// this line calls IMultiStringContainer.GetAllLocalizingInfoObjects()
+			// this line calls ILocalizableComponent.GetAllLocalizingInfoObjects()
 			m_extender.AddMultipleStrings(myMsc);
-			// this line calls IMultiStringContainer.ApplyLocalizationToString(obj, id, localization)
+			// this line calls ILocalizableComponent.ApplyLocalizationToString(obj, id, localization)
 			m_extender.EndInit();
 
 			// Verify English

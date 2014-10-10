@@ -51,7 +51,7 @@
       <HintPath>..\..\Lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
-	  <SpecificVersion>false</SpecificVersion>
+      <SpecificVersion>false</SpecificVersion>
       <HintPath>..\..\Lib\Palaso.TestUtilities.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -70,8 +70,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IMultiStringContainerTests.cs" />
-    <Compile Include="MockMultiStringContainer.cs" />
+    <Compile Include="ILocalizableComponentTests.cs" />
+    <Compile Include="MockLocalizableComponent.cs" />
     <Compile Include="UtilsTests.cs" />
     <Compile Include="LocalizationExtenderTests.cs" />
     <Compile Include="LocalizingInfoTests.cs" />

@@ -68,7 +68,7 @@ namespace L10NSharp
 		/// <summary></summary>
 		UndoRedoMessage,
 		/// <summary></summary>
-		MultiStringContainer,
+		LocalizableComponent,
 		/// <summary></summary>
 		GeneralMessage,
 		/// <summary></summary>
@@ -315,6 +315,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private static LocalizationCategory GetCategory(object obj)
 		{
+			if (obj is ILocalizableComponent)
+				return LocalizationCategory.LocalizableComponent;
 			if (obj is ToolStripMenuItem)
 				return LocalizationCategory.MenuItem;
 			if (obj is ToolStripItem)
@@ -341,8 +343,6 @@ namespace L10NSharp
 				return LocalizationCategory.ListViewColumnHeading;
 			if (obj is DataGridViewColumn)
 				return LocalizationCategory.ListViewColumnHeading;
-			if (obj is IMultiStringContainer)
-				return LocalizationCategory.MultiStringContainer;
 
 			return LocalizationCategory.Other;
 		}

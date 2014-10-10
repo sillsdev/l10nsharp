@@ -7,7 +7,7 @@ using L10NSharp.UI;
 
 namespace L10NSharp.Tests
 {
-	class MockMultiStringContainer: IMultiStringContainer
+	class MockLocalizableComponent: ILocalizableComponent
 	{
 
 		public Dictionary<Tuple<Control, string>, string> StringContainer;
@@ -15,7 +15,7 @@ namespace L10NSharp.Tests
 		public Button ChickenButton;
 		private L10NSharpExtender m_extender;
 
-		public MockMultiStringContainer(L10NSharpExtender extender)
+		public MockLocalizableComponent(L10NSharpExtender extender)
 		{
 			StringContainer = new Dictionary<Tuple<Control, string>, string>();
 			m_extender = extender;
@@ -48,7 +48,7 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		/// Allows the MockMultiStringContainer to give L10NSharp the information it needs to put strings
+		/// Allows the MockLocalizableComponent to give L10NSharp the information it needs to put strings
 		/// into the localization UI to be localized.
 		/// </summary>
 		/// <returns>A list of LocalizingInfo objects</returns>
@@ -59,19 +59,18 @@ namespace L10NSharp.Tests
 			{
 				var control = kvp.Key.Item1;
 				var id = m_extender.GetLocalizingId(control) + kvp.Key.Item2;
-				result.Add(new LocalizingInfo(control, id) { Text = kvp.Value, Category = LocalizationCategory.MultiStringContainer});
+				result.Add(new LocalizingInfo(control, id) { Text = kvp.Value, Category = LocalizationCategory.LocalizableComponent});
 			}
 			return result;
 		}
 
 		/// <summary>
-		/// L10NSharp sends the localized string back to the IMultiStringContainer to be
+		/// L10NSharp sends the localized string back to the ILocalizableComponent to be
 		/// applied, since L10NSharp doesn't know the internal workings of the container.
-		/// We assume that the container is a collection of subcontrols that have string
-		/// ids that need localizing.
 		/// </summary>
-		/// <param name="obj">somewhere in this control is a string to be localized</param>
-		/// <param name="id">a key into the subControl allowing it to know what string to localize</param>
+		/// <param name="obj">if non-null this object contains a string to be localized</param>
+		/// <param name="id">a key into the ILocalizableComponent allowing it to know what
+		///  string to localize</param>
 		/// <param name="localization">the actual localized string</param>
 		public void ApplyLocalizationToString(object obj, string id, string localization)
 		{

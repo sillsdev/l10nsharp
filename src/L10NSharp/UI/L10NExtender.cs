@@ -238,6 +238,7 @@ namespace L10NSharp.UI
 
 			FinalizationForListViewColumnHeaders();
 			FinalizationForDataGridViewColumns();
+			FinalizationForILocalizableComponents();
 
 			// Now make sure each extended control is localized.
 			foreach (var locInfo in m_extendedCtrls.Values
@@ -259,8 +260,8 @@ namespace L10NSharp.UI
 					_manager.ApplyLocalization(locInfo.Obj);
 			}
 
-			// Now make sure each IMultiStringContainer is localized.
-			foreach (var kvp in _manager.MultiStringContainers)
+			// Now make sure each ILocalizableComponent is localized.
+			foreach (var kvp in _manager.LocalizableComponents)
 			{
 				var msc = kvp.Key;
 				var idToLocInfo = kvp.Value;
@@ -271,11 +272,17 @@ namespace L10NSharp.UI
 						locInfo.LangId = LocalizationManager.kDefaultLang;
 				}
 				if(_manager.RegisterObjectForLocalizing(new LocalizingInfo(msc, "dummy")))
-					_manager.ApplyLocalizationsToMultiStringContainer(msc, idToLocInfo);
+					_manager.ApplyLocalizationsToLocalizableComponent(msc, idToLocInfo);
 			}
 
 			m_extendedCtrls = null;
 			_okayToLocalizeControls = false;
+		}
+
+		private void FinalizationForILocalizableComponents()
+		{
+			//TODO can we create the idToLocInfo dictionary here?
+			//throw new NotImplementedException();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -398,14 +405,10 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Adds multiple strings from a IMultiStringContainer control. This interface was initially
-		/// motivated by Bloom's BetterToolTip. This method should be run before EndInit(), but
-		/// after all the designer code has finished executing in InitializeComponents().
+		/// Adds multiple strings from a ILocalizableComponent control.
 		/// </summary>
-		/// <remarks>The method needs to be called just before designer InitializeComponent() calls
-		/// L10NSharpExtender.EndInit(), otherwise m_extendedCtrls will be null.</remarks>
 		/// ------------------------------------------------------------------------------------
-		public void AddMultipleStrings(IMultiStringContainer msc)
+		public void AddMultipleStrings(ILocalizableComponent msc)
 		{
 			if (m_extendedCtrls == null) // no can do! (can happen during view setup)
 				return;
@@ -418,7 +421,7 @@ namespace L10NSharp.UI
 				_manager.AddString(localizingInfo.Id, localizingInfo.Text, null, null, null);
 				idToLocInfo.Add(localizingInfo.Id, localizingInfo);
 			}
-			_manager.MultiStringContainers.Add(msc, idToLocInfo);
+			_manager.LocalizableComponents.Add(msc, idToLocInfo);
 		}
 
 		/// ------------------------------------------------------------------------------------

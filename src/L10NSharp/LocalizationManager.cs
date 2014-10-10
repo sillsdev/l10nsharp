@@ -41,7 +41,7 @@ namespace L10NSharp
 
 		internal Dictionary<object, string> ObjectCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
-		internal Dictionary<IMultiStringContainer, Dictionary<string, LocalizingInfo>> MultiStringContainers { get; private set; }
+		internal Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; private set; }
 
 		#region Static methods for creating a LocalizationManager
 		/// ------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ namespace L10NSharp
 			ObjectCache = new Dictionary<object, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new LocalizedStringCache(this);
-			MultiStringContainers = new Dictionary<IMultiStringContainer, Dictionary<string, LocalizingInfo>>();
+			LocalizableComponents = new Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>>();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -525,7 +525,7 @@ namespace L10NSharp
 					ObjectCache[obj] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
 				else
 				{
-					if (obj is IMultiStringContainer)
+					if (obj is ILocalizableComponent)
 						ObjectCache.Add(obj, id);
 					else
 					{
@@ -1045,13 +1045,13 @@ namespace L10NSharp
 			if (!ObjectCache.TryGetValue(obj, out id))
 				return;
 
-			var msc = obj as IMultiStringContainer;
+			var msc = obj as ILocalizableComponent;
 			if (msc != null)
 			{
 				Dictionary<string, LocalizingInfo> idToLocInfo;
-				if (MultiStringContainers.TryGetValue(msc, out idToLocInfo))
+				if (LocalizableComponents.TryGetValue(msc, out idToLocInfo))
 				{
-					ApplyLocalizationsToMultiStringContainer(msc, idToLocInfo);
+					ApplyLocalizationsToLocalizableComponent(msc, idToLocInfo);
 					return;
 				}
 			}
@@ -1070,10 +1070,10 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes the specified IMultiStringContainer.
+		/// Initializes the specified ILocalizableComponent.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalizationsToMultiStringContainer(IMultiStringContainer msc, Dictionary<string, LocalizingInfo> idToLocInfo)
+		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent msc, Dictionary<string, LocalizingInfo> idToLocInfo)
 		{
 			if (msc == null)
 				return;
