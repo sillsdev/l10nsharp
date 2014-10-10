@@ -13,12 +13,10 @@ namespace L10NSharp.Tests
 		public Dictionary<Tuple<Control, string>, string> StringContainer;
 		public Button BirdButton;
 		public Button ChickenButton;
-		private L10NSharpExtender m_extender;
 
-		public MockLocalizableComponent(L10NSharpExtender extender)
+		public MockLocalizableComponent()
 		{
 			StringContainer = new Dictionary<Tuple<Control, string>, string>();
-			m_extender = extender;
 			LoadTestData();
 		}
 
@@ -52,13 +50,13 @@ namespace L10NSharp.Tests
 		/// into the localization UI to be localized.
 		/// </summary>
 		/// <returns>A list of LocalizingInfo objects</returns>
-		public IEnumerable<LocalizingInfo> GetAllLocalizingInfoObjects()
+		public IEnumerable<LocalizingInfo> GetAllLocalizingInfoObjects(L10NSharpExtender extender)
 		{
 			var result = new List<LocalizingInfo>();
 			foreach (var kvp in StringContainer)
 			{
 				var control = kvp.Key.Item1;
-				var id = m_extender.GetLocalizingId(control) + kvp.Key.Item2;
+				var id = extender.GetLocalizingId(control) + kvp.Key.Item2;
 				result.Add(new LocalizingInfo(control, id) { Text = kvp.Value, Category = LocalizationCategory.LocalizableComponent});
 			}
 			return result;

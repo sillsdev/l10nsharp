@@ -247,8 +247,9 @@ namespace L10NSharp.UI
 				if (string.IsNullOrEmpty(locInfo.LangId))
 					locInfo.LangId = LocalizationManager.kDefaultLang;
 				// Depending on the order in which VS Designer decides to initialize fields, locInfo may be originally created before the Text of the
-				// control is set. If so, obtain it again.
-				if (string.IsNullOrWhiteSpace(locInfo.Text))
+				// control is set. If so, obtain it again, unless this is an ILocalizableComponent. In that case, the above Finalization
+				// method should have taken care of this.
+				if (locInfo.Category != LocalizationCategory.LocalizableComponent && string.IsNullOrWhiteSpace(locInfo.Text))
 					locInfo.UpdateTextFromObject();
 				// Special case: the Text of a column header is "ColumnHeader" before it is ever set.
 				// This means that if we first processed the CH before we set its text, we have noted
@@ -257,32 +258,51 @@ namespace L10NSharp.UI
 				if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
 					locInfo.UpdateTextFromObject();
 				if (_manager.RegisterObjectForLocalizing(locInfo))
-					_manager.ApplyLocalization(locInfo.Obj);
-			}
-
-			// Now make sure each ILocalizableComponent is localized.
-			foreach (var kvp in _manager.LocalizableComponents)
-			{
-				var msc = kvp.Key;
-				var idToLocInfo = kvp.Value;
-				foreach (var locInfo in idToLocInfo.Values
-					.Where(li => li.Priority != LocalizationPriority.NotLocalizable))
 				{
-					if (string.IsNullOrEmpty(locInfo.LangId))
-						locInfo.LangId = LocalizationManager.kDefaultLang;
+					if (locInfo.Category == LocalizationCategory.LocalizableComponent)
+					{
+						ApplyLocalizationsToILocalizableComponent(locInfo);
+					}
+					else
+					{
+						_manager.ApplyLocalization(locInfo.Obj);
+					}
 				}
-				if(_manager.RegisterObjectForLocalizing(new LocalizingInfo(msc, "dummy")))
-					_manager.ApplyLocalizationsToLocalizableComponent(msc, idToLocInfo);
 			}
 
 			m_extendedCtrls = null;
 			_okayToLocalizeControls = false;
 		}
 
+		private void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
+		{
+			Dictionary<string, LocalizingInfo> idToLocInfo; // out variable
+
+			var locComponent = locInfo.Obj as ILocalizableComponent;
+			if (locComponent != null && _manager.LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+			{
+				_manager.ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
+				return;
+			}
+#if DEBUG
+			var msg =
+				"Either locInfo.Obj is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
+			throw new ApplicationException(string.Format(msg, locInfo.Id));
+#endif
+		}
+
 		private void FinalizationForILocalizableComponents()
 		{
-			//TODO can we create the idToLocInfo dictionary here?
-			//throw new NotImplementedException();
+			if (m_extendedCtrls == null || DesignMode)
+				return;
+
+			var locCompArray = m_extendedCtrls.Where(x => x.Key is ILocalizableComponent).ToArray();
+
+			foreach (var kvp in locCompArray)
+			{
+				var locComponent = kvp.Key as ILocalizableComponent;
+				AddMultipleStrings(locComponent);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -408,11 +428,11 @@ namespace L10NSharp.UI
 		/// Adds multiple strings from a ILocalizableComponent control.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void AddMultipleStrings(ILocalizableComponent msc)
+		public void AddMultipleStrings(ILocalizableComponent locComponent)
 		{
 			if (m_extendedCtrls == null) // no can do! (can happen during view setup)
 				return;
-			var lios = msc.GetAllLocalizingInfoObjects();
+			var lios = locComponent.GetAllLocalizingInfoObjects(this);
 			var idToLocInfo = new Dictionary<string, LocalizingInfo>();
 			foreach (var localizingInfo in lios)
 			{
@@ -421,7 +441,7 @@ namespace L10NSharp.UI
 				_manager.AddString(localizingInfo.Id, localizingInfo.Text, null, null, null);
 				idToLocInfo.Add(localizingInfo.Id, localizingInfo);
 			}
-			_manager.LocalizableComponents.Add(msc, idToLocInfo);
+			_manager.LocalizableComponents.Add(locComponent, idToLocInfo);
 		}
 
 		/// ------------------------------------------------------------------------------------

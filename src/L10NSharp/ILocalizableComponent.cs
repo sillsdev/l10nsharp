@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using L10NSharp.UI;
 
 namespace L10NSharp
 {
@@ -13,7 +14,7 @@ namespace L10NSharp
 		/// into the localization UI to be localized.
 		/// </summary>
 		/// <returns>A list of LocalizingInfo objects</returns>
-		IEnumerable<LocalizingInfo> GetAllLocalizingInfoObjects();
+		IEnumerable<LocalizingInfo> GetAllLocalizingInfoObjects(L10NSharpExtender extender);
 
 		/// <summary>
 		/// L10NSharp sends the localized string back to the ILocalizableComponent to be

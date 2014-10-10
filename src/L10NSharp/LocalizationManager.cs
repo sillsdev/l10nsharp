@@ -1045,13 +1045,13 @@ namespace L10NSharp
 			if (!ObjectCache.TryGetValue(obj, out id))
 				return;
 
-			var msc = obj as ILocalizableComponent;
-			if (msc != null)
+			var locComponent = obj as ILocalizableComponent;
+			if (locComponent != null)
 			{
 				Dictionary<string, LocalizingInfo> idToLocInfo;
-				if (LocalizableComponents.TryGetValue(msc, out idToLocInfo))
+				if (LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
 				{
-					ApplyLocalizationsToLocalizableComponent(msc, idToLocInfo);
+					ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
 					return;
 				}
 			}
@@ -1073,16 +1073,16 @@ namespace L10NSharp
 		/// Initializes the specified ILocalizableComponent.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent msc, Dictionary<string, LocalizingInfo> idToLocInfo)
+		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent locComponent, Dictionary<string, LocalizingInfo> idToLocInfo)
 		{
-			if (msc == null)
+			if (locComponent == null)
 				return;
 
 			foreach (var kvp in idToLocInfo)
 			{
 				var id = kvp.Key;
 				var locInfo = kvp.Value;
-				msc.ApplyLocalizationToString(locInfo.Obj, id, GetLocalizedString(id, locInfo.Text));
+				locComponent.ApplyLocalizationToString(locInfo.Obj, id, GetLocalizedString(id, locInfo.Text));
 			}
 		}
 
