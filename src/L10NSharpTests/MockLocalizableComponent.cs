@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -7,7 +8,7 @@ using L10NSharp.UI;
 
 namespace L10NSharp.Tests
 {
-	class MockLocalizableComponent: ILocalizableComponent
+	class MockLocalizableComponent: ILocalizableComponent, IComponent
 	{
 
 		public Dictionary<Tuple<Control, string>, string> StringContainer;
@@ -86,5 +87,29 @@ namespace L10NSharp.Tests
 				StringContainer.Add(key, localization);
 			}
 		}
+
+#region unused IComponent support
+
+		public event EventHandler Disposed;
+
+		public ISite Site
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
+
+#endregion
+
 	}
 }

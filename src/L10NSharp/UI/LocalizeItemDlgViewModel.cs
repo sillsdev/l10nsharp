@@ -231,8 +231,8 @@ namespace L10NSharp.UI
 					node.Manager.StringCache.UpdateLocalizedInfo(locInfo);
 
 				// Update each object with the specified id, with the localized string(s).
-				foreach (var obj in GetObjectsForId(node.Manager, node.Id).Where(o => o != null))
-					node.Manager.ApplyLocalization(obj);
+				foreach (var component in GetComponentsForId(node.Manager, node.Id).Where(o => o != null))
+					node.Manager.ApplyLocalization(component);
 			}
 
 			foreach (var lm in LocalizationManager.LoadedManagers.Values)
@@ -300,9 +300,9 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private IEnumerable<object> GetObjectsForId(LocalizationManager lm, string id)
+		private IEnumerable<IComponent> GetComponentsForId(LocalizationManager lm, string id)
 		{
-			return lm.ObjectCache.Where(kvp => kvp.Value == id).Select(kvp => kvp.Key);
+			return lm.ComponentCache.Where(kvp => kvp.Value == id).Select(kvp => kvp.Key);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -321,14 +321,14 @@ namespace L10NSharp.UI
 		/// cache contains the specified component. When it's found, that component's id is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetObjIdFromAnyCache(object component)
+		public string GetObjIdFromAnyCache(IComponent component)
 		{
 			if (component != null)
 			{
 				foreach (var manager in LocalizationManager.LoadedManagers.Values)
 				{
 					string id;
-					if (manager.ObjectCache.TryGetValue(component, out id))
+					if (manager.ComponentCache.TryGetValue(component, out id))
 						return id;
 				}
 			}
@@ -370,9 +370,9 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public object GetFirstObjectForId()
+		public IComponent GetFirstObjectForId()
 		{
-			return CurrentNode.Manager.ObjectCache.FirstOrDefault(k => k.Value == CurrentNode.Id).Key;
+			return CurrentNode.Manager.ComponentCache.FirstOrDefault(k => k.Value == CurrentNode.Id).Key;
 		}
 
 		/// ------------------------------------------------------------------------------------

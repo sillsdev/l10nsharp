@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Drawing;
 using System.Globalization;
@@ -34,8 +35,7 @@ namespace L10NSharp.UI
 
 
 		/// ------------------------------------------------------------------------------------
-		internal static DialogResult ShowDialog(LocalizationManager callingManager, object component,
-			bool runInReadonlyMode)
+		internal static DialogResult ShowDialog(LocalizationManager callingManager, IComponent component, bool runInReadonlyMode)
 		{
 			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
 				runInReadonlyMode = true;
@@ -43,7 +43,7 @@ namespace L10NSharp.UI
 			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
 
 			var id = (callingManager == null ? viewModel.GetObjIdFromAnyCache(component) :
-				callingManager.ObjectCache.FirstOrDefault(kvp => kvp.Key == component).Value);
+				callingManager.ComponentCache.FirstOrDefault(kvp => kvp.Key == component).Value);
 
 			using (var dlg = new LocalizeItemDlg(viewModel, id, callingManager))
 				return dlg.ShowDialog();
@@ -284,12 +284,12 @@ namespace L10NSharp.UI
 				LocalizedStringCache.s_literalNewline, Environment.NewLine);
 
 			_textBoxTgtTranslation.SelectAll();
-			var obj = _viewModel.GetFirstObjectForId();
+			var component = _viewModel.GetFirstObjectForId();
 
-			if (obj != null)
-				UpdateSingleItemViewForComponent(obj);
+			if (component != null)
+				UpdateSingleItemViewForComponent(component);
 
-			var fnt = _viewModel.GetFontForObject(obj);
+			var fnt = _viewModel.GetFontForObject(component);
 
 			_textBoxSrcTranslation.Font = fnt;
 			_textBoxTgtTranslation.Font = fnt;
@@ -300,7 +300,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void UpdateSingleItemViewForComponent(object component)
+		private void UpdateSingleItemViewForComponent(IComponent component)
 		{
 			var img = _viewModel.GetObjectsImage(component);
 			if (img != null)
@@ -770,7 +770,7 @@ namespace L10NSharp.UI
 				return;
 
 			var node = gridNodes[e.RowIndex];
-			var objInfo = node.Manager.ObjectCache.FirstOrDefault(kvp => kvp.Value == node.Id);
+			var objInfo = node.Manager.ComponentCache.FirstOrDefault(kvp => kvp.Value == node.Id);
 			e.CellStyle.Font = _viewModel.GetFontForObject(objInfo.Key);
 		}
 

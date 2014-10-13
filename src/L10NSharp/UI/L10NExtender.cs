@@ -400,7 +400,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		public string GetLocalizingId(object component)
+		public string GetLocalizingId(IComponent component)
 		{
 			var l = GetLocalizedComponentInfo(component, true);
 			l.CreateIdIfMissing(PrefixForNewItems);
@@ -414,7 +414,7 @@ namespace L10NSharp.UI
 		/// after all the designer code has finished executing in InitializeComponents()).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizingId(object component, string id)
+		public void SetLocalizingId(IComponent component, string id)
 		{
 			var loi = GetLocalizedComponentInfo(component, false);
 			loi.Id = (string.IsNullOrEmpty(id) ? null : id);
@@ -452,7 +452,7 @@ namespace L10NSharp.UI
 		[Localizable(false)]
 		[Category("Localizing Properties")]
 		[DefaultValue(LocalizationPriority.Medium)]
-		public LocalizationPriority GetLocalizationPriority(object component)
+		public LocalizationPriority GetLocalizationPriority(IComponent component)
 		{
 			return GetLocalizedComponentInfo(component, true).Priority;
 		}
@@ -462,7 +462,7 @@ namespace L10NSharp.UI
 		/// Sets the level of importance for localizing the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizationPriority(object component, LocalizationPriority priority)
+		public void SetLocalizationPriority(IComponent component, LocalizationPriority priority)
 		{
 			GetLocalizedComponentInfo(component, false).Priority = priority;
 		}
@@ -474,7 +474,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		public string GetLocalizationComment(object component)
+		public string GetLocalizationComment(IComponent component)
 		{
 			return GetLocalizedComponentInfo(component, true).Comment;
 		}
@@ -484,7 +484,7 @@ namespace L10NSharp.UI
 		/// Sets the localization comment for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizationComment(object component, string cmnt)
+		public void SetLocalizationComment(IComponent component, string cmnt)
 		{
 			GetLocalizedComponentInfo(component, false).Comment = cmnt;
 		}
@@ -496,7 +496,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		public string GetLocalizableToolTip(object component)
+		public string GetLocalizableToolTip(IComponent component)
 		{
 			return GetLocalizedComponentInfo(component, true).ToolTipText;
 		}
@@ -506,7 +506,7 @@ namespace L10NSharp.UI
 		/// Sets the tooltip for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizableToolTip(object component, string tip)
+		public void SetLocalizableToolTip(IComponent component, string tip)
 		{
 			GetLocalizedComponentInfo(component, false).ToolTipText = tip;
 		}
@@ -517,13 +517,13 @@ namespace L10NSharp.UI
 		/// Gets the localized object info. for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private LocalizingInfo GetLocalizedComponentInfo(object component, bool initTextFromCompIfNewlyCreated)
+		private LocalizingInfo GetLocalizedComponentInfo(IComponent component, bool initTextFromCompIfNewlyCreated)
 		{
 			LocalizingInfo loi;
 			if (m_extendedCtrls.TryGetValue(component, out loi)) // && !string.IsNullOrEmpty(loi.Id) && loi.Priority != LocalizationPriority.NotLocalizable)
 				return loi;
 
-			loi = new LocalizingInfo(component, initTextFromCompIfNewlyCreated);
+			loi = new LocalizingInfo((IComponent) component, initTextFromCompIfNewlyCreated);
 			m_extendedCtrls[component] = loi;
 			return loi;
 		}

@@ -77,13 +77,13 @@ namespace L10NSharp.Tests
 
 			// Make sure calling GetLocalizedObjectInfo creates a LocalizingInfo object when
 			// one doesn't exist for the label.
-			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl1, true}) as LocalizingInfo;
+			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] {lbl1, true}) as LocalizingInfo;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
 			// Make sure calling GetLocalizedObjectInfo does not create a LocalizingInfo object when
 			// one already exists for the label.
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl1, true}) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl1, true }) as LocalizingInfo;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
@@ -96,7 +96,7 @@ namespace L10NSharp.Tests
 			m_extCtrls[lbl2] = loi;
 			Assert.AreEqual(2, m_extCtrls.Count);
 
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedObjectInfo", new object[] {lbl2, true}) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl2, true }) as LocalizingInfo;
 			Assert.AreEqual(2, m_extCtrls.Count);
 			Assert.AreEqual("apples", loi.Text);
 		}

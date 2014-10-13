@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using L10NSharp.UI;
 
@@ -102,7 +103,7 @@ namespace L10NSharp
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfo
 	{
-		private object _component;
+		private IComponent _component;
 		private string _id;
 		private string _text;
 		private string _shortcutKeys;
@@ -115,7 +116,7 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object component, bool initTextFromObj)
+		public LocalizingInfo(IComponent component, bool initTextFromObj)
 		{
 			_component = component;
 			Priority = LocalizationPriority.Medium;
@@ -137,7 +138,7 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object component, string id) : this(component, true)
+		public LocalizingInfo(IComponent component, string id) : this(component, true)
 		{
 			Id = id;
 		}
@@ -163,7 +164,7 @@ namespace L10NSharp
 			if (prefixForId == null)
 				prefixForId = "";
 			if (string.IsNullOrEmpty(_id))
-				_id = MakeId(_component, prefixForId);
+				_id = MakeId(_component, idPrefixFromFormExtender: prefixForId);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -171,7 +172,7 @@ namespace L10NSharp
 		/// Sets the id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal static string MakeId(object component, string idPrefixFromFormExtender="")
+		internal static string MakeId(IComponent component, string idPrefixFromFormExtender = "")
 		{
 			if (idPrefixFromFormExtender == null)
 				idPrefixFromFormExtender = "";
@@ -313,7 +314,7 @@ namespace L10NSharp
 		/// Returns the localization category for the specified IComponent object.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static LocalizationCategory GetCategory(object component)
+		private static LocalizationCategory GetCategory(IComponent component)
 		{
 			if (component is ILocalizableComponent)
 				return LocalizationCategory.LocalizableComponent;
@@ -396,7 +397,7 @@ namespace L10NSharp
 		/// Gets the component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal object Component
+		internal IComponent Component
 		{
 			get { return _component; }
 			set
