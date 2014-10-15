@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using L10NSharp.UI;
 using NUnit.Framework;
-using Palaso.TestUtilities;
 
 namespace L10NSharp.Tests
 {

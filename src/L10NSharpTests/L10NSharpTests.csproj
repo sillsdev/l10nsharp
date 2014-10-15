@@ -50,10 +50,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\Lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.TestUtilities">
-      <SpecificVersion>false</SpecificVersion>
-      <HintPath>..\..\Lib\Palaso.TestUtilities.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
