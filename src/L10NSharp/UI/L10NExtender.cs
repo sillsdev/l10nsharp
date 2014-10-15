@@ -238,6 +238,7 @@ namespace L10NSharp.UI
 
 			FinalizationForListViewColumnHeaders();
 			FinalizationForDataGridViewColumns();
+			FinalizationForILocalizableComponents();
 
 			// Now make sure each extended control is localized.
 			foreach (var locInfo in m_extendedCtrls.Values
@@ -246,21 +247,62 @@ namespace L10NSharp.UI
 				if (string.IsNullOrEmpty(locInfo.LangId))
 					locInfo.LangId = LocalizationManager.kDefaultLang;
 				// Depending on the order in which VS Designer decides to initialize fields, locInfo may be originally created before the Text of the
-				// control is set. If so, obtain it again.
-				if (string.IsNullOrWhiteSpace(locInfo.Text))
+				// control is set. If so, obtain it again, unless this is an ILocalizableComponent. In that case, the above Finalization
+				// method should have taken care of this.
+				if (locInfo.Category != LocalizationCategory.LocalizableComponent && string.IsNullOrWhiteSpace(locInfo.Text))
 					locInfo.UpdateTextFromObject();
 				// Special case: the Text of a column header is "ColumnHeader" before it is ever set.
 				// This means that if we first processed the CH before we set its text, we have noted
 				// "ColumnHeader" as its default English name. Get the real one if it has since been updated.
-				var ch = locInfo.Obj as ColumnHeader;
+				var ch = locInfo.Component as ColumnHeader;
 				if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
 					locInfo.UpdateTextFromObject();
-				if (_manager.RegisterObjectForLocalizing(locInfo))
-					_manager.ApplyLocalization(locInfo.Obj);
+				if (_manager.RegisterComponentForLocalizing(locInfo))
+				{
+					if (locInfo.Category == LocalizationCategory.LocalizableComponent)
+					{
+						ApplyLocalizationsToILocalizableComponent(locInfo);
+					}
+					else
+					{
+						_manager.ApplyLocalization(locInfo.Component);
+					}
+				}
 			}
 
 			m_extendedCtrls = null;
 			_okayToLocalizeControls = false;
+		}
+
+		private void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
+		{
+			Dictionary<string, LocalizingInfo> idToLocInfo; // out variable
+
+			var locComponent = locInfo.Component as ILocalizableComponent;
+			if (locComponent != null && _manager.LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+			{
+				_manager.ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
+				return;
+			}
+#if DEBUG
+			var msg =
+				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
+			throw new ApplicationException(string.Format(msg, locInfo.Id));
+#endif
+		}
+
+		private void FinalizationForILocalizableComponents()
+		{
+			if (m_extendedCtrls == null || DesignMode)
+				return;
+
+			var locCompArray = m_extendedCtrls.Where(x => x.Key is ILocalizableComponent).ToArray();
+
+			foreach (var kvp in locCompArray)
+			{
+				var locComponent = kvp.Key as ILocalizableComponent;
+				AddMultipleStrings(locComponent);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -286,7 +328,7 @@ namespace L10NSharp.UI
 				var lv = kvp.Key as ListView;
 				foreach (ColumnHeader hdr in lv.Columns)
 				{
-					var loi = GetLocalizedObjectInfo(hdr, true);
+					var loi = GetLocalizedComponentInfo(hdr, true);
 					loi.Comment = kvp.Value.Comment;
 					m_extendedCtrls[hdr] = loi;
 				}
@@ -319,7 +361,7 @@ namespace L10NSharp.UI
 				var grid = kvp.Key as DataGridView;
 				foreach (DataGridViewColumn col in grid.Columns)
 				{
-					var loi = GetLocalizedObjectInfo(col, true);
+					var loi = GetLocalizedComponentInfo(col, true);
 					loi.Comment = kvp.Value.Comment;
 					m_extendedCtrls[col] = loi;
 				}
@@ -336,8 +378,8 @@ namespace L10NSharp.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column, true);
-			if (_manager.RegisterObjectForLocalizing(locInfo))
-				_manager.ApplyLocalization(locInfo.Obj);
+			if (_manager.RegisterComponentForLocalizing(locInfo))
+				_manager.ApplyLocalization(locInfo.Component);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -353,115 +395,136 @@ namespace L10NSharp.UI
 		#region Properties provided by this extender
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the string id for the specified control.
+		/// Gets the string id for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		public string GetLocalizingId(object obj)
+		public string GetLocalizingId(IComponent component)
 		{
-			var l = GetLocalizedObjectInfo(obj, true);
+			var l = GetLocalizedComponentInfo(component, true);
 			l.CreateIdIfMissing(PrefixForNewItems);
 			return l.Id;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Sets the string id for the specified control. Use this method to keep track of all
-		/// the controls being extended. This information will be used in the EndInit (i.e.
+		/// Sets the string id for the specified component. Use this method to keep track of all
+		/// the components being extended. This information will be used in the EndInit (i.e.
 		/// after all the designer code has finished executing in InitializeComponents()).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizingId(object obj, string id)
+		public void SetLocalizingId(IComponent component, string id)
 		{
-			var loi = GetLocalizedObjectInfo(obj, false);
+			var loi = GetLocalizedComponentInfo(component, false);
 			loi.Id = (string.IsNullOrEmpty(id) ? null : id);
 
 			if (m_extendedCtrls != null && !DesignMode)
-				m_extendedCtrls[obj] = loi;
+				m_extendedCtrls[component] = loi;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the level of importance for localizing the specified control.
+		/// Adds multiple strings from a ILocalizableComponent control.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private void AddMultipleStrings(ILocalizableComponent locComponent)
+		{
+			if (m_extendedCtrls == null) // no can do! (can happen during view setup)
+				return;
+			var lios = locComponent.GetAllLocalizingInfoObjects(this);
+			var idToLocInfo = new Dictionary<string, LocalizingInfo>();
+			foreach (var localizingInfo in lios)
+			{
+				if (string.IsNullOrEmpty(localizingInfo.Id))
+					continue;
+				_manager.AddString(localizingInfo.Id, localizingInfo.Text, null, null, null);
+				idToLocInfo.Add(localizingInfo.Id, localizingInfo);
+			}
+			_manager.LocalizableComponents.Add(locComponent, idToLocInfo);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the level of importance for localizing the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
 		[DefaultValue(LocalizationPriority.Medium)]
-		public LocalizationPriority GetLocalizationPriority(object obj)
+		public LocalizationPriority GetLocalizationPriority(IComponent component)
 		{
-			return GetLocalizedObjectInfo(obj, true).Priority;
+			return GetLocalizedComponentInfo(component, true).Priority;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Sets the level of importance for localizing the specified control.
+		/// Sets the level of importance for localizing the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizationPriority(object obj, LocalizationPriority priority)
+		public void SetLocalizationPriority(IComponent component, LocalizationPriority priority)
 		{
-			GetLocalizedObjectInfo(obj, false).Priority = priority;
+			GetLocalizedComponentInfo(component, false).Priority = priority;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the localization comment for the specified control.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[Localizable(false)]
-		[Category("Localizing Properties")]
-		public string GetLocalizationComment(object obj)
-		{
-			return GetLocalizedObjectInfo(obj, true).Comment;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Sets the localization comment for the specified control.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void SetLocalizationComment(object obj, string cmnt)
-		{
-			GetLocalizedObjectInfo(obj, false).Comment = cmnt;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the tooltip for the specified control.
+		/// Gets the localization comment for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Localizable(false)]
 		[Category("Localizing Properties")]
-		public string GetLocalizableToolTip(object obj)
+		public string GetLocalizationComment(IComponent component)
 		{
-			return GetLocalizedObjectInfo(obj, true).ToolTipText;
+			return GetLocalizedComponentInfo(component, true).Comment;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Sets the tooltip for the specified control.
+		/// Sets the localization comment for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void SetLocalizableToolTip(object obj, string tip)
+		public void SetLocalizationComment(IComponent component, string cmnt)
 		{
-			GetLocalizedObjectInfo(obj, false).ToolTipText = tip;
+			GetLocalizedComponentInfo(component, false).Comment = cmnt;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the tooltip for the specified component.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[Localizable(false)]
+		[Category("Localizing Properties")]
+		public string GetLocalizableToolTip(IComponent component)
+		{
+			return GetLocalizedComponentInfo(component, true).ToolTipText;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Sets the tooltip for the specified component.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public void SetLocalizableToolTip(IComponent component, string tip)
+		{
+			GetLocalizedComponentInfo(component, false).ToolTipText = tip;
 		}
 
 
 			/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the localized object info. for the specified object.
+		/// Gets the localized object info. for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private LocalizingInfo GetLocalizedObjectInfo(object obj, bool initTextFromObjIfNewlyCreated)
+		private LocalizingInfo GetLocalizedComponentInfo(IComponent component, bool initTextFromCompIfNewlyCreated)
 		{
 			LocalizingInfo loi;
-			if (m_extendedCtrls.TryGetValue(obj, out loi)) // && !string.IsNullOrEmpty(loi.Id) && loi.Priority != LocalizationPriority.NotLocalizable)
+			if (m_extendedCtrls.TryGetValue(component, out loi)) // && !string.IsNullOrEmpty(loi.Id) && loi.Priority != LocalizationPriority.NotLocalizable)
 				return loi;
 
-			loi = new LocalizingInfo(obj, initTextFromObjIfNewlyCreated);
-			m_extendedCtrls[obj] = loi;
+			loi = new LocalizingInfo((IComponent) component, initTextFromCompIfNewlyCreated);
+			m_extendedCtrls[component] = loi;
 			return loi;
 		}
 

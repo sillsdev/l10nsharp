@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="ILocalizableComponent.cs" />
     <Compile Include="L10NStringExtensions.cs" />
     <Compile Include="UI\DontShowThisAgainButton.cs">
       <SubType>Component</SubType>

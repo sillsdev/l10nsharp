@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using L10NSharp.UI;
 
@@ -68,6 +69,8 @@ namespace L10NSharp
 		/// <summary></summary>
 		UndoRedoMessage,
 		/// <summary></summary>
+		LocalizableComponent,
+		/// <summary></summary>
 		GeneralMessage,
 		/// <summary></summary>
 		Other,
@@ -100,7 +103,7 @@ namespace L10NSharp
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfo
 	{
-		private object _obj;
+		private IComponent _component;
 		private string _id;
 		private string _text;
 		private string _shortcutKeys;
@@ -113,11 +116,11 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object obj, bool initTextFromObj)
+		public LocalizingInfo(IComponent component, bool initTextFromObj)
 		{
-			_obj = obj;
+			_component = component;
 			Priority = LocalizationPriority.Medium;
-			Category = GetCategory(_obj);
+			Category = GetCategory(_component);
 			UpdateFields = UpdateFields.All;
 			if (initTextFromObj)
 				UpdateTextFromObject();
@@ -125,9 +128,9 @@ namespace L10NSharp
 
 		public void UpdateTextFromObject()
 		{
-			Text = LocalizationManager.StripOffLocalizationInfoFromText(_obj is DataGridViewColumn
-																			? ((DataGridViewColumn) _obj).HeaderText
-																			: Utils.GetProperty(_obj, "Text") as string);
+			Text = LocalizationManager.StripOffLocalizationInfoFromText(_component is DataGridViewColumn
+																			? ((DataGridViewColumn) _component).HeaderText
+																			: Utils.GetProperty(_component, "Text") as string);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -135,7 +138,7 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(object obj, string id) : this(obj, true)
+		public LocalizingInfo(IComponent component, string id) : this(component, true)
 		{
 			Id = id;
 		}
@@ -161,7 +164,7 @@ namespace L10NSharp
 			if (prefixForId == null)
 				prefixForId = "";
 			if (string.IsNullOrEmpty(_id))
-				_id = MakeId(_obj, prefixForId);
+				_id = MakeId(_component, idPrefixFromFormExtender: prefixForId);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -169,7 +172,7 @@ namespace L10NSharp
 		/// Sets the id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal static string MakeId(object obj, string idPrefixFromFormExtender="")
+		internal static string MakeId(IComponent component, string idPrefixFromFormExtender = "")
 		{
 			if (idPrefixFromFormExtender == null)
 				idPrefixFromFormExtender = "";
@@ -178,25 +181,25 @@ namespace L10NSharp
 			if (idPrefixFromFormExtender.Length > 0)
 				idPrefixFromFormExtender = idPrefixFromFormExtender + ".";
 
-			if (obj is Form)
+			if (component is Form)
 			{
-				Form frm = (Form)obj;
+				Form frm = (Form)component;
 				return (frm.Site != null && frm.Site.DesignMode ? frm.Site.Name : frm.Name) + ".WindowTitle";
 			}
 
-			if (obj is Control)
-				return idPrefixFromFormExtender+MakeIdForCtrl(obj as Control);
+			if (component is Control)
+				return idPrefixFromFormExtender+MakeIdForCtrl(component as Control);
 
-			if (obj is ColumnHeader)
-				return idPrefixFromFormExtender + MakeIdForColumnHeader((ColumnHeader)obj);
+			if (component is ColumnHeader)
+				return idPrefixFromFormExtender + MakeIdForColumnHeader((ColumnHeader)component);
 
-			if (obj is DataGridViewColumn)
-				return idPrefixFromFormExtender + MakeIdForDataGridViewColumn((DataGridViewColumn)obj);
+			if (component is DataGridViewColumn)
+				return idPrefixFromFormExtender + MakeIdForDataGridViewColumn((DataGridViewColumn)component);
 
-			if (obj is ToolStripItem)
+			if (component is ToolStripItem)
 			{
-				string formName = OwningFormName(obj as ToolStripItem);
-				return idPrefixFromFormExtender + (formName ?? "Miscellaneous") + "." + ((ToolStripItem)obj).Name;
+				string formName = OwningFormName(component as ToolStripItem);
+				return idPrefixFromFormExtender + (formName ?? "Miscellaneous") + "." + ((ToolStripItem)component).Name;
 			}
 
 			return null;
@@ -308,36 +311,38 @@ namespace L10NSharp
 		#region Method for initializinig the category
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Returns the localization category for the specified object.
+		/// Returns the localization category for the specified IComponent object.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static LocalizationCategory GetCategory(object obj)
+		private static LocalizationCategory GetCategory(IComponent component)
 		{
-			if (obj is ToolStripMenuItem)
+			if (component is ILocalizableComponent)
+				return LocalizationCategory.LocalizableComponent;
+			if (component is ToolStripMenuItem)
 				return LocalizationCategory.MenuItem;
-			if (obj is ToolStripItem)
+			if (component is ToolStripItem)
 				return LocalizationCategory.ToolbarOrStatusBarItem;
-			if (obj is Button)
+			if (component is Button)
 				return LocalizationCategory.Button;
-			if (obj is TextBox)
+			if (component is TextBox)
 				return LocalizationCategory.TextBox;
-			if (obj is LinkLabel)
+			if (component is LinkLabel)
 				return LocalizationCategory.LinkLabel;
-			if (obj is Label)
+			if (component is Label)
 				return LocalizationCategory.Label;
-			if (obj is ComboBox)
+			if (component is ComboBox)
 				return LocalizationCategory.ComboBox;
-			if (obj is RadioButton)
+			if (component is RadioButton)
 				return LocalizationCategory.RadioButton;
-			if (obj is CheckBox)
+			if (component is CheckBox)
 				return LocalizationCategory.CheckBox;
-			if (obj is Form)
+			if (component is Form)
 				return LocalizationCategory.WindowOrDialog;
-			if (obj is TabPage)
+			if (component is TabPage)
 				return LocalizationCategory.TabPage;
-			if (obj is ColumnHeader)
+			if (component is ColumnHeader)
 				return LocalizationCategory.ListViewColumnHeading;
-			if (obj is DataGridViewColumn)
+			if (component is DataGridViewColumn)
 				return LocalizationCategory.ListViewColumnHeading;
 
 			return LocalizationCategory.Other;
@@ -369,7 +374,7 @@ namespace L10NSharp
 			get
 			{
 				if (string.IsNullOrEmpty(_id))
-					_id = MakeId(_obj);
+					_id = MakeId(_component);
 
 				return _id;
 			}
@@ -389,17 +394,17 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the control.
+		/// Gets the component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal object Obj
+		internal IComponent Component
 		{
-			get { return _obj; }
+			get { return _component; }
 			set
 			{
-				_obj = value;
-				if (_obj != null && string.IsNullOrEmpty(_id))
-					Id = MakeId(_obj);
+				_component = value;
+				if (_component != null && string.IsNullOrEmpty(_id))
+					Id = MakeId(_component);
 			}
 		}
 
@@ -480,9 +485,9 @@ namespace L10NSharp
 		{
 			get
 			{
-				if (_shortcutKeys == null && _obj != null)
+				if (_shortcutKeys == null && _component != null)
 				{
-					object keysobj = Utils.GetProperty(_obj, "ShortcutKeys");
+					object keysobj = Utils.GetProperty(_component, "ShortcutKeys");
 					if (keysobj != null && keysobj.GetType() == typeof(Keys))
 					{
 						Keys keys = (Keys)keysobj;
@@ -505,13 +510,13 @@ namespace L10NSharp
 		{
 			get
 			{
-				if (_obj != null)
+				if (_component != null)
 				{
 					if (_text == null)
-						_text = Utils.GetProperty(_obj, "Text") as string;
+						_text = Utils.GetProperty(_component, "Text") as string;
 
 					if (_text == null)
-						_text = Utils.GetProperty(_obj, "HeaderText") as string;
+						_text = Utils.GetProperty(_component, "HeaderText") as string;
 				}
 
 				return _text;

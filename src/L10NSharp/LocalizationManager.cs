@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -39,8 +40,9 @@ namespace L10NSharp
 		private readonly string _generatedDefaultTmxFileFolder;
 		private readonly string _customTmxFileFolder;
 
-		internal Dictionary<object, string> ObjectCache { get; private set; }
+		internal Dictionary<IComponent, string> ComponentCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
+		internal Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; private set; }
 
 		#region Static methods for creating a LocalizationManager
 		/// ------------------------------------------------------------------------------------
@@ -212,9 +214,10 @@ namespace L10NSharp
 				}
 			}
 
-			ObjectCache = new Dictionary<object, string>();
+			ComponentCache = new Dictionary<IComponent, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new LocalizedStringCache(this);
+			LocalizableComponents = new Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>>();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -336,14 +339,14 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public void ShowLocalizationDialogBox(bool runInReadonlyMode)
 		{
-			LocalizeItemDlg.ShowDialog(this, null, runInReadonlyMode);
+			LocalizeItemDlg.ShowDialog(this, "", runInReadonlyMode);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static void ShowLocalizationDialogBox(object ctrl)
+		public static void ShowLocalizationDialogBox(IComponent component)
 		{
 			TipDialog.Show("If you click on an item while you hold alt and shift keys down, this tool will open up with that item already selected.");
-			LocalizeItemDlg.ShowDialog(GetLocalizationManagerForObject(ctrl), ctrl, false);
+			LocalizeItemDlg.ShowDialog(GetLocalizationManagerForComponent(component), component, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -487,14 +490,13 @@ namespace L10NSharp
 		#region Methods for caching and localizing objects.
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Adds the specified object to the localization manager's cache of objects to be
+		/// Adds the specified component to the localization manager's cache of objects to be
 		/// localized and then applies localizations for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal bool RegisterObjectForLocalizing(object obj, string id, string defaultText,
-			string defaultTooltip, string defaultShortcutKeys, string comment)
+		internal bool RegisterComponentForLocalizing(IComponent component, string id, string defaultText, string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
-			return RegisterObjectForLocalizing(new LocalizingInfo(obj, id)
+			return RegisterComponentForLocalizing(new LocalizingInfo(component, id)
 			{
 				Text = defaultText,
 				ToolTipText = defaultTooltip,
@@ -503,32 +505,37 @@ namespace L10NSharp
 			});
 		}
 
-		internal bool RegisterObjectForLocalizing(LocalizingInfo info)
+		internal bool RegisterComponentForLocalizing(LocalizingInfo info)
 		{
-			var obj = info.Obj;
+			var component = info.Component;
 			var id = info.Id;
-			if (obj == null || id == null || id.Trim() == string.Empty)
+			if (component == null || id == null || id.Trim() == string.Empty)
 				return false;
 
 			try
 			{
 
 				// This if/else used to be more concise but sometimes there were occassions
-				// adding an item the first time using ObjectCache[obj] = id would throw an
+				// adding an item the first time using ComponentCache[component] = id would throw an
 				// index outside the bounds of the array exception. I have no clue why nor
 				// can I reliably reproduce the error nor do I know if this change will solve
 				// the problem. Hopefully it will, but my guess is the same underlying code
 				// will be called.
-				if (ObjectCache.ContainsKey(obj))
-					ObjectCache[obj] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
+				if (ComponentCache.ContainsKey(component))
+					ComponentCache[component] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
 				else
 				{
-					// If this is the first time this object has passed this way, then
-					// prepare it to be available for end-user localization.
-					PrepareObjectForRuntimeLocalization(obj);
-					ObjectCache.Add(obj, id);
-					// Make it available for the config dialog to localize.
-					StringCache.UpdateLocalizedInfo(info);
+					if (component is ILocalizableComponent)
+						ComponentCache.Add(component, id);
+					else
+					{
+						// If this is the first time this object has passed this way, then
+						// prepare it to be available for end-user localization.
+						PrepareComponentForRuntimeLocalization(component);
+						ComponentCache.Add(component, id);
+						// Make it available for the config dialog to localize.
+						StringCache.UpdateLocalizedInfo(info);
+					}
 				}
 
 				return true;
@@ -536,7 +543,7 @@ namespace L10NSharp
 			catch (Exception)
 			{
 				#if DEBUG
-				throw; // if you hit this ( Index was outside the bounds of the array) try to figure out why. What is the hash (?) value for the obj?
+				throw; // if you hit this ( Index was outside the bounds of the array) try to figure out why. What is the hash (?) value for the component?
 				#endif
 			}
 			return false;
@@ -544,14 +551,14 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Prepares the specified object for runtime localization by subscribing to a
+		/// Prepares the specified component for runtime localization by subscribing to a
 		/// mouse down event that will monitor whether or not to show the localization
 		/// dialog box.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private void PrepareObjectForRuntimeLocalization(object obj)
+		private void PrepareComponentForRuntimeLocalization(IComponent component)
 		{
-			var toolStripItem = obj as ToolStripItem;
+			var toolStripItem = component as ToolStripItem;
 			if (toolStripItem != null)
 			{
 				toolStripItem.MouseDown += HandleToolStripItemMouseDown;
@@ -559,14 +566,14 @@ namespace L10NSharp
 				return;
 			}
 
-			// For objects that are part of an owning parent control that needs to
+			// For component that are part of an owning parent control that needs to
 			// do some special handling when the user wants to localize, we need
 			// the parent to subscribe to the mouse event, but we don't want to
 			// subscribe once per column/page, so we first unsubscribe and then
 			// subscribe. It's a little ugly, but there doesn't seem to be a better way:
 			// http://stackoverflow.com/questions/399648/preventing-same-event-handler-assignment-multiple-times
 
-			var ctrl = obj as Control;
+			var ctrl = component as Control;
 			if (ctrl != null)
 			{
 				ctrl.Disposed += HandleControlDisposed;
@@ -586,7 +593,7 @@ namespace L10NSharp
 				return;
 			}
 
-			var columnHeader = obj as ColumnHeader;
+			var columnHeader = component as ColumnHeader;
 			if (columnHeader != null && columnHeader.ListView != null)
 			{
 				columnHeader.ListView.Disposed -= HandleListViewDisposed;
@@ -596,7 +603,7 @@ namespace L10NSharp
 				columnHeader.Disposed += HandleListViewColumnDisposed;
 			}
 
-			var dataGridViewColumn = obj as DataGridViewColumn;
+			var dataGridViewColumn = component as DataGridViewColumn;
 			if (dataGridViewColumn != null && dataGridViewColumn.DataGridView != null)
 			{
 				dataGridViewColumn.DataGridView.CellMouseDown -= HandleDataGridViewCellMouseDown;
@@ -708,11 +715,10 @@ namespace L10NSharp
 		#region Non static methods for getting localized strings
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the localized text for the specified object.
+		/// Gets the localized text for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetLocalizedString(object obj, string id, string defaultText,
-			string defaultTooltip, string defaultShortcutKeys, string comment)
+		public string GetLocalizedString(IComponent component, string id, string defaultText, string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
 			return GetLocalizedString(id, defaultText);
 		}
@@ -752,23 +758,23 @@ namespace L10NSharp
 		#region GetString static methods
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the text for the specified object. The englishText is returned when the text
+		/// Gets the text for the specified component. The englishText is returned when the text
 		/// for the specified object cannot be found for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetStringForObject(object obj, string englishText)
+		public static string GetStringForObject(IComponent component, string englishText)
 		{
-			var lm = GetLocalizationManagerForObject(obj);
+			var lm = GetLocalizationManagerForComponent(component);
 
 			if (lm != null)
 			{
 				string id;
-				if (lm.ObjectCache.TryGetValue(obj, out id))
+				if (lm.ComponentCache.TryGetValue(component, out id))
 					return lm.GetLocalizedString(id, englishText);
 			}
 
 			return (StripOffLocalizationInfoFromText(englishText ??
-				Utils.GetProperty(obj, "Text") as string));
+				Utils.GetProperty(component, "Text") as string));
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -799,9 +805,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment, object obj)
+		public static string GetString(string id, string englishText, string comment, IComponent component)
 		{
-			return GetString(id, englishText, comment, null, null, obj);
+			return GetString(id, englishText, comment, null, null, component);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -810,17 +816,17 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment,
-			string englishToolTipText, string englishShortcutKey, object obj)
+		public static string GetString(string id, string englishText, string comment, string englishToolTipText,
+			string englishShortcutKey, IComponent component)
 		{
-			if (obj != null)
+			if (component != null)
 			{
-				var lm = GetLocalizationManagerForObject(obj) ??
+				var lm = GetLocalizationManagerForComponent(component) ??
 					GetLocalizationManagerForString(id);
 
 				if (lm != null)
 				{
-					lm.RegisterObjectForLocalizing(obj, id, englishText,
+					lm.RegisterComponentForLocalizing(component, id, englishText,
 						englishToolTipText, englishShortcutKey, comment);
 
 					return lm.GetLocalizedString(id, englishText);
@@ -939,9 +945,9 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private static LocalizationManager GetLocalizationManagerForObject(object obj)
+		private static LocalizationManager GetLocalizationManagerForComponent(IComponent component)
 		{
-			return LoadedManagers.Values.FirstOrDefault(lm => lm.ObjectCache.ContainsKey(obj));
+			return LoadedManagers.Values.FirstOrDefault(lm => lm.ComponentCache.ContainsKey(component));
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -966,7 +972,7 @@ namespace L10NSharp
 				return;
 
 			foreach (var lm in LoadedManagers.Values)
-				lm.ReapplyLocalizationsToAllObjects();
+				lm.ReapplyLocalizationsToAllComponents();
 		}
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -981,19 +987,19 @@ namespace L10NSharp
 
 			LocalizationManager lm;
 			if (LoadedManagers.TryGetValue(localizationManagerId, out lm))
-				lm.ReapplyLocalizationsToAllObjects();
+				lm.ReapplyLocalizationsToAllComponents();
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
+		/// Reapplies the localizations to all components in the localization manager's cache of
+		/// localized components.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ReapplyLocalizationsToAllObjects()
+		internal void ReapplyLocalizationsToAllComponents()
 		{
-			foreach (object obj in ObjectCache.Keys)
-				ApplyLocalization(obj);
+			foreach (IComponent component in ComponentCache.Keys)
+				ApplyLocalization(component);
 
 			LocalizeItemDlg.FireStringsLocalizedEvent();
 		}
@@ -1015,7 +1021,7 @@ namespace L10NSharp
 			// This used to be a for-each, but on rare occassions, a "Collection was
 			// modified; enumeration operation may not execute" exception would be
 			// thrown. This should solve the problem.
-			var controls = ObjectCache.Where(x => x.Key is Control).ToArray();
+			var controls = ComponentCache.Where(x => x.Key is Control).ToArray();
 			for (int i = 0; i < controls.Length; i++)
 			{
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, controls[i].Value);
@@ -1026,28 +1032,57 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes the specified control.
+		/// Initializes the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalization(object obj)
+		internal void ApplyLocalization(IComponent component)
 		{
-			if (obj == null)
+			if (component == null)
 				return;
 
 			string id;
-			if (!ObjectCache.TryGetValue(obj, out id))
+			if (!ComponentCache.TryGetValue(component, out id))
 				return;
 
-			if (ApplyLocalizationsToControl(obj as Control, id))
+			var locComponent = component as ILocalizableComponent;
+			if (locComponent != null)
+			{
+				Dictionary<string, LocalizingInfo> idToLocInfo;
+				if (LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+				{
+					ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
+					return;
+				}
+			}
+
+			if (ApplyLocalizationsToControl(component as Control, id))
 				return;
 
-			if (ApplyLocalizationsToToolStripItem(obj as ToolStripItem, id))
+			if (ApplyLocalizationsToToolStripItem(component as ToolStripItem, id))
 				return;
 
-			if (ApplyLocalizationsToListViewColumnHeader(obj as ColumnHeader, id))
+			if (ApplyLocalizationsToListViewColumnHeader(component as ColumnHeader, id))
 				return;
 
-			ApplyLocalizationsToDataGridViewColumn(obj as DataGridViewColumn, id);
+			ApplyLocalizationsToDataGridViewColumn(component as DataGridViewColumn, id);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Initializes the specified ILocalizableComponent.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent locComponent, Dictionary<string, LocalizingInfo> idToLocInfo)
+		{
+			if (locComponent == null)
+				return;
+
+			foreach (var kvp in idToLocInfo)
+			{
+				var id = kvp.Key;
+				var locInfo = kvp.Value;
+				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1099,7 +1134,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{
-			LocalizationManager lm = GetLocalizationManagerForObject(ctrl);
+			LocalizationManager lm = GetLocalizationManagerForComponent(ctrl);
 			var topctrl = GetRealTopLevelControl(ctrl);
 			if (topctrl == null || lm == null)
 				return null;
@@ -1232,7 +1267,7 @@ namespace L10NSharp
 				tsddi = tsddi.OwnerItem as ToolStripDropDownItem;
 			}
 
-			LocalizeItemDlg.ShowDialog(this, sender, false);
+			LocalizeItemDlg.ShowDialog(this, (IComponent) sender, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1266,7 +1301,7 @@ namespace L10NSharp
 				item.MouseDown -= HandleToolStripItemMouseDown;
 				item.Disposed -= HandleToolStripItemDisposed;
 
-				ObjectCache.Remove(item);
+				ComponentCache.Remove(item);
 			}
 		}
 
@@ -1315,7 +1350,7 @@ namespace L10NSharp
 			ctrl.Disposed -= HandleControlDisposed;
 			ctrl.MouseDown -= HandleControlMouseDown;
 
-			ObjectCache.Remove(ctrl);
+			ComponentCache.Remove(ctrl);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1330,7 +1365,7 @@ namespace L10NSharp
 				return;
 
 			tabPage.Disposed -= HandleTabPageDisposed;
-			ObjectCache.Remove(tabPage);
+			ComponentCache.Remove(tabPage);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1347,7 +1382,7 @@ namespace L10NSharp
 			grid.Disposed -= HandleControlDisposed;
 			grid.CellMouseDown -= HandleDataGridViewCellMouseDown;
 
-			ObjectCache.Remove(grid);
+			ComponentCache.Remove(grid);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1364,7 +1399,7 @@ namespace L10NSharp
 				return;
 
 			var lv = sender as ListView;
-			if (lv != null && ObjectCache.ContainsKey(lv.Columns[e.Column]))
+			if (lv != null && ComponentCache.ContainsKey(lv.Columns[e.Column]))
 				LocalizeItemDlg.ShowDialog(this, lv.Columns[e.Column], false);
 		}
 
@@ -1396,7 +1431,7 @@ namespace L10NSharp
 				return;
 
 			column.Disposed -= HandleListViewColumnDisposed;
-			ObjectCache.Remove(column);
+			ComponentCache.Remove(column);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1406,7 +1441,7 @@ namespace L10NSharp
 				return;
 
 			var grid = sender as DataGridView;
-			if (grid != null && e.RowIndex < 0 && ObjectCache.ContainsKey(grid.Columns[e.ColumnIndex]))
+			if (grid != null && e.RowIndex < 0 && ComponentCache.ContainsKey(grid.Columns[e.ColumnIndex]))
 				LocalizeItemDlg.ShowDialog(this, grid.Columns[e.ColumnIndex], false);
 		}
 
@@ -1423,7 +1458,7 @@ namespace L10NSharp
 				return;
 
 			column.Disposed -= HandleColumnDisposed;
-			ObjectCache.Remove(column);
+			ComponentCache.Remove(column);
 		}
 		#endregion
 
