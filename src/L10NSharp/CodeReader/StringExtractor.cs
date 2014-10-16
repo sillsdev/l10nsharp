@@ -77,7 +77,7 @@ namespace L10NSharp.CodeReader
 							key = key.Substring(0, key.Length - ".Text".Length);
 							key = GetLocalizingKey(type.Name, key);
 							LocalizingInfo info;
-							if (_extenderInfo.TryGetValue(key, out info))
+							if (_extenderInfo.TryGetValue(key, out info) && string.IsNullOrEmpty(info.Text))
 							{
 								info.Text = val;
 							}
