@@ -52,6 +52,15 @@ namespace L10NSharp.CodeReader
 				worker.ReportProgress(pct);
 				_scannedTypes.Add(type.FullName);
 
+				// The above code finds calls in sets like
+				// this._L10NSharpExtender.SetLocalizingId(this.myControl, "MyClass.SomeId");
+				// this.myControl.Text = "some string to localize";
+				// However, if the text is more than 200 characters, Visual studio perversely replaces the second line with
+				// this.myControl.Text = resources.GetString("myControl.Text");
+				// The code scanner does not find calls like that, since it is looking for set_Text with a string literal arg.
+				// The following block retrieves the control's resources (if any) and fills in the text field
+				// of any controls which have localizaztion info (typically at least a call to SetLocalizingId
+				// has been successfully scanned with a literal string argument).
 				var resources = new ResourceManager(type);
 				using (var set = resources.GetResourceSet(CultureInfo.InvariantCulture, true, false))
 				{
@@ -66,7 +75,7 @@ namespace L10NSharp.CodeReader
 							if (!key.EndsWith(".Text"))
 								continue;
 							key = key.Substring(0, key.Length - ".Text".Length);
-							key = type.Name + "." + key;
+							key = GetLocalizingKey(type.Name, key);
 							LocalizingInfo info;
 							if (_extenderInfo.TryGetValue(key, out info))
 							{
@@ -442,7 +451,7 @@ namespace L10NSharp.CodeReader
 		/// ------------------------------------------------------------------------------------
 		private LocalizingInfo GetLocInfoForField(string className, string fieldName)
 		{
-			var key = className + "." + fieldName;
+			var key = GetLocalizingKey(className, fieldName);
 
 			LocalizingInfo locInfo;
 			if (_extenderInfo.TryGetValue(key, out locInfo))
@@ -451,6 +460,11 @@ namespace L10NSharp.CodeReader
 			locInfo = new LocalizingInfo(null) { Priority = LocalizationPriority.Medium };
 			_extenderInfo[key] = locInfo;
 			return locInfo;
+		}
+
+		private static string GetLocalizingKey(string className, string fieldName)
+		{
+			return className + "." + fieldName;
 		}
 	}
 }
