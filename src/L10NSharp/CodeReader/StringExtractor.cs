@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Resources;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -48,6 +51,30 @@ namespace L10NSharp.CodeReader
 				var pct = (int)Math.Round(((i++) / (double)typesToScan.Length) * 100d, 0, MidpointRounding.AwayFromZero);
 				worker.ReportProgress(pct);
 				_scannedTypes.Add(type.FullName);
+
+				var resources = new ResourceManager(type);
+				using (var set = resources.GetResourceSet(CultureInfo.InvariantCulture, true, false))
+				{
+					if (set != null)
+					{
+						foreach (DictionaryEntry res in set)
+						{
+							var key = res.Key as string;
+							var val = res.Value as string;
+							if (key == null || val == null)
+								continue;
+							if (!key.EndsWith(".Text"))
+								continue;
+							key = key.Substring(0, key.Length - ".Text".Length);
+							key = type.Name + "." + key;
+							LocalizingInfo info;
+							if (_extenderInfo.TryGetValue(key, out info))
+							{
+								info.Text = val;
+							}
+						}
+					}
+				}
 			}
 
 			var extenderInfo = _extenderInfo
