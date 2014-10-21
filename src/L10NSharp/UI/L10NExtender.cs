@@ -25,10 +25,10 @@ using System.Windows.Forms;
 namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
-	[ProvideProperty("LocalizingId", typeof(object))]
-	[ProvideProperty("LocalizableToolTip", typeof(object))]
-	[ProvideProperty("LocalizationPriority", typeof(object))]
-	[ProvideProperty("LocalizationComment", typeof(object))]
+	[ProvideProperty("LocalizingId", typeof(IComponent))]
+	[ProvideProperty("LocalizableToolTip", typeof(IComponent))]
+	[ProvideProperty("LocalizationPriority", typeof(IComponent))]
+	[ProvideProperty("LocalizationComment", typeof(IComponent))]
 	public class L10NSharpExtender : Component, IExtenderProvider, ISupportInitialize
 	{
 		private static HashSet<Type> s_doNotExtend;
