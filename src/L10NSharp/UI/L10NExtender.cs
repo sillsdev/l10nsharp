@@ -183,7 +183,8 @@ namespace L10NSharp.UI
 			if (ControlsNotExtended.Contains(extendee.GetType()))
 				return false;
 
-			return (extendee is Control || extendee is ToolStripItem || extendee is ColumnHeader);
+			return (extendee is Control || extendee is ToolStripItem ||
+				extendee is ColumnHeader || extendee is ILocalizableComponent);
 		}
 
 		#endregion
