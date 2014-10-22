@@ -76,6 +76,13 @@ namespace L10NSharp.Tests
 			Assert.AreEqual("Ce n'est pas un corbeau", locComponent.GetLocalizedStringFromMock(locComponent.BirdButton, "TestItem.Bird.Raven"));
 			Assert.AreEqual("C'est un poulet", locComponent.GetLocalizedStringFromMock(locComponent.ChickenButton, "TestItem.Chicken.Rooster"));
 			Assert.AreEqual("Un oiseau qui mange des poissons", locComponent.GetLocalizedStringFromMock(locComponent.BirdButton, "TestItem.Bird.Eagle"));
+
+			// SUT3 (I don't like doing multiple tests in one test method, but when I tried to make a different test
+			//       I got some test interaction because of setup/teardown. That's easily avoidable by putting the new test here.)
+			var result = m_extender.CanExtend(locComponent);
+
+			// Verify
+			Assert.IsTrue(result, "an ILocalizableComponent ought to be extendable by the L10NSharpExtender");
 		}
 	}
 }
