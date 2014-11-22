@@ -160,7 +160,7 @@ namespace L10NSharp
 				_tmxDoc.AddTransUnit(tu);
 			}
 
-			tu.AddVariant(locInfo.LangId, newValue);
+			tu.AddOrReplaceVariant(locInfo.LangId, newValue);
 			_updated = true;
 			return tu;
 		}

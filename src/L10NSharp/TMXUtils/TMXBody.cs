@@ -136,8 +136,15 @@ namespace L10NSharp.TMXUtils
 				return;
 
 			var existingTu = GetTransUnitForId(tu.Id);
-			if (existingTu.GetVariantForLang(langId) == null)
-				existingTu.AddVariant(variantToAdd);
+
+			//notice, we don't care if there is already a string in there for this language
+			//(that was the source of a previous bug), because the tmx of language X should
+			//surely take precedence, as source of the translation, over other language's
+			//tms files which, by virtue of their alphabetica order (e.g. arabic), came
+			//first. This probably only effects English, as it has variants in all the other
+			//languages. Previously, Arabic would be processed first, so when English came
+			//along, it was too late.
+			existingTu.AddOrReplaceVariant(variantToAdd);
 		}
 
 		/// ------------------------------------------------------------------------------------
