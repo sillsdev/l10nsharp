@@ -246,8 +246,8 @@ namespace L10NSharp
 
 				var newTu = new TransUnit { Id = tu.Id };
 				tmxDoc.AddTransUnit(newTu);
-				newTu.AddVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
-				newTu.AddVariant(tuv);
+				newTu.AddOrReplaceVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
+				newTu.AddOrReplaceVariant(tuv);
 				newTu.Notes = tu.CopyNotes();
 				newTu.Props = tu.CopyProps();
 			}

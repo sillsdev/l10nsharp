@@ -93,12 +93,12 @@ namespace L10NSharp.TMXUtils
 		/// Adds a translation unit variant having the specified language id and value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool AddVariant(string langId, string value)
+		public bool AddOrReplaceVariant(string langId, string value)
 		{
 			var tuv = new TransUnitVariant();
 			tuv.Lang = langId;
 			tuv.Value = value;
-			return AddVariant(tuv);
+			return AddOrReplaceVariant(tuv);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace L10NSharp.TMXUtils
 		/// <param name="tuv">The variant.</param>
 		/// <returns>true if the variant was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		public bool AddVariant(TransUnitVariant tuv)
+		public bool AddOrReplaceVariant(TransUnitVariant tuv)
 		{
 			if (tuv == null || tuv.IsEmpty)
 				return false;

@@ -174,7 +174,7 @@ namespace L10NSharp
 
 		#region LocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
-		private LocalizationManager(string appId, string appName, string appVersion,
+		internal LocalizationManager(string appId, string appName, string appVersion,
 			string directoryOfInstalledTmxFiles, string directoryForGeneratedDefaultTmxFile,
 			string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
 		{
@@ -869,23 +869,32 @@ namespace L10NSharp
 					appId));
 			}
 
-			var text = lm.GetStringFromStringCache(UILanguageId, id);
-			if (text != null)
-				return text;
+			// If we're in English mode, we are going to use the supplied englishText, regardless of what may be in
+			// some TMX, following the rule that the current c# code always wins.
+			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX
+			if (UILanguageId != "en")
+			{
+				var text = lm.GetStringFromStringCache(UILanguageId, id);
+				if (text != null)
+					return text;
+			}
 
 			if (!lm.CollectUpNewStringsDiscoveredDynamically)
 				return englishText;
 
-			var locInfo = new LocalizingInfo(id) { LangId = kDefaultLang, Text = englishText };
-			locInfo.DiscoveredDynamically = true;
-			locInfo.UpdateFields = UpdateFields.Text;
+			var locInfo = new LocalizingInfo(id)
+			{
+				LangId = kDefaultLang,
+				Text = englishText,
+				DiscoveredDynamically = true,
+				UpdateFields = UpdateFields.Text
+			};
 
 			if (!string.IsNullOrEmpty(comment))
 			{
 				locInfo.Comment = comment;
 				locInfo.UpdateFields |= UpdateFields.Comment;
 			}
-
 
 			lm.StringCache.UpdateLocalizedInfo(locInfo);
 			lm.SaveIfDirty(null);// this will be common for GetDynamic string on users restricted from writing to ProgramData
