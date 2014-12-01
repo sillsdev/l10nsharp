@@ -130,7 +130,8 @@ namespace L10NSharp
 						}
 
 						TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, langId);
-						if (stillNeedToLoadNoLongerUsed && langId == LocalizationManager.kDefaultLang)
+						if (stillNeedToLoadNoLongerUsed && langId == LocalizationManager.kDefaultLang &&
+							tu.GetPropValue(kNoLongerUsedPropTag) != null)
 							_englishTuIdsNoLongerUsed.Add(tu.Id);
 					}
 				}

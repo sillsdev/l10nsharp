@@ -68,6 +68,7 @@ namespace L10NSharp.Tests
 				var treeNodes = node.Nodes;
 				mgr.StringCache.LoadGroupNodes(treeNodes);
 				Assert.IsFalse(treeNodes.ContainsKey("notUsedId"));
+				Assert.IsTrue(treeNodes.ContainsKey("theId"));
 			}
 		}
 
