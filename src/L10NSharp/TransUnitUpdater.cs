@@ -78,48 +78,34 @@ namespace L10NSharp
 			}
 
 			if (tuText != null)
-			{
-				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
-				{
-					tuText.Notes.Clear();
-					if (!string.IsNullOrEmpty(locInfo.Comment))
-						tuText.AddNote(locInfo.Comment);
-				}
-				if (locInfo.DiscoveredDynamically)
-				{
-					tuText.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
-				}
-			}
+				UpdateTransUnitComment(tuText, locInfo);
 
 			if (tuToolTip != null)
-			{
-				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
-				{
-					tuToolTip.Notes.Clear();
-					if (!string.IsNullOrEmpty(locInfo.Comment))
-						tuToolTip.AddNote(locInfo.Comment);
-				}
-				if (locInfo.DiscoveredDynamically)
-				{
-					tuToolTip.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
-				}
-			}
+				UpdateTransUnitComment(tuToolTip, locInfo);
 
 			if (tuShortcutKeys != null)
-			{
-				if ((locInfo.UpdateFields & UpdateFields.Comment) == UpdateFields.Comment)
-				{
-					tuShortcutKeys.Notes.Clear();
-					if (!string.IsNullOrEmpty(locInfo.Comment))
-						tuShortcutKeys.AddNote(locInfo.Comment);
-				}
-				if (locInfo.DiscoveredDynamically)
-				{
-					tuShortcutKeys.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
-				}
-			}
+				UpdateTransUnitComment(tuShortcutKeys, locInfo);
 
 			return _updated;
+		}
+
+		private void UpdateTransUnitComment(TransUnit tu, LocalizingInfo locInfo)
+		{
+			if (locInfo.DiscoveredDynamically && (tu.GetPropValue(LocalizedStringCache.kDiscoveredDyanmically) != "true"))
+			{
+				tu.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
+				_updated = true;
+			}
+
+			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment) return;
+
+			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
+
+			tu.Notes.Clear();
+			_updated = true;
+
+			if (!string.IsNullOrEmpty(locInfo.Comment))
+				tu.AddNote(locInfo.Comment);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -139,6 +125,9 @@ namespace L10NSharp
 				var tuv = tu.GetVariantForLang(locInfo.LangId);
 				if (tuv != null)
 				{
+					// don't need to update if the value hasn't changed
+					if (tuv.Value == newValue) return tu;
+
 					_updated = true;
 					tu.RemoveVariant(tuv);
 					if (tu.Variants.Count == 0)
