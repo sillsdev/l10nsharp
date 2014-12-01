@@ -44,6 +44,8 @@ namespace L10NSharp
 		internal LocalizationManager OwningManager { get; private set; }
 		public TMXDocument TmxDocument { get; private set; }
 
+		private HashSet<string> _englishTuIdsNoLongerUsed;
+
 		#region Loading methods
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -56,6 +58,7 @@ namespace L10NSharp
 
 			TmxDocument = CreateEmptyStringFile();
 
+			_englishTuIdsNoLongerUsed = new HashSet<string>();
 			try
 			{
 				MergeTmxFilesIntoCache(OwningManager.NonDefaultTmxFilenames);
@@ -86,9 +89,16 @@ namespace L10NSharp
 		{
 			var defaultTmxDoc = TMXDocument.Read(OwningManager.DefaultStringFilePath);
 			foreach (var tu in defaultTmxDoc.Body.TransUnits)
+			{
 				TmxDocument.Body.AddTransUnit(tu);
-
+				// If this TransUnit is marked NoLongerUsed in the English tmx, load its ID into the hashset
+				// so we don't display this string in case the currentUI tmx doesn't have it marked as
+				// NoLongerUsed.
+				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
+					_englishTuIdsNoLongerUsed.Add(tu.Id);
+			}
 			Exception error = null;
+			var stillNeedToLoadNoLongerUsed = _englishTuIdsNoLongerUsed.Count == 0;
 			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
 				try
@@ -120,6 +130,8 @@ namespace L10NSharp
 						}
 
 						TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, langId);
+						if (stillNeedToLoadNoLongerUsed && langId == LocalizationManager.kDefaultLang)
+							_englishTuIdsNoLongerUsed.Add(tu.Id);
 					}
 				}
 				catch (Exception e)
@@ -598,6 +610,17 @@ namespace L10NSharp
 				if (tu.GetPropValue(kNoLongerUsedPropTag) == "true")
 					continue;
 
+				if (LocalizationManager.UILanguageId != LocalizationManager.kDefaultLang)
+				{
+					// It's possible that this tmx file isn't up-to-date with which strings are No Longer Used
+					if (IsTranslationUnitNoLongerUsed(tu))
+					{
+						tu.SetPropValue(kNoLongerUsedPropTag, "true");
+						IsDirty = true;
+						continue;
+					}
+				}
+
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
 				if (!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 					yield return tu;
@@ -623,6 +646,11 @@ namespace L10NSharp
 				if (!TmxDocument.Body.TransUnits.Any(t => t.Id == tmpId))
 					yield return tu;
 			}
+		}
+
+		private bool IsTranslationUnitNoLongerUsed(TransUnit tu)
+		{
+			return _englishTuIdsNoLongerUsed.Contains(tu.Id);
 		}
 
 		/// ------------------------------------------------------------------------------------
