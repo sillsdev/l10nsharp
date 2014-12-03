@@ -611,15 +611,12 @@ namespace L10NSharp
 				if (tu.GetPropValue(kNoLongerUsedPropTag) == "true")
 					continue;
 
-				if (LocalizationManager.UILanguageId != LocalizationManager.kDefaultLang)
+				// It's possible that this tmx file isn't up-to-date with which strings are No Longer Used
+				if (IsTranslationUnitNoLongerUsed(tu))
 				{
-					// It's possible that this tmx file isn't up-to-date with which strings are No Longer Used
-					if (IsTranslationUnitNoLongerUsed(tu))
-					{
-						tu.SetPropValue(kNoLongerUsedPropTag, "true");
-						IsDirty = true;
-						continue;
-					}
+					tu.SetPropValue(kNoLongerUsedPropTag, "true");
+					IsDirty = true;
+					continue;
 				}
 
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
