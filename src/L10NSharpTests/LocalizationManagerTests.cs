@@ -58,9 +58,26 @@ namespace L10NSharp.Tests
 		[Test]
 		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnits()
 		{
-			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins"))
+			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_ArabicUI"))
 			{
 				SetupManager(folder, "ar");
+				var mgr = LocalizationManager.LoadedManagers["test"];
+				var treeView = new TreeView();
+				var node = new LocTreeNode(mgr, mgr.Name, null, mgr.Name);
+				treeView.Nodes.Add(node);
+				var treeNodes = node.Nodes;
+				mgr.StringCache.LoadGroupNodes(treeNodes);
+				Assert.IsFalse(treeNodes.ContainsKey("notUsedId"));
+				Assert.IsTrue(treeNodes.ContainsKey("theId"));
+			}
+		}
+
+		[Test]
+		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnitsUIEnglish()
+		{
+			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_EnglishUI"))
+			{
+				SetupManager(folder, "en");
 				var mgr = LocalizationManager.LoadedManagers["test"];
 				var treeView = new TreeView();
 				var node = new LocTreeNode(mgr, mgr.Name, null, mgr.Name);
