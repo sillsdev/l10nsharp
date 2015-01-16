@@ -247,12 +247,6 @@ namespace L10NSharp
 			tmxDoc.Header.SetPropValue(kAppVersionPropTag, AppVersion);
 			var tuUpdater = new TransUnitUpdater(tmxDoc);
 
-#if !__MonoCS__
-			// The string extraction done in the InitializationProgress dialog crashes with
-			// a segmentation fault on Linux when run with the Palaso.dll.
-			// This appears to be a bug in MethodBase.GetMethodBytes() called in ILReader.ILReader(MethodBase).
-			// Other assemblies are processed without any trouble, and most of Palaso.dll is
-			// processed before the crash occurs.
 			using (var dlg = new InitializationProgressDlg(Name, namespaceBeginnings))
 			{
 				dlg.Icon = _applicationIcon;
@@ -260,7 +254,6 @@ namespace L10NSharp
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
 			}
-#endif
 			tmxDoc.Save(DefaultStringFilePath);
 		}
 

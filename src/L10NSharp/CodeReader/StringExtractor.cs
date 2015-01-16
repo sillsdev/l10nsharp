@@ -61,28 +61,37 @@ namespace L10NSharp.CodeReader
 				// The following block retrieves the control's resources (if any) and fills in the text field
 				// of any controls which have localizaztion info (typically at least a call to SetLocalizingId
 				// has been successfully scanned with a literal string argument).
-				var resources = new ResourceManager(type);
-				using (var set = resources.GetResourceSet(CultureInfo.InvariantCulture, true, false))
+				try
 				{
-					if (set != null)
+					var resources = new ResourceManager(type);
+					using (var set = resources.GetResourceSet(CultureInfo.InvariantCulture, true, false))
 					{
-						foreach (DictionaryEntry res in set)
+						if (set != null)
 						{
-							var key = res.Key as string;
-							var val = res.Value as string;
-							if (key == null || val == null)
-								continue;
-							if (!key.EndsWith(".Text"))
-								continue;
-							key = key.Substring(0, key.Length - ".Text".Length);
-							key = GetLocalizingKey(type.Name, key);
-							LocalizingInfo info;
-							if (_extenderInfo.TryGetValue(key, out info) && string.IsNullOrEmpty(info.Text))
+							foreach (DictionaryEntry res in set)
 							{
-								info.Text = val;
+								var key = res.Key as string;
+								var val = res.Value as string;
+								if (key == null || val == null)
+									continue;
+								if (!key.EndsWith(".Text"))
+									continue;
+								key = key.Substring(0, key.Length - ".Text".Length);
+								key = GetLocalizingKey(type.Name, key);
+								LocalizingInfo info;
+								if (_extenderInfo.TryGetValue(key, out info) && string.IsNullOrEmpty(info.Text))
+								{
+									info.Text = val;
+								}
 							}
 						}
 					}
+					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
+				}
+				catch (System.Resources.MissingManifestResourceException e)
+				{
+					// If it doesn't find any resources, no reason to die, we're just making a best attempt.
+					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() could not load resources for {0}", type.FullName));
 				}
 			}
 
