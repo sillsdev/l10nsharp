@@ -54,6 +54,23 @@ namespace L10NSharp.Tests
 				Assert.AreEqual("inArabic", LocalizationManager.GetDynamicString("test", "theId", "from c# code"));
 			}
 		}
+		[Test]
+		public void GetDynamicStringOrEnglish()
+		{
+			using(var folder = new TempFolder("GetDynamicString_EnglishTMXHasDIfferentStringThanParameter_ParameterWins"))
+			{
+				SetupManager(folder, "ar");
+				Assert.AreEqual("blahInEnglishInCode", GetBlah("en"), "If asked for English, should give whatever is in the code.");
+				Assert.AreEqual("blahInFrench", GetBlah("fr"), "We do have french for this, should have found it.");
+				Assert.AreEqual("blahInEnglishInCode", GetBlah("ar"), "We don't have french so should get the English from code.");
+			}
+		}
+
+		private string GetBlah(string langId)
+		{
+			return LocalizationManager.GetDynamicStringOrEnglish("test", "blahId", "blahInEnglishInCode", "comment", langId);
+		}
+
 
 		[Test]
 		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnits()
@@ -93,6 +110,7 @@ namespace L10NSharp.Tests
 		{
 			AddEnglishTMX(folder);
 			AddArabicTMX(folder);
+			AddFrenchTMX(folder);
 
 			string directoryOfGeneratedDefaultTmxFile = folder.Combine("generated");
 			string directoryOfUserModifiedTmxFiles = folder.Combine("userModified");
@@ -127,9 +145,16 @@ namespace L10NSharp.Tests
 				Id = "notUsedId",
 				Variants = variants2
 			};
-			tu2.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
-			tu2.AddProp("en", LocalizedStringCache.kNoLongerUsedPropTag, "true");
 			englishDoc.AddTransUnit(tu2);
+			// third unit
+			var variants3 = new List<TransUnitVariant>();
+			variants3.Add(new TransUnitVariant() { Lang = "en", Value = "blah" });
+			var tu3 = new TransUnit()
+			{
+				Id = "blahId",
+				Variants = variants3
+			};
+			englishDoc.AddTransUnit(tu3);
 			englishDoc.Save(folder.Combine("test.en.tmx"));
 		}
 
@@ -164,6 +189,25 @@ namespace L10NSharp.Tests
 			// Note: we are NOT adding a NoLongerUsed property to the Arabic TMX
 			arabicDoc.AddTransUnit(tu2);
 			arabicDoc.Save(folder.Combine("test.ar.tmx"));
+		}
+		private static void AddFrenchTMX(TempFolder folder)
+		{
+			var doc = new TMXDocument();
+			doc.Header.SourceLang = "fr";
+
+			// first unit
+			var variants = new List<TransUnitVariant>();
+			variants.Add(new TransUnitVariant() { Lang = "en", Value = "blah" });
+			variants.Add(new TransUnitVariant() { Lang = "fr", Value = "blahInFrench" });
+			var tu = new TransUnit()
+			{
+				Id = "blahId",
+				Variants = variants
+			};
+			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
+			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
+			doc.AddTransUnit(tu);
+			doc.Save(folder.Combine("test.fr.tmx"));
 		}
 	}
 }

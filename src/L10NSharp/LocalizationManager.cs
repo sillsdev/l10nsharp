@@ -853,6 +853,21 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicString(string appId, string id, string englishText, string comment)
 		{
+			return GetDynamicStringOrEnglish(appId,id,englishText,comment, UILanguageId);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a string for the specified application id and string id, in the requested
+		/// language. When a string for the
+		/// specified id cannot be found, then one is added  using the specified englishText is
+		/// returned when a string cannot be found for the specified id and the current UI
+		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
+		/// value or not.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
+		{
 			//this happens in unit test environments or apps that
 			//have imported a library that is L10N'ized, but the app
 			//itself isn't initializing L10N yet.
@@ -868,12 +883,12 @@ namespace L10NSharp
 					appId));
 			}
 
-			// If we're in English mode, we are going to use the supplied englishText, regardless of what may be in
+			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
 			// some TMX, following the rule that the current c# code always wins.
 			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX
-			if (UILanguageId != "en")
+			if(langId != "en")
 			{
-				var text = lm.GetStringFromStringCache(UILanguageId, id);
+				var text = lm.GetStringFromStringCache(langId, id);
 				if (text != null)
 					return text;
 			}
