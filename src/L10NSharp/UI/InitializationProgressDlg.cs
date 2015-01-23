@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp.CodeReader;
 
@@ -12,6 +13,7 @@ namespace L10NSharp.UI
 		public IEnumerable<LocalizingInfo> ExtractedInfo { get; private set; }
 
 		private readonly string[] _namespaceBeginnings;
+		private readonly Icon _formIcon;
 
 		/// ------------------------------------------------------------------------------------
 		public InitializationProgressDlg(string appName, params string[] namespaceBeginnings)
@@ -19,6 +21,11 @@ namespace L10NSharp.UI
 			InitializeComponent();
 			Text = appName;
 			_namespaceBeginnings = namespaceBeginnings;
+		}
+
+		public InitializationProgressDlg(string appName, Icon formIcon, params string[] namespaceBeginnings) : this(appName, namespaceBeginnings)
+		{
+			_formIcon = formIcon;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -44,6 +51,14 @@ namespace L10NSharp.UI
 		{
 			ExtractedInfo = (IEnumerable<LocalizingInfo>) e.Result;
 			Close();
+		}
+
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+
+			// a bug in Mono requires us to wait to set Icon until handle created.
+			if (_formIcon != null) Icon = _formIcon;
 		}
 	}
 }

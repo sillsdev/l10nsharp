@@ -247,9 +247,8 @@ namespace L10NSharp
 			tmxDoc.Header.SetPropValue(kAppVersionPropTag, AppVersion);
 			var tuUpdater = new TransUnitUpdater(tmxDoc);
 
-			using (var dlg = new InitializationProgressDlg(Name, namespaceBeginnings))
+			using (var dlg = new InitializationProgressDlg(Name, _applicationIcon, namespaceBeginnings))
 			{
-				dlg.Icon = _applicationIcon;
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
