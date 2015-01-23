@@ -23,12 +23,9 @@ namespace L10NSharp.UI
 			_namespaceBeginnings = namespaceBeginnings;
 		}
 
-		public InitializationProgressDlg(string appName, Icon formIcon, params string[] namespaceBeginnings)
+		public InitializationProgressDlg(string appName, Icon formIcon, params string[] namespaceBeginnings) : this(appName, namespaceBeginnings)
 		{
-			InitializeComponent();
-			Text = appName;
 			_formIcon = formIcon;
-			_namespaceBeginnings = namespaceBeginnings;
 		}
 
 		/// ------------------------------------------------------------------------------------
