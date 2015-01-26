@@ -284,16 +284,17 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
-			// BL-922, filter out cultures that have the same language as the parent culture
+			// BL-922, filter out duplicate languages:
+			// first, get all installed cultures
 			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
 					where ci.TwoLetterISOLanguageName != "iv"
 					orderby ci.DisplayName
 					select ci;
 
-			// group by ISO 3 letter language code
+			// second, group by ISO 3 letter language code
 			var groups = allCultures.GroupBy(c => c.ThreeLetterISOLanguageName);
 
-			// select the first culture in each language code group
+			// finally, select the first culture in each language code group
 			var allLangs = groups.Select(g => g.First());
 
 			if (!returnOnlyLanguagesHavingLocalizations)
