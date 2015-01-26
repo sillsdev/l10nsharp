@@ -284,8 +284,9 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
+			// BL-922, filter out cultures that have the same language as the parent culture
 			var allLangs = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
-						   where ci.TwoLetterISOLanguageName != "iv"
+						   where ci.TwoLetterISOLanguageName != "iv" && ci.ThreeLetterISOLanguageName != ci.Parent.ThreeLetterISOLanguageName
 						   orderby ci.DisplayName
 						   select ci;
 
