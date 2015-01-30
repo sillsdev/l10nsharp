@@ -284,7 +284,10 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
-			// BL-922, filter out duplicate languages:
+			// BL-922, filter out duplicate languages. Sometimes there are multiple cultures for a language if the
+			// language has more than one writing system. Other times, specifically on Linux, there may be multiple
+			// cultures that appear to be duplicates, one of them being flagged as 'legacy.'
+
 			// first, get all installed cultures
 			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
 					where ci.TwoLetterISOLanguageName != "iv"
