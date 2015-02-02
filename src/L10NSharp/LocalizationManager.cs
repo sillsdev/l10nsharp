@@ -284,9 +284,11 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
-			// BL-922, filter out duplicate languages. Sometimes there are multiple cultures for a language if the
-			// language has more than one writing system. Other times, specifically on Linux, there may be multiple
-			// cultures that appear to be duplicates, one of them being flagged as 'legacy.'
+			// BL-922, filter out duplicate languages. It may be surprising that we get more than one
+			// neutral culture for a given language; however, some languages are written in more than one
+			// script, and each script can have a neutral culture (e.g., uz-Cyrl, uz-Latn). We may eventually
+			// have a need to localize into two scripts of the same language, but until users actually ask
+			// for this, it just confuses things, so we're not supporting it.
 
 			// first, get all installed cultures
 			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
