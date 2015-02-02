@@ -223,6 +223,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
 		{
+			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
+			if(!File.Exists(DefaultStringFilePath) && File.Exists(defaultStringFileInstalledPath))
+			{
+				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath);
+			}
+
 			if (File.Exists(DefaultStringFilePath) &&
 				File.ReadAllText(DefaultStringFilePath).Trim() != string.Empty)  //I've seen this happen.
 			{
@@ -660,7 +666,7 @@ namespace L10NSharp
 				if (getCustomPathEvenIfNonexistent || File.Exists(customTmxFile))
 					return customTmxFile;
 			}
-			return _installedTmxFileFolder != null ? Path.Combine(_installedTmxFileFolder, filename) : null /* Pretty sure this isn't going to end well*/;
+			return _installedTmxFileFolder != null ? Path.Combine(_installedTmxFileFolder, filename) : null /* Pretty sure this won't end well*/;
 		}
 
 		/// ------------------------------------------------------------------------------------
