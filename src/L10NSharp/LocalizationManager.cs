@@ -284,10 +284,23 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
-			var allLangs = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
-						   where ci.TwoLetterISOLanguageName != "iv"
-						   orderby ci.DisplayName
-						   select ci;
+			// BL-922, filter out duplicate languages. It may be surprising that we get more than one
+			// neutral culture for a given language; however, some languages are written in more than one
+			// script, and each script can have a neutral culture (e.g., uz-Cyrl, uz-Latn). We may eventually
+			// have a need to localize into two scripts of the same language, but until users actually ask
+			// for this, it just confuses things, so we're not supporting it.
+
+			// first, get all installed cultures
+			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
+					where ci.TwoLetterISOLanguageName != "iv"
+					orderby ci.DisplayName
+					select ci;
+
+			// second, group by ISO 3 letter language code
+			var groups = allCultures.GroupBy(c => c.ThreeLetterISOLanguageName);
+
+			// finally, select the first culture in each language code group
+			var allLangs = groups.Select(g => g.First());
 
 			if (!returnOnlyLanguagesHavingLocalizations)
 				return allLangs;
