@@ -223,6 +223,11 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
 		{
+			// Make sure the folder exists.
+			var dir = Path.GetDirectoryName(DefaultStringFilePath);
+			if (dir != null && !Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
 			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
 			if(!File.Exists(DefaultStringFilePath) && File.Exists(defaultStringFileInstalledPath))
 			{
@@ -239,11 +244,6 @@ namespace L10NSharp
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
 			}
-
-			// Make sure the folder exists.
-			var dir = Path.GetDirectoryName(DefaultStringFilePath);
-			if (dir != null && !Directory.Exists(dir))
-				Directory.CreateDirectory(dir);
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -320,30 +320,6 @@ namespace L10NSharp
 				   orderby ci.DisplayName
 				   select ci;
 		}
-
-
-		///// ------------------------------------------------------------------------------------
-		//public static string SetUILanguageFromCommandLineArgs(IEnumerable<string> commandLineArgs)
-		//{
-		//    string langId = null;
-
-		//    if (commandLineArgs != null)
-		//    {
-		//        // Specifying the UI language on the command-line trumps the one in
-		//        // the settings file (i.e. the one set in the options dialog box).
-		//        foreach (var arg in commandLineArgs
-		//            .Where(arg => arg.ToLower().StartsWith("/uilang:") || arg.ToLower().StartsWith("-uilang:")))
-		//        {
-		//            langId = arg.Substring(8);
-		//            break;
-		//        }
-		//    }
-
-		//    langId = (string.IsNullOrEmpty(langId) ? kDefaultLang : langId);
-		//    SetUILanguage(langId, false);
-		//    return langId;
-		//}
-
 		#endregion
 
 		#region Methods for showing localization dialog box
