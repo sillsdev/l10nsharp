@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using L10NSharp;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
@@ -14,37 +10,37 @@ namespace L10NSharp.Tests
 		[Test]
 		public void TypeDoesNotHaveUnexpectedProperty()
 		{
-			Assert.That(L10NSharp.UI.Utils.HasProperty(typeof(String), "nonsense"), Is.False);
+			Assert.IsFalse(UI.Utils.HasProperty(typeof(String), "nonsense"));
 		}
 
 		[Test]
 		public void InstanceDoesNotHaveUnexpectedProperty()
 		{
-			Assert.That(L10NSharp.UI.Utils.HasProperty("", "nonsense"), Is.False);
+			Assert.IsFalse(UI.Utils.HasProperty("", "nonsense"));
 		}
 
 		[Test]
 		public void InstanceHasExpectedProperty()
 		{
-			Assert.That(L10NSharp.UI.Utils.HasProperty("", "Length"), Is.True);
+			Assert.IsTrue(UI.Utils.HasProperty("", "Length"));
 		}
 
 		[Test]
 		public void TypeHasExpectedProperty()
 		{
-			Assert.That(L10NSharp.UI.Utils.HasProperty(typeof(int), "MaxValue"), Is.True);
+			Assert.IsTrue(UI.Utils.HasProperty(typeof(int), "MaxValue"));
 		}
 
 		[Test]
 		public void GetPropertyOnExistingMethod_Works()
 		{
-			Assert.That(UI.Utils.GetProperty("abc", "Length"), Is.EqualTo(3));
+			Assert.AreEqual(3, UI.Utils.GetProperty("abc", "Length"));
 		}
 
 		[Test]
 		public void GetPropertyOnMissingMethod_ReturnsNull()
 		{
-			Assert.That(UI.Utils.GetProperty("abc", "nonsence"), Is.Null);
+			Assert.IsNull(UI.Utils.GetProperty("abc", "nonsence"));
 		}
 
 		/// <summary>
@@ -54,7 +50,7 @@ namespace L10NSharp.Tests
 		public void GetShortcutKeysOnToolStripButton_ReturnsNull()
 		{
 			var button = new ToolStripButton();
-			Assert.That(UI.Utils.GetProperty(button, "ShortcutKeys"), Is.Null);
+			Assert.IsNull(UI.Utils.GetProperty(button, "ShortcutKeys"));
 		}
 	}
 }

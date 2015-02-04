@@ -229,13 +229,12 @@ namespace L10NSharp
 				Directory.CreateDirectory(dir);
 
 			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
-			if(!File.Exists(DefaultStringFilePath) && File.Exists(defaultStringFileInstalledPath))
+			if(!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 			{
-				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath);
+				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
 			}
 
-			if (File.Exists(DefaultStringFilePath) &&
-				File.ReadAllText(DefaultStringFilePath).Trim() != string.Empty)  //I've seen this happen.
+			if (DefaultStringFileExistsAndHasContents())
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
 				var verElement = xmlDoc.Element("header").Elements("prop")
@@ -260,6 +259,12 @@ namespace L10NSharp
 					tuUpdater.Update(locInfo);
 			}
 			tmxDoc.Save(DefaultStringFilePath);
+		}
+
+		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
+		private bool DefaultStringFileExistsAndHasContents()
+		{
+			return File.Exists(DefaultStringFilePath) && !String.IsNullOrWhiteSpace(File.ReadAllText(DefaultStringFilePath));
 		}
 
 		/// ------------------------------------------------------------------------------------

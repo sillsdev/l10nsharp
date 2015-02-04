@@ -28,7 +28,7 @@ namespace L10NSharp.Tests
 		{
 			using(var folder = new TempFolder("CreateOrUpdate_CopiesInstalledIfAvailable"))
 			{
-				// SUT (burried down in there somewhere)
+				// SUT (buried down in there somewhere)
 				SetupManager(folder);
 
 				// verify presence and identicality of the generated file to the installed file
@@ -36,6 +36,32 @@ namespace L10NSharp.Tests
 				var installedFilePath = Path.Combine(GetInstalledDirectory(folder), filename);
 				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
 				Assert.That(File.Exists(generatedFilePath), "Generated file {0} should exist", generatedFilePath);
+				FileAssert.AreEqual(installedFilePath, generatedFilePath, "Generated file should be copied from and identical to Installed file");
+			}
+		}
+
+		/// <summary>
+		/// On Linux, we crash trying to generate TMX files, leaving an empty file in the Generated folder.
+		/// Copy the installed file over the empty generated file in this case.
+		/// </summary>
+		[Test]
+		public void CreateOrUpdateDefaultTmxFileIfNecessary_CopiesOverEmptyGeneratedFile()
+		{
+			using(var folder = new TempFolder("CreateOrUpdate_CopiesOverEmptyGeneratedFile"))
+			{
+				var filename = LocalizationManager.GetTmxFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
+				var installedFilePath = Path.Combine(GetInstalledDirectory(folder), filename);
+				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
+
+				// generate an empty English TMX file
+				Directory.CreateDirectory(GetGeneratedDirectory(folder));
+				var fileStream = File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+				fileStream.Close();
+
+				// SUT (buried down in there somewhere)
+				SetupManager(folder);
+
+				// verify identicality of the generated file to the installed file
 				FileAssert.AreEqual(installedFilePath, generatedFilePath, "Generated file should be copied from and identical to Installed file");
 			}
 		}
@@ -56,7 +82,7 @@ namespace L10NSharp.Tests
 				AddEnglishTmx(GetGeneratedDirectory(folder), HigherVersion);
 				var generatedTmxContents = File.ReadAllText(generatedFilePath);
 
-				// SUT (burried down in there somewhere)
+				// SUT (buried down in there somewhere)
 				SetupManager(folder);
 
 				// verify identicality of the generated file to its previous state
@@ -80,7 +106,7 @@ namespace L10NSharp.Tests
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
 				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
 
-				// SUT (burried down in there somewhere)
+				// SUT (buried down in there somewhere)
 				SetupManager(folder);
 
 				// verify that the generated file has been updated to the current version
@@ -160,6 +186,10 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_ArabicUI"))
 			{
+				// Add a "generated" TMX for a lower version to force regeneration
+				Directory.CreateDirectory(GetGeneratedDirectory(folder));
+				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
+
 				SetupManager(folder, "ar");
 				var mgr = LocalizationManager.LoadedManagers[AppId];
 				var treeView = new TreeView();
@@ -177,6 +207,10 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_EnglishUI"))
 			{
+				// Add a "generated" TMX for a lower version to force regeneration
+				Directory.CreateDirectory(GetGeneratedDirectory(folder));
+				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
+
 				SetupManager(folder, "en");
 				var mgr = LocalizationManager.LoadedManagers[AppId];
 				var treeView = new TreeView();
