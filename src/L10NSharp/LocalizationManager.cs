@@ -927,7 +927,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(langId, id))
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForLangAndId(langId, id,false))
 				.FirstOrDefault(txt => txt != null) != null;
 		}
 
