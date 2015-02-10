@@ -346,7 +346,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetString(string langId, string id)
 		{
-			return GetValueForLangAndId(langId, id);
+			return GetValueForLangAndIdWithFallback(langId, id);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetToolTipText(string langId, string id)
 		{
-			return GetValueForLangAndId(langId, id + kToolTipSuffix);
+			return GetValueForLangAndIdWithFallback(langId, id + kToolTipSuffix);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -390,7 +390,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal Keys GetShortcutKeys(string langId, string id)
 		{
-			string keys = GetValueForLangAndId(langId, id + kShortcutSuffix);
+			string keys = GetValueForLangAndIdWithFallback(langId, id + kShortcutSuffix);
 			return ShortcutKeysEditor.KeysFromString(keys);
 		}
 
@@ -411,7 +411,7 @@ namespace L10NSharp
 		/// fails, then the default (i.e. "en") is used.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private string GetValueForLangAndId(string langId, string id)
+		private string GetValueForLangAndIdWithFallback(string langId, string id)
 		{
 			var value = GetValueForLangAndId(langId, id, true);
 			if (value != null)
@@ -434,7 +434,7 @@ namespace L10NSharp
 		/// nicely at runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private string GetValueForLangAndId(string langId, string id, bool formatForDisplay)
+		internal string GetValueForLangAndId(string langId, string id, bool formatForDisplay)
 		{
 			var tu = TmxDocument.GetTransUnitForId(id);
 			if (tu == null)
