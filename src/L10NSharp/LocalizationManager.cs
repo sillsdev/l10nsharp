@@ -292,7 +292,26 @@ namespace L10NSharp
 				ReapplyLocalizationsToAllObjectsInAllManagers();
 		}
 
-		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Returns one CultureInfo object for each distinct language found in the collection of all
+		/// cultures on the computer. Some languages are represented by more than one culture, and in
+		/// those cases just the first culture is returned. There are several reasons for multiple
+		/// cultures per language, the predominant one being there is more than one writing system
+		/// for the language. An example of this is Chinese which has a Traditional and a Simplified
+		/// writing system. Other languages have a Latin and a Cyrilic writing system.
+		///
+		/// Due to changes made in how this procedure determines what languages to return, it is
+		/// possible that there may be an existing localization tied to a culture that is no longer
+		/// returned in the collection. Because of this, a check is done to make sure all cultures
+		/// represented by existing localizations are included in the list that is returned. This
+		/// will result in that language being in the list twice, each instance having a different
+		/// DisplayName.
+		/// </summary>
+		/// <param name="returnOnlyLanguagesHavingLocalizations">
+		/// If TRUE then only languages represented by existing localizations are returned. If FALSE
+		/// then all languages found are returned.
+		/// </param>
+		/// <returns></returns>
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
 			// BL-922, filter out duplicate languages. It may be surprising that we get more than one
@@ -304,7 +323,6 @@ namespace L10NSharp
 			// first, get all installed cultures
 			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
 					where ci.TwoLetterISOLanguageName != "iv"
-					orderby ci.DisplayName
 					select ci;
 
 			// second, group by ISO 3 letter language code
@@ -317,7 +335,7 @@ namespace L10NSharp
 				LoadedManagers.Values.SelectMany(lm => lm.StringCache.TmxDocument.GetAllVariantLanguagesFound())
 				.Distinct().ToList());
 
-			// BL-1011: Add back in cultures that have existing localizations
+			// BL-1011: Make sure cultures that have existing localizations are included
 			var missingCultures = langsHavinglocalizations.Where(l => allLangs.Any(al => al.Name == l) == false);
 			foreach (var cultureName in missingCultures)
 			{
@@ -325,14 +343,16 @@ namespace L10NSharp
 				{
 					if (String.Compare(allLangs[i].Name, cultureName, StringComparison.Ordinal) >= 0)
 					{
-						allLangs.Insert(i, CultureInfo.GetCultureInfo(cultureName));
+						allLangs.Add(CultureInfo.GetCultureInfo(cultureName));
 						break;
 					}
 				}
 			}
 
 			if (!returnOnlyLanguagesHavingLocalizations)
-				return allLangs;
+				return from ci in allLangs
+					   orderby ci.DisplayName
+					   select ci;
 
 			return from ci in allLangs
 				   where langsHavinglocalizations.Contains(ci.Name)
