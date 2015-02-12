@@ -311,14 +311,26 @@ namespace L10NSharp
 			var groups = allCultures.GroupBy(c => c.ThreeLetterISOLanguageName);
 
 			// finally, select the first culture in each language code group
-			var allLangs = groups.Select(g => g.First());
-
-			if (!returnOnlyLanguagesHavingLocalizations)
-				return allLangs;
+			var allLangs = groups.Select(g => g.First()).ToList();
 
 			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
 				LoadedManagers.Values.SelectMany(lm => lm.StringCache.TmxDocument.GetAllVariantLanguagesFound())
 				.Distinct().ToList());
+
+			// BL-1011: Add back in cultures that have existing localizations
+			var missingCultures = langsHavinglocalizations.Where(l => allLangs.Any(al => al.Name == l) == false);
+			foreach (var cultureName in missingCultures)
+			{
+				for (var i = 0; i < allLangs.Count; i++)
+				{
+					if (String.Compare(allLangs[i].Name, cultureName, StringComparison.Ordinal) < 0) continue;
+					allLangs.Insert(i, CultureInfo.GetCultureInfo(cultureName));
+					break;
+				}
+			}
+
+			if (!returnOnlyLanguagesHavingLocalizations)
+				return allLangs;
 
 			return from ci in allLangs
 				   where langsHavinglocalizations.Contains(ci.Name)
