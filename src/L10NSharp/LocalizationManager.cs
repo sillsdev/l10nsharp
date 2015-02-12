@@ -323,9 +323,11 @@ namespace L10NSharp
 			{
 				for (var i = 0; i < allLangs.Count; i++)
 				{
-					if (String.Compare(allLangs[i].Name, cultureName, StringComparison.Ordinal) < 0) continue;
-					allLangs.Insert(i, CultureInfo.GetCultureInfo(cultureName));
-					break;
+					if (String.Compare(allLangs[i].Name, cultureName, StringComparison.Ordinal) >= 0)
+					{
+						allLangs.Insert(i, CultureInfo.GetCultureInfo(cultureName));
+						break;
+					}
 				}
 			}
 
