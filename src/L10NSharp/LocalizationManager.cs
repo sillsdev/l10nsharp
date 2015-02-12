@@ -337,17 +337,7 @@ namespace L10NSharp
 
 			// BL-1011: Make sure cultures that have existing localizations are included
 			var missingCultures = langsHavinglocalizations.Where(l => allLangs.Any(al => al.Name == l) == false);
-			foreach (var cultureName in missingCultures)
-			{
-				for (var i = 0; i < allLangs.Count; i++)
-				{
-					if (String.Compare(allLangs[i].Name, cultureName, StringComparison.Ordinal) >= 0)
-					{
-						allLangs.Add(CultureInfo.GetCultureInfo(cultureName));
-						break;
-					}
-				}
-			}
+			allLangs.AddRange(missingCultures.Select(CultureInfo.GetCultureInfo));
 
 			if (!returnOnlyLanguagesHavingLocalizations)
 				return from ci in allLangs
