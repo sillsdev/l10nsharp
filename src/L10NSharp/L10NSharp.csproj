@@ -87,11 +87,20 @@
     <Compile Include="UI\LanguageChoosingDialog.Designer.cs">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\LanguageChoosingSimpleDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\LanguageChoosingSimpleDialog.Designer.cs">
+      <DependentUpon>LanguageChoosingSimpleDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\TipDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\TipDialog.designer.cs">
       <DependentUpon>TipDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\UILanguageListBox.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utility\HttpEncoderFromMono.cs" />
     <Compile Include="Utility\HttpUtilityFromMono.cs" />
@@ -214,6 +223,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LanguageChoosingDialog.resx">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\LanguageChoosingSimpleDialog.resx">
+      <DependentUpon>LanguageChoosingSimpleDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\L10NExtender.resx">
       <DependentUpon>L10NExtender.cs</DependentUpon>
