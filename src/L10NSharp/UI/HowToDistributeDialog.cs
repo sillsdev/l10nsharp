@@ -13,9 +13,17 @@ namespace L10NSharp.UI
 			_targetTmxFilePath = targetTmxFilePath;
 			InitializeComponent();
 
-#if MONO
-			//Steve M set these all to false in the Designer.cs, but that makes them all disappear on Windows
-			label1.AutoSize = label2.AutoSize = label3.AutoSize = label4.AutoSize = false;
+#if __MonoCS__
+			// In Mono, Label.AutoSize=true sets Size to PreferredSize (which is always
+			// one line high) even if the Size has already been explicitly set.  In Windows,
+			// Label.AutoSize=false makes the labels disappear.  So we need to turn off
+			// AutoSize here and set the multiline labels explicitly to their largest
+			// possible sizes for this fixed-size dialog.  (That allows all the available
+			// space for localizations that may need more space.)
+			label1.AutoSize = label2.AutoSize = label4.AutoSize = false;
+			label4.Size = new System.Drawing.Size(300, 142);	// top message
+			label2.Size = new System.Drawing.Size(300, 56);		// middle message
+			label1.Size = new System.Drawing.Size(300, 112);	// bottom message
 #endif
 			_emailLabel.Text=emailForSubmissions;
 		}
@@ -23,7 +31,7 @@ namespace L10NSharp.UI
 		private void OnShowTMXFile(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			var path = _targetTmxFilePath;
-#if MONO
+#if __MonoCS__
 			MessageBox.Show(
 				"Sorry, this function isn't implemented for the Linux version yet. The file you want is at " +
 				_targetTmxFilePath);
