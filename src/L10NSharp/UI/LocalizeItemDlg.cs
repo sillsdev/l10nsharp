@@ -198,13 +198,13 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void UpdateLanguageSensitiveControls()
 		{
-			var ci = CultureInfo.GetCultureInfo(_viewModel.SrcLangId);
+			var ci = L10NCultureInfo.GetCultureInfo(_viewModel.SrcLangId);
 			_comboSourceLang.SelectedItem = ci;
 			_comboSourceLang.ToolTipText = ci.DisplayName;
 			_groupBoxSrcTranslation.Text = _colSourceText.HeaderText = ci.NativeName;
 			_colSrcToolTip.HeaderText = string.Format("{0} Tooltip", ci.NativeName);
 
-			ci = CultureInfo.GetCultureInfo(_viewModel.TgtLangId);
+			ci = L10NCultureInfo.GetCultureInfo(_viewModel.TgtLangId);
 			_comboTargetLang.SelectedItem = ci;
 			_comboTargetLang.ToolTipText = ci.DisplayName;
 			_groupBoxTgtTranslation.Text = _colTargetText.HeaderText = ci.NativeName;
@@ -702,7 +702,7 @@ namespace L10NSharp.UI
 		private void HandleSourceLangChanged(object sender, EventArgs e)
 		{
 			SaveChangesFromSingleItemView();
-			_viewModel.SrcLangId = ((CultureInfo)_comboSourceLang.SelectedItem).Name;
+			_viewModel.SrcLangId = ((L10NCultureInfo)_comboSourceLang.SelectedItem).Name;
 			UpdateLanguageSensitiveControls();
 			UpdateSingleItemView();
 			_viewModel.SetNodeColors();
@@ -712,7 +712,7 @@ namespace L10NSharp.UI
 		private void HandleTargetLangChanged(object sender, EventArgs e)
 		{
 			SaveChangesFromSingleItemView();
-			_viewModel.TgtLangId = ((CultureInfo)_comboTargetLang.SelectedItem).Name;
+			_viewModel.TgtLangId = ((L10NCultureInfo)_comboTargetLang.SelectedItem).Name;
 			UpdateLanguageSensitiveControls();
 			UpdateSingleItemView();
 			_viewModel.SetNodeColors();

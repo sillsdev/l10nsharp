@@ -100,10 +100,10 @@ namespace L10NSharp
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
-				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+				desiredUiLangId = L10NCultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 			}
 
-			var ci = CultureInfo.GetCultureInfo(desiredUiLangId);
+			var ci = L10NCultureInfo.GetCultureInfo(desiredUiLangId);
 			if (!GetUILanguages(true).Contains(ci))
 			{
 				using (var dlg = new LanguageChoosingDialog(ci, applicationIcon))
@@ -284,7 +284,7 @@ namespace L10NSharp
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
 
-			var ci = CultureInfo.GetCultureInfo(langId);
+			var ci = L10NCultureInfo.GetCultureInfo(langId);
 			Thread.CurrentThread.CurrentUICulture = ci;
 			s_uiLangId = langId;
 
@@ -293,7 +293,7 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// Returns one CultureInfo object for each distinct language found in the collection of all
+		/// Returns one L10NCultureInfo object for each distinct language found in the collection of all
 		/// cultures on the computer. Some languages are represented by more than one culture, and in
 		/// those cases just the first culture is returned. There are several reasons for multiple
 		/// cultures per language, the predominant one being there is more than one writing system
@@ -311,7 +311,7 @@ namespace L10NSharp
 		/// If TRUE then only languages represented by existing localizations are returned. If FALSE
 		/// then all languages found are returned.
 		/// </param>
-		/// <returns></returns>
+		/// <returns>IEnumerable of L10NCultureInfo declared as IEnumerable of CultureInfo</returns>
 		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
 			// BL-922, filter out duplicate languages. It may be surprising that we get more than one
@@ -321,7 +321,7 @@ namespace L10NSharp
 			// for this, it just confuses things, so we're not supporting it.
 
 			// first, get all installed cultures
-			var allCultures = from ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures)
+			var allCultures = from ci in L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures)
 					where ci.TwoLetterISOLanguageName != "iv"
 					select ci;
 
@@ -341,7 +341,7 @@ namespace L10NSharp
 			{
 				try
 				{
-					return CultureInfo.GetCultureInfo(lang); // return to the select, that is
+					return new L10NCultureInfo(lang); // return to the select, that is
 				}
 				catch (CultureNotFoundException)
 				{

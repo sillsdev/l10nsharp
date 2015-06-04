@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
@@ -47,8 +48,8 @@ namespace L10NSharp.UI
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string SelectedLanguage
 		{
-			get { return ((CultureInfo)SelectedItem).Name; }
-			set { SelectedItem = CultureInfo.GetCultureInfo(value); }
+			get { return ((L10NCultureInfo)SelectedItem).Name; }
+			set { SelectedItem = L10NCultureInfo.GetCultureInfo(value); }
 		}
 
 		/// ----------------------------------------------------------------------------------------
@@ -61,7 +62,7 @@ namespace L10NSharp.UI
 				if (SelectedItem == null)
 					return false;
 
-				return (LocalizationManager.UILanguageId != ((CultureInfo)SelectedItem).Name);
+				return (LocalizationManager.UILanguageId != ((L10NCultureInfo)SelectedItem).Name);
 			}
 		}
 
@@ -88,18 +89,18 @@ namespace L10NSharp.UI
 				return;
 
 			var cultureList = LocalizationManager.GetUILanguages(_showOnlyLanguagesHavingLocalizations).ToList();
-			cultureList.Add(CultureInfo.GetCultureInfo("en"));
+			cultureList.Add(new L10NCultureInfo("en"));
 
 			Items.Clear();
 			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
-			var currCulture = CultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
+			var currCulture = L10NCultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
 			if (Items.Contains(currCulture))
 			{
 				SelectedItem = currCulture;
 			}
 			else
 			{
-				SelectedItem =  CultureInfo.GetCultureInfo("en");
+				SelectedItem =  L10NCultureInfo.GetCultureInfo("en");
 			}
 		}
 	}

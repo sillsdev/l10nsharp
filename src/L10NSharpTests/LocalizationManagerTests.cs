@@ -180,6 +180,19 @@ namespace L10NSharp.Tests
 			return LocalizationManager.GetDynamicStringOrEnglish(AppId, "blahId", "blahInEnglishInCode", "comment", langId);
 		}
 
+		[Test]
+		public void GetUiLanguages_EnglishIsThere()
+		{
+			var cultures = LocalizationManager.GetUILanguages(false);
+			Assert.AreEqual("English", cultures.Where(c => c.Name == "en").Select(c => c.NativeName).FirstOrDefault());
+		}
+
+		[Test]
+		public void GetUiLanguages_AzeriHasHackedNativeName()
+		{
+			var cultures = LocalizationManager.GetUILanguages(false);
+			Assert.AreEqual("Azərbaycan dili", cultures.Where(c => c.Name == "az").Select(c => c.NativeName).FirstOrDefault());
+		}
 
 		[Test]
 		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnits()
