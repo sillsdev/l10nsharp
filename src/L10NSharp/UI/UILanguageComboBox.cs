@@ -89,7 +89,7 @@ namespace L10NSharp.UI
 				return;
 
 			var cultureList = LocalizationManager.GetUILanguages(_showOnlyLanguagesHavingLocalizations).ToList();
-			cultureList.Add(new L10NCultureInfo("en"));
+			cultureList.Add(L10NCultureInfo.GetCultureInfo("en"));
 
 			Items.Clear();
 			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
