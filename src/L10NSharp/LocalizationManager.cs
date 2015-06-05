@@ -345,9 +345,6 @@ namespace L10NSharp
 				}
 				catch (CultureNotFoundException)
 				{
-					// This can happen where Bloom has been localized on a later version of Windows,
-					// or a tmx file created by hand.
-					// For example, Windows 10 allows a much wider range than 8 and before.
 					// Unfortunately there is no way to create a CultureInfo for a culture the system
 					// doesn't recognize, so we just can't offer this language on this system
 					// (short of at least a major change of API).
