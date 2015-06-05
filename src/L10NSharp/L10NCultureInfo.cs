@@ -16,10 +16,12 @@ namespace L10NSharp
 		public L10NCultureInfo(string name)
 			:base(name)
 		{
-			// Why the Substring? The full NativeName of 'az-Latn' is 'Azərbaycan dili (Azərbaycan)'
-			// We just need the part up through 'dili'
+			// The Windows .Net runtime returns 'Azərbaycan dili (Azərbaycan)' for az-Latn, and
+			// something totally different for az.
+			// The Mono runtime returns "azərbaycan" for both az and az-Latn.
+			// So we just set this to what we "know" is the right value for az.
 			if (name == "az")
-				_nativeName = GetCultureInfo("az-Latn").NativeName.Substring(0, 15);
+				_nativeName = "Azərbaycan dili";
 		}
 
 		public override string NativeName
