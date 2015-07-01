@@ -239,6 +239,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Makes an id for a DataGridView column.
+		/// Note that in order to have a DataGridViewColumn header be localizable, one must create the HeaderText
+		/// in the following format: _L10N_:{ID}!{EnglishName}
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		private static string MakeIdForDataGridViewColumn(DataGridViewColumn col)
