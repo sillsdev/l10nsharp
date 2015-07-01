@@ -162,6 +162,7 @@ namespace SampleApp
 			this.Column1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
 			this.Column1.HeaderText = "_L10N_:TheSampleForm.SampleDataGridView.ColumnHeadings.FirstColumn!First";
 			this.Column1.Name = "Column1";
+			this.Column1.ToolTipText = "My tooltip";
 			// 
 			// Form1
 			// 
