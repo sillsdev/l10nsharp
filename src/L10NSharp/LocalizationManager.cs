@@ -1291,8 +1291,7 @@ namespace L10NSharp
 
 			var text = GetStringFromStringCache(UILanguageId, id);
 			col.HeaderText = (text ?? StripOffLocalizationInfoFromText(col.HeaderText));
-			var tooltip = GetTooltipFromStringCache(UILanguageId, id);
-			col.ToolTipText = (tooltip ?? StripOffLocalizationInfoFromText(col.ToolTipText));
+			col.ToolTipText = GetTooltipFromStringCache(UILanguageId, id);
 			return true;
 		}
 
