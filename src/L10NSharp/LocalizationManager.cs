@@ -523,23 +523,23 @@ namespace L10NSharp
 		/// localized and then applies localizations for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal bool RegisterComponentForLocalizing(IComponent component, string id, string defaultText, string defaultTooltip, string defaultShortcutKeys, string comment)
+		private void RegisterComponentForLocalizing(IComponent component, string id, string defaultText, string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
-			return RegisterComponentForLocalizing(new LocalizingInfo(component, id)
+			RegisterComponentForLocalizing(new LocalizingInfo(component, id)
 			{
 				Text = defaultText,
 				ToolTipText = defaultTooltip,
 				ShortcutKeys = defaultShortcutKeys,
 				Comment = comment
-			});
+			}, null);
 		}
 
-		internal bool RegisterComponentForLocalizing(LocalizingInfo info)
+		internal void RegisterComponentForLocalizing(LocalizingInfo info, Action<LocalizationManager, LocalizingInfo> successAction)
 		{
 			var component = info.Component;
 			var id = info.Id;
-			if (component == null || id == null || id.Trim() == string.Empty)
-				return false;
+			if (component == null || String.IsNullOrWhiteSpace(id))
+				return;
 
 			try
 			{
@@ -554,6 +554,12 @@ namespace L10NSharp
 					ComponentCache[component] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
 				else
 				{
+					var lm = GetLocalizationManagerForString(id);
+					if (lm != null && lm != this)
+					{
+						lm.RegisterComponentForLocalizing(info, successAction);
+						return;
+					}
 					if (component is ILocalizableComponent)
 						ComponentCache.Add(component, id);
 					else
@@ -567,7 +573,8 @@ namespace L10NSharp
 					}
 				}
 
-				return true;
+				if (successAction != null)
+					successAction(this, info);
 			}
 			catch (Exception)
 			{
@@ -575,7 +582,6 @@ namespace L10NSharp
 				throw; // if you hit this ( Index was outside the bounds of the array) try to figure out why. What is the hash (?) value for the component?
 				#endif
 			}
-			return false;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1013,6 +1019,23 @@ namespace L10NSharp
 		#endregion
 
 		#region Methods that apply localizations to an object.
+		internal void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
+		{
+			Dictionary<string, LocalizingInfo> idToLocInfo; // out variable
+
+			var locComponent = locInfo.Component as ILocalizableComponent;
+			if (locComponent != null && LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+			{
+				ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
+				return;
+			}
+#if DEBUG
+			var msg =
+				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
+			throw new ApplicationException(string.Format(msg, locInfo.Id));
+#endif
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Reapplies the localizations to all objects in the localization manager's cache of
@@ -1383,11 +1406,14 @@ namespace L10NSharp
 					}
 				}
 			}
+
+			var lm = GetLocalizationManagerForComponent(ctrl);
+
 			if (LaunchingLocalizationDialog != null)
-				LaunchingLocalizationDialog(this, new EventArgs());
-			LocalizeItemDlg.ShowDialog(this, ctrl, false);
+				LaunchingLocalizationDialog(lm, new EventArgs());
+			LocalizeItemDlg.ShowDialog(lm, ctrl, false);
 			if (ClosingLocalizationDialog != null)
-				ClosingLocalizationDialog(this, new EventArgs());
+				ClosingLocalizationDialog(lm, new EventArgs());
 		}
 
 		/// ------------------------------------------------------------------------------------
