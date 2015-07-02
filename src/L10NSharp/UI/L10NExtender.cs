@@ -258,38 +258,21 @@ namespace L10NSharp.UI
 				var ch = locInfo.Component as ColumnHeader;
 				if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
 					locInfo.UpdateTextFromObject();
-				if (_manager.RegisterComponentForLocalizing(locInfo))
+				_manager.RegisterComponentForLocalizing(locInfo, (lm, info) =>
 				{
-					if (locInfo.Category == LocalizationCategory.LocalizableComponent)
+					if (info.Category == LocalizationCategory.LocalizableComponent)
 					{
-						ApplyLocalizationsToILocalizableComponent(locInfo);
+						lm.ApplyLocalizationsToILocalizableComponent(info);
 					}
 					else
 					{
-						_manager.ApplyLocalization(locInfo.Component);
+						lm.ApplyLocalization(info.Component);
 					}
-				}
+				});
 			}
 
 			m_extendedCtrls = null;
 			_okayToLocalizeControls = false;
-		}
-
-		private void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
-		{
-			Dictionary<string, LocalizingInfo> idToLocInfo; // out variable
-
-			var locComponent = locInfo.Component as ILocalizableComponent;
-			if (locComponent != null && _manager.LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
-			{
-				_manager.ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
-				return;
-			}
-#if DEBUG
-			var msg =
-				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
-			throw new ApplicationException(string.Format(msg, locInfo.Id));
-#endif
 		}
 
 		private void FinalizationForILocalizableComponents()
@@ -379,8 +362,7 @@ namespace L10NSharp.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column, true);
-			if (_manager.RegisterComponentForLocalizing(locInfo))
-				_manager.ApplyLocalization(locInfo.Component);
+			_manager.RegisterComponentForLocalizing(locInfo, (lm, info) => lm.ApplyLocalization(info.Component));
 		}
 
 		/// ------------------------------------------------------------------------------------
