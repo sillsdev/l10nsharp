@@ -212,7 +212,8 @@ namespace L10NSharp
 				return;
 
 			StringBuilder errorMsg = null;
-			foreach (var langId in TmxDocument.GetAllVariantLanguagesFound())
+			// ToArray() prevents exception "Collection was modified" in rare cases (e.g., Bloom BL-2400).
+			foreach (var langId in TmxDocument.GetAllVariantLanguagesFound().ToArray())
 			{
 				try
 				{
