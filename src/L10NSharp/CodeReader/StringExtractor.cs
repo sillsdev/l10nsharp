@@ -214,6 +214,12 @@ namespace L10NSharp.CodeReader
 			{
 				try
 				{
+#if DEBUG
+					// Set the environment variable L0NSHARPDEBUGGING to true to find out what types are being
+					// searched for string calls. This is helpful for tracking down linux sigsev problems.
+					if(Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING").ToLower() == "true")
+						Console.WriteLine(string.Format("Looking for strings in {0}.{1}", type.Name, method.Name));
+#endif
 					_instructions = new List<ILInstruction>(new ILReader(method));
 
 					foreach (var getStringOverload in _getStringMethodOverloads)
@@ -235,6 +241,8 @@ namespace L10NSharp.CodeReader
 		/// ------------------------------------------------------------------------------------
 		public void FindGetStringCalls(MethodBase caller, MethodInfo callee)
 		{
+			if (callee.Name == "LoadProperties")
+				Console.WriteLine ("Finding LoadProperties Strings called from: " + caller.Name);
 			var module = caller.Module;
 			var calleeParamCount = callee.GetParameters().Count();
 
