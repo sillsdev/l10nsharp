@@ -49,9 +49,12 @@ namespace L10NSharp.CodeReader
 		public ILReader(MethodBase enclosingMethod)
 		{
 			_enclosingMethod = enclosingMethod;
+			if(StringExtractor.MethodNeedsLocalization(_enclosingMethod))
+			{
 			var methodBody = _enclosingMethod.GetMethodBody();
 			_byteArray = (methodBody == null) ? new Byte[0] : methodBody.GetILAsByteArray();
 			_position = 0;
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------

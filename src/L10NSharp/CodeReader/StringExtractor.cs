@@ -9,8 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Resources;
-using System.Threading;
-using System.Windows.Forms;
 
 namespace L10NSharp.CodeReader
 {
@@ -79,7 +77,7 @@ namespace L10NSharp.CodeReader
 								key = key.Substring(0, key.Length - ".Text".Length);
 								key = GetLocalizingKey(type.Name, key);
 								LocalizingInfo info;
-								if (_extenderInfo.TryGetValue(key, out info) && string.IsNullOrEmpty(info.Text))
+								if (_extenderInfo.TryGetValue(key, out info) && String.IsNullOrEmpty(info.Text))
 								{
 									info.Text = val;
 								}
@@ -88,7 +86,7 @@ namespace L10NSharp.CodeReader
 					}
 					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
 				}
-				catch (System.Resources.MissingManifestResourceException e)
+				catch (MissingManifestResourceException e)
 				{
 					// If it doesn't find any resources, no reason to die, we're just making a best attempt.
 					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() could not load resources for {0}", type.FullName));
@@ -202,6 +200,9 @@ namespace L10NSharp.CodeReader
 		/// ------------------------------------------------------------------------------------
 		private void FindLocalizedStringsInType(Type type)
 		{
+			if(!TypeNeedsLocalization(type))
+				return;
+
 			var methodsInType = new List<MethodBase>();
 
 			methodsInType.AddRange(type.GetConstructors(BindingFlags.Static |
@@ -217,8 +218,8 @@ namespace L10NSharp.CodeReader
 #if DEBUG
 					// Set the environment variable L10NSHARPDEBUGGING to true to find out what types are being
 					// searched for string calls. This is helpful for tracking down linux sigsev problems.
-					if(Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING").ToLower() == "true")
-						Console.WriteLine(string.Format("Looking for strings in {0}.{1}", type.Name, method.Name));
+					if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
+						Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
 #endif
 					_instructions = new List<ILInstruction>(new ILReader(method));
 
@@ -289,7 +290,7 @@ namespace L10NSharp.CodeReader
 				return null;
 
 			string id;
-			if(string.IsNullOrEmpty(parameters[1]))
+			if(String.IsNullOrEmpty(parameters[1]))
 			{
 				id = parameters[0];
 			}
@@ -480,6 +481,48 @@ namespace L10NSharp.CodeReader
 		private static string GetLocalizingKey(string className, string fieldName)
 		{
 			return className + "." + fieldName;
+		}
+
+		/// <summary>
+		/// Check if this type has a custom attribute which tells us to ignore it
+		/// </summary>
+		private static bool TypeNeedsLocalization(Type type)
+		{
+			var customAttributes = type.GetCustomAttributes(typeof(NoLocalizableStringsPresent), false);
+			return ElementNeedsLocalization(customAttributes);
+		}
+
+		/// <summary>
+		/// Check if this method has a custom attribute which tells us to ignore it.
+		/// </summary>
+		internal static bool MethodNeedsLocalization(MethodBase method)
+		{
+			var customAttributes = method.GetCustomAttributes(typeof(NoLocalizableStringsPresent), false);
+			return ElementNeedsLocalization(customAttributes);
+		}
+
+		/// <summary>
+		/// Test the custom attribute to determine if we should ignore localization for this element on this OS.
+		/// </summary>
+		private static bool ElementNeedsLocalization(object[] customAttributes)
+		{
+			if(customAttributes.Length > 0)
+			{
+				var attribute = (NoLocalizableStringsPresent)customAttributes[0];
+				switch(attribute.DoNotLocalizeOn)
+				{
+					case NoLocalizableStringsPresent.OS.All:
+						return false;
+					case NoLocalizableStringsPresent.OS.Windows:
+						return Environment.OSVersion.Platform == PlatformID.Win32NT ||
+								 Environment.OSVersion.Platform == PlatformID.Win32Windows;
+					case NoLocalizableStringsPresent.OS.Mac:
+						return Environment.OSVersion.Platform == PlatformID.MacOSX;
+					case NoLocalizableStringsPresent.OS.Linux:
+						return Environment.OSVersion.Platform == PlatformID.Unix;
+				}
+			}
+			return true;
 		}
 	}
 }
