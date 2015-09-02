@@ -18,19 +18,22 @@ namespace L10NSharp.Tests
 			var skipOnWindowsAndLinux = testPlatformType.GetMethod("SkipOnWindowsAndLinux");
 			var skipOnLinux = testPlatformType.GetMethod("SkipOnLinux");
 			var skipOnAll = testPlatformType.GetMethod("SkipOnAll");
+			var skipOnNone = testPlatformType.GetMethod("SkipOnNone");
 			// Test that the attribute behaves properly on all currently tested platforms
-			Assert.That(StringExtractor.MethodNeedsLocalization(skipOnAll), Is.False);
+			Assert.That(StringExtractor.MethodNeedsLocalization(skipOnAll), Is.False, "NoLocalizableStrings without argument is not working");
+			Assert.That(StringExtractor.MethodNeedsLocalization(skipOnNone), Is.True, "A method without NoLocalizableStrings should be localized");
+
 			if(Environment.OSVersion.Platform == PlatformID.Unix)
 			{
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindows), Is.False);
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.True);
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnLinux), Is.True);
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindows), Is.True, "NoLocalizableStrings for Windows should localize on linux");
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on linux");
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnLinux), Is.False, "Should not be localized on linux");
 			}
 			else if(Environment.OSVersion.Platform == PlatformID.Win32NT)
 			{
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindows), Is.True);
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.True);
-				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnLinux), Is.False);
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindows), Is.False, "Should not be localized on Windows");
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on Windows");
+				Assert.That(StringExtractor.MethodNeedsLocalization(skipOnLinux), Is.True, "NoLocalizableStrings for Linux should localize on Windows");
 			}
 		}
 
@@ -58,6 +61,11 @@ namespace L10NSharp.Tests
 			public void SkipOnAll()
 			{
 				Console.WriteLine(@"to my Lou");
+			}
+
+			public void SkipOnNone()
+			{
+				Console.WriteLine(@"my darling");
 			}
 		}
 	}

@@ -24,7 +24,7 @@ namespace L10NSharp
 		[Flags]
 		public enum OS
 		{
-			All = 0,
+			All = -1,
 			Windows = 1,
 			Linux = 2,
 			Mac = 4

@@ -514,11 +514,11 @@ namespace L10NSharp.CodeReader
 			{
 				case PlatformID.Win32Windows:
 				case PlatformID.Win32NT:
-					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Windows) != 0;
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Windows) == 0;
 				case PlatformID.MacOSX:
-					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Mac) != 0;
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Mac) == 0;
 				case PlatformID.Unix:
-					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Linux) != 0;
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Linux) == 0;
 				default:
 					return true;
 			}
