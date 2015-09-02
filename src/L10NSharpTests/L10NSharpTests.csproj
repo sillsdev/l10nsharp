@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeReaderTests.cs" />
     <Compile Include="ILocalizableComponentTests.cs" />
     <Compile Include="MockLocalizableComponent.cs" />
     <Compile Include="LocalizationManagerTests.cs" />
