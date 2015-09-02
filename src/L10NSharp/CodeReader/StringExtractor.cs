@@ -506,23 +506,22 @@ namespace L10NSharp.CodeReader
 		/// </summary>
 		private static bool ElementNeedsLocalization(object[] customAttributes)
 		{
-			if(customAttributes.Length > 0)
+			if(customAttributes.Length == 0)
+				return true;
+
+			var attribute = (NoLocalizableStringsPresent)customAttributes[0];
+			switch(Environment.OSVersion.Platform)
 			{
-				var attribute = (NoLocalizableStringsPresent)customAttributes[0];
-				switch(attribute.DoNotLocalizeOn)
-				{
-					case NoLocalizableStringsPresent.OS.All:
-						return false;
-					case NoLocalizableStringsPresent.OS.Windows:
-						return Environment.OSVersion.Platform == PlatformID.Win32NT ||
-								 Environment.OSVersion.Platform == PlatformID.Win32Windows;
-					case NoLocalizableStringsPresent.OS.Mac:
-						return Environment.OSVersion.Platform == PlatformID.MacOSX;
-					case NoLocalizableStringsPresent.OS.Linux:
-						return Environment.OSVersion.Platform == PlatformID.Unix;
-				}
+				case PlatformID.Win32Windows:
+				case PlatformID.Win32NT:
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Windows) != 0;
+				case PlatformID.MacOSX:
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Mac) != 0;
+				case PlatformID.Unix:
+					return (attribute.DoNotLocalizeOn & NoLocalizableStringsPresent.OS.Linux) != 0;
+				default:
+					return true;
 			}
-			return true;
 		}
 	}
 }

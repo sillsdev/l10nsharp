@@ -21,12 +21,13 @@ namespace L10NSharp
 
 		public NoLocalizableStringsPresent() : this(OS.All) { }
 
+		[Flags]
 		public enum OS
 		{
 			All = 0,
 			Windows = 1,
 			Linux = 2,
-			Mac = 3
+			Mac = 4
 		};
 	}
 }
