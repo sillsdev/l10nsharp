@@ -181,6 +181,16 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void GetDynamicStringInEnglish_NoDefault_FindsEnglish()
+		{
+			using (var folder = new TempFolder("GetDynamicStringInEnglish_NoDefault_FindsEnglish"))
+			{
+				SetupManager(folder, "en");
+				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
+			}
+		}
+
+		[Test]
 		public void GetUiLanguages_EnglishIsThere()
 		{
 			var cultures = LocalizationManager.GetUILanguages(false);

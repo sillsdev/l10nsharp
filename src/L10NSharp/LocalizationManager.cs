@@ -906,6 +906,8 @@ namespace L10NSharp
 		/// returned when a string cannot be found for the specified id and the current UI
 		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
 		/// value or not.
+		/// Special case: unless englishText is null, that is what will be returned for langId = 'en',
+		/// irrespective of what is in TMX.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
@@ -927,9 +929,11 @@ namespace L10NSharp
 
 			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
 			// some TMX, following the rule that the current c# code always wins.
+			// some TMX, following the rule that the current c# code always wins. In case we really need to
+			// recover the TMX version, we will retrieve that if no default is provided.
 			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX
-			if(langId != "en")
-			{
+			if (langId != "en" || englishText == null)
+				{
 				var text = lm.GetStringFromStringCache(langId, id);
 				if (text != null)
 					return text;
