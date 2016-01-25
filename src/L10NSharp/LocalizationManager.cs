@@ -184,6 +184,8 @@ namespace L10NSharp
 			Name = appName;
 			AppVersion = appVersion;
 			_installedTmxFileFolder = directoryOfInstalledTmxFiles;
+			if (!Directory.Exists(directoryOfInstalledTmxFiles))
+				_installedTmxFileFolder = null;
 			_generatedDefaultTmxFileFolder = directoryForGeneratedDefaultTmxFile;
 			DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang, false);
 
@@ -228,7 +230,9 @@ namespace L10NSharp
 			if (dir != null && !Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
+			var defaultStringFileInstalledPath = string.Empty;
+			if (_installedTmxFileFolder != null)
+				defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
 			if(!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 			{
 				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
