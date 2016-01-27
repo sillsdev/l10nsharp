@@ -183,8 +183,8 @@ namespace L10NSharp
 			// Test for a pathological case of bad install
 			if (!Directory.Exists(directoryOfInstalledTmxFiles))
 				throw new DirectoryNotFoundException(string.Format(
-					"The default localizations folder {0} does not exist. This indicates a failed install. Please uninstall and reinstall your program.",
-					directoryOfInstalledTmxFiles));
+					"The default localizations folder {0} does not exist. This indicates a failed install for {1}. Please uninstall and reinstall {1}.",
+					directoryOfInstalledTmxFiles, appName));
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
@@ -233,8 +233,7 @@ namespace L10NSharp
 			if (dir != null && !Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var defaultStringFileInstalledPath = string.Empty;
-			defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
+			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
 			if(!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 			{
 				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
