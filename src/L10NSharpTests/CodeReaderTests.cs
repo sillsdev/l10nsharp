@@ -1,15 +1,30 @@
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using L10NSharp.CodeReader;
+using L10NSharp.Tests;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
 	class CodeReaderTests
 	{
+		[Test]
+		public void FindLocalizedStringsInType_RequestNamespaceForSubclass_DoNotExtractStringsForSuperclassWithDifferentNamespace()
+		{
+			var stringExtractor = new StringExtractor();
+			var localizedStrings = stringExtractor.DoExtractingWork(new[] { "L10NSharp.TestsWithDifferentNamespace" }, new BackgroundWorker { WorkerReportsProgress = true });
+			Assert.AreEqual(0, localizedStrings.Count());
+		}
+
+		public class Super
+		{
+			public void SuperClassMethod()
+			{
+				LocalizationManager.GetString("SuperClassMethod.TestId", "Super class method test text");
+			}
+		}
+
 		[Test]
 		public void MethodNeedsLocalization_Uses_NoLocalizableStringsPresentAttribute_Test()
 		{
@@ -67,6 +82,17 @@ namespace L10NSharp.Tests
 			{
 				Console.WriteLine(@"my darling");
 			}
+		}
+	}
+}
+
+namespace L10NSharp.TestsWithDifferentNamespace
+{
+	class Sub : CodeReaderTests.Super
+	{
+		public void SubClassMethod()
+		{
+			// No calls to LocalizationManager.GetString here
 		}
 	}
 }
