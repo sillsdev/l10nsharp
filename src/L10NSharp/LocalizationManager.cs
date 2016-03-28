@@ -242,8 +242,13 @@ namespace L10NSharp
 			if (DefaultStringFileExistsAndHasContents())
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
-				var verElement = xmlDoc.Element("header").Elements("prop")
-					.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
+				var header = xmlDoc.Element("header");
+				XElement verElement = null;
+				if (header != null)
+				{
+					verElement = header.Elements("prop")
+						.FirstOrDefault(e => (string) e.Attribute("type") == kAppVersionPropTag);
+				}
 
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
