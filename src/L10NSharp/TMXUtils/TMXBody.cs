@@ -88,14 +88,23 @@ namespace L10NSharp.TMXUtils
 		}
 
 		/// <summary>
-		/// When all but the last part of the id changed, this can help reunite thigns
+		/// When all but the last part of the id changed, this can help reunite things
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		internal TransUnit GetTransUnitForOrphanWithId(string id)
+		internal TransUnit GetTransUnitForOrphan(TransUnit orphan)
 		{
-			var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(id);
-			return _transUnits.FirstOrDefault(tu => LocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch);
+			var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(orphan.Id);
+			var defaultTextToMatch = GetDefaultVariantValue(orphan);
+			return _transUnits.FirstOrDefault(tu => LocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch && GetDefaultVariantValue(tu) == defaultTextToMatch);
+		}
+
+		string GetDefaultVariantValue(TransUnit tu)
+		{
+			var variant = tu.GetVariantForLang(LocalizationManager.kDefaultLang);
+			if (variant == null)
+				return null;
+			return variant.Value;
 		}
 
 		/// ------------------------------------------------------------------------------------

@@ -156,9 +156,9 @@ namespace L10NSharp.TMXUtils
 		/// that is, the parts of the id before th final '.'.
 		/// </summary>
 		/// <param name="id"></param>
-		 public TransUnit GetTransUnitForOrphanWithId(string id)
+		 public TransUnit GetTransUnitForOrphan(TransUnit orphan)
 		{
-			 return Body.GetTransUnitForOrphanWithId(id);
+			 return Body.GetTransUnitForOrphan(orphan);
 		}
 	}
 

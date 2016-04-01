@@ -479,6 +479,11 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string DefaultStringFilePath { get; private set; }
 
+		internal string DefaultInstalledStringFilePath
+		{
+			get { return Path.Combine(_installedTmxFileFolder, Id + "." + kDefaultLang + ".tmx"); }
+		}
+
 		/// ------------------------------------------------------------------------------------
 		internal LocalizedStringCache StringCache { get; private set; }
 
@@ -493,10 +498,16 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Enumerates all existing files with .
+		/// Enumerates a TMX file for each language. Prefer the custom localizations folder version
+		/// if it exists, otherwise the installed langauge folder.
+		/// Exception: never return the English tmx, which is always handled separately and first.
+		/// Doing this serves to insert any new dynamic strings into the cache, thus validating
+		/// them as non-obsolete if we encounter them in other languages.
+		/// Enhance JohnT: there ought to be some way NOT to load data for a language until we need it.
+		/// This wastes time AND space.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<string> NonDefaultTmxFilenames
+		public IEnumerable<string> TmxFilenamesToAddToCache
 		{
 			get
 			{
@@ -517,7 +528,7 @@ namespace L10NSharp
 					foreach (var tmxFile in Directory.GetFiles(_installedTmxFileFolder, Id + ".*.tmx"))
 					{
 						langId = GetLangIdFromTmxFileName(tmxFile);
-						if (  //langId != kDefaultLang &&    //REVIEW: removed August 26/2014 because this effectively means "Completely ignore the installed en.tmx file, and any dynamic strings that were careful shipped with that... why would we want to do that???
+						if (  langId != kDefaultLang &&    //Don't return the english TMX here because we separately process it first.
 							!langIdsOfCustomizedLocales.Contains(langId))
 							yield return tmxFile;
 					}
