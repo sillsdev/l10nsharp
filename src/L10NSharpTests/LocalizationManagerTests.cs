@@ -369,5 +369,108 @@ namespace L10NSharp.Tests
 			doc.AddTransUnit(tu);
 			doc.Save(Path.Combine(folderPath, LocalizationManager.GetTmxFileNameForLanguage(AppId, "fr")));
 		}
+
+		/// <summary>
+		/// Although it would normally be plausible that AnotherContext.AnotherDialog.Title results from a renaming of
+		/// SomeContext.SomeDialog.Title, in the English TMX we don't allow this. We expect the installed English TMX
+		/// to be up-to-date.
+		/// </summary>
+		[Test]
+		public void OrphanLogicNotUsedForEnglish()
+		{
+			using (var folder = new TempFolder("OrphanLogicNotUsedForEnglish"))
+			{
+				MakeEnglishTmxWithApparentOrphan(folder);
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
+
+				LocalizationManager.LoadedManagers[AppId] = manager;
+
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
+				// This will fail if we treated it as an orphan: the ID will not occur at all in the TMX.
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
+			}
+		}
+
+		/// <summary>
+		/// Make sure the orphan logic IS used where we want it. Arabic is a good test because it will be loaded before the English.
+		/// </summary>
+		[Test]
+		public void OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx()
+		{
+			using (var folder = new TempFolder("OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx"))
+			{
+				MakeEnglishTmxWithApparentOrphan(folder);
+				MakeArabicTmxWithApparentOrphans(folder, "Title");
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
+
+				LocalizationManager.LoadedManagers[AppId] = manager;
+
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // remapped AnObsoleteNameForSuperclass.TestId
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English tmx validates it
+			}
+		}
+
+		[Test]
+		public void OrphanLogicNotUsed_WithWrongEnglishSource()
+		{
+			using (var folder = new TempFolder("OrphanLogicNotUsed_WithWrongEnglishSource"))
+			{
+				MakeEnglishTmxWithApparentOrphan(folder);
+				// The critical difference compared to OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx is that the English version of the orphan doesn't match
+				MakeArabicTmxWithApparentOrphans(folder, "Some other Title, unrelated to SuperclassMethod.TestId");
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
+
+				LocalizationManager.LoadedManagers[AppId] = manager;
+
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "ar"), Is.EqualTo("Title")); // no remapping, English doesn't match, so we have no Arabic, use English
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English tmx validates it
+				// We don't really care what happens to the entry for AnObsoleteNameForSuperclass.TestId, since presumably it is truly obsolete.
+			}
+		}
+
+		private static void MakeEnglishTmxWithApparentOrphan(TempFolder folder)
+		{
+			var englishDoc = new TMXDocument {Header = {SourceLang = "en"}};
+			englishDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
+			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
+			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
+			Directory.CreateDirectory(GetInstalledDirectory(folder));
+			englishDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetTmxFileNameForLanguage(AppId, "en")));
+		}
+
+		private static void MakeArabicTmxWithApparentOrphans(TempFolder folder, string englishForObsoleteTitle)
+		{
+			var arabicDoc = new TMXDocument { Header = { SourceLang = "ar" } };
+			arabicDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
+			// Note that we do NOT have arabic for SuperClassMethod.TestId. We may end up getting a translation from the orphan, however.
+			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title", "Title in Arabic", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English TMX has this too
+			// Interpreted as an orphan iff englishForObsoleteTitle is "Title" (matching the English for SuperClassMethod.TestId)
+			arabicDoc.AddTransUnit(MakeTransUnit("ar", englishForObsoleteTitle, "Title in Arabic", "AnObsoleteNameForSuperclass.TestId", true));
+			Directory.CreateDirectory(GetInstalledDirectory(folder));
+			arabicDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetTmxFileNameForLanguage(AppId, "ar")));
+		}
+
+		static TransUnit MakeTransUnit(string lang, string englishVal, string val, string id, bool dynamic)
+		{
+			var variants = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
+			if (englishVal != null)
+				variants.Add(new TransUnitVariant { Lang = "en", Value = englishVal });
+			var tu = new TransUnit
+			{
+				Id = id,
+				Variants = variants
+			};
+			if (dynamic)
+				tu.AddProp(lang, LocalizedStringCache.kDiscoveredDyanmically, "true");
+			return tu;
+		}
+
 	}
 }

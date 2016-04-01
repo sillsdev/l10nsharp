@@ -61,7 +61,7 @@ namespace L10NSharp
 			_englishTuIdsNoLongerUsed = new HashSet<string>();
 			try
 			{
-				MergeTmxFilesIntoCache(OwningManager.NonDefaultTmxFilenames);
+				MergeTmxFilesIntoCache(OwningManager.TmxFilenamesToAddToCache);
 			}
 			catch (Exception e)
 			{
@@ -97,6 +97,25 @@ namespace L10NSharp
 				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
 					_englishTuIdsNoLongerUsed.Add(tu.Id);
 			}
+			// It's possible (I think when there is no customizable TMX, as on first install, but the version in the installed TMX
+			// is out of date with the app) that we don't have all the info from the installed TMX in the customizable one.
+			// We want to make sure that (a) any new dynamic strings in the installed one are considered valid by default
+			// (b) any newly obsolete IDs are noted.
+			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
+			{
+				var defaultInstalledTmxDoc = TMXDocument.Read(OwningManager.DefaultInstalledStringFilePath);
+				foreach (var tu in defaultInstalledTmxDoc.Body.TransUnits)
+				{
+					TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, "en");
+					// also needed in this, to prevent things we find here from being considered orphans.
+					defaultTmxDoc.Body.AddTransUnitOrVariantFromExisting(tu, "en");
+					// If this TransUnit is marked NoLongerUsed in the English tmx, load its ID into the hashset
+					// so we don't display this string in case the currentUI tmx doesn't have it marked as
+					// NoLongerUsed.
+					if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
+						_englishTuIdsNoLongerUsed.Add(tu.Id);
+				}
+			}
 			Exception error = null;
 			var stillNeedToLoadNoLongerUsed = _englishTuIdsNoLongerUsed.Count == 0;
 			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
@@ -107,11 +126,15 @@ namespace L10NSharp
 					var langId = tmxDoc.Header.SourceLang;
 					foreach (var tu in tmxDoc.Body.TransUnits)
 					{
-						if (defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
+						// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
+						// We assume the default language TMX has only current IDs, and therefore don't look for orphans in that case.
+						// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
+						// was regarded as an obsolete id for PublishTab.Upload.Title
+						if (langId != LocalizationManager.kDefaultLang && defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
 							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 						{
 							//if we couldn't find it, maybe the id just changed and then if so re-id it.
-							var movedUnit = defaultTmxDoc.GetTransUnitForOrphanWithId(tu.Id);
+							var movedUnit = defaultTmxDoc.GetTransUnitForOrphan(tu);
 							if (movedUnit == null)
 							{
 								if (tu.GetPropValue(kDiscoveredDyanmically) == "true")
