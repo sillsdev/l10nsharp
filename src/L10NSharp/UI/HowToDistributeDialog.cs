@@ -31,21 +31,26 @@ namespace L10NSharp.UI
 		private void OnShowTMXFile(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			var path = _targetTmxFilePath;
-#if __MonoCS__
-			MessageBox.Show(
-				"Sorry, this function isn't implemented for the Linux version yet. The file you want is at " +
-				_targetTmxFilePath);
-#else
-			path = path.Replace("/", "\\"); //forward slashes kill the selection attempt and it opens in My Documents.
-
+			if (Path.PathSeparator != '/')
+				path = path.Replace('/', Path.PathSeparator); //forward slashes kill the selection attempt and it opens in My Documents.
 			if (!File.Exists(path))
 			{
 				MessageBox.Show("Sorry, the TMX file hasn't been saved yet, so we can't show it to you yet.");
 				return;
 			}
-			Process.Start("explorer.exe", "/select, \"" + path + "\"");
-  #endif
-
+			if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+			{
+				if (File.Exists("/usr/bin/nemo"))
+					Process.Start("/usr/bin/nemo", path);		// default file manager for Cinnamon (Wasta)
+				else if (File.Exists("/usr/bin/nautilus"))
+					Process.Start("/usr/bin/nautilus", path);	// default file manager for Gnome / Unity? (Ubuntu)
+				else
+					MessageBox.Show("Sorry, we cannot find a suitable file manager for Linux. The file you want is at " + path);
+			}
+			else
+			{
+				Process.Start("explorer.exe", "/select, \"" + path + "\"");
+			}
 		}
 
 		private void _emailLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
