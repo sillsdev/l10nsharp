@@ -31,8 +31,8 @@ namespace L10NSharp.UI
 		private void OnShowTMXFile(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			var path = _targetTmxFilePath;
-			if (Path.PathSeparator != '/')
-				path = path.Replace('/', Path.PathSeparator); //forward slashes kill the selection attempt and it opens in My Documents.
+			if (Path.DirectorySeparatorChar != '/')
+				path = path.Replace('/', Path.DirectorySeparatorChar); //forward slashes kill the selection attempt and it opens in My Documents.
 			if (!File.Exists(path))
 			{
 				MessageBox.Show("Sorry, the TMX file hasn't been saved yet, so we can't show it to you yet.");
