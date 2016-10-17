@@ -296,10 +296,14 @@ namespace L10NSharp.Tests
 			englishDoc.AddTransUnit(tu);
 			// second unit
 			var variants2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
+			var prop = new TMXProp();
+			prop.Type = LocalizedStringCache.kNoLongerUsedPropTag;
+			prop.Value = "true";
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Variants = variants2
+				Variants = variants2,
+				Props = { prop }
 			};
 			englishDoc.AddTransUnit(tu2);
 			// third unit

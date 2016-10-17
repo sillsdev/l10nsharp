@@ -594,6 +594,8 @@ namespace L10NSharp
 			foreach (var tu in GetTranslationUnitsForTree())
 			{
 				string id = GetBaseId(tu.Id);
+				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
+					continue;
 
 				var groupChain = ParseGroupAndId(GetGroup(tu.Id), id);
 				var nodeKey = String.Empty;
@@ -610,7 +612,6 @@ namespace L10NSharp
 					else
 					{
 						newNode = new LocTreeNode(OwningManager, groupChain[i], null, nodeKey);
-						nodeCollection.Add(newNode);
 						nodeCollection = newNode.Nodes;
 					}
 				}
