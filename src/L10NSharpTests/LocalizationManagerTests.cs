@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -200,6 +201,10 @@ namespace L10NSharp.Tests
 		[Test]
 		public void GetUiLanguages_AzeriHasHackedNativeName()
 		{
+			// Check if the OS includes 'az' culture - Ubuntu 12.04 Precise doesn't
+			if (!CultureInfo.GetCultures(CultureTypes.NeutralCultures).Select(c => c.Name == "az").Any())
+				Assert.Ignore("Test requires the availability of the 'az' culture");
+
 			var cultures = LocalizationManager.GetUILanguages(false);
 			Assert.AreEqual("Azərbaycan dili", cultures.Where(c => c.Name == "az").Select(c => c.NativeName).FirstOrDefault());
 		}
