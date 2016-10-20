@@ -612,6 +612,7 @@ namespace L10NSharp
 					else
 					{
 						newNode = new LocTreeNode(OwningManager, groupChain[i], null, nodeKey);
+						nodeCollection.Add(newNode);
 						nodeCollection = newNode.Nodes;
 					}
 				}
