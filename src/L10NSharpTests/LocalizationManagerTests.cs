@@ -256,7 +256,7 @@ namespace L10NSharp.Tests
 		/// - Sets the UI language
 		/// - Constructs a LocalizationManager and adds it to LocalizationManager.LoadedManagers[AppId]
 		/// </summary>
-		private static void SetupManager(TempFolder folder, string uiLanguageId = null)
+		internal static LocalizationManager SetupManager(TempFolder folder, string uiLanguageId = null)
 		{
 			AddEnglishTmx(GetInstalledDirectory(folder), AppVersion);
 			AddArabicTmx(GetInstalledDirectory(folder));
@@ -268,6 +268,7 @@ namespace L10NSharp.Tests
 
 			// REVIEW (Hasso) 2015.01: Since AppId is static, I wonder what conflicts this may cause (even though each test has its own TempFolder)
 			LocalizationManager.LoadedManagers[AppId] = manager;
+			return manager;
 		}
 
 		private static string GetInstalledDirectory(TempFolder parentDir)
