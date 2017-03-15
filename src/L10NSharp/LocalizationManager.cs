@@ -372,6 +372,24 @@ namespace L10NSharp
 				   orderby ci.DisplayName
 				   select ci;
 		}
+
+		/// <summary>
+		/// Return the language tags for those languages that have been localized for the given program
+		/// in its localization folder.
+		/// </summary>
+		public static IEnumerable<string> GetAvailableUILanguageTags(string localizationFolder, string programName)
+		{
+			var tags = new List<string>();
+			if (!Directory.Exists(localizationFolder))
+				return tags;
+			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*.tmx"))
+			{
+				var filename = Path.GetFileNameWithoutExtension(filepath);
+				var tag = filename.Substring(programName.Length + 1);
+				tags.Add(tag);
+			}
+			return tags;
+		}
 		#endregion
 
 		#region Methods for showing localization dialog box

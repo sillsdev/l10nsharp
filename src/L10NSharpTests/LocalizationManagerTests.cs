@@ -481,5 +481,18 @@ namespace L10NSharp.Tests
 			return tu;
 		}
 
+		[Test]
+		public void GetAvailableUILanguageTags_FindsThreeLanguages()
+		{
+			using (var folder = new TempFolder("GetAvailableUILanguageTags_FindsThreeLanguages"))
+			{
+				SetupManager(folder, "en");
+				var tags = LocalizationManager.GetAvailableUILanguageTags(GetInstalledDirectory(folder), AppId).ToArray();
+				Assert.That(tags.Length, Is.EqualTo(3));
+				Assert.That(tags.Contains("ar"), Is.True);
+				Assert.That(tags.Contains("en"), Is.True);
+				Assert.That(tags.Contains("fr"), Is.True);
+			}
+		}
 	}
 }
