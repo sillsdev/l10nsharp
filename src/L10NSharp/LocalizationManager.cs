@@ -857,9 +857,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText)
+		public static string GetString(string stringId, string englishText)
 		{
-			return GetString(id, englishText, null, null, null, null);
+			return GetString(stringId, englishText, null, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -868,9 +868,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment)
+		public static string GetString(string stringId, string englishText, string comment)
 		{
-			return GetString(id, englishText, comment, null, null, null);
+			return GetString(stringId, englishText, comment, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -879,9 +879,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment, IComponent component)
+		public static string GetString(string stringId, string englishText, string comment, IComponent component)
 		{
-			return GetString(id, englishText, comment, null, null, component);
+			return GetString(stringId, englishText, comment, null, null, component);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -890,25 +890,55 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment, string englishToolTipText,
-			string englishShortcutKey, IComponent component)
+		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
+			string englishShortcutKey, IComponent component, string languageId=null)
 		{
 			if (component != null)
 			{
 				var lm = GetLocalizationManagerForComponent(component) ??
-					GetLocalizationManagerForString(id);
+					GetLocalizationManagerForString(stringId);
 
 				if (lm != null)
 				{
-					lm.RegisterComponentForLocalizing(component, id, englishText,
+					lm.RegisterComponentForLocalizing(component, stringId, englishText,
 						englishToolTipText, englishShortcutKey, comment);
 
-					return lm.GetLocalizedString(id, englishText);
+					return lm.GetLocalizedString(stringId, englishText);
 				}
 			}
 
-			return GetStringFromAnyLocalizationManager(id) ??
+			return GetStringFromAnyLocalizationManager(stringId) ??
 				StripOffLocalizationInfoFromText(englishText);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a string for the specified string id, in the specified language, or the 
+		/// englishText if that wasn't found. Prefers the englishText passed here to one that
+		/// we might have got out of a tmx, as is the non-obvious-but-ultimately-correct
+		/// policy for this library.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string stringId, string englishText, string comment, IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		{
+			if(preferredLanguageIds.Count() == 0)
+				throw new ArgumentException("preferredLanguageIds was empty");
+
+			if(string.IsNullOrEmpty(englishText))
+				throw new ArgumentException("englishText may not be empty (because common... that can't be what you meant to do...");
+
+			var r = GetStringFromAnyLocalizationManager(stringId, preferredLanguageIds, out languageIdUsed);
+
+			//even if found in English tmx, we prefer to use the version that came from the code
+			if (languageIdUsed == "en" || string.IsNullOrEmpty(r))
+			{
+				languageIdUsed = "en";
+				return StripOffLocalizationInfoFromText(englishText);
+			}
+			else
+			{
+				return r;
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1013,7 +1043,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForLangAndId(langId, id,false))
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, id,false))
 				.FirstOrDefault(txt => txt != null) != null;
 		}
 
@@ -1029,15 +1059,35 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private static string GetStringFromAnyLocalizationManager(string id)
+		private static string GetStringFromAnyLocalizationManager(string stringId)
 		{
+			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the 
+			// English from the program source to the English from the tmx.
+
 			// This will enforce that the text to localize is just returned to the caller
 			// when the default language id is the same as the current UI langauge id.
 			if (UILanguageId == kDefaultLang)
 				return null;
 
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(UILanguageId, id))
-				.FirstOrDefault(text => text != null);
+			string languageIdUsed;
+			return GetStringFromAnyLocalizationManager(stringId, new [] {UILanguageId}, out languageIdUsed);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private static string GetStringFromAnyLocalizationManager(string stringId, IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		{
+			foreach(var langId in preferredLanguageIds)
+			{
+				var bestAnswer = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, stringId, true))
+					.FirstOrDefault(text => text != null);
+				if(!string.IsNullOrEmpty(bestAnswer))
+				{
+					languageIdUsed = langId;
+					return bestAnswer;
+				}
+			}
+			languageIdUsed = null;
+			return null;
 		}
 
 		/// ------------------------------------------------------------------------------------
