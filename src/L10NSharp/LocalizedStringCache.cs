@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -354,9 +354,9 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal bool DoTranslationsExist(string langId, string id)
 		{
-			var text = GetValueForLangAndId(langId, id, false);
-			var toolTip = GetValueForLangAndId(langId, id + kToolTipSuffix, false);
-			var shortcutKeys = GetValueForLangAndId(langId, id + kShortcutSuffix, false);
+			var text = GetValueForExactLangAndId(langId, id, false);
+			var toolTip = GetValueForExactLangAndId(langId, id + kToolTipSuffix, false);
+			var shortcutKeys = GetValueForExactLangAndId(langId, id + kShortcutSuffix, false);
 
 			return (!String.IsNullOrEmpty(text) || !String.IsNullOrEmpty(toolTip) ||
 				!String.IsNullOrEmpty(shortcutKeys));
@@ -382,7 +382,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetString(string langId, string id, bool formatForDisplay)
 		{
-			return GetValueForLangAndId(langId, id, formatForDisplay);
+			return GetValueForExactLangAndId(langId, id, formatForDisplay);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -404,7 +404,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetToolTipText(string langId, string id, bool formatForDisplay)
 		{
-			return GetValueForLangAndId(langId, id + kToolTipSuffix, formatForDisplay);
+			return GetValueForExactLangAndId(langId, id + kToolTipSuffix, formatForDisplay);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetShortcutKeysText(string langId, string id)
 		{
-			return GetValueForLangAndId(langId, id + kShortcutSuffix, false);
+			return GetValueForExactLangAndId(langId, id + kShortcutSuffix, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -437,18 +437,18 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private string GetValueForLangAndIdWithFallback(string langId, string id)
 		{
-			var value = GetValueForLangAndId(langId, id, true);
+			var value = GetValueForExactLangAndId(langId, id, true);
 			if (value != null)
 				return value;
 
 			foreach (var fallbackLangId in LocalizationManager.FallbackLanguageIds)
 			{
-				value = GetValueForLangAndId(fallbackLangId, id, true);
+				value = GetValueForExactLangAndId(fallbackLangId, id, true);
 				if (value != null)
 					return value;
 			}
 
-			return GetValueForLangAndId(LocalizationManager.kDefaultLang, id, true);
+			return GetValueForExactLangAndId(LocalizationManager.kDefaultLang, id, true);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -458,7 +458,7 @@ namespace L10NSharp
 		/// nicely at runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal string GetValueForLangAndId(string langId, string id, bool formatForDisplay)
+		internal string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
 		{
 			var tu = TmxDocument.GetTransUnitForId(id);
 			if (tu == null)

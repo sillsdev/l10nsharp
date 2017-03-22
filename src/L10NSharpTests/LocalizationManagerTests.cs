@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -188,6 +188,27 @@ namespace L10NSharp.Tests
 			{
 				SetupManager(folder, "en");
 				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
+			}
+		}
+
+		//cases where we expect to get back the english in the code
+		[TestCase("en", new []{"en"}, "blahInEnglishCode", "en")]
+		[TestCase("fr", new[] { "en", "fr" }, "blahInEnglishCode", "en")]
+		[TestCase("aa", new[] { "ar", "en" }, "blahInEnglishCode", "en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase("bb", new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en")]
+		//cases where we expect to get back the French
+		[TestCase("cc", new[] { "fr" }, "blahInFrench", "fr")]
+		[TestCase("dd", new[] { "fr", "en" }, "blahInFrench", "fr")]
+		[TestCase("ee", new[] { "ar", "fr", "en" }, "blahInFrench", "fr")] // our arabic doesn't have a translation of 'blah', so fall to French
+		public void GetString_OverloadThatTakesListOfLanguages_Works(string uiLanguageIdShouldBeIrrelevant, IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
+		{
+			using(var folder = new TempFolder("GetString"))
+			{
+				SetupManager(folder, uiLanguageIdShouldBeIrrelevant);
+				string languageFound;
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", preferredLangIds, out languageFound);
+				Assert.AreEqual(expectedResult, result);
+				Assert.AreEqual(expectedLanguage, languageFound);
 			}
 		}
 
