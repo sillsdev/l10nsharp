@@ -192,14 +192,14 @@ namespace L10NSharp.Tests
 		}
 
 		//cases where we expect to get back the english in the code
-		[TestCase("en", new []{"en"}, "blahInEnglishCode", "en")]
+		[TestCase("en", new[] { "en" }, "blahInEnglishCode", "en")]
 		[TestCase("fr", new[] { "en", "fr" }, "blahInEnglishCode", "en")]
-		[TestCase("aa", new[] { "ar", "en" }, "blahInEnglishCode", "en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
-		[TestCase("bb", new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en")]
+		[TestCase("af", new[] { "ar", "en" }, "blahInEnglishCode", "en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase("cy", new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en")]
 		//cases where we expect to get back the French
-		[TestCase("cc", new[] { "fr" }, "blahInFrench", "fr")]
-		[TestCase("dd", new[] { "fr", "en" }, "blahInFrench", "fr")]
-		[TestCase("ee", new[] { "ar", "fr", "en" }, "blahInFrench", "fr")] // our arabic doesn't have a translation of 'blah', so fall to French
+		[TestCase("wo", new[] { "fr" }, "blahInFrench", "fr")]
+		[TestCase("xh", new[] { "fr", "en" }, "blahInFrench", "fr")]
+		[TestCase("ii", new[] { "ar", "fr", "en" }, "blahInFrench", "fr")] // our arabic doesn't have a translation of 'blah', so fall to French
 		public void GetString_OverloadThatTakesListOfLanguages_Works(string uiLanguageIdShouldBeIrrelevant, IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
 		{
 			using(var folder = new TempFolder("GetString"))
