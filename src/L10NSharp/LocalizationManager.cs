@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -234,7 +234,7 @@ namespace L10NSharp
 				Directory.CreateDirectory(dir);
 
 			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
-			if(!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
+			if (!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 			{
 				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
 			}
@@ -247,7 +247,7 @@ namespace L10NSharp
 				if (header != null)
 				{
 					verElement = header.Elements("prop")
-						.FirstOrDefault(e => (string) e.Attribute("type") == kAppVersionPropTag);
+						.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 				}
 
 				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
@@ -332,8 +332,8 @@ namespace L10NSharp
 
 			// first, get all installed cultures
 			var allCultures = from ci in L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures)
-					where ci.TwoLetterISOLanguageName != "iv"
-					select ci;
+							  where ci.TwoLetterISOLanguageName != "iv"
+							  select ci;
 
 			// second, group by ISO 3 letter language code
 			var groups = allCultures.GroupBy(c => c.ThreeLetterISOLanguageName);
@@ -360,7 +360,7 @@ namespace L10NSharp
 					// (short of at least a major change of API).
 					return null; // to the Select; filtered out below
 				}
-			}).Where(ci =>ci != null));
+			}).Where(ci => ci != null));
 
 			if (!returnOnlyLanguagesHavingLocalizations)
 				return from ci in allLangs
@@ -452,9 +452,9 @@ namespace L10NSharp
 						return s_uiLangId;
 					// Otherwise, we want the culture.neutral version.
 #endif
-					int i = s_uiLangId.IndexOf ('-');
+					int i = s_uiLangId.IndexOf('-');
 					if (i >= 0)
-						s_uiLangId = s_uiLangId.Substring (0, i);
+						s_uiLangId = s_uiLangId.Substring(0, i);
 				}
 
 				return s_uiLangId;
@@ -532,21 +532,21 @@ namespace L10NSharp
 				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
 				string langId;
 				if (_customTmxFileFolder != null && Directory.Exists(_customTmxFileFolder))
-				foreach (var tmxFile in Directory.GetFiles(_customTmxFileFolder, Id + ".*.tmx"))
-				{
-					langId = GetLangIdFromTmxFileName(tmxFile);
-					if (langId != kDefaultLang) // should never happen for customized languages
+					foreach (var tmxFile in Directory.GetFiles(_customTmxFileFolder, Id + ".*.tmx"))
 					{
-						langIdsOfCustomizedLocales.Add(langId);
-						yield return tmxFile;
+						langId = GetLangIdFromTmxFileName(tmxFile);
+						if (langId != kDefaultLang) // should never happen for customized languages
+						{
+							langIdsOfCustomizedLocales.Add(langId);
+							yield return tmxFile;
+						}
 					}
-				}
 				if (_installedTmxFileFolder != null)
 				{
 					foreach (var tmxFile in Directory.GetFiles(_installedTmxFileFolder, Id + ".*.tmx"))
 					{
 						langId = GetLangIdFromTmxFileName(tmxFile);
-						if (  langId != kDefaultLang &&    //Don't return the english TMX here because we separately process it first.
+						if (langId != kDefaultLang &&    //Don't return the english TMX here because we separately process it first.
 							!langIdsOfCustomizedLocales.Contains(langId))
 							yield return tmxFile;
 					}
@@ -617,9 +617,9 @@ namespace L10NSharp
 			}
 			catch (Exception)
 			{
-				#if DEBUG
+#if DEBUG
 				throw; // if you hit this ( Index was outside the bounds of the array) try to figure out why. What is the hash (?) value for the component?
-				#endif
+#endif
 			}
 		}
 
@@ -857,9 +857,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText)
+		public static string GetString(string stringId, string englishText)
 		{
-			return GetString(id, englishText, null, null, null, null);
+			return GetString(stringId, englishText, null, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -868,9 +868,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment)
+		public static string GetString(string stringId, string englishText, string comment)
 		{
-			return GetString(id, englishText, comment, null, null, null);
+			return GetString(stringId, englishText, comment, null, null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -879,9 +879,9 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment, IComponent component)
+		public static string GetString(string stringId, string englishText, string comment, IComponent component)
 		{
-			return GetString(id, englishText, comment, null, null, component);
+			return GetString(stringId, englishText, comment, null, null, component);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -890,25 +890,55 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string id, string englishText, string comment, string englishToolTipText,
+		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
 			if (component != null)
 			{
 				var lm = GetLocalizationManagerForComponent(component) ??
-					GetLocalizationManagerForString(id);
+					GetLocalizationManagerForString(stringId);
 
 				if (lm != null)
 				{
-					lm.RegisterComponentForLocalizing(component, id, englishText,
+					lm.RegisterComponentForLocalizing(component, stringId, englishText,
 						englishToolTipText, englishShortcutKey, comment);
 
-					return lm.GetLocalizedString(id, englishText);
+					return lm.GetLocalizedString(stringId, englishText);
 				}
 			}
 
-			return GetStringFromAnyLocalizationManager(id) ??
+			return GetStringFromAnyLocalizationManager(stringId) ??
 				StripOffLocalizationInfoFromText(englishText);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a string for the specified string id, in the specified language, or the
+		/// englishText if that wasn't found. Prefers the englishText passed here to one that
+		/// we might have got out of a tmx, as is the non-obvious-but-ultimately-correct
+		/// policy for this library.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static string GetString(string stringId, string englishText, string comment, IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		{
+			if (preferredLanguageIds.Count() == 0)
+				throw new ArgumentException("preferredLanguageIds was empty");
+
+			if (string.IsNullOrEmpty(englishText))
+				throw new ArgumentException("englishText may not be empty (because common... that can't be what you meant to do...");
+
+			var r = GetStringFromAnyLocalizationManager(stringId, preferredLanguageIds, out languageIdUsed);
+
+			//even if found in English tmx, we prefer to use the version that came from the code
+			if (languageIdUsed == "en" || string.IsNullOrEmpty(r))
+			{
+				languageIdUsed = "en";
+				return StripOffLocalizationInfoFromText(englishText);
+			}
+			else
+			{
+				return r;
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -934,7 +964,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicString(string appId, string id, string englishText, string comment)
 		{
-			return GetDynamicStringOrEnglish(appId,id,englishText,comment, UILanguageId);
+			return GetDynamicStringOrEnglish(appId, id, englishText, comment, UILanguageId);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -954,7 +984,7 @@ namespace L10NSharp
 			//this happens in unit test environments or apps that
 			//have imported a library that is L10N'ized, but the app
 			//itself isn't initializing L10N yet.
-			if(LoadedManagers.Count==0)
+			if (LoadedManagers.Count == 0)
 			{
 				return id;
 			}
@@ -972,7 +1002,7 @@ namespace L10NSharp
 			// recover the TMX version, we will retrieve that if no default is provided.
 			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX
 			if (langId != "en" || englishText == null)
-				{
+			{
 				var text = lm.GetStringFromStringCache(langId, id);
 				if (text != null)
 					return text;
@@ -1013,7 +1043,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForLangAndId(langId, id,false))
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, id, false))
 				.FirstOrDefault(txt => txt != null) != null;
 		}
 
@@ -1029,15 +1059,35 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private static string GetStringFromAnyLocalizationManager(string id)
+		private static string GetStringFromAnyLocalizationManager(string stringId)
 		{
+			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the 
+			// English from the program source to the English from the tmx.
+
 			// This will enforce that the text to localize is just returned to the caller
 			// when the default language id is the same as the current UI langauge id.
 			if (UILanguageId == kDefaultLang)
 				return null;
 
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetString(UILanguageId, id))
-				.FirstOrDefault(text => text != null);
+			string languageIdUsed;
+			return GetStringFromAnyLocalizationManager(stringId, new[] { UILanguageId }, out languageIdUsed);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private static string GetStringFromAnyLocalizationManager(string stringId, IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		{
+			foreach (var langId in preferredLanguageIds)
+			{
+				var bestAnswer = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, stringId, true))
+					.FirstOrDefault(text => text != null);
+				if (!string.IsNullOrEmpty(bestAnswer))
+				{
+					languageIdUsed = langId;
+					return bestAnswer;
+				}
+			}
+			languageIdUsed = null;
+			return null;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1144,7 +1194,7 @@ namespace L10NSharp
 			for (int i = 0; i < controls.Length; i++)
 			{
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, controls[i].Value);
-				if(!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
+				if (!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
 					ApplyLocalizedToolTipToControl((Control)controls[i].Key, toolTipText);
 			}
 		}
@@ -1387,7 +1437,7 @@ namespace L10NSharp
 				tsddi = tsddi.OwnerItem as ToolStripDropDownItem;
 			}
 
-			LocalizeItemDlg.ShowDialog(this, (IComponent) sender, false);
+			LocalizeItemDlg.ShowDialog(this, (IComponent)sender, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
