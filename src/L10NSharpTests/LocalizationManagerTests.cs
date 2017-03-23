@@ -192,19 +192,19 @@ namespace L10NSharp.Tests
 		}
 
 		//cases where we expect to get back the english in the code
-		[TestCase("en", new[] { "en" }, "blahInEnglishCode", "en")]
-		[TestCase("fr", new[] { "en", "fr" }, "blahInEnglishCode", "en")]
-		[TestCase("af", new[] { "ar", "en" }, "blahInEnglishCode", "en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
-		[TestCase("cy", new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en")]
+		[TestCase(new[] { "en" }, "blahInEnglishCode", "en")]
+		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en")]
+		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en")]
 		//cases where we expect to get back the French
-		[TestCase("wo", new[] { "fr" }, "blahInFrench", "fr")]
-		[TestCase("xh", new[] { "fr", "en" }, "blahInFrench", "fr")]
-		[TestCase("ii", new[] { "ar", "fr", "en" }, "blahInFrench", "fr")] // our arabic doesn't have a translation of 'blah', so fall to French
-		public void GetString_OverloadThatTakesListOfLanguages_Works(string uiLanguageIdShouldBeIrrelevant, IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
+		[TestCase(new[] { "fr" }, "blahInFrench", "fr")]
+		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr")]
+		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr")] // our arabic doesn't have a translation of 'blah', so fall to French
+		public void GetString_OverloadThatTakesListOfLanguages_Works(IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
 		{
 			using(var folder = new TempFolder("GetString"))
 			{
-				SetupManager(folder, uiLanguageIdShouldBeIrrelevant);
+				SetupManager(folder, "ii" /* UI language not important */);
 				string languageFound;
 				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", preferredLangIds, out languageFound);
 				Assert.AreEqual(expectedResult, result);
