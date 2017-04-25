@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -188,6 +188,29 @@ namespace L10NSharp.Tests
 			{
 				SetupManager(folder, "en");
 				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
+			}
+		}
+
+		//NOTE: the TestName parameter is only here to work around an NUnit bug in which 
+		//NUnit doesn't run alll the test cases when some differ only by the values in an array parameter
+		//cases where we expect to get back the english in the code
+		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_1")]
+		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_2")]
+		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_3")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_4")]
+		//cases where we expect to get back the French
+		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_5")]
+		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_6")]
+		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_7")] // our arabic doesn't have a translation of 'blah', so fall to French
+		public void GetString_OverloadThatTakesListOfLanguages_Works(IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
+		{
+			using(var folder = new TempFolder("GetString"))
+			{
+				SetupManager(folder, "ii" /* UI language not important */);
+				string languageFound;
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", preferredLangIds, out languageFound);
+				Assert.AreEqual(expectedResult, result);
+				Assert.AreEqual(expectedLanguage, languageFound);
 			}
 		}
 
@@ -481,5 +504,18 @@ namespace L10NSharp.Tests
 			return tu;
 		}
 
+		[Test]
+		public void GetAvailableUILanguageTags_FindsThreeLanguages()
+		{
+			using (var folder = new TempFolder("GetAvailableUILanguageTags_FindsThreeLanguages"))
+			{
+				SetupManager(folder, "en");
+				var tags = LocalizationManager.GetAvailableUILanguageTags(GetInstalledDirectory(folder), AppId).ToArray();
+				Assert.That(tags.Length, Is.EqualTo(3));
+				Assert.That(tags.Contains("ar"), Is.True);
+				Assert.That(tags.Contains("en"), Is.True);
+				Assert.That(tags.Contains("fr"), Is.True);
+			}
+		}
 	}
 }
