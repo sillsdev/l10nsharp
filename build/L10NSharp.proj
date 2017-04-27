@@ -8,7 +8,12 @@
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
 	</PropertyGroup>
 
-	<UsingTask TaskName="NUnit3" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<UsingTask TaskName="NUnitTeamCity"
+		AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)"
+		Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
+	<UsingTask TaskName="NUnitTeamCity"
+		AssemblyFile="$(teamcity_agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll"
+		Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
 
 	<Target Name="Build">
 		<MSBuild Projects="$(RootDir)/$(Solution)"
@@ -24,26 +29,11 @@
 		<CallTarget Targets="TestOnly"/>
 	</Target>
 
-	<Target Name="TestOnly" DependsOnTargets="RunNUnit"/>
-
-	<Target Name="RunNUnit">
-		<NUnit3 Condition="'$(teamcity_version)' == ''"
+	<Target Name="TestOnly">
+		<NUnitTeamCity
 			Assemblies="@(TestAssemblies)"
-			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner.3.5.0/tools"
-			ExcludeCategory="$(excludedCategories)"
-			WorkingDirectory="$(RootDir)/output/$(Configuration)"
-			Force32Bit="$(useNUnit-x86)"
-			Verbose="true"
-			OutputXmlFile="$(RootDir)/output/$(Configuration)/TestResults.xml"
-			TeamCity="false"/>
-		<NUnit3 Condition="'$(teamcity_version)' != ''"
-			Assemblies="@(TestAssemblies)"
-			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner.3.5.0/tools"
-			ExcludeCategory="SkipOnTeamCity,$(excludedCategories)"
-			WorkingDirectory="$(RootDir)/output/$(Configuration)"
-			Force32Bit="$(useNUnit-x86)"
-			Verbose="true"
-			TeamCity="true"/>
+			ExcludeCategory="SkipOnTeamCity"
+			NUnitVersion="NUnit-2.6.2" />
 	</Target>
 
 </Project>
