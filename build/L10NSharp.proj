@@ -1,0 +1,49 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<RootDir Condition="'$(teamcity_version)' == '' Or '$(OS)'!='Windows_NT'">$(MSBuildProjectDirectory)\..</RootDir>
+		<RootDir Condition="'$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'">$(teamcity_build_checkoutDir)</RootDir>
+		<Solution>L10NSharp.sln</Solution>
+		<Configuration>Release</Configuration>
+		<MSBuildCommunityTasksPath>$(RootDir)/build</MSBuildCommunityTasksPath>
+	</PropertyGroup>
+
+	<UsingTask TaskName="NUnit3" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<Import Project="$(MSBuildCommunityTasksPath)/MSBuild.Community.Tasks.Targets"/>
+
+	<Target Name="Build">
+		<MSBuild Projects="$(RootDir)/$(Solution)"
+			Targets="Rebuild"
+			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+	<ItemGroup>
+		<TestAssemblies Include="$(RootDir)/output/$(Configuration)/L10NSharpTests.dll"/>
+	</ItemGroup>
+
+	<Target Name="Test" DependsOnTargets="Build">
+		<CallTarget Targets="TestOnly"/>
+	</Target>
+
+	<Target Name="TestOnly" DependsOnTargets="RunNUnit"/>
+
+	<Target Name="RunNUnit">
+		<NUnit3 Condition="'$(teamcity_version)' == ''"
+			Assemblies="@(TestAssemblies)"
+			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner.3.5.0/tools"
+			ExcludeCategory="$(excludedCategories)"
+			WorkingDirectory="$(RootDir)/output/$(Configuration)"
+			Force32Bit="$(useNUnit-x86)"
+			Verbose="true"
+			OutputXmlFile="$(RootDir)/output/$(Configuration)/TestResults.xml"
+			TeamCity="false"/>
+		<NUnit3 Condition="'$(teamcity_version)' != ''"
+			Assemblies="@(TestAssemblies)"
+			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner.3.5.0/tools"
+			ExcludeCategory="SkipOnTeamCity,$(excludedCategories)"
+			WorkingDirectory="$(RootDir)/output/$(Configuration)"
+			Force32Bit="$(useNUnit-x86)"
+			Verbose="true"
+			TeamCity="true"/>
+	</Target>
+
+</Project>
