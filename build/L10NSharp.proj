@@ -4,11 +4,9 @@
 		<RootDir Condition="'$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'">$(teamcity_build_checkoutDir)</RootDir>
 		<Solution>L10NSharp.sln</Solution>
 		<Configuration>Release</Configuration>
-		<MSBuildCommunityTasksPath>$(RootDir)/build</MSBuildCommunityTasksPath>
 	</PropertyGroup>
 
 	<UsingTask TaskName="NUnit3" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
-	<Import Project="$(MSBuildCommunityTasksPath)/MSBuild.Community.Tasks.Targets"/>
 
 	<Target Name="Build">
 		<MSBuild Projects="$(RootDir)/$(Solution)"
