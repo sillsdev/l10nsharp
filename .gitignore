@@ -9,3 +9,4 @@ bin/
 *Copy*.bat
 
 *.bak
+packages/
