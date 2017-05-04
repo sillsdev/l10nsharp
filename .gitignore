@@ -10,3 +10,4 @@ bin/
 
 *.bak
 packages/
+build/NuGet.exe

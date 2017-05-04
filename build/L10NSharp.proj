@@ -14,7 +14,9 @@
 		AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll"
 		Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
 
-	<Target Name="Build">
+	<Import Project="NuGet.targets"/>
+
+	<Target Name="Build" DependsOnTargets="RestorePackages">
 		<MSBuild Projects="$(RootDir)/$(Solution)"
 			Targets="Rebuild"
 			Properties="Configuration=$(Configuration)" />
