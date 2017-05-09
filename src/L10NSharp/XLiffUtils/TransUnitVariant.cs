@@ -16,12 +16,12 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace L10NSharp.TMXUtils
+namespace L10NSharp.XLiffUtils
 {
 	#region TransUnitVariant class
 	/// ----------------------------------------------------------------------------------------
 	[XmlType("source")]
-	public class TransUnitVariant : TMXBaseWithNotesAndProps
+	public class TransUnitVariant : XLiffBaseWithNotesAndProps
 	{
 		#region Properties
 		/// ------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ namespace L10NSharp.TMXUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("note")]
-		public List<TMXNote> Notes
+		public List<XLiffNote> Notes
 		{
 			get { return _notes; }
 			set { _notes = value; }
@@ -58,7 +58,7 @@ namespace L10NSharp.TMXUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("prop")]
-		public List<TMXProp> Props
+		public List<XLiffProp> Props
 		{
 			get { return _props; }
 			set { _props = value; }
@@ -70,32 +70,35 @@ namespace L10NSharp.TMXUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("seg")]
-		public TMXSegment Seg { get; set; }
+		public XLiffSegment Seg { get; set; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets or sets the value of the translation unit variant.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[XmlIgnore]
-		public string Value
-		{
-			get { return (Seg == null ? null : Seg.Value); }
-			set
-			{
-				if (Seg == null)
-					Seg = new TMXSegment();
+	    private string _value;
+        /// ------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets or sets the value of the translation unit variant.
+        /// </summary>
+        /// ------------------------------------------------------------------------------------
+        [XmlText]
+        public string Value
+        {
+            get { return _value; }
+            set { _value = value; }
+            //get { return (Seg == null ? null : Seg.Value); }
+            //set
+            //{
+            //	if (Seg == null)
+            //		Seg = new XLiffSegment();
 
-				Seg.Value = value;
-			}
-		}
+            //	Seg.Value = value;
+            //}
+        }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets a value indicating whether this instance is empty.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[XmlIgnore]
+        /// ------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether this instance is empty.
+        /// </summary>
+        /// ------------------------------------------------------------------------------------
+        [XmlIgnore]
 		public bool IsEmpty
 		{
 			get { return (string.IsNullOrEmpty(Value) && Notes.Count == 0 && Props.Count == 0); }
@@ -116,10 +119,10 @@ namespace L10NSharp.TMXUtils
 		//    DataType = tuv.DataType;
 
 		//    m_notes = (from note in tuv.Notes
-		//               select new TMXNote { Text = note.Text, Lang = note.Lang }).ToList();
+		//               select new XLiffNote { Text = note.Text, Lang = note.Lang }).ToList();
 
 		//    m_props = (from prop in tuv.Props
-		//               select new TMXProp { Type = prop.Type, Value = prop.Value, Lang = prop.Lang }).ToList();
+		//               select new XLiffProp { Type = prop.Type, Value = prop.Value, Lang = prop.Lang }).ToList();
 		//}
 
 		/// ------------------------------------------------------------------------------------

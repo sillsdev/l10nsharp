@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using L10NSharp.TMXUtils;
+using L10NSharp.XLiffUtils;
 using L10NSharp.UI;
 using NUnit.Framework;
 
@@ -42,7 +42,7 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		/// On Linux, we crash trying to generate TMX files, leaving an empty file in the Generated folder.
+		/// On Linux, we crash trying to generate XLIFF files, leaving an empty file in the Generated folder.
 		/// Copy the installed file over the empty generated file in this case.
 		/// </summary>
 		[Test]
@@ -310,9 +310,9 @@ namespace L10NSharp.Tests
 
 		private static void AddEnglishTmx(string folderPath, string appVersion)
 		{
-			var englishDoc = new TMXDocument {Header = {SourceLang = "en"}};
+			var englishDoc = new XLiffDocument { File = {SourceLang = "en"}};
 			if (!String.IsNullOrEmpty(appVersion))
-				englishDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, appVersion);
+				englishDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, appVersion);
 			// first unit
 			var variants = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English TMX"}};
 			var tu = new TransUnit
@@ -324,7 +324,7 @@ namespace L10NSharp.Tests
 			englishDoc.AddTransUnit(tu);
 			// second unit
 			var variants2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
-			var prop = new TMXProp();
+			var prop = new XLiffProp();
 			prop.Type = LocalizedStringCache.kNoLongerUsedPropTag;
 			prop.Value = "true";
 			var tu2 = new TransUnit
@@ -347,7 +347,7 @@ namespace L10NSharp.Tests
 
 		private static void AddArabicTmx(string folderPath)
 		{
-			var arabicDoc = new TMXDocument {Header = {SourceLang = "ar"}};
+			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
 
 			// first unit
 			var variants = new List<TransUnitVariant>
@@ -383,7 +383,7 @@ namespace L10NSharp.Tests
 
 		private static void AddFrenchTmx(string folderPath)
 		{
-			var doc = new TMXDocument {Header = {SourceLang = "fr"}};
+			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
 
 			// first unit
 			var variants = new List<TransUnitVariant>
@@ -469,18 +469,18 @@ namespace L10NSharp.Tests
 
 		private static void MakeEnglishTmxWithApparentOrphan(TempFolder folder)
 		{
-			var englishDoc = new TMXDocument {Header = {SourceLang = "en"}};
-			englishDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
-			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
-			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
+			var englishDoc = new XLiffDocument { File = {SourceLang = "en"}};
+			englishDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
+			//englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
+			//englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
 			Directory.CreateDirectory(GetInstalledDirectory(folder));
 			englishDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetTmxFileNameForLanguage(AppId, "en")));
 		}
 
 		private static void MakeArabicTmxWithApparentOrphans(TempFolder folder, string englishForObsoleteTitle)
 		{
-			var arabicDoc = new TMXDocument { Header = { SourceLang = "ar" } };
-			arabicDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
+			var arabicDoc = new XLiffDocument { File = { SourceLang = "ar" } };
+			arabicDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
 			// Note that we do NOT have arabic for SuperClassMethod.TestId. We may end up getting a translation from the orphan, however.
 			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title", "Title in Arabic", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English TMX has this too
 			// Interpreted as an orphan iff englishForObsoleteTitle is "Title" (matching the English for SuperClassMethod.TestId)

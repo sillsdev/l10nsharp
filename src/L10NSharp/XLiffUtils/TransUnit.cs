@@ -17,12 +17,12 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace L10NSharp.TMXUtils
+namespace L10NSharp.XLiffUtils
 {
 	#region TransUnit class
 	/// ----------------------------------------------------------------------------------------
 	[XmlType("trans-unit")]
-	public class TransUnit : TMXBaseWithNotesAndProps
+	public class TransUnit : XLiffBaseWithNotesAndProps
 	{
 		/// ------------------------------------------------------------------------------------
 		public TransUnit()
@@ -33,16 +33,24 @@ namespace L10NSharp.TMXUtils
 		#region Properties
 
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("tuid")]
+		[XmlAttribute("id")]
 		public string Id { get; set; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the list of translation unit.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[XmlElement("note")]
-		public List<TMXNote> Notes
+        /// ------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the type of translation unit.
+        /// </summary>
+        /// ------------------------------------------------------------------------------------
+        [XmlElement("extype")]
+        public string Type { get; set; }
+
+        /// ------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets the list of translation unit.
+        /// </summary>
+        /// ------------------------------------------------------------------------------------
+        [XmlElement("note")]
+		public List<XLiffNote> Notes
 		{
 			get { return _notes; }
 			set { _notes = value; }
@@ -54,7 +62,7 @@ namespace L10NSharp.TMXUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("prop")]
-		public List<TMXProp> Props
+		public List<XLiffProp> Props
 		{
 			get { return _props; }
 			set { _props = value; }
@@ -68,12 +76,25 @@ namespace L10NSharp.TMXUtils
 		[XmlElement("source")]
 		public List<TransUnitVariant> Variants { get; set; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets a value indicating whether this instance is empty.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[XmlIgnore]
+        //[XmlIgnore]
+        //public string Value
+        //{
+        //    get { return (Seg == null ? null : Variants.ToString()); }
+        //    set
+        //    {
+        //        if (Seg == null)
+        //            Seg = new XLiffSegment();
+
+        //        Seg.Value = value;
+        //    }
+        //}
+
+        /// ------------------------------------------------------------------------------------
+        /// <summary>
+        /// Gets a value indicating whether this instance is empty.
+        /// </summary>
+        /// ------------------------------------------------------------------------------------
+        [XmlIgnore]
 		public bool IsEmpty
 		{
 			get

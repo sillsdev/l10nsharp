@@ -8,149 +8,141 @@
 // </copyright>
 #endregion
 //
-// File: TransUnit.cs
+// File: XLiffSegment.cs
 //
 // <remarks>
 // </remarks>
 // ---------------------------------------------------------------------------------------------
-using System.Linq;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace L10NSharp.TMXUtils
+namespace L10NSharp.XLiffUtils
 {
-	#region TransUnit class
+	#region XLiffSegment class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("trans-unit")]
-	public class TransUnit : TMXBaseWithNotesAndProps
+	/// <summary>
+	/// This handles XLiff segments and just combines all the values from in-line elements. If
+	/// support for in-line elements is ever needed, then this class will need to be modified.
+	/// </summary>
+	/// ----------------------------------------------------------------------------------------
+	[XmlType("seg")]
+	public class XLiffSegment
 	{
-		/// ------------------------------------------------------------------------------------
-		public TransUnit()
-		{
-			Variants = new List<TransUnitVariant>();
-		}
+		private string m_seg;
 
 		#region Properties
-
-		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("tuid")]
-		public string Id { get; set; }
-
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation unit.
+		/// Gets or sets the value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("note")]
-		public List<TMXNote> Notes
+		[XmlText]
+		public string Value
 		{
-			get { return _notes; }
-			set { _notes = value; }
+			get { return m_seg; }
+			set { Append(value); }
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of props in the translation unit.
+		/// Gets or sets the BPT.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("prop")]
-		public List<TMXProp> Props
+		public string bpt
 		{
-			get { return _props; }
-			set { _props = value; }
+			get { return null; }
+			set { Append(value); }
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation unit.
+		/// Gets or sets the ept.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("source")]
-		public List<TransUnitVariant> Variants { get; set; }
+		public string ept
+		{
+			get { return null; }
+			set { Append(value); }
+		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a value indicating whether this instance is empty.
+		/// Gets or sets the hi.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlIgnore]
-		public bool IsEmpty
+		public string hi
 		{
-			get
-			{
-				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 &&
-					Props.Count == 0 && (Variants == null || Variants.Count == 0));
-			}
+			get { return null; }
+			set { Append(value); }
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets it.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string it
+		{
+			get { return null; }
+			set { Append(value); }
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the ph.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string ph
+		{
+			get { return null; }
+			set { Append(value); }
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the sub.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string sub
+		{
+			get { return null; }
+			set { Append(value); }
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the ut.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string ut
+		{
+			get { return null; }
+			set { Append(value); }
 		}
 
 		#endregion
 
-		#region Other Methods
-
-
+		#region Methods
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Adds a translation unit variant having the specified language id and value.
+		/// Appends the specified value to the segment.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool AddOrReplaceVariant(string langId, string value)
+		private void Append(string val)
 		{
-			var tuv = new TransUnitVariant();
-			tuv.Lang = langId;
-			tuv.Value = value;
-			return AddOrReplaceVariant(tuv);
+			if (m_seg == null)
+				m_seg = val;
+			else
+				m_seg += val;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Adds the specified variant.
-		/// </summary>
-		/// <param name="tuv">The variant.</param>
-		/// <returns>true if the variant was successfully added. Otherwise, false.</returns>
-		/// ------------------------------------------------------------------------------------
-		public bool AddOrReplaceVariant(TransUnitVariant tuv)
-		{
-			if (tuv == null || tuv.IsEmpty)
-				return false;
-
-			// If a variant exists for the specified language, then remove it first.
-			RemoveVariant(tuv.Lang);
-
-			Variants.Add(tuv);
-			return true;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Removes the specified translation unit variant.
+		/// Clears the value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RemoveVariant(TransUnitVariant tuv)
+		internal void ClearValue()
 		{
-			if (tuv != null)
-				RemoveVariant(tuv.Lang);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Removes the variant for the specified language.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void RemoveVariant(string langId)
-		{
-			TransUnitVariant tuv = GetVariantForLang(langId);
-			if (tuv != null)
-				Variants.Remove(tuv);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the translation unit variant for the specified language id.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public TransUnitVariant GetVariantForLang(string langId)
-		{
-			return Variants.FirstOrDefault(x => x.Lang == langId);
+			m_seg = null;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -160,7 +152,7 @@ namespace L10NSharp.TMXUtils
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{
-			return (IsEmpty ? "Empty" : Id);
+			return m_seg;
 		}
 
 		#endregion
