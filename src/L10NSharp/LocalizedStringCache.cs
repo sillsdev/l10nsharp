@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using L10NSharp.TMXUtils;
+using L10NSharp.XLiffUtils;
 using L10NSharp.UI;
 
 namespace L10NSharp
@@ -42,26 +42,24 @@ namespace L10NSharp
 
 		internal List<LocTreeNode> LeafNodeList { get; private set; }
 		internal LocalizationManager OwningManager { get; private set; }
-		public TMXDocument TmxDocument { get; private set; }
+		public XLiffDocument XliffDocument { get; private set; }
 
 		private HashSet<string> _englishTuIdsNoLongerUsed;
 
 		#region Loading methods
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Loads the string cache from all the specified tmx files
+		/// Loads the string cache from all the specified Xliff files
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal LocalizedStringCache(LocalizationManager owningManager)
 		{
 			OwningManager = owningManager;
-
-			TmxDocument = CreateEmptyStringFile();
-
+			XliffDocument = CreateEmptyStringFile();
 			_englishTuIdsNoLongerUsed = new HashSet<string>();
 			try
 			{
-				MergeTmxFilesIntoCache(OwningManager.TmxFilenamesToAddToCache);
+				MergeXliffFilesIntoCache(OwningManager.XliffFilenamesToAddToCache);
 			}
 			catch (Exception e)
 			{
@@ -70,13 +68,13 @@ namespace L10NSharp
 				LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
 			}
 
-			_tuUpdater = new TransUnitUpdater(TmxDocument);
+			_tuUpdater = new TransUnitUpdater(XliffDocument);
 
-			var replacement = TmxDocument.Header.GetPropValue("x-ampersandreplacement");
+			var replacement = XliffDocument.File.GetPropValue("x-ampersandreplacement");
 			if (replacement != null)
 				_ampersandReplacement = replacement;
 
-			replacement = TmxDocument.Header.GetPropValue(kHardLineBreakReplacementProperty);
+			replacement = XliffDocument.File.GetPropValue(kHardLineBreakReplacementProperty);
 			if (replacement != null)
 				s_literalNewline = replacement;
 
@@ -85,32 +83,32 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void MergeTmxFilesIntoCache(IEnumerable<string> tmxFiles)
+		private void MergeXliffFilesIntoCache(IEnumerable<string> xliffFiles)
 		{
-			var defaultTmxDoc = TMXDocument.Read(OwningManager.DefaultStringFilePath);
-			foreach (var tu in defaultTmxDoc.Body.TransUnits)
+			var defaultxliffDoc = XLiffDocument.Read(OwningManager.DefaultStringFilePath);
+			foreach (var tu in defaultxliffDoc.File.TransUnits)
 			{
-				TmxDocument.Body.AddTransUnit(tu);
-				// If this TransUnit is marked NoLongerUsed in the English tmx, load its ID into the hashset
-				// so we don't display this string in case the currentUI tmx doesn't have it marked as
+				XliffDocument.File.AddTransUnit(tu);
+				// If this TransUnit is marked NoLongerUsed in the English Xliff, load its ID into the hashset
+				// so we don't display this string in case the currentUI Xliff doesn't have it marked as
 				// NoLongerUsed.
 				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
 					_englishTuIdsNoLongerUsed.Add(tu.Id);
 			}
-			// It's possible (I think when there is no customizable TMX, as on first install, but the version in the installed TMX
-			// is out of date with the app) that we don't have all the info from the installed TMX in the customizable one.
+			// It's possible (I think when there is no customizable Xliff, as on first install, but the version in the installed Xliff
+			// is out of date with the app) that we don't have all the info from the installed Xliff in the customizable one.
 			// We want to make sure that (a) any new dynamic strings in the installed one are considered valid by default
 			// (b) any newly obsolete IDs are noted.
 			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
 			{
-				var defaultInstalledTmxDoc = TMXDocument.Read(OwningManager.DefaultInstalledStringFilePath);
-				foreach (var tu in defaultInstalledTmxDoc.Body.TransUnits)
+				var defaultInstalledxliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
+				foreach (var tu in defaultInstalledxliffDoc.File.TransUnits)
 				{
-					TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, "en");
+					XliffDocument.File.AddTransUnitOrVariantFromExisting(tu, "en");
 					// also needed in this, to prevent things we find here from being considered orphans.
-					defaultTmxDoc.Body.AddTransUnitOrVariantFromExisting(tu, "en");
-					// If this TransUnit is marked NoLongerUsed in the English tmx, load its ID into the hashset
-					// so we don't display this string in case the currentUI tmx doesn't have it marked as
+					defaultxliffDoc.File.AddTransUnitOrVariantFromExisting(tu, "en");
+					// If this TransUnit is marked NoLongerUsed in the English Xliff, load its ID into the hashset
+					// so we don't display this string in case the currentUI Xliff doesn't have it marked as
 					// NoLongerUsed.
 					if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
 						_englishTuIdsNoLongerUsed.Add(tu.Id);
@@ -118,23 +116,23 @@ namespace L10NSharp
 			}
 			Exception error = null;
 			var stillNeedToLoadNoLongerUsed = _englishTuIdsNoLongerUsed.Count == 0;
-			foreach (var file in tmxFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
+			foreach (var file in xliffFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
 				try
 				{
-					var tmxDoc = TMXDocument.Read(file);
-					var langId = tmxDoc.Header.SourceLang;
-					foreach (var tu in tmxDoc.Body.TransUnits)
+					var xliffDoc = XLiffDocument.Read(file);
+					var langId = xliffDoc.File.SourceLang;
+					foreach (var tu in xliffDoc.File.TransUnits)
 					{
 						// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
-						// We assume the default language TMX has only current IDs, and therefore don't look for orphans in that case.
+						// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
 						// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
 						// was regarded as an obsolete id for PublishTab.Upload.Title
-						if (langId != LocalizationManager.kDefaultLang && defaultTmxDoc.GetTransUnitForId(tu.Id) == null &&
+						if (langId != LocalizationManager.kDefaultLang && defaultxliffDoc.GetTransUnitForId(tu.Id) == null &&
 							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 						{
 							//if we couldn't find it, maybe the id just changed and then if so re-id it.
-							var movedUnit = defaultTmxDoc.GetTransUnitForOrphan(tu);
+							var movedUnit = defaultxliffDoc.GetTransUnitForOrphan(tu);
 							if (movedUnit == null)
 							{
 								if (tu.GetPropValue(kDiscoveredDyanmically) == "true")
@@ -152,7 +150,7 @@ namespace L10NSharp
 							}
 						}
 
-						TmxDocument.Body.AddTransUnitOrVariantFromExisting(tu, langId);
+						XliffDocument.File.AddTransUnitOrVariantFromExisting(tu, langId);
 						if (stillNeedToLoadNoLongerUsed && langId == LocalizationManager.kDefaultLang &&
 							tu.GetPropValue(kNoLongerUsedPropTag) != null)
 							_englishTuIdsNoLongerUsed.Add(tu.Id);
@@ -168,7 +166,7 @@ namespace L10NSharp
 
 					// If error happened reading some localization file other than the one we care
 					// about right now, just ignore it.
-					if (file == OwningManager.GetTmxPathForLanguage(LocalizationManager.UILanguageId, false))
+					if (file == OwningManager.GetXliffPathForLanguage(LocalizationManager.UILanguageId, false))
 						error = e;
 	#endif
 				}
@@ -182,17 +180,20 @@ namespace L10NSharp
 		/// Creates an empty string file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal static TMXDocument CreateEmptyStringFile()
+		internal static XLiffDocument CreateEmptyStringFile()
 		{
-			var tmxDoc = new TMXDocument();
-			tmxDoc.Header.CreationTool = "Palaso Localization Manager";
-			tmxDoc.Header.CreationToolVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-			tmxDoc.Header.SourceLang = LocalizationManager.kDefaultLang;
-			tmxDoc.Header.AddProp(LocalizationManager.kAppVersionPropTag, "0.0.0");
-			tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);
-			//tmxDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
+			var xliffDoc = new XLiffDocument();
+			//xliffDoc.Header.CreationTool = "Palaso Localization Manager";
+			//xliffDoc.Header.CreationToolVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			xliffDoc.File.SourceLang = LocalizationManager.kDefaultLang;
+			xliffDoc.File.Notes.AddNote(LocalizationManager.kAppVersionPropTag, "0.0.0");
+			xliffDoc.File.Notes.AddNote(kHardLineBreakReplacementProperty, s_literalNewline);
 
-			return tmxDoc;
+			//xliffDoc.File.AddProp(LocalizationManager.kAppVersionPropTag, "0.0.0");
+			//xliffDoc.File.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);
+			//xliffDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
+
+			return xliffDoc;
 		}
 
 		#endregion
@@ -236,7 +237,7 @@ namespace L10NSharp
 
 			StringBuilder errorMsg = null;
 			// ToArray() prevents exception "Collection was modified" in rare cases (e.g., Bloom BL-2400).
-			foreach (var langId in TmxDocument.GetAllVariantLanguagesFound().ToArray())
+			foreach (var langId in XliffDocument.GetAllVariantLanguagesFound().ToArray())
 			{
 				try
 				{
@@ -253,7 +254,7 @@ namespace L10NSharp
 						}
 						errorMsg.AppendLine();
 						errorMsg.Append("File: ");
-						errorMsg.AppendLine(OwningManager.GetTmxPathForLanguage(langId, true));
+						errorMsg.AppendLine(OwningManager.GetXliffPathForLanguage(langId, true));
 						errorMsg.Append("Error Type: ");
 						errorMsg.AppendLine(e.GetType().ToString());
 						errorMsg.Append("Message: ");
@@ -271,28 +272,28 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private void SaveFileForLangId(string langId, bool forceCreation)
 		{
-			var tmxDoc = CreateEmptyStringFile();
-			tmxDoc.Header.SourceLang = langId;
-			tmxDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, OwningManager.AppVersion);
+			var xliffDoc = CreateEmptyStringFile();
+			xliffDoc.File.SourceLang = langId;
+			xliffDoc.File.Notes.AddNote(LocalizationManager.kAppVersionPropTag, OwningManager.AppVersion);
 
-			foreach (var tu in TmxDocument.Body.TransUnits)
+			foreach (var tu in XliffDocument.File.TransUnits)
 			{
 				var tuv = tu.GetVariantForLang(langId);
 				if (tuv == null)
 					continue;
 
 				var newTu = new TransUnit { Id = tu.Id };
-				tmxDoc.AddTransUnit(newTu);
+				xliffDoc.AddTransUnit(newTu);
 				newTu.AddOrReplaceVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
 				newTu.AddOrReplaceVariant(tuv);
 				newTu.Notes = tu.CopyNotes();
 				newTu.Props = tu.CopyProps();
 			}
-
-			tmxDoc.Body.TransUnits.Sort(TuComparer);
-
-			if (forceCreation || OwningManager.DoesCustomizedTmxExistForLanguage(langId))
-				tmxDoc.Save(OwningManager.GetTmxPathForLanguage(langId, true));
+			//xliffDoc.File.TransUnits = xliffDoc.File.TransUnits;
+			xliffDoc.File.TransUnits.Sort(TuComparer);
+			//xliffDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, OwningManager.AppVersion);
+			if (forceCreation || OwningManager.DoesCustomizedXliffExistForLanguage(langId))
+				xliffDoc.Save(OwningManager.GetXliffPathForLanguage(langId, true));
 		}
 
 		///// ------------------------------------------------------------------------------------
@@ -301,15 +302,15 @@ namespace L10NSharp
 		///// dirty and saved, then true is returned. Otherwise, false is returned.
 		///// </summary>
 		///// ------------------------------------------------------------------------------------
-		//private bool SaveIfDirty(string tmxFile)
+		//private bool SaveIfDirty(string XliffFile)
 		//{
-		//    if (!IsDirty || string.IsNullOrEmpty(tmxFile))
+		//    if (!IsDirty || string.IsNullOrEmpty(XliffFile))
 		//        return false;
 
-		//    //_tmxFile = tmxFile;
+		//    //_XliffFile = XliffFile;
 		//    IsDirty = false;
-		//    TmxDocument.Body.TransUnits.Sort(TuComparer);
-		//    TmxDocument.Save(tmxFile);
+		//    xliffDocument.File.TransUnits.Sort(TuComparer);
+		//    xliffDocument.Save(XliffFile);
 		//    return true;
 		//}
 
@@ -460,7 +461,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
 		{
-			var tu = TmxDocument.GetTransUnitForId(id);
+			var tu = XliffDocument.GetTransUnitForId(id);
 			if (tu == null)
 				return null;
 
@@ -491,7 +492,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetComment(string id)
 		{
-			TransUnit tu = TmxDocument.GetTransUnitForId(id);
+			TransUnit tu = XliffDocument.GetTransUnitForId(id);
 			return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
 		}
 
@@ -502,7 +503,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetGroup(string id)
 		{
-			TransUnit tu = TmxDocument.GetTransUnitForId(id);
+			TransUnit tu = XliffDocument.GetTransUnitForId(id);
 			return (tu == null ? null : tu.GetPropValue(kGroupPropTag));
 		}
 
@@ -513,7 +514,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationPriority GetPriority(string id)
 		{
-			TransUnit tu = TmxDocument.GetTransUnitForId(id);
+			TransUnit tu = XliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
 				string priority = tu.GetPropValue(kPriorityPropTag);
@@ -535,7 +536,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationCategory GetCategory(string id)
 		{
-			TransUnit tu = TmxDocument.GetTransUnitForId(id);
+			TransUnit tu = XliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
 				string category = tu.GetPropValue(kCategoryPropTag);
@@ -588,7 +589,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal void LoadGroupNodes(TreeNodeCollection topCollection)
 		{
-			TmxDocument.Body.TransUnits.Sort(TuComparer);
+			XliffDocument.File.TransUnits.Sort(TuComparer);
 			LeafNodeList.Clear();
 
 			foreach (var tu in GetTranslationUnitsForTree())
@@ -632,12 +633,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private IEnumerable<TransUnit> GetTranslationUnitsForTree()
 		{
-			foreach (var tu in TmxDocument.Body.TransUnits)
+			foreach (var tu in XliffDocument.File.TransUnits)
 			{
 				if (tu.GetPropValue(kNoLongerUsedPropTag) == "true")
 					continue;
 
-				// It's possible that this tmx file isn't up-to-date with which strings are No Longer Used
+				// It's possible that this Xliff file isn't up-to-date with which strings are No Longer Used
 				if (IsTranslationUnitNoLongerUsed(tu))
 				{
 					tu.SetPropValue(kNoLongerUsedPropTag, "true");
@@ -655,7 +656,7 @@ namespace L10NSharp
 				// skip the current tooltip or shortcutkeys translation unit since the base
 				// one is all that's needed in the tree.
 				var tmpId = GetBaseId(tu.Id);
-				if (TmxDocument.Body.TransUnits.Any(t => t.Id == tmpId))
+				if (XliffDocument.File.TransUnits.Any(t => t.Id == tmpId))
 					continue;
 
 				// At this point, we know there is not a base translation unit so return the
@@ -667,7 +668,7 @@ namespace L10NSharp
 				// translation unit is for a shortcutkeys. Therefore, only return the current
 				// translation unit if there is not associated tooltip translation unit.
 				tmpId = tu.Id.Replace(kShortcutSuffix, kToolTipSuffix);
-				if (!TmxDocument.Body.TransUnits.Any(t => t.Id == tmpId))
+				if (!XliffDocument.File.TransUnits.Any(t => t.Id == tmpId))
 					yield return tu;
 			}
 		}

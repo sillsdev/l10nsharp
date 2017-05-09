@@ -6,11 +6,11 @@ namespace L10NSharp.UI
 {
 	public partial class HowToDistributeDialog : Form
 	{
-		private readonly string _targetTmxFilePath;
+		private readonly string _targetXliffFilePath;
 
-		public HowToDistributeDialog(string emailForSubmissions, string targetTmxFilePath)
+		public HowToDistributeDialog(string emailForSubmissions, string targetXliffFilePath)
 		{
-			_targetTmxFilePath = targetTmxFilePath;
+			_targetXliffFilePath = targetXliffFilePath;
 			InitializeComponent();
 
 #if __MonoCS__
@@ -28,14 +28,14 @@ namespace L10NSharp.UI
 			_emailLabel.Text=emailForSubmissions;
 		}
 
-		private void OnShowTMXFile(object sender, LinkLabelLinkClickedEventArgs e)
+		private void OnShowXliffFile(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			var path = _targetTmxFilePath;
+			var path = _targetXliffFilePath;
 			if (Path.DirectorySeparatorChar != '/')
 				path = path.Replace('/', Path.DirectorySeparatorChar); //forward slashes kill the selection attempt and it opens in My Documents.
 			if (!File.Exists(path))
 			{
-				MessageBox.Show("Sorry, the TMX file hasn't been saved yet, so we can't show it to you yet.");
+				MessageBox.Show("Sorry, the Xliff file hasn't been saved yet, so we can't show it to you yet.");
 				return;
 			}
 			if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)

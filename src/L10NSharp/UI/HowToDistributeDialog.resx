@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label1.Text" xml:space="preserve">
-    <value>If you can't wait for a new version of the application installer to be published, you can still share your localization with others by placing a copy the TMX file into the same location on their computers.</value>
+    <value>If you can't wait for a new version of the application installer to be published, you can still share your localization with others by placing a copy the XLIFF file into the same location on their computers.</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
     <value>Note: If someone else is also translating into the same language, you could be duplicating or even deleting their work.  To reduce the risk of that, make sure you are using the latest version of this program before doing translation.</value>

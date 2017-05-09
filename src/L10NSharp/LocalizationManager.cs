@@ -36,9 +36,9 @@ namespace L10NSharp
 			new Dictionary<string, LocalizationManager>();
 
 		private static Icon _applicationIcon;
-		private readonly string _installedTmxFileFolder;
-		private readonly string _generatedDefaultTmxFileFolder;
-		private readonly string _customTmxFileFolder;
+		private readonly string _installedXliffFileFolder;
+		private readonly string _generatedDefaultXliffFileFolder;
+		private readonly string _customXliffFileFolder;
 
 		internal Dictionary<IComponent, string> ComponentCache { get; private set; }
 		internal Dictionary<Control, ToolTip> ToolTipCtrls { get; private set; }
@@ -60,7 +60,7 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
+		/// <param name="directoryOfInstalledXliffFiles">The full folder path of the original Xliff files
 		/// installed with the application.</param>
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
@@ -74,7 +74,7 @@ namespace L10NSharp
 		/// 'Pa', then this value would only contain the string 'Pa'.</param>
 		/// ------------------------------------------------------------------------------------
 		public static LocalizationManager Create(string desiredUiLangId, string appId,
-			string appName, string appVersion, string directoryOfInstalledTmxFiles,
+			string appName, string appVersion, string directoryOfInstalledXliffFiles,
 			string relativeSettingPathForLocalizationFolder,
 			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
@@ -86,14 +86,14 @@ namespace L10NSharp
 			else if (Path.IsPathRooted(relativeSettingPathForLocalizationFolder))
 				throw new ArgumentException("Relative (non-rooted) path expected", "relativeSettingPathForLocalizationFolder");
 
-			var directoryOfWritableTmxFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+			var directoryOfWritableXliffFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 				relativeSettingPathForLocalizationFolder, "localizations");
 
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
-				lm = new LocalizationManager(appId, appName, appVersion, directoryOfInstalledTmxFiles,
-					directoryOfWritableTmxFiles, directoryOfWritableTmxFiles, namespaceBeginnings);
+				lm = new LocalizationManager(appId, appName, appVersion, directoryOfInstalledXliffFiles,
+					directoryOfWritableXliffFiles, directoryOfWritableXliffFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
 			}
@@ -122,41 +122,41 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Now that L10NSharp creates all writable TMX files under LocalApplicationData
+		/// Now that L10NSharp creates all writable Xliff files under LocalApplicationData
 		/// instead of the common/shared AppData folder, applications can use this method to
-		/// purge old TMX files.</summary>
-		/// <param name="appId">ID of the application used for creating the TMX files (typically
+		/// purge old Xliff files.</summary>
+		/// <param name="appId">ID of the application used for creating the Xliff files (typically
 		/// the same ID passed as the 2nd parameter to LocalizationManager.Create).</param>
-		/// <param name="directoryOfWritableTmxFiles">Folder from which to delete TMX files.
+		/// <param name="directoryOfWritableXliffFiles">Folder from which to delete Xliff files.
 		/// </param>
-		/// <param name="directoryOfInstalledTmxFiles">Used to limit file deletion to only
-		/// include copies of the installed TMX files (plus the generated default file). If this
-		/// is <c>null</c>, then all TMX files for the given appID will be deleted from
-		/// <paramref name="directoryOfWritableTmxFiles"/></param>
+		/// <param name="directoryOfInstalledXliffFiles">Used to limit file deletion to only
+		/// include copies of the installed Xliff files (plus the generated default file). If this
+		/// is <c>null</c>, then all Xliff files for the given appID will be deleted from
+		/// <paramref name="directoryOfWritableXliffFiles"/></param>
 		/// ------------------------------------------------------------------------------------
-		public static void DeleteOldTmxFiles(string appId, string directoryOfWritableTmxFiles,
-			string directoryOfInstalledTmxFiles)
+		public static void DeleteOldXliffFiles(string appId, string directoryOfWritableXliffFiles,
+			string directoryOfInstalledXliffFiles)
 		{
 			//if (Assembly.GetEntryAssembly() == null)
 			//    return; // Probably being called in a unit test.
-			if (!Directory.Exists(directoryOfWritableTmxFiles))
+			if (!Directory.Exists(directoryOfWritableXliffFiles))
 				return; // Nothing to do.
 
-			var oldDefaultTmxFilePath = Path.Combine(directoryOfWritableTmxFiles, GetTmxFileNameForLanguage(appId, kDefaultLang));
-			if (!File.Exists(oldDefaultTmxFilePath))
+			var oldDefaultXliffFilePath = Path.Combine(directoryOfWritableXliffFiles, GetXliffFileNameForLanguage(appId, kDefaultLang));
+			if (!File.Exists(oldDefaultXliffFilePath))
 				return; // Cleanup was apparently done previously
 
-			File.Delete(oldDefaultTmxFilePath);
+			File.Delete(oldDefaultXliffFilePath);
 
-			foreach (var oldTmxFile in Directory.GetFiles(directoryOfWritableTmxFiles,
-				GetTmxFileNameForLanguage(appId, "*")))
+			foreach (var oldXliffFile in Directory.GetFiles(directoryOfWritableXliffFiles,
+				GetXliffFileNameForLanguage(appId, "*")))
 			{
-				var filename = Path.GetFileName(oldTmxFile);
-				if (string.IsNullOrEmpty(directoryOfInstalledTmxFiles) || File.Exists(Path.Combine(directoryOfInstalledTmxFiles, filename)))
+				var filename = Path.GetFileName(oldXliffFile);
+				if (string.IsNullOrEmpty(directoryOfInstalledXliffFiles) || File.Exists(Path.Combine(directoryOfInstalledXliffFiles, filename)))
 				{
 					try
 					{
-						File.Delete(oldTmxFile);
+						File.Delete(oldXliffFile);
 					}
 					catch
 					{
@@ -177,37 +177,37 @@ namespace L10NSharp
 		#region LocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationManager(string appId, string appName, string appVersion,
-			string directoryOfInstalledTmxFiles, string directoryForGeneratedDefaultTmxFile,
-			string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
+			string directoryOfInstalledXliffFiles, string directoryForGeneratedDefaultXliffFile,
+			string directoryOfUserModifiedXliffFiles, params string[] namespaceBeginnings)
 		{
 			// Test for a pathological case of bad install
-			if (!Directory.Exists(directoryOfInstalledTmxFiles))
+			if (!Directory.Exists(directoryOfInstalledXliffFiles))
 				throw new DirectoryNotFoundException(string.Format(
 					"The default localizations folder {0} does not exist. This indicates a failed install for {1}. Please uninstall and reinstall {1}.",
-					directoryOfInstalledTmxFiles, appName));
+					directoryOfInstalledXliffFiles, appName));
 			Id = appId;
 			Name = appName;
 			AppVersion = appVersion;
-			_installedTmxFileFolder = directoryOfInstalledTmxFiles;
-			_generatedDefaultTmxFileFolder = directoryForGeneratedDefaultTmxFile;
-			DefaultStringFilePath = GetTmxPathForLanguage(kDefaultLang, false);
+			_installedXliffFileFolder = directoryOfInstalledXliffFiles;
+			_generatedDefaultXliffFileFolder = directoryForGeneratedDefaultXliffFile;
+			DefaultStringFilePath = GetXliffPathForLanguage(kDefaultLang, false);
 
 			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
-			CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
+			CreateOrUpdateDefaultXliffFileIfNecessary(namespaceBeginnings);
 
-			_customTmxFileFolder = directoryOfUserModifiedTmxFiles;
-			if (string.IsNullOrEmpty(_customTmxFileFolder))
+			_customXliffFileFolder = directoryOfUserModifiedXliffFiles;
+			if (string.IsNullOrEmpty(_customXliffFileFolder))
 			{
-				_customTmxFileFolder = null;
+				_customXliffFileFolder = null;
 				CanCustomizeLocalizations = false;
 			}
 			else
 			{
 				try
 				{
-					new FileIOPermission(FileIOPermissionAccess.Write, _customTmxFileFolder).Demand();
+					new FileIOPermission(FileIOPermissionAccess.Write, _customXliffFileFolder).Demand();
 					CanCustomizeLocalizations = true;
 				}
 				catch (Exception e)
@@ -226,14 +226,14 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
+		private void CreateOrUpdateDefaultXliffFileIfNecessary(params string[] namespaceBeginnings)
 		{
 			// Make sure the folder exists.
 			var dir = Path.GetDirectoryName(DefaultStringFilePath);
 			if (dir != null && !Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var defaultStringFileInstalledPath = Path.Combine(_installedTmxFileFolder, GetTmxFileNameForLanguage(kDefaultLang));
+			var defaultStringFileInstalledPath = Path.Combine(_installedXliffFileFolder, GetXliffFileNameForLanguage(kDefaultLang));
 			if (!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 			{
 				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
@@ -242,11 +242,11 @@ namespace L10NSharp
 			if (DefaultStringFileExistsAndHasContents())
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
-				var header = xmlDoc.Element("header");
+				var header = xmlDoc.Element("file");
 				XElement verElement = null;
 				if (header != null)
 				{
-					verElement = header.Elements("prop")
+					verElement = header.Elements("notes").Elements("note")
 						.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
 				}
 
@@ -258,9 +258,9 @@ namespace L10NSharp
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 
-			var tmxDoc = LocalizedStringCache.CreateEmptyStringFile();
-			tmxDoc.Header.SetPropValue(kAppVersionPropTag, AppVersion);
-			var tuUpdater = new TransUnitUpdater(tmxDoc);
+			var XliffDoc = LocalizedStringCache.CreateEmptyStringFile();
+			XliffDoc.File.Notes.AddNote(kAppVersionPropTag, AppVersion);
+			var tuUpdater = new TransUnitUpdater(XliffDoc);
 
 			using (var dlg = new InitializationProgressDlg(Name, _applicationIcon, namespaceBeginnings))
 			{
@@ -268,7 +268,7 @@ namespace L10NSharp
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
 			}
-			tmxDoc.Save(DefaultStringFilePath);
+			XliffDoc.Save(DefaultStringFilePath);
 		}
 
 		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
@@ -342,7 +342,7 @@ namespace L10NSharp
 			var allLangs = groups.Select(g => g.First()).ToList();
 
 			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
-				LoadedManagers.Values.SelectMany(lm => lm.StringCache.TmxDocument.GetAllVariantLanguagesFound())
+				LoadedManagers.Values.SelectMany(lm => lm.StringCache.XliffDocument.GetAllVariantLanguagesFound())
 				.Distinct().ToList());
 
 			// BL-1011: Make sure cultures that have existing localizations are included
@@ -382,7 +382,7 @@ namespace L10NSharp
 			var tags = new List<string>();
 			if (!Directory.Exists(localizationFolder))
 				return tags;
-			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*.tmx"))
+			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*.xliff"))
 			{
 				var filename = Path.GetFileNameWithoutExtension(filepath);
 				var tag = filename.Substring(programName.Length + 1);
@@ -465,7 +465,7 @@ namespace L10NSharp
 		/// <summary>
 		/// This is what identifies a localization manager for a particular set of
 		/// localized strings. This would likely be a DLL or EXE name like 'PA' or 'SayMore'.
-		/// This will be the file name of the portion of the TMX file in which localized
+		/// This will be the file name of the portion of the XLIFF file in which localized
 		/// strings are stored. This would usually be the name of the assembly that owns a
 		/// set of localized strings.
 		/// </summary>
@@ -484,7 +484,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is sent from the application that's creating the localization manager. It's
-		/// written to the TMX file and used to determine whether or not the application needs
+		/// written to the Xliff file and used to determine whether or not the application needs
 		/// to be rescanned for localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -499,7 +499,7 @@ namespace L10NSharp
 
 		internal string DefaultInstalledStringFilePath
 		{
-			get { return Path.Combine(_installedTmxFileFolder, Id + "." + kDefaultLang + ".tmx"); }
+			get { return Path.Combine(_installedXliffFileFolder, Id + "." + kDefaultLang + ".xliff"); }
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -516,39 +516,39 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Enumerates a TMX file for each language. Prefer the custom localizations folder version
+		/// Enumerates a Xliff file for each language. Prefer the custom localizations folder version
 		/// if it exists, otherwise the installed langauge folder.
-		/// Exception: never return the English tmx, which is always handled separately and first.
+		/// Exception: never return the English Xliff, which is always handled separately and first.
 		/// Doing this serves to insert any new dynamic strings into the cache, thus validating
 		/// them as non-obsolete if we encounter them in other languages.
 		/// Enhance JohnT: there ought to be some way NOT to load data for a language until we need it.
 		/// This wastes time AND space.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<string> TmxFilenamesToAddToCache
+		public IEnumerable<string> XliffFilenamesToAddToCache
 		{
 			get
 			{
 				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
 				string langId;
-				if (_customTmxFileFolder != null && Directory.Exists(_customTmxFileFolder))
-					foreach (var tmxFile in Directory.GetFiles(_customTmxFileFolder, Id + ".*.tmx"))
+				if (_customXliffFileFolder != null && Directory.Exists(_customXliffFileFolder))
+					foreach (var XliffFile in Directory.GetFiles(_customXliffFileFolder, Id + ".*.xliff"))
 					{
-						langId = GetLangIdFromTmxFileName(tmxFile);
+						langId = GetLangIdFromXliffFileName(XliffFile);
 						if (langId != kDefaultLang) // should never happen for customized languages
 						{
 							langIdsOfCustomizedLocales.Add(langId);
-							yield return tmxFile;
+							yield return XliffFile;
 						}
 					}
-				if (_installedTmxFileFolder != null)
+				if (_installedXliffFileFolder != null)
 				{
-					foreach (var tmxFile in Directory.GetFiles(_installedTmxFileFolder, Id + ".*.tmx"))
+					foreach (var XliffFile in Directory.GetFiles(_installedXliffFileFolder, Id + ".*.xliff"))
 					{
-						langId = GetLangIdFromTmxFileName(tmxFile);
-						if (langId != kDefaultLang &&    //Don't return the english TMX here because we separately process it first.
+						langId = GetLangIdFromXliffFileName(XliffFile);
+						if (langId != kDefaultLang &&    //Don't return the english Xliff here because we separately process it first.
 							!langIdsOfCustomizedLocales.Contains(langId))
-							yield return tmxFile;
+							yield return XliffFile;
 					}
 				}
 			}
@@ -704,7 +704,7 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private string GetLangIdFromTmxFileName(string fileName)
+		private string GetLangIdFromXliffFileName(string fileName)
 		{
 			fileName = fileName.Substring(0, fileName.Length - 4);
 			int i = fileName.LastIndexOf('.');
@@ -712,44 +712,44 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private string GetTmxFileNameForLanguage(string langId)
+		private string GetXliffFileNameForLanguage(string langId)
 		{
-			return GetTmxFileNameForLanguage(Id, langId);
+			return GetXliffFileNameForLanguage(Id, langId);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal string GetTmxPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent)
+		internal string GetXliffPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent)
 		{
-			var filename = GetTmxFileNameForLanguage(langId);
+			var filename = GetXliffFileNameForLanguage(langId);
 			if (langId == kDefaultLang)
-				return Path.Combine(_generatedDefaultTmxFileFolder, filename);
-			if (_customTmxFileFolder != null)
+				return Path.Combine(_generatedDefaultXliffFileFolder, filename);
+			if (_customXliffFileFolder != null)
 			{
-				var customTmxFile = Path.Combine(_customTmxFileFolder, filename);
-				if (getCustomPathEvenIfNonexistent || File.Exists(customTmxFile))
-					return customTmxFile;
+				var customXliffFile = Path.Combine(_customXliffFileFolder, filename);
+				if (getCustomPathEvenIfNonexistent || File.Exists(customXliffFile))
+					return customXliffFile;
 			}
-			return _installedTmxFileFolder != null ? Path.Combine(_installedTmxFileFolder, filename) : null /* Pretty sure this won't end well*/;
+			return _installedXliffFileFolder != null ? Path.Combine(_installedXliffFileFolder, filename) : null /* Pretty sure this won't end well*/;
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public bool DoesCustomizedTmxExistForLanguage(string langId)
+		public bool DoesCustomizedXliffExistForLanguage(string langId)
 		{
-			return File.Exists(GetTmxPathForLanguage(langId, true));
+			return File.Exists(GetXliffPathForLanguage(langId, true));
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public void PrepareToCustomizeLocalizations()
 		{
-			if (_customTmxFileFolder == null)
+			if (_customXliffFileFolder == null)
 				throw new InvalidOperationException("Localization manager for " + Id + "has no folder specified for customizing localizations");
 			if (!CanCustomizeLocalizations)
 				throw new InvalidOperationException("User does not have sufficient privilege to customize localizations for " + Id);
 			try
 			{
 				// Make sure the folder exists.
-				if (!Directory.Exists(_customTmxFileFolder))
-					Directory.CreateDirectory(_customTmxFileFolder);
+				if (!Directory.Exists(_customXliffFileFolder))
+					Directory.CreateDirectory(_customXliffFileFolder);
 			}
 			catch (Exception e)
 			{
@@ -915,7 +915,7 @@ namespace L10NSharp
 		/// <summary>
 		/// Gets a string for the specified string id, in the specified language, or the
 		/// englishText if that wasn't found. Prefers the englishText passed here to one that
-		/// we might have got out of a tmx, as is the non-obvious-but-ultimately-correct
+		/// we might have got out of a Xliff, as is the non-obvious-but-ultimately-correct
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -929,7 +929,7 @@ namespace L10NSharp
 
 			var r = GetStringFromAnyLocalizationManager(stringId, preferredLanguageIds, out languageIdUsed);
 
-			//even if found in English tmx, we prefer to use the version that came from the code
+			//even if found in English Xliff, we prefer to use the version that came from the code
 			if (languageIdUsed == "en" || string.IsNullOrEmpty(r))
 			{
 				languageIdUsed = "en";
@@ -976,7 +976,7 @@ namespace L10NSharp
 		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
 		/// value or not.
 		/// Special case: unless englishText is null, that is what will be returned for langId = 'en',
-		/// irrespective of what is in TMX.
+		/// irrespective of what is in Xliff.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
@@ -997,10 +997,10 @@ namespace L10NSharp
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
-			// some TMX, following the rule that the current c# code always wins.
-			// some TMX, following the rule that the current c# code always wins. In case we really need to
-			// recover the TMX version, we will retrieve that if no default is provided.
-			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX
+			// some Xliff, following the rule that the current c# code always wins.
+			// some Xliff, following the rule that the current c# code always wins. In case we really need to
+			// recover the Xliff version, we will retrieve that if no default is provided.
+			// Otherwise, let's look up this string, maybe it has been translated and put into a Xliff
 			if (langId != "en" || englishText == null)
 			{
 				var text = lm.GetStringFromStringCache(langId, id);
@@ -1031,7 +1031,7 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// Set this to false if you don't want users to pollute tmx files they might send to you
+		/// Set this to false if you don't want users to pollute Xliff files they might send to you
 		/// with strings that are unique to their documents. For example, Bloom looks for strings
 		/// in html that might have been localized; but Bloom doesn't want to ship an ever-growing
 		/// list of discovered strings for people to translate that aren't actually part of what you get
@@ -1062,7 +1062,7 @@ namespace L10NSharp
 		private static string GetStringFromAnyLocalizationManager(string stringId)
 		{
 			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the 
-			// English from the program source to the English from the tmx.
+			// English from the program source to the English from the Xliff.
 
 			// This will enforce that the text to localize is just returned to the caller
 			// when the default language id is the same as the current UI langauge id.
@@ -1091,9 +1091,9 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static string GetTmxFileNameForLanguage(string appId, string langId)
+		public static string GetXliffFileNameForLanguage(string appId, string langId)
 		{
-			return string.Format("{0}.{1}.tmx", appId, langId);
+			return string.Format("{0}.{1}.xliff", appId, langId);
 		}
 
 		/// ------------------------------------------------------------------------------------

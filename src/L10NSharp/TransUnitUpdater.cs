@@ -1,5 +1,5 @@
 using System;
-using L10NSharp.TMXUtils;
+using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
@@ -17,16 +17,15 @@ namespace L10NSharp
 		// with the value of kOSNewline.
 		internal string _literalNewline = "\\n";
 
-		private readonly TMXDocument _tmxDoc;
+		private readonly XLiffDocument _xliffDoc;
 		private bool _updated;
 
 
 		/// ------------------------------------------------------------------------------------
-		internal TransUnitUpdater(TMXDocument tmxDoc)
+		internal TransUnitUpdater(XLiffDocument xliffDoc)
 		{
-			_tmxDoc = tmxDoc;
-
-			var replacement = _tmxDoc.Header.GetPropValue(LocalizedStringCache.kHardLineBreakReplacementProperty);
+			_xliffDoc = xliffDoc;
+			var replacement = _xliffDoc.File.GetPropValue(LocalizedStringCache.kHardLineBreakReplacementProperty);
 			if (replacement != null)
 				_literalNewline = replacement;
 		}
@@ -45,16 +44,16 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(locInfo.LangId))
 				return _updated;
 
-			var tuText = _tmxDoc.GetTransUnitForId(locInfo.Id);
+			var tuText = _xliffDoc.GetTransUnitForId(locInfo.Id);
 
-			var tuToolTip = _tmxDoc.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
-			var tuShortcutKeys = _tmxDoc.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
+			var tuToolTip = _xliffDoc.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
+			var tuShortcutKeys = _xliffDoc.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
 			if (locInfo.Priority == LocalizationPriority.NotLocalizable)
 			{
 				_updated = (tuText != null || tuToolTip != null || tuShortcutKeys != null);
-				_tmxDoc.RemoveTransUnit(tuText);
-				_tmxDoc.RemoveTransUnit(tuToolTip);
-				_tmxDoc.RemoveTransUnit(tuShortcutKeys);
+				_xliffDoc.RemoveTransUnit(tuText);
+				_xliffDoc.RemoveTransUnit(tuToolTip);
+				_xliffDoc.RemoveTransUnit(tuShortcutKeys);
 				return _updated;
 			}
 
@@ -132,7 +131,7 @@ namespace L10NSharp
 					tu.RemoveVariant(tuv);
 					if (tu.Variants.Count == 0)
 					{
-						_tmxDoc.RemoveTransUnit(tu);
+						_xliffDoc.RemoveTransUnit(tu);
 						tu = null; // so we will make a new one if needed.
 					}
 				}
@@ -146,7 +145,7 @@ namespace L10NSharp
 			{
 				tu = new TransUnit();
 				tu.Id = tuId;
-				_tmxDoc.AddTransUnit(tu);
+				_xliffDoc.AddTransUnit(tu);
 			}
 
 			tu.AddOrReplaceVariant(locInfo.LangId, newValue);

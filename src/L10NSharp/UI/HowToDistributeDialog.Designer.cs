@@ -32,7 +32,7 @@ namespace L10NSharp.UI
             this.label1 = new System.Windows.Forms.Label();
             this._okButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this._showTMXFile = new System.Windows.Forms.LinkLabel();
+            this._showXLIFFFile = new System.Windows.Forms.LinkLabel();
             this.label3 = new System.Windows.Forms.Label();
             this._emailLabel = new System.Windows.Forms.LinkLabel();
             this.label4 = new System.Windows.Forms.Label();
@@ -71,17 +71,17 @@ namespace L10NSharp.UI
             this.label2.TabIndex = 2;
             this.label2.Text = "To get your translation work into the next version of this program, email";
             // 
-            // _showTMXFile
+            // _showXLIFFFile
             // 
-            this._showTMXFile.AutoSize = true;
-            this._showTMXFile.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this._showTMXFile.Location = new System.Drawing.Point(34, 222);
-            this._showTMXFile.Name = "_showTMXFile";
-            this._showTMXFile.Size = new System.Drawing.Size(90, 19);
-            this._showTMXFile.TabIndex = 3;
-            this._showTMXFile.TabStop = true;
-            this._showTMXFile.Text = "your TMX file";
-            this._showTMXFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnShowTMXFile);
+            this._showXLIFFFile.AutoSize = true;
+            this._showXLIFFFile.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._showXLIFFFile.Location = new System.Drawing.Point(34, 222);
+            this._showXLIFFFile.Name = "_showXLIFFFile";
+            this._showXLIFFFile.Size = new System.Drawing.Size(90, 19);
+            this._showXLIFFFile.TabIndex = 3;
+            this._showXLIFFFile.TabStop = true;
+            this._showXLIFFFile.Text = "your XLIFF file";
+            this._showXLIFFFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnShowXLIFFFile);
             // 
             // label3
             // 
@@ -127,7 +127,7 @@ namespace L10NSharp.UI
             this.Controls.Add(this.label4);
             this.Controls.Add(this._emailLabel);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this._showTMXFile);
+            this.Controls.Add(this._showXLIFFFile);
             this.Controls.Add(this.label2);
             this.Controls.Add(this._okButton);
             this.Controls.Add(this.label1);
@@ -149,7 +149,7 @@ namespace L10NSharp.UI
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.LinkLabel _showTMXFile;
+        private System.Windows.Forms.LinkLabel _showXLIFFFile;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.LinkLabel _emailLabel;
         private System.Windows.Forms.Label label4;
