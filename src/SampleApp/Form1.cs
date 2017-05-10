@@ -13,10 +13,7 @@ namespace SampleApp
 		public Form1()
 		{
 			InitializeComponent();
-
-
 		}
-
 
 		private void UpdateDynamicLabel()
 		{

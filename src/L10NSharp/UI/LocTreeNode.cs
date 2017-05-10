@@ -67,14 +67,14 @@ namespace L10NSharp.UI
 			return (SavedTranslationInfo.TryGetValue(langId, out locInfo) ? locInfo.ShortcutKeys : null);
 		}
 
-		/// ------------------------------------------------------------------------------------
-		public string GetComment()
-		{
-			if (SavedComment != null && SavedComment.Trim() != string.Empty)
-				return SavedComment;
+		///// ------------------------------------------------------------------------------------
+		//public string GetComment()
+		//{
+		//	if (SavedComment != null && SavedComment.Trim() != string.Empty)
+		//		return SavedComment;
 
-			return (Manager != null ? Manager.StringCache.GetComment(Id) : null);
-		}
+		//	return (Manager != null ? Manager.StringCache.GetComment(Id) : null);
+		//}
 
 		/// ------------------------------------------------------------------------------------
 		public bool GetHasModifications(bool considerModifiedComment)

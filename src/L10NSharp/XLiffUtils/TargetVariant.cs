@@ -1,27 +1,22 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright (c) 2009, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2009' company='SIL International'>
-//		Copyright (c) 2009, SIL International. All Rights Reserved.
-//
-//		Distributable under the terms of either the Common Public License or the
-//		GNU Lesser General Public License, as specified in the LICENSING.txt file.
-// </copyright>
+#region
+// Copyright (c) 2017 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 #endregion
 //
-// File: TransUnitVariant.cs
+// File: TargetVariant.cs
 //
 // <remarks>
 // </remarks>
 // ---------------------------------------------------------------------------------------------
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils
 {
-	#region TransUnitVariant class
+	#region TargetVariant class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("source", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
-	public class TransUnitVariant : XLiffBaseWithNotesAndProps
+	[XmlType("variant")]
+	public class TargetVariant : XLiffBaseWithNotesAndProps
 	{
 		#region Properties
 		/// ------------------------------------------------------------------------------------

@@ -92,15 +92,15 @@ namespace L10NSharp
 		{
 			if (locInfo.DiscoveredDynamically && (tu.GetPropValue(LocalizedStringCache.kDiscoveredDyanmically) != "true"))
 			{
-				tu.AddProp(LocalizedStringCache.kDiscoveredDyanmically, "true");
+				tu.Type = LocalizedStringCache.kDiscoveredDyanmically;
 				_updated = true;
 			}
 
 			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment) return;
 
-			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
+			//if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
 
-			tu.Notes.Clear();
+			//tu.Notes.Clear();
 			_updated = true;
 
 			if (!string.IsNullOrEmpty(locInfo.Comment))
@@ -129,7 +129,7 @@ namespace L10NSharp
 
 					_updated = true;
 					tu.RemoveVariant(tuv);
-					if (tu.Variants.Count == 0)
+					if (tu.Sources.Count == 0 && tu.Targets.Count == 0)
 					{
 						_xliffDoc.RemoveTransUnit(tu);
 						tu = null; // so we will make a new one if needed.

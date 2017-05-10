@@ -21,6 +21,8 @@ namespace L10NSharp
 		public const string kDefaultLang = "en";
 		internal const string kAppVersionPropTag = "x-appversion";
 		internal const string kL10NPrefix = "_L10N_:";
+		internal const string kFileExtension = ".xlf";
+		internal const int kFileExtensionLength = 4;
 
 		/// <summary>
 		/// These two events allow us to know when the localization dialog is running.
@@ -242,24 +244,26 @@ namespace L10NSharp
 			if (DefaultStringFileExistsAndHasContents())
 			{
 				var xmlDoc = XElement.Load(DefaultStringFilePath);
-				var header = xmlDoc.Element("file");
-				XElement verElement = null;
-				if (header != null)
+				var docNamespace = xmlDoc.GetDefaultNamespace();
+				var file = xmlDoc.Element(docNamespace + "file");
+
+				XAttribute verAttribute = null;
+				if (file != null)
 				{
-					verElement = header.Elements("notes").Elements("note")
-						.FirstOrDefault(e => (string)e.Attribute("type") == kAppVersionPropTag);
+					verAttribute = file.Attribute("product-version");
 				}
 
-				if (verElement != null && new Version(verElement.Value) >= new Version(AppVersion ?? "0.0.1"))
+				if (verAttribute != null && new Version(verAttribute.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
 			}
 
-			// Before wasting a bunch of time, make sure we can open the file for writing.
+			// Before wasting a bunch of time, make sure we can open the file for writing. .Elements("note")
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 
 			var XliffDoc = LocalizedStringCache.CreateEmptyStringFile();
-			XliffDoc.File.Notes.AddNote(kAppVersionPropTag, AppVersion);
+			XliffDoc.File.ProductVersion = AppVersion;
+			XliffDoc.File.Original = Id + ".dll";
 			var tuUpdater = new TransUnitUpdater(XliffDoc);
 
 			using (var dlg = new InitializationProgressDlg(Name, _applicationIcon, namespaceBeginnings))
@@ -268,6 +272,7 @@ namespace L10NSharp
 				foreach (var locInfo in dlg.ExtractedInfo)
 					tuUpdater.Update(locInfo);
 			}
+
 			XliffDoc.Save(DefaultStringFilePath);
 		}
 
@@ -382,7 +387,7 @@ namespace L10NSharp
 			var tags = new List<string>();
 			if (!Directory.Exists(localizationFolder))
 				return tags;
-			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*.xliff"))
+			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*" + kFileExtension))
 			{
 				var filename = Path.GetFileNameWithoutExtension(filepath);
 				var tag = filename.Substring(programName.Length + 1);
@@ -499,7 +504,7 @@ namespace L10NSharp
 
 		internal string DefaultInstalledStringFilePath
 		{
-			get { return Path.Combine(_installedXliffFileFolder, Id + "." + kDefaultLang + ".xliff"); }
+			get { return Path.Combine(_installedXliffFileFolder, Id + "." + kDefaultLang + kFileExtension); }
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -532,7 +537,7 @@ namespace L10NSharp
 				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
 				string langId;
 				if (_customXliffFileFolder != null && Directory.Exists(_customXliffFileFolder))
-					foreach (var XliffFile in Directory.GetFiles(_customXliffFileFolder, Id + ".*.xliff"))
+					foreach (var XliffFile in Directory.GetFiles(_customXliffFileFolder, Id + ".*" + kFileExtension))
 					{
 						langId = GetLangIdFromXliffFileName(XliffFile);
 						if (langId != kDefaultLang) // should never happen for customized languages
@@ -543,7 +548,7 @@ namespace L10NSharp
 					}
 				if (_installedXliffFileFolder != null)
 				{
-					foreach (var XliffFile in Directory.GetFiles(_installedXliffFileFolder, Id + ".*.xliff"))
+					foreach (var XliffFile in Directory.GetFiles(_installedXliffFileFolder, Id + ".*" + kFileExtension))
 					{
 						langId = GetLangIdFromXliffFileName(XliffFile);
 						if (langId != kDefaultLang &&    //Don't return the english Xliff here because we separately process it first.
@@ -706,7 +711,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private string GetLangIdFromXliffFileName(string fileName)
 		{
-			fileName = fileName.Substring(0, fileName.Length - 4);
+			fileName = fileName.Substring(0, fileName.Length - kFileExtensionLength);
 			int i = fileName.LastIndexOf('.');
 			return (i < 0 ? null : fileName.Substring(i + 1));
 		}
@@ -1093,7 +1098,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetXliffFileNameForLanguage(string appId, string langId)
 		{
-			return string.Format("{0}.{1}.xliff", appId, langId);
+			return string.Format("{0}.{1}" + kFileExtension, appId, langId);
 		}
 
 		/// ------------------------------------------------------------------------------------

@@ -52,18 +52,18 @@ namespace L10NSharp.XLiffUtils
 				m_fKeepWhitespaceInElements = fKeepWhitespaceInElements;
 			}
 
-			/// --------------------------------------------------------------------------------
-			/// <summary>
-			/// Gets the namespace URI (as defined in the W3C Namespace specification) of the
-			/// node on which the reader is positioned.
-			/// </summary>
-			/// <value></value>
-			/// <returns>The namespace URI of the current node; otherwise an empty string.</returns>
-			/// --------------------------------------------------------------------------------
-			public override string NamespaceURI
-			{
-				get { return string.Empty; }
-			}
+			///// --------------------------------------------------------------------------------
+			///// <summary>
+			///// Gets the namespace URI (as defined in the W3C Namespace specification) of the
+			///// node on which the reader is positioned.
+			///// </summary>
+			///// <value></value>
+			///// <returns>The namespace URI of the current node; otherwise an empty string.</returns>
+			///// --------------------------------------------------------------------------------
+			//public override string NamespaceURI
+			//{
+			//	get { return string.Empty; }
+			//}
 
 			/// --------------------------------------------------------------------------------
 			/// <summary>
@@ -126,7 +126,7 @@ namespace L10NSharp.XLiffUtils
 				using (StringWriter writer = new StringWriter(output))
 				{
 					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
-					nameSpace.Add(string.Empty, string.Empty);
+					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
 					XmlSerializer serializer = new XmlSerializer(typeof(T));
 					serializer.Serialize(writer, data, nameSpace);
 					writer.Close();
@@ -156,7 +156,7 @@ namespace L10NSharp.XLiffUtils
 				using (TextWriter writer = new StreamWriter(filename))
 				{
 					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
-					nameSpace.Add(string.Empty, string.Empty);
+					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
 					XmlSerializer serializer = new XmlSerializer(typeof(T));
 					serializer.Serialize(writer, data, nameSpace);
 					writer.Close();

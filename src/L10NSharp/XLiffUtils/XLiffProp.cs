@@ -11,7 +11,7 @@ namespace L10NSharp.XLiffUtils
 {
 	#region XLiffProp class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("prop")]
+	[XmlType("prop", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class XLiffProp
 	{
 		#region Properties

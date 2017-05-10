@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file source-language="fr" product-version="1.0.0.0" original="Palaso.dll" datatype="csharp">
+	<header>
+		<note>hardlinebreakreplacement:\n</note>
+	</header>
+	<body>	
+		<trans-unit id="TestItem.Bird.Crow">
+			<source xml:lang="en">It's a crow</source>
+			<target xml:lang="fr">C'est un corbeau</target>
+		</trans-unit>
+		<trans-unit id="TestItem.Bird.Raven">
+			<source xml:lang="en">It's not a crow</source>
+			<target xml:lang="fr">Ce n'est pas un corbeau</target>
+		</trans-unit>
+		<trans-unit id="TestItem.Chicken.Rooster">
+			<source xml:lang="en">It's a chicken</source>
+			<target xml:lang="fr">C'est un poulet</target>
+		</trans-unit>
+		<trans-unit id="TestItem.Bird.Eagle">
+			<source xml:lang="en">Fish-eating bird</source>
+			<target xml:lang="fr">Un oiseau qui mange des poissons</target>
+		</trans-unit>
+	</body>	
+</file>
+</xliff>

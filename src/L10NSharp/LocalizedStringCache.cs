@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
@@ -17,7 +16,6 @@ namespace L10NSharp
 		internal const string kPriorityPropTag = "x-priority";
 		internal const string kGroupPropTag = "x-group";
 		internal const string kCategoryPropTag = "x-category";
-		internal const string kNoLongerUsedPropTag = "x-nolongerused";
 		internal const string kDiscoveredDyanmically = "x-dynamic";
 		internal const string kToolTipSuffix = "_ToolTip_";
 		internal const string kShortcutSuffix = "_ShortcutKeys_";
@@ -44,8 +42,6 @@ namespace L10NSharp
 		internal LocalizationManager OwningManager { get; private set; }
 		public XLiffDocument XliffDocument { get; private set; }
 
-		private HashSet<string> _englishTuIdsNoLongerUsed;
-
 		#region Loading methods
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -56,7 +52,6 @@ namespace L10NSharp
 		{
 			OwningManager = owningManager;
 			XliffDocument = CreateEmptyStringFile();
-			_englishTuIdsNoLongerUsed = new HashSet<string>();
 			try
 			{
 				MergeXliffFilesIntoCache(OwningManager.XliffFilenamesToAddToCache);
@@ -86,14 +81,9 @@ namespace L10NSharp
 		private void MergeXliffFilesIntoCache(IEnumerable<string> xliffFiles)
 		{
 			var defaultxliffDoc = XLiffDocument.Read(OwningManager.DefaultStringFilePath);
-			foreach (var tu in defaultxliffDoc.File.TransUnits)
+			foreach (var tu in defaultxliffDoc.File.Body.TransUnits)
 			{
-				XliffDocument.File.AddTransUnit(tu);
-				// If this TransUnit is marked NoLongerUsed in the English Xliff, load its ID into the hashset
-				// so we don't display this string in case the currentUI Xliff doesn't have it marked as
-				// NoLongerUsed.
-				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
-					_englishTuIdsNoLongerUsed.Add(tu.Id);
+				XliffDocument.File.Body.AddTransUnit(tu);
 			}
 			// It's possible (I think when there is no customizable Xliff, as on first install, but the version in the installed Xliff
 			// is out of date with the app) that we don't have all the info from the installed Xliff in the customizable one.
@@ -102,27 +92,21 @@ namespace L10NSharp
 			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
 			{
 				var defaultInstalledxliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
-				foreach (var tu in defaultInstalledxliffDoc.File.TransUnits)
+				foreach (var tu in defaultInstalledxliffDoc.File.Body.TransUnits)
 				{
-					XliffDocument.File.AddTransUnitOrVariantFromExisting(tu, "en");
+					XliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, "en");
 					// also needed in this, to prevent things we find here from being considered orphans.
-					defaultxliffDoc.File.AddTransUnitOrVariantFromExisting(tu, "en");
-					// If this TransUnit is marked NoLongerUsed in the English Xliff, load its ID into the hashset
-					// so we don't display this string in case the currentUI Xliff doesn't have it marked as
-					// NoLongerUsed.
-					if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
-						_englishTuIdsNoLongerUsed.Add(tu.Id);
+					defaultxliffDoc.File.Body.AddTransUnitOrVariantFromExisting(tu, "en");
 				}
 			}
 			Exception error = null;
-			var stillNeedToLoadNoLongerUsed = _englishTuIdsNoLongerUsed.Count == 0;
 			foreach (var file in xliffFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
 				try
 				{
 					var xliffDoc = XLiffDocument.Read(file);
 					var langId = xliffDoc.File.SourceLang;
-					foreach (var tu in xliffDoc.File.TransUnits)
+					foreach (var tu in xliffDoc.File.Body.TransUnits)
 					{
 						// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
 						// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
@@ -139,10 +123,6 @@ namespace L10NSharp
 								{
 									//ok, no big deal, that what we expect with dynamic strings, by definition... that we won't find them during a static code scan
 								}
-								else
-								{
-									tu.AddProp(kNoLongerUsedPropTag, "true");
-								}
 							}
 							else
 							{
@@ -150,10 +130,7 @@ namespace L10NSharp
 							}
 						}
 
-						XliffDocument.File.AddTransUnitOrVariantFromExisting(tu, langId);
-						if (stillNeedToLoadNoLongerUsed && langId == LocalizationManager.kDefaultLang &&
-							tu.GetPropValue(kNoLongerUsedPropTag) != null)
-							_englishTuIdsNoLongerUsed.Add(tu.Id);
+						XliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, langId);
 					}
 				}
 				catch (Exception e)
@@ -183,16 +160,9 @@ namespace L10NSharp
 		internal static XLiffDocument CreateEmptyStringFile()
 		{
 			var xliffDoc = new XLiffDocument();
-			//xliffDoc.Header.CreationTool = "Palaso Localization Manager";
-			//xliffDoc.Header.CreationToolVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			xliffDoc.File.SourceLang = LocalizationManager.kDefaultLang;
-			xliffDoc.File.Notes.AddNote(LocalizationManager.kAppVersionPropTag, "0.0.0");
-			xliffDoc.File.Notes.AddNote(kHardLineBreakReplacementProperty, s_literalNewline);
-
-			//xliffDoc.File.AddProp(LocalizationManager.kAppVersionPropTag, "0.0.0");
-			//xliffDoc.File.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);
-			//xliffDoc.Header.AddProp(kHardLineBreakReplacementProperty, s_literalNewline);//REVIEW: why is this listed twice? I notice that there is no ampersand replacement policy: was this line meant to be for that?
-
+			xliffDoc.File.ProductVersion = "0.0.0";
+			xliffDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + s_literalNewline;
 			return xliffDoc;
 		}
 
@@ -274,9 +244,10 @@ namespace L10NSharp
 		{
 			var xliffDoc = CreateEmptyStringFile();
 			xliffDoc.File.SourceLang = langId;
-			xliffDoc.File.Notes.AddNote(LocalizationManager.kAppVersionPropTag, OwningManager.AppVersion);
+			xliffDoc.File.ProductVersion = OwningManager.AppVersion;
+			xliffDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + s_literalNewline;
 
-			foreach (var tu in XliffDocument.File.TransUnits)
+			foreach (var tu in XliffDocument.File.Body.TransUnits)
 			{
 				var tuv = tu.GetVariantForLang(langId);
 				if (tuv == null)
@@ -287,11 +258,8 @@ namespace L10NSharp
 				newTu.AddOrReplaceVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
 				newTu.AddOrReplaceVariant(tuv);
 				newTu.Notes = tu.CopyNotes();
-				newTu.Props = tu.CopyProps();
 			}
-			//xliffDoc.File.TransUnits = xliffDoc.File.TransUnits;
-			xliffDoc.File.TransUnits.Sort(TuComparer);
-			//xliffDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, OwningManager.AppVersion);
+			xliffDoc.File.Body.TransUnits.Sort(TuComparer);
 			if (forceCreation || OwningManager.DoesCustomizedXliffExistForLanguage(langId))
 				xliffDoc.Save(OwningManager.GetXliffPathForLanguage(langId, true));
 		}
@@ -304,14 +272,14 @@ namespace L10NSharp
 		///// ------------------------------------------------------------------------------------
 		//private bool SaveIfDirty(string XliffFile)
 		//{
-		//    if (!IsDirty || string.IsNullOrEmpty(XliffFile))
-		//        return false;
+		//	if (!IsDirty || string.IsNullOrEmpty(XliffFile))
+		//		return false;
 
-		//    //_XliffFile = XliffFile;
-		//    IsDirty = false;
-		//    xliffDocument.File.TransUnits.Sort(TuComparer);
-		//    xliffDocument.Save(XliffFile);
-		//    return true;
+		//	//_XliffFile = XliffFile;
+		//	IsDirty = false;
+		//	xliffDoc.File.TransUnits.Sort(TuComparer);
+		//	xliffDoc.Save(XliffFile);
+		//	return true;
 		//}
 
 		#endregion
@@ -484,17 +452,17 @@ namespace L10NSharp
 
 		#endregion
 
-		#region Methods for getting localized string metadata (e.g. comment)
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the comment for the specified id.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal string GetComment(string id)
-		{
-			TransUnit tu = XliffDocument.GetTransUnitForId(id);
-			return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
-		}
+		#region Methods for getting localized string metadata
+		///// ------------------------------------------------------------------------------------
+		///// <summary>
+		///// Gets the comment for the specified id.
+		///// </summary>
+		///// ------------------------------------------------------------------------------------
+		//internal string GetComment(string id)
+		//{
+		//	TransUnit tu = XliffDocument.GetTransUnitForId(id);
+		//	return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
+		//}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -589,15 +557,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal void LoadGroupNodes(TreeNodeCollection topCollection)
 		{
-			XliffDocument.File.TransUnits.Sort(TuComparer);
+			XliffDocument.File.Body.TransUnits.Sort(TuComparer);
 			LeafNodeList.Clear();
 
 			foreach (var tu in GetTranslationUnitsForTree())
 			{
 				string id = GetBaseId(tu.Id);
-				if (tu.GetPropValue(kNoLongerUsedPropTag) != null)
-					continue;
-
 				var groupChain = ParseGroupAndId(GetGroup(tu.Id), id);
 				var nodeKey = String.Empty;
 				var nodeCollection = topCollection;
@@ -633,19 +598,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private IEnumerable<TransUnit> GetTranslationUnitsForTree()
 		{
-			foreach (var tu in XliffDocument.File.TransUnits)
+			foreach (var tu in XliffDocument.File.Body.TransUnits)
 			{
-				if (tu.GetPropValue(kNoLongerUsedPropTag) == "true")
-					continue;
-
-				// It's possible that this Xliff file isn't up-to-date with which strings are No Longer Used
-				if (IsTranslationUnitNoLongerUsed(tu))
-				{
-					tu.SetPropValue(kNoLongerUsedPropTag, "true");
-					IsDirty = true;
-					continue;
-				}
-
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
 				if (!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 					yield return tu;
@@ -656,7 +610,7 @@ namespace L10NSharp
 				// skip the current tooltip or shortcutkeys translation unit since the base
 				// one is all that's needed in the tree.
 				var tmpId = GetBaseId(tu.Id);
-				if (XliffDocument.File.TransUnits.Any(t => t.Id == tmpId))
+				if (XliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
 					continue;
 
 				// At this point, we know there is not a base translation unit so return the
@@ -668,14 +622,9 @@ namespace L10NSharp
 				// translation unit is for a shortcutkeys. Therefore, only return the current
 				// translation unit if there is not associated tooltip translation unit.
 				tmpId = tu.Id.Replace(kShortcutSuffix, kToolTipSuffix);
-				if (!XliffDocument.File.TransUnits.Any(t => t.Id == tmpId))
+				if (!XliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
 					yield return tu;
 			}
-		}
-
-		private bool IsTranslationUnitNoLongerUsed(TransUnit tu)
-		{
-			return _englishTuIdsNoLongerUsed.Contains(tu.Id);
 		}
 
 		/// ------------------------------------------------------------------------------------

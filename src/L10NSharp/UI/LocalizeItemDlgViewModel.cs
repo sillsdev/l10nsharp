@@ -142,11 +142,11 @@ namespace L10NSharp.UI
 			}
 		}
 
-		/// ------------------------------------------------------------------------------------
-		public string CurrentNodeComment
-		{
-			get { return (_currentNode != null ? _currentNode.GetComment() : null); }
-		}
+		///// ------------------------------------------------------------------------------------
+		//public string CurrentNodeComment
+		//{
+		//	get { return (_currentNode != null ? _currentNode.GetComment() : null); }
+		//}
 
 		/// ------------------------------------------------------------------------------------
 		public bool TranslatorBusy
@@ -507,12 +507,12 @@ namespace L10NSharp.UI
 				AllLeafNodesShowingInGrid[index].GetToolTip(_tgtLangId));
 		}
 
-		/// ------------------------------------------------------------------------------------
-		public string GetCommentForGridIndex(int index)
-		{
-			return (index >= AllLeafNodesShowingInGrid.Count ? null :
-				AllLeafNodesShowingInGrid[index].GetComment());
-		}
+		///// ------------------------------------------------------------------------------------
+		//public string GetCommentForGridIndex(int index)
+		//{
+		//	return (index >= AllLeafNodesShowingInGrid.Count ? null :
+		//		AllLeafNodesShowingInGrid[index].GetComment());
+		//}
 
 		#endregion
 

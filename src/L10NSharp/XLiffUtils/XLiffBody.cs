@@ -16,12 +16,13 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using L10NSharp.XLiffUtils;
 
 namespace L10NSharp.XLiffUtils
 {
 	#region XLiffBody class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("body")]
+	[XmlType("body", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class XLiffBody
 	{
 		// This is used when translation unit IDs are not found in the file (which seems to be
@@ -54,35 +55,36 @@ namespace L10NSharp.XLiffUtils
 			set { _transUnits = value; }
 		}
 
-        ///// ------------------------------------------------------------------------------------
-        ///// <summary>
-        ///// Gets the list of translation units in the document.
-        ///// </summary>
-        ///// ------------------------------------------------------------------------------------
-        //[XmlIgnore]
-        //public Dictionary<string, TransUnit> TransUnitsById
-        //{
-        //    get
-        //    {
-        //        if (m_transUnitsById.Count == 0 && m_transUnits != null && m_transUnits.Count > 0)
-        //        {
-        //            foreach (TransUnit tu in m_transUnits)
-        //                m_transUnitsById[tu.Id] = tu;
-        //        }
+		///// ------------------------------------------------------------------------------------
+		///// <summary>
+		///// Gets the list of translation units in the document.
+		///// </summary>
+		///// ------------------------------------------------------------------------------------
+		//[XmlIgnore]
+		//public Dictionary<string, TransUnit> TransUnitsById
+		//{
+		//	get
+		//	{
+		//		if (m_transUnitsById.Count == 0 && m_transUnits != null && m_transUnits.Count > 0)
+		//		{
+		//			foreach (TransUnit tu in m_transUnits)
+		//				m_transUnitsById[tu.Id] = tu;
+		//		}
 
-        //        return m_transUnitsById;
-        //    }
-        //}
+		//		return m_transUnitsById;
+		//	}
+		//}
 
-        #endregion
+		#endregion
 
-        #region Methods
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the translation unit for the specified id.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        internal TransUnit GetTransUnitForId(string id)
+
+		#region Methods
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the translation unit for the specified id.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal TransUnit GetTransUnitForId(string id)
 		{
 			return _transUnits.FirstOrDefault(tu => tu.Id == id);
 		}
@@ -126,10 +128,7 @@ namespace L10NSharp.XLiffUtils
 			if (GetTransUnitForId(tu.Id) != null)
 				return false;
 
-            //if (tu.Type == null)
-            //    tu.T = (++_transUnitId).ToString();
-
-            _transUnits.Add(tu);
+			_transUnits.Add(tu);
 			return true;
 		}
 
@@ -180,6 +179,7 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		#endregion
+
 	}
 
 	#endregion

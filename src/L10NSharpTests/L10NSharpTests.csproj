@@ -74,6 +74,7 @@
     <Compile Include="ILocalizableComponentTests.cs" />
     <Compile Include="MockLocalizableComponent.cs" />
     <Compile Include="LocalizationManagerTests.cs" />
+    <Compile Include="SchemaValidationTests.cs" />
     <Compile Include="TempFile.cs" />
     <Compile Include="UtilsTests.cs" />
     <Compile Include="LocalizationExtenderTests.cs" />
@@ -88,9 +89,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <None Include="packages.config" />
     <None Include="TestTmx\Test.en.tmx" />
     <None Include="TestTmx\Test.fr.tmx" />
+=======
+>>>>>>> Change from TMX to XLIFF 1.2 persistence
     <None Include="TestXliff\Test.en.xliff" />
     <None Include="TestXliff\Test.fr.xliff" />
   </ItemGroup>
