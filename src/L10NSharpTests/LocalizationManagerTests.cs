@@ -19,13 +19,14 @@ namespace L10NSharp.Tests
 		private const string AppVersion = "1.0.0";
 		private const string HigherVersion = "2.0.0";
 		private const string LowerVersion = "0.0.1";
+		private const string LiteralNewline = "\\n";
 
 		/// <summary>
-		/// If there is no GeneratedDefault TMX file, but the file we need has been installed, copy the installed version to circumvent
-		/// a crash trying to generate this TMX file on Linux.
+		/// If there is no GeneratedDefault Xliff file, but the file we need has been installed, copy the installed version to circumvent
+		/// a crash trying to generate this Xliff file on Linux.
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTmxFileIfNecessary_CopiesInstalledIfAvailable()
+		public void CreateOrUpdateDefaultXliffFileIfNecessary_CopiesInstalledIfAvailable()
 		{
 			using(var folder = new TempFolder("CreateOrUpdate_CopiesInstalledIfAvailable"))
 			{
@@ -33,7 +34,7 @@ namespace L10NSharp.Tests
 				SetupManager(folder);
 
 				// verify presence and identicality of the generated file to the installed file
-				var filename = LocalizationManager.GetTmxFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
+				var filename = LocalizationManager.GetXliffFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
 				var installedFilePath = Path.Combine(GetInstalledDirectory(folder), filename);
 				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
 				Assert.That(File.Exists(generatedFilePath), "Generated file {0} should exist", generatedFilePath);
@@ -46,15 +47,15 @@ namespace L10NSharp.Tests
 		/// Copy the installed file over the empty generated file in this case.
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTmxFileIfNecessary_CopiesOverEmptyGeneratedFile()
+		public void CreateOrUpdateDefaultXliffFileIfNecessary_CopiesOverEmptyGeneratedFile()
 		{
 			using(var folder = new TempFolder("CreateOrUpdate_CopiesOverEmptyGeneratedFile"))
 			{
-				var filename = LocalizationManager.GetTmxFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
+				var filename = LocalizationManager.GetXliffFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
 				var installedFilePath = Path.Combine(GetInstalledDirectory(folder), filename);
 				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
 
-				// generate an empty English TMX file
+				// generate an empty English Xliff file
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
 				var fileStream = File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 				fileStream.Close();
@@ -68,71 +69,73 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		/// If there is an existing TMX file of the same (or higher) version, it should not be overwritten when initializing the localizer.
+		/// If there is an existing Xliff file of the same (or higher) version, it should not be overwritten when initializing the localizer.
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTmxFileIfNecessary_DoesNotOverwriteUpToDateGeneratedFile()
+		public void CreateOrUpdateDefaultXliffFileIfNecessary_DoesNotOverwriteUpToDateGeneratedFile()
 		{
 			using(var folder = new TempFolder("CreateOrUpdate_DoesNotOverwriteUpToDateGeneratedFile"))
 			{
-				var filename = LocalizationManager.GetTmxFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
+				var filename = LocalizationManager.GetXliffFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
 				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
 
-				// "generate" an English TMX for a higher version
+				// "generate" an English Xliff for a higher version
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				AddEnglishTmx(GetGeneratedDirectory(folder), HigherVersion);
-				var generatedTmxContents = File.ReadAllText(generatedFilePath);
+				AddEnglishXliff(GetGeneratedDirectory(folder), HigherVersion);
+				var generatedXliffContents = File.ReadAllText(generatedFilePath);
 
 				// SUT (buried down in there somewhere)
 				SetupManager(folder);
 
 				// verify identicality of the generated file to its previous state
-				Assert.AreEqual(generatedTmxContents, File.ReadAllText(generatedFilePath), "Generated file should not have been overwritten");
+				Assert.AreEqual(generatedXliffContents, File.ReadAllText(generatedFilePath), "Generated file should not have been overwritten");
 			}
 		}
 
 		/// <summary>
-		/// If the GeneratedDefault TMX file is out of date, it should be brought up to the current version
+		/// If the GeneratedDefault Xliff file is out of date, it should be brought up to the current version
 		/// (sorry, this doesn't test the contents, just the version number).
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTmxFileIfNecessary_OverwritesOutdatedGeneratedFile()
+		public void CreateOrUpdateDefaultXliffFileIfNecessary_OverwritesOutdatedGeneratedFile()
 		{
 			using(var folder = new TempFolder("CreateOrUpdate_OverwritesOutdatedGeneratedFile"))
 			{
-				var filename = LocalizationManager.GetTmxFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
+				var filename = LocalizationManager.GetXliffFileNameForLanguage(AppId, LocalizationManager.kDefaultLang);
 				var generatedFilePath = Path.Combine(GetGeneratedDirectory(folder), filename);
 
-				// "generate" an English TMX for a lower version
+				// "generate" an English Xliff for a lower version
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
+				AddEnglishXliff(GetGeneratedDirectory(folder), LowerVersion);
 
 				// SUT (buried down in there somewhere)
 				SetupManager(folder);
 
 				// verify that the generated file has been updated to the current version
-				var headerElt = XElement.Load(generatedFilePath).Element("header");
-				var verElement = headerElt == null ? null
-					: headerElt.Elements("prop").FirstOrDefault(e => (string)e.Attribute("type") == LocalizationManager.kAppVersionPropTag);
-				var generatedVersion = verElement == null ? null : new Version(verElement.Value);
+				var xmlDoc = XElement.Load(generatedFilePath);
+				var docNamespace = xmlDoc.GetDefaultNamespace();
+				var fileElt = xmlDoc.Element(docNamespace + "file");
+				var verAttribute = fileElt == null ? null
+					: fileElt.Attribute("product-version");
+				var generatedVersion = verAttribute == null ? null : new Version(verAttribute.Value);
 				Assert.AreEqual(new Version(AppVersion), generatedVersion, "Generated file should have been updated to the current version");
 			}
 		}
 
 		/// <summary>
 		/// This is a regression test. As of Nov 2014, if we updated an English string, it would
-		/// get overwritten by the old version, found in another language's TMX.
+		/// get overwritten by the old version, found in another language's Xliff.
 		/// </summary>
 		[Test]
-		public void GetDynamicString_EnglishAndArabicHaveDifferentValuesOfEnglishString_EnglishTMXWins()
+		public void GetDynamicString_EnglishAndArabicHaveDifferentValuesOfEnglishString_EnglishXliffWins()
 		{
-			using(var folder = new TempFolder("GetString_EnglishAndArabicHaveDifferentValuesOfEnglishString_EnglishTMXWins"))
+			using(var folder = new TempFolder("GetString_EnglishAndArabicHaveDifferentValuesOfEnglishString_EnglishXliffWins"))
 			{
 				SetupManager(folder, "en");
 				//This was the original assertion, and it worked:
-				//   Assert.AreEqual("from English TMX", LocalizationManager.GetDynamicString(AppId, "theId", "some default"));
-				//However, later I decided, I don't care what is in the English TMX, either. If the c# code just gave a new
-				// value for this, what the c# code said should win. Who cares what's in the English TMX. It's only real
+				//   Assert.AreEqual("from English Xliff", LocalizationManager.GetDynamicString(AppId, "theId", "some default"));
+				//However, later I decided, I don't care what is in the English Xliff, either. If the c# code just gave a new
+				// value for this, what the c# code said should win. Who cares what's in the English Xliff. It's only real
 				// purpose in life is to provide a list of strings that have been disovered dynamically when the translator
 				// needs a list of strings to translate (without it, the translator would have to cause the program to visit
 				// each part of the UI so as to trip over all the GetDynamicString() calls.
@@ -143,12 +146,12 @@ namespace L10NSharp.Tests
 			}
 		}
 		/// <summary>
-		/// This is a regression test. If the English TMX is out of date, too bad. The c# code always wins.
+		/// This is a regression test. If the English Xliff is out of date, too bad. The c# code always wins.
 		/// </summary>
 		[Test]
-		public void GetDynamicString_EnglishTMXHasDIfferentStringThanParamater_ParameterWins()
+		public void GetDynamicString_EnglishXliffHasDIfferentStringThanParamater_ParameterWins()
 		{
-			using(var folder = new TempFolder("GetDynamicString_EnglishTMXHasDIfferentStringThanParameter_ParameterWins"))
+			using(var folder = new TempFolder("GetDynamicString_EnglishXliffHasDIfferentStringThanParameter_ParameterWins"))
 			{
 				SetupManager(folder, "en");
 				Assert.AreEqual("from c# code", LocalizationManager.GetDynamicString(AppId, "theId", "from c# code"));
@@ -156,9 +159,9 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void GetDynamicString_ArabicTMXHasArabicValue_ArabicTMXWins()
+		public void GetDynamicString_ArabicXliffHasArabicValue_ArabicXliffWins()
 		{
-			using(var folder = new TempFolder("GetDynamicString_EnglishTMXHasDIfferentStringThanParameter_ParameterWins"))
+			using(var folder = new TempFolder("GetDynamicString_EnglishXliffHasDIfferentStringThanParameter_ParameterWins"))
 			{
 				SetupManager(folder, "ar");
 				Assert.AreEqual("inArabic", LocalizationManager.GetDynamicString(AppId, "theId", "from c# code"));
@@ -167,7 +170,7 @@ namespace L10NSharp.Tests
 		[Test]
 		public void GetDynamicStringOrEnglish()
 		{
-			using(var folder = new TempFolder("GetDynamicString_EnglishTMXHasDIfferentStringThanParameter_ParameterWins"))
+			using(var folder = new TempFolder("GetDynamicString_EnglishXliffHasDIfferentStringThanParameter_ParameterWins"))
 			{
 				SetupManager(folder, "ar");
 				Assert.AreEqual("blahInEnglishInCode", GetBlah("en"), "If asked for English, should give whatever is in the code.");
@@ -232,58 +235,16 @@ namespace L10NSharp.Tests
 			Assert.AreEqual("Azərbaycan dili", cultures.Where(c => c.Name == "az").Select(c => c.NativeName).FirstOrDefault());
 		}
 
-		[Test]
-		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnits()
-		{
-			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_ArabicUI"))
-			{
-				// Add a "generated" TMX for a lower version to force regeneration
-				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
-
-				SetupManager(folder, "ar");
-				var mgr = LocalizationManager.LoadedManagers[AppId];
-				var treeView = new TreeView();
-				var node = new LocTreeNode(mgr, mgr.Name, null, mgr.Name);
-				treeView.Nodes.Add(node);
-				var treeNodes = node.Nodes;
-				mgr.StringCache.LoadGroupNodes(treeNodes);
-				Assert.IsFalse(treeNodes.ContainsKey("notUsedId"));
-				Assert.IsTrue(treeNodes.ContainsKey("theId"));
-			}
-		}
-
-		[Test]
-		public void LocalizedStringCache_LoadGroupNodes_DoesntLoadNoLongerUsedUnitsUIEnglish()
-		{
-			using (var folder = new TempFolder("LoadGroupNodes_EnglishTMXHasNoLongerUsedProperty_ArabicDoesnt_NoLongerUsedWins_EnglishUI"))
-			{
-				// Add a "generated" TMX for a lower version to force regeneration
-				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				AddEnglishTmx(GetGeneratedDirectory(folder), LowerVersion);
-
-				SetupManager(folder, "en");
-				var mgr = LocalizationManager.LoadedManagers[AppId];
-				var treeView = new TreeView();
-				var node = new LocTreeNode(mgr, mgr.Name, null, mgr.Name);
-				treeView.Nodes.Add(node);
-				var treeNodes = node.Nodes;
-				mgr.StringCache.LoadGroupNodes(treeNodes);
-				Assert.IsFalse(treeNodes.ContainsKey("notUsedId"));
-				Assert.IsTrue(treeNodes.ContainsKey("theId"));
-			}
-		}
-
 		/// <summary>
 		/// - "Installs" English, Arabic, and French
 		/// - Sets the UI language
 		/// - Constructs a LocalizationManager and adds it to LocalizationManager.LoadedManagers[AppId]
 		/// </summary>
-		private static void SetupManager(TempFolder folder, string uiLanguageId = null)
+		public static void SetupManager(TempFolder folder, string uiLanguageId = null)
 		{
-			AddEnglishTmx(GetInstalledDirectory(folder), AppVersion);
-			AddArabicTmx(GetInstalledDirectory(folder));
-			AddFrenchTmx(GetInstalledDirectory(folder));
+			AddEnglishXliff(GetInstalledDirectory(folder), AppVersion);
+			AddArabicXliff(GetInstalledDirectory(folder));
+			AddFrenchXliff(GetInstalledDirectory(folder));
 
 			LocalizationManager.SetUILanguage(uiLanguageId, true);
 			var manager = new LocalizationManager(AppId, AppName, AppVersion,
@@ -295,7 +256,7 @@ namespace L10NSharp.Tests
 
 		private static string GetInstalledDirectory(TempFolder parentDir)
 		{
-			return parentDir.Path; // no reason we can't use the root temp dir for the "installed" Tmx's
+			return parentDir.Path; // no reason we can't use the root temp dir for the "installed" Xliff's
 		}
 
 		private static string GetGeneratedDirectory(TempFolder parentDir)
@@ -308,30 +269,27 @@ namespace L10NSharp.Tests
 			return parentDir.Combine("userModified");
 		}
 
-		private static void AddEnglishTmx(string folderPath, string appVersion)
+		private static void AddEnglishXliff(string folderPath, string appVersion)
 		{
 			var englishDoc = new XLiffDocument { File = {SourceLang = "en"}};
 			if (!String.IsNullOrEmpty(appVersion))
-				englishDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, appVersion);
+				englishDoc.File.ProductVersion = appVersion;
+			englishDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + LiteralNewline;
+			englishDoc.File.Original = "test.dll";
 			// first unit
-			var variants = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English TMX"}};
+			var sources = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English Xliff"}};
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Variants = variants
+				Sources = sources
 			};
-			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
 			englishDoc.AddTransUnit(tu);
 			// second unit
-			var variants2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
-			var prop = new XLiffProp();
-			prop.Type = LocalizedStringCache.kNoLongerUsedPropTag;
-			prop.Value = "true";
+			var sources2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Variants = variants2,
-				Props = { prop }
+				Sources = sources2
 			};
 			englishDoc.AddTransUnit(tu2);
 			// third unit
@@ -339,72 +297,79 @@ namespace L10NSharp.Tests
 			var tu3 = new TransUnit
 			{
 				Id = "blahId",
-				Variants = variants3
+				Sources = variants3
 			};
 			englishDoc.AddTransUnit(tu3);
-			englishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTmxFileNameForLanguage(AppId, "en")));
+			englishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
 		}
 
-		private static void AddArabicTmx(string folderPath)
+		private static void AddArabicXliff(string folderPath)
 		{
 			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
 
 			// first unit
-			var variants = new List<TransUnitVariant>
+			var sources = new List<TransUnitVariant>
 			{
-				new TransUnitVariant {Lang = "en", Value = "wrong"},
+				new TransUnitVariant {Lang = "en", Value = "wrong"}
+			};
+			var targets = new List<TransUnitVariant>
+			{
 				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
 			};
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Variants = variants
+				Sources = sources,
+				Targets = targets
 			};
-			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
-			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
 			arabicDoc.AddTransUnit(tu);
 			// second unit
-			var variants2 = new List<TransUnitVariant>
+			var sources2 = new List<TransUnitVariant>
 			{
-				new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicTMX"},
+				new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicXliff"}
+			};
+			var targets2 = new List<TransUnitVariant>
+			{
 				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
 			};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Variants = variants2
+				Sources = sources2,
+				Targets = targets2
 			};
-			tu2.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
-			tu2.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
-			// Note: we are NOT adding a NoLongerUsed property to the Arabic TMX
 			arabicDoc.AddTransUnit(tu2);
-			arabicDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTmxFileNameForLanguage(AppId, "ar")));
+			arabicDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "ar")));
 		}
 
-		private static void AddFrenchTmx(string folderPath)
+		private static void AddFrenchXliff(string folderPath)
 		{
 			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
 
 			// first unit
-			var variants = new List<TransUnitVariant>
+			var sources = new List<TransUnitVariant>
 			{
 				new TransUnitVariant {Lang = "en", Value = "blah"},
+			};
+			var targets = new List<TransUnitVariant>
+			{
 				new TransUnitVariant {Lang = "fr", Value = "blahInFrench"}
 			};
 			var tu = new TransUnit
 			{
 				Id = "blahId",
-				Variants = variants
+				Sources = sources,
+				Targets = targets
 			};
 			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
 			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
 			doc.AddTransUnit(tu);
-			doc.Save(Path.Combine(folderPath, LocalizationManager.GetTmxFileNameForLanguage(AppId, "fr")));
+			doc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "fr")));
 		}
 
 		/// <summary>
 		/// Although it would normally be plausible that AnotherContext.AnotherDialog.Title results from a renaming of
-		/// SomeContext.SomeDialog.Title, in the English TMX we don't allow this. We expect the installed English TMX
+		/// SomeContext.SomeDialog.Title, in the English Xliff we don't allow this. We expect the installed English Xliff
 		/// to be up-to-date.
 		/// </summary>
 		[Test]
@@ -412,14 +377,14 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder("OrphanLogicNotUsedForEnglish"))
 			{
-				MakeEnglishTmxWithApparentOrphan(folder);
+				MakeEnglishXliffWithApparentOrphan(folder);
 				var manager = new LocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
 				LocalizationManager.LoadedManagers[AppId] = manager;
 
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
-				// This will fail if we treated it as an orphan: the ID will not occur at all in the TMX.
+				// This will fail if we treated it as an orphan: the ID will not occur at all in the Xliff.
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
 			}
 		}
@@ -428,12 +393,12 @@ namespace L10NSharp.Tests
 		/// Make sure the orphan logic IS used where we want it. Arabic is a good test because it will be loaded before the English.
 		/// </summary>
 		[Test]
-		public void OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx()
+		public void OrphanLogicUsedForArabic_ButNotIfFoundInEnglishXliff()
 		{
-			using (var folder = new TempFolder("OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx"))
+			using (var folder = new TempFolder("OrphanLogicUsedForArabic_ButNotIfFoundInEnglishXliff"))
 			{
-				MakeEnglishTmxWithApparentOrphan(folder);
-				MakeArabicTmxWithApparentOrphans(folder, "Title");
+				MakeEnglishXliffWithApparentOrphan(folder);
+				MakeArabicXliffWithApparentOrphans(folder, "Title");
 				var manager = new LocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
@@ -442,7 +407,7 @@ namespace L10NSharp.Tests
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // remapped AnObsoleteNameForSuperclass.TestId
-				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English tmx validates it
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English Xliff validates it
 			}
 		}
 
@@ -451,9 +416,9 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder("OrphanLogicNotUsed_WithWrongEnglishSource"))
 			{
-				MakeEnglishTmxWithApparentOrphan(folder);
-				// The critical difference compared to OrphanLogicUsedForArabic_ButNotIfFoundInEnglishTmx is that the English version of the orphan doesn't match
-				MakeArabicTmxWithApparentOrphans(folder, "Some other Title, unrelated to SuperclassMethod.TestId");
+				MakeEnglishXliffWithApparentOrphan(folder);
+				// The critical difference compared to OrphanLogicUsedForArabic_ButNotIfFoundInEnglishXliff is that the English version of the orphan doesn't match
+				MakeArabicXliffWithApparentOrphans(folder, "Some other Title, unrelated to SuperclassMethod.TestId");
 				var manager = new LocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
@@ -462,42 +427,48 @@ namespace L10NSharp.Tests
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "ar"), Is.EqualTo("Title")); // no remapping, English doesn't match, so we have no Arabic, use English
-				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English tmx validates it
+				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "ar"), Is.EqualTo("Title in Arabic")); // not remapped, since English Xliff validates it
 				// We don't really care what happens to the entry for AnObsoleteNameForSuperclass.TestId, since presumably it is truly obsolete.
 			}
 		}
 
-		private static void MakeEnglishTmxWithApparentOrphan(TempFolder folder)
+		private static void MakeEnglishXliffWithApparentOrphan(TempFolder folder)
 		{
-			var englishDoc = new XLiffDocument { File = {SourceLang = "en"}};
+			var englishDoc = new XLiffDocument { File = {SourceLang = "en", ProductVersion = AppVersion}};
 			englishDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
-			//englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
-			//englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
+			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
+			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
 			Directory.CreateDirectory(GetInstalledDirectory(folder));
-			englishDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetTmxFileNameForLanguage(AppId, "en")));
+			englishDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
 		}
 
-		private static void MakeArabicTmxWithApparentOrphans(TempFolder folder, string englishForObsoleteTitle)
+		private static void MakeArabicXliffWithApparentOrphans(TempFolder folder, string englishForObsoleteTitle)
 		{
-			var arabicDoc = new XLiffDocument { File = { SourceLang = "ar" } };
+			var arabicDoc = new XLiffDocument { File = { SourceLang = "ar"} };
 			arabicDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
 			// Note that we do NOT have arabic for SuperClassMethod.TestId. We may end up getting a translation from the orphan, however.
-			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title", "Title in Arabic", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English TMX has this too
+			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title", "Title in Arabic", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English Xliff has this too
 			// Interpreted as an orphan iff englishForObsoleteTitle is "Title" (matching the English for SuperClassMethod.TestId)
 			arabicDoc.AddTransUnit(MakeTransUnit("ar", englishForObsoleteTitle, "Title in Arabic", "AnObsoleteNameForSuperclass.TestId", true));
 			Directory.CreateDirectory(GetInstalledDirectory(folder));
-			arabicDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetTmxFileNameForLanguage(AppId, "ar")));
+			arabicDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetXliffFileNameForLanguage(AppId, "ar")));
 		}
 
 		static TransUnit MakeTransUnit(string lang, string englishVal, string val, string id, bool dynamic)
 		{
-			var variants = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
+			var sources = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
+			var targets = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
 			if (englishVal != null)
-				variants.Add(new TransUnitVariant { Lang = "en", Value = englishVal });
+			{
+				sources.Add(new TransUnitVariant {Lang = "en", Value = englishVal});
+				targets.Add(new TransUnitVariant {Lang = lang, Value = val});
+			}
+				
 			var tu = new TransUnit
 			{
 				Id = id,
-				Variants = variants
+				Sources = sources,
+				Targets = targets
 			};
 			if (dynamic)
 				tu.AddProp(lang, LocalizedStringCache.kDiscoveredDyanmically, "true");

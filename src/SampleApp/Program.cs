@@ -31,16 +31,16 @@ namespace SampleApp
 
 		public static void SetUpLocalization()
 		{
-			//your installer should have a folder where you place the tmx files you're shipping with the program
-			var directoryOfInstalledTmxFiles = "../../LocalizationFilesFromInstaller";
+			//your installer should have a folder where you place the Xliff files you're shipping with the program
+			var directoryOfInstalledXliffFiles = "../../LocalizationFilesFromInstaller";
 
 			try
 			{
 				// By using "null" for the following two things, we get AppData/Product.
 				// Note: non-admin-rights users can't write to that folder.
-				string directoryOfDefaultTmxFile = null;
+				string directoryOfDefaultXliffFile = null;
 				// When a user does some translation, their work goes in this directory.
-				string directoryOfUserModifiedTmxFiles = null;
+				string directoryOfUserModifiedXliffFiles = null;
 
 				//if this is your first time running the app, the library will query the OS for the
 				//the default language. If it doesn't have that, it puts up a dialog listing what
@@ -50,7 +50,7 @@ namespace SampleApp
 
 				LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 										   "SampleApp", "SampleApp", Application.ProductVersion,
-										   directoryOfInstalledTmxFiles,
+										   directoryOfInstalledXliffFiles,
 										   "MyCompany/L10NSharpSample",
 										   Resources.Icon, //replace with your icon
 										   "sampleappLocalizations@nowhere.com", "SampleApp");
@@ -65,7 +65,7 @@ namespace SampleApp
 					Environment.FailFast("SampleApp couldn't set up localization");
 				}
 
-				if (error.Message.Contains("SampleApp.en.tmx"))
+				if (error.Message.Contains("SampleApp.en.xlf"))
 				{
 					MessageBox.Show("Sorry. SampleApp is trying to set up your machine to use this new version, but something went wrong getting at the file it needs. If you restart your computer, all will be well.");
 

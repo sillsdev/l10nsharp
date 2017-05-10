@@ -23,7 +23,8 @@ namespace L10NSharp.XLiffUtils
 {
 	#region XLiffDocment class
 	/// ----------------------------------------------------------------------------------------
-	[XmlRoot("xliff")]
+
+	[XmlRoot("xliff", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class XLiffDocument
 	{
         /// ------------------------------------------------------------------------------------
@@ -33,9 +34,8 @@ namespace L10NSharp.XLiffUtils
         /// ------------------------------------------------------------------------------------
         public XLiffDocument()
 		{
-			//Body = new XLiffBody();
 			File = new XLiffFile();
-			Version = "2.0";
+			Version = "1.2";
 		}
 
 		#region Properties
@@ -52,16 +52,8 @@ namespace L10NSharp.XLiffUtils
 		/// Gets or sets the file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("file")]
+		[XmlElement("file", Namespace = null)]
 		public XLiffFile File { get; set; }
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets or sets the body.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[XmlElement("body")]
-		public XLiffBody Body { get; set; }
 
 		#endregion
 
@@ -73,13 +65,13 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public TransUnit GetTransUnitForId(string id)
 		{
-			return File.GetTransUnitForId(id);
+			return File.Body.GetTransUnitForId(id);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public IEnumerable<TransUnit> GetTransUnitsForTextInLang(string langId, string text)
 		{
-			return from tu in File.TransUnits
+			return from tu in File.Body.TransUnits
 				   let variant = tu.GetVariantForLang(langId)
 				   where variant != null && variant.Value == text
 				   select tu;
@@ -92,7 +84,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public IEnumerable<string> GetAllVariantLanguagesFound()
 		{
-			return File.TransUnits.SelectMany(tu => tu.Variants).Select(v => v.Lang).Distinct();
+			return File.Body.TransUnits.SelectMany(tu => tu.Sources).Select(v => v.Lang).Union(File.Body.TransUnits.SelectMany(tu => tu.Targets).Select(v => v.Lang)).Distinct();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -104,7 +96,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool AddTransUnit(TransUnit tu)
 		{
-			return File.AddTransUnit(tu);
+			return File.Body.AddTransUnit(tu);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -114,7 +106,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void RemoveTransUnit(TransUnit tu)
 		{
-			File.RemoveTransUnit(tu);
+			File.Body.RemoveTransUnit(tu);
 		}
 
         /// ------------------------------------------------------------------------------------
@@ -158,9 +150,10 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="id"></param>
 		 public TransUnit GetTransUnitForOrphan(TransUnit orphan)
 		{
-			 return File.GetTransUnitForOrphan(orphan);
+			 return File.Body.GetTransUnitForOrphan(orphan);
 		}
 	}
+
 
 	#endregion
 }

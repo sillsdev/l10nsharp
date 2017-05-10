@@ -15,7 +15,7 @@ namespace L10NSharp.Tests
 	{
 		private LocalizationManager m_manager;
 		private L10NSharpExtender m_extender;
-		private string m_tmxPath;
+		private string m_xliffPath;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -25,9 +25,9 @@ namespace L10NSharp.Tests
 		[SetUp]
 		public void TestSetup()
 		{
-			var installedTmxDir = "../../src/L10NSharpTests/TestTmx";
-			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0", installedTmxDir, "", null, "");
-			m_tmxPath = m_manager.GetTmxPathForLanguage("en", true);
+			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
+			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0", installedXliffDir, "", null, "");
+			m_xliffPath = m_manager.GetXliffPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender();
 			m_extender.LocalizationManagerId = "Test";
 		}
@@ -42,7 +42,7 @@ namespace L10NSharp.Tests
 		{
 			m_extender = null;
 			m_manager = null;
-			var localAppDataDir = Directory.GetParent(Path.GetDirectoryName(m_tmxPath));
+			var localAppDataDir = Directory.GetParent(Path.GetDirectoryName(m_xliffPath));
 			Directory.Delete(localAppDataDir.FullName, true);
 		}
 

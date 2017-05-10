@@ -21,13 +21,14 @@ namespace L10NSharp.XLiffUtils
 {
 	#region TransUnit class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("trans-unit")]
+	[XmlType("trans-unit", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class TransUnit : XLiffBaseWithNotesAndProps
 	{
 		/// ------------------------------------------------------------------------------------
 		public TransUnit()
 		{
-			Variants = new List<TransUnitVariant>();
+			Sources = new List<TransUnitVariant>();
+			Targets = new List<TransUnitVariant>();
 		}
 
 		#region Properties
@@ -36,20 +37,20 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("id")]
 		public string Id { get; set; }
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the type of translation unit.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlElement("extype")]
-        public string Type { get; set; }
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the type of translation unit.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("extype")]
+		public string Type { get; set; }
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the list of translation unit.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlElement("note")]
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the list of translation unit.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlElement("note")]
 		public List<XLiffNote> Notes
 		{
 			get { return _notes; }
@@ -58,49 +59,31 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of props in the translation unit.
+		/// Gets the list of translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("prop")]
-		public List<XLiffProp> Props
-		{
-			get { return _props; }
-			set { _props = value; }
-		}
+		[XmlElement("source")]
+		public List<TransUnitVariant> Sources { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("source")]
-		public List<TransUnitVariant> Variants { get; set; }
+		[XmlElement("target")]
+		public List<TransUnitVariant> Targets { get; set; }
 
-        //[XmlIgnore]
-        //public string Value
-        //{
-        //    get { return (Seg == null ? null : Variants.ToString()); }
-        //    set
-        //    {
-        //        if (Seg == null)
-        //            Seg = new XLiffSegment();
-
-        //        Seg.Value = value;
-        //    }
-        //}
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets a value indicating whether this instance is empty.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlIgnore]
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets a value indicating whether this instance is empty.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlIgnore]
 		public bool IsEmpty
 		{
 			get
 			{
-				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 &&
-					Props.Count == 0 && (Variants == null || Variants.Count == 0));
+				return (string.IsNullOrEmpty(Id) && (Sources == null || Sources.Count == 0));
 			}
 		}
 
@@ -131,13 +114,15 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool AddOrReplaceVariant(TransUnitVariant tuv)
 		{
-			if (tuv == null || tuv.IsEmpty)
+			if (tuv == null)
 				return false;
 
 			// If a variant exists for the specified language, then remove it first.
 			RemoveVariant(tuv.Lang);
-
-			Variants.Add(tuv);
+			if (tuv.Lang == "en")
+				Sources.Add(tuv);
+			else
+				Targets.Add(tuv);
 			return true;
 		}
 
@@ -161,7 +146,12 @@ namespace L10NSharp.XLiffUtils
 		{
 			TransUnitVariant tuv = GetVariantForLang(langId);
 			if (tuv != null)
-				Variants.Remove(tuv);
+			{
+				if (langId == "en")
+					Sources.Remove(tuv);
+				else
+					Targets.Remove(tuv);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -171,7 +161,10 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public TransUnitVariant GetVariantForLang(string langId)
 		{
-			return Variants.FirstOrDefault(x => x.Lang == langId);
+			if (langId == "en")
+				return Sources.FirstOrDefault(x => x.Lang == langId);
+			else
+				return Targets.FirstOrDefault(x => x.Lang == langId);
 		}
 
 		/// ------------------------------------------------------------------------------------

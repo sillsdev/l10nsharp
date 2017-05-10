@@ -81,7 +81,7 @@ namespace L10NSharp.UI
             this._showXLIFFFile.TabIndex = 3;
             this._showXLIFFFile.TabStop = true;
             this._showXLIFFFile.Text = "your XLIFF file";
-            this._showXLIFFFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnShowXLIFFFile);
+            this._showXLIFFFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnShowXliffFile);
             // 
             // label3
             // 

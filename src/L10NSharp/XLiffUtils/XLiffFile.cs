@@ -1,11 +1,7 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright (c) 2009, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2009' company='SIL International'>
-//		Copyright (c) 2009, SIL International. All Rights Reserved.
-//
-//		Distributable under the terms of either the Common Public License or the
-//		GNU Lesser General Public License, as specified in the LICENSING.txt file.
-// </copyright>
+#region
+// Copyright (c) 2017 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 #endregion
 //
 // File: XLiffHeader.cs
@@ -26,184 +22,82 @@ namespace L10NSharp.XLiffUtils
 	/// XLiff file
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("file")]
+	[XmlType("file", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class XLiffFile : XLiffBaseWithNotesAndProps
 	{
 		/// ------------------------------------------------------------------------------------
 		public XLiffFile()
 		{
 			SourceLang = "en";
+			ProductVersion = "0.0.0";
+			Original = "Palaso.dll";
+			DataType = "csharp";
 		}
+
         private int _transUnitId;
         private bool _idsVerified;
-        private List<TransUnit> _transUnits = new List<TransUnit>();
-        #region Properties
+		protected XLiffHeader _header = new XLiffHeader();
+		protected XLiffBody _body = new XLiffBody();
+		private List<TransUnit> _transUnits = new List<TransUnit>();
+		#region Properties
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the list of translation units in the header.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlElement("trans-unit")]
-        public List<TransUnit> TransUnits
-        {
-            get
-            {
-                if (!_idsVerified && _transUnits != null && _transUnits.Count > 0)
-                {
-                    foreach (var tu in _transUnits.Where(tu => string.IsNullOrEmpty(tu.Id)))
-                        tu.Id = (++_transUnitId).ToString();
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the list of translation notes in the document header.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlElement("header")]
+		public XLiffHeader Header
+		{
+			get { return _header; }
+			set { _header = value; }
+		}
 
-                    _idsVerified = true;
-                }
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the body.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlElement("body")]
+		public XLiffBody Body
+		{
+			get { return _body; }
+			set { _body = value; }
+		}
 
-                return _transUnits;
-            }
-            set { _transUnits = value; }
-        }
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the source language found in the XLiff file's file.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlAttribute("source-language")]
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the source language found in the XLiff file.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("source-language")]
 		public string SourceLang { get; set; }
 
-        /// <summary></summary>
-        protected XLiffNote _notes = new XLiffNote();
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the product version found in the XLiff file.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("product-version")]
+		public string ProductVersion { get; set; }
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the list of translation notes in the document header.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlElement("notes")]
-        public XLiffNote Notes
-        {
-            get { return _notes; }
-            set { _notes = value; }
-        }
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the dll or executable file name.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("original")]
+		public string Original { get; set; }
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the list of props in the translation unit.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlElement("prop")]
-        public List<XLiffProp> Props
-        {
-            get { return _props; }
-            set { _props = value; }
-        }
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the type of data.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("datatype")]
+		public string DataType { get; set; }
 
-        #endregion
-
-
-        #region Methods
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets the translation unit for the specified id.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        internal TransUnit GetTransUnitForId(string id)
-        {
-            return _transUnits.FirstOrDefault(tu => tu.Id == id);
-        }
-
-        /// <summary>
-        /// When all but the last part of the id changed, this can help reunite things
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        internal TransUnit GetTransUnitForOrphan(TransUnit orphan)
-        {
-            var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(orphan.Id);
-            var defaultTextToMatch = GetDefaultVariantValue(orphan);
-            return _transUnits.FirstOrDefault(tu => LocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch && GetDefaultVariantValue(tu) == defaultTextToMatch);
-        }
-
-        string GetDefaultVariantValue(TransUnit tu)
-        {
-            var variant = tu.GetVariantForLang(LocalizationManager.kDefaultLang);
-            if (variant == null)
-                return null;
-            return variant.Value;
-        }
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Adds the specified translation unit.
-        /// </summary>
-        /// <param name="tu">The translation unit.</param>
-        /// <returns>true if the translation unit was successfully added. Otherwise, false.</returns>
-        /// ------------------------------------------------------------------------------------
-        internal bool AddTransUnit(TransUnit tu)
-        {
-            if (tu == null || tu.IsEmpty)
-                return false;
-
-            if (tu.Id == null)
-                tu.Id = (++_transUnitId).ToString();
-
-            // If a translation unit with the specified id already exists, then quit here.
-            if (GetTransUnitForId(tu.Id) != null)
-                return false;
-
-            //if (tu.Type == null)
-            //    tu.T = (++_transUnitId).ToString();
-
-            _transUnits.Add(tu);
-            return true;
-        }
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// If a translation unit does not already exist for the id in the specified
-        /// translation unit, then the translation unit is added. Otherwise, if the variant
-        /// for the specified language does not exist in the translation unit, it is added.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        internal void AddTransUnitOrVariantFromExisting(TransUnit tu, string langId)
-        {
-            var variantToAdd = tu.GetVariantForLang(langId);
-
-            if (variantToAdd == null || AddTransUnit(tu))
-                return;
-
-            var existingTu = GetTransUnitForId(tu.Id);
-
-            //notice, we don't care if there is already a string in there for this language
-            //(that was the source of a previous bug), because the XLiff of language X should
-            //surely take precedence, as source of the translation, over other language's
-            //tms files which, by virtue of their alphabetica order (e.g. arabic), came
-            //first. This probably only effects English, as it has variants in all the other
-            //languages. Previously, Arabic would be processed first, so when English came
-            //along, it was too late.
-            existingTu.AddOrReplaceVariant(variantToAdd);
-        }
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Removes the specified translation unit.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        internal void RemoveTransUnit(TransUnit tu)
-        {
-            if (tu == null)
-                return;
-
-            if (_transUnits.Contains(tu))
-                _transUnits.Remove(tu);
-            else if (tu.Id != null)
-            {
-                var tmptu = GetTransUnitForId(tu.Id);
-                if (tmptu != null)
-                    _transUnits.Remove(tmptu);
-            }
-        }
-
-        #endregion
+		#endregion
     }
 
     #endregion

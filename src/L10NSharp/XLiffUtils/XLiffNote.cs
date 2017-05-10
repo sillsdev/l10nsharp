@@ -20,7 +20,7 @@ namespace L10NSharp.XLiffUtils
 {
 	#region XLiffNote class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("notet")]
+	[XmlType("note", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class XLiffNote : XLiffBaseWithNotesAndProps
     {
 		#region Properties
@@ -40,35 +40,17 @@ namespace L10NSharp.XLiffUtils
 		[XmlText]
 		public string Text { get; set; }
 
-        /// <summary></summary>
-        //protected XLiffNote _notes = new XLiffNote();
-        ///// <summary></summary>
-        //protected List<XLiffNote> _props = new List<XLiffNote>();
-
         /// ------------------------------------------------------------------------------------
         /// <summary>
-        /// Gets the list of translation notes in the document header.
+		/// Gets the list of notes in the document header.
         /// </summary>
         /// ------------------------------------------------------------------------------------
-        [XmlElement("note")]
-        public List<XLiffNote> Notes
+		[XmlElement("note")]
+		public List<XLiffNote> Notes
         {
             get { return _notes; }
             set { _notes = value; }
         }
-
-        ///// ------------------------------------------------------------------------------------
-        ///// <summary>
-        ///// Gets the list of props in the translation unit.
-        ///// </summary>
-        ///// ------------------------------------------------------------------------------------
-        //[XmlElement("prop")]
-        //public List<XLiffNote> Props
-        //{
-        //    get { return _props; }
-        //    set { _props = value; }
-        //}
-
         #endregion
 
         #region Methods
