@@ -14,6 +14,18 @@ L10NSharp provides a dialog for translating terms while running the application.
 
 Just download the repository and build the solution (L10NSharp.sln).
 
+For Linux, the build command would look something like this:
+
+    /opt/mono4-sil/bin/xbuild build/L10NSharp.proj /t:Build /p:Configuration=Debug
+
+Note that building L10NSharp requires at least version 4.6 of Mono, which mono4-sil provides.
+
 ## Running Unit Tests
 
-We use NUnit to run our unit tests. NUnit is downloaded via NuGet.
+We use NUnit to run our unit tests. NUnit is downloaded via NuGet.  There may be a few tests that do not run, but all tests that run should pass.
+
+For Linux, the command to run the tests would look something like this:
+
+    /opt/mono4-sil/bin/mono packages/NUnit.Runners.Net4.2.6.4/tools/nunit-console.exe output/Debug/L10NSharpTests.dll
+
+It is also possible to run the tests from inside MonoDevelop, at least if mono4-sil is installed and made the default Mono runtime.
