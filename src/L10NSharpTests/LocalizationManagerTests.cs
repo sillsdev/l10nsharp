@@ -278,10 +278,13 @@ namespace L10NSharp.Tests
 			englishDoc.File.Original = "test.dll";
 			// first unit
 			var sources = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English Xliff"}};
+			var note = new XLiffNote();
+			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Sources = sources
+				Sources = sources,
+				Notes = { note }
 			};
 			englishDoc.AddTransUnit(tu);
 			// second unit
@@ -316,10 +319,13 @@ namespace L10NSharp.Tests
 			{
 				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
 			};
+			var note = new XLiffNote();
+			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
 				Sources = sources,
+				Notes = { note },
 				Targets = targets
 			};
 			arabicDoc.AddTransUnit(tu);
@@ -355,10 +361,13 @@ namespace L10NSharp.Tests
 			{
 				new TransUnitVariant {Lang = "fr", Value = "blahInFrench"}
 			};
+			var note = new XLiffNote();
+			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "blahId",
 				Sources = sources,
+				Notes = { note },
 				Targets = targets
 			};
 			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");

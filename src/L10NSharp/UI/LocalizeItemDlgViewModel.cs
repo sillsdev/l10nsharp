@@ -507,12 +507,12 @@ namespace L10NSharp.UI
 				AllLeafNodesShowingInGrid[index].GetToolTip(_tgtLangId));
 		}
 
-		///// ------------------------------------------------------------------------------------
-		//public string GetCommentForGridIndex(int index)
-		//{
-		//	return (index >= AllLeafNodesShowingInGrid.Count ? null :
-		//		AllLeafNodesShowingInGrid[index].GetComment());
-		//}
+		/// ------------------------------------------------------------------------------------
+		public string GetCommentForGridIndex(int index)
+		{
+			return (index >= AllLeafNodesShowingInGrid.Count ? null :
+				AllLeafNodesShowingInGrid[index].GetComment());
+		}
 
 		#endregion
 

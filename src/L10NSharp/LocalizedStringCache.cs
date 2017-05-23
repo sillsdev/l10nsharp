@@ -453,16 +453,16 @@ namespace L10NSharp
 		#endregion
 
 		#region Methods for getting localized string metadata
-		///// ------------------------------------------------------------------------------------
-		///// <summary>
-		///// Gets the comment for the specified id.
-		///// </summary>
-		///// ------------------------------------------------------------------------------------
-		//internal string GetComment(string id)
-		//{
-		//	TransUnit tu = XliffDocument.GetTransUnitForId(id);
-		//	return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
-		//}
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the comment for the specified id.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal string GetComment(string id)
+		{
+			TransUnit tu = XliffDocument.GetTransUnitForId(id);
+			return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
+		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
