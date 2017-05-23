@@ -50,18 +50,6 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the list of translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlElement("note")]
-		public List<XLiffNote> Notes
-		{
-			get { return _notes; }
-			set { _notes = value; }
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the list of translation unit.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
 		[XmlElement("source")]
 		public List<TransUnitVariant> Sources { get; set; }
 
@@ -73,6 +61,17 @@ namespace L10NSharp.XLiffUtils
 		[XmlElement("target")]
 		public List<TransUnitVariant> Targets { get; set; }
 
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets the list of translation unit.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlElement("note")]
+		public List<XLiffNote> Notes
+		{
+			get { return _notes; }
+			set { _notes = value; }
+		}
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a value indicating whether this instance is empty.
