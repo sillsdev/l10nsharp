@@ -271,7 +271,7 @@ namespace L10NSharp.UI
 			_textBoxTgtToolTip.Text = _viewModel.CurrentNodeTargetToolTip;
 			_textBoxSrcShortcutKeys.Text = _viewModel.CurrentNodeSourceShortcutKeys;
 			_shortcutKeysDropDown.ShortcutKeysAsString = _viewModel.CurrentNodeTargetShortcutKeys;
-			//_textBoxComment.Text = _viewModel.CurrentNodeComment;
+			_textBoxComment.Text = _viewModel.CurrentNodeComment;
 
 			//btnCopyText.Enabled = (txtSrcTranslation.Text != string.Empty);
 			//btnCopyToolTip.Enabled = (txtSrcToolTip.Text != string.Empty);
@@ -786,7 +786,7 @@ namespace L10NSharp.UI
 				case 2: e.Value = _viewModel.GetTargetTextForGridIndex(e.RowIndex); break;
 				case 3: e.Value = _viewModel.GetSourceToolTipForGridIndex(e.RowIndex); break;
 				case 4: e.Value = _viewModel.GetTargetToolTipForGridIndex(e.RowIndex); break;
-				//case 5: e.Value = _viewModel.GetCommentForGridIndex(e.RowIndex); break;
+				case 5: e.Value = _viewModel.GetCommentForGridIndex(e.RowIndex); break;
 				default: e.Value = null; break;
 			}
 		}

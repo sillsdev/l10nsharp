@@ -82,7 +82,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			get
 			{
-				return (string.IsNullOrEmpty(Id) && (Sources == null || Sources.Count == 0));
+				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && (Sources == null || Sources.Count == 0));
 			}
 		}
 

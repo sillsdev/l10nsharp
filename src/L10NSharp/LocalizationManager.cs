@@ -22,7 +22,6 @@ namespace L10NSharp
 		internal const string kAppVersionPropTag = "x-appversion";
 		internal const string kL10NPrefix = "_L10N_:";
 		internal const string kFileExtension = ".xlf";
-		internal const int kFileExtensionLength = 4;
 
 		/// <summary>
 		/// These two events allow us to know when the localization dialog is running.
@@ -711,7 +710,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private string GetLangIdFromXliffFileName(string fileName)
 		{
-			fileName = fileName.Substring(0, fileName.Length - kFileExtensionLength);
+			fileName = fileName.Substring(0, fileName.Length - kFileExtension.Length);
 			int i = fileName.LastIndexOf('.');
 			return (i < 0 ? null : fileName.Substring(i + 1));
 		}

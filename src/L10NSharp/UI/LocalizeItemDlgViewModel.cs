@@ -142,11 +142,11 @@ namespace L10NSharp.UI
 			}
 		}
 
-		///// ------------------------------------------------------------------------------------
-		//public string CurrentNodeComment
-		//{
-		//	get { return (_currentNode != null ? _currentNode.GetComment() : null); }
-		//}
+		/// ------------------------------------------------------------------------------------
+		public string CurrentNodeComment
+		{
+			get { return (_currentNode != null ? _currentNode.GetComment() : null); }
+		}
 
 		/// ------------------------------------------------------------------------------------
 		public bool TranslatorBusy

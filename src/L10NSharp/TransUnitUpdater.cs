@@ -98,9 +98,9 @@ namespace L10NSharp
 
 			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment) return;
 
-			//if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
+			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
 
-			//tu.Notes.Clear();
+			tu.Notes.Clear();
 			_updated = true;
 
 			if (!string.IsNullOrEmpty(locInfo.Comment))
