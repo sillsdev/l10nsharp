@@ -30,7 +30,6 @@ namespace L10NSharp.XLiffUtils
 		{
 			SourceLang = "en";
 			ProductVersion = "0.0.0";
-			Original = "Palaso.dll";
 			DataType = "csharp";
 		}
 

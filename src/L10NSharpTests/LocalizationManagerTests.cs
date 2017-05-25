@@ -309,7 +309,7 @@ namespace L10NSharp.Tests
 		private static void AddArabicXliff(string folderPath)
 		{
 			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
-
+			arabicDoc.File.Original = "test.dll";
 			// first unit
 			var sources = new List<TransUnitVariant>
 			{
@@ -351,7 +351,7 @@ namespace L10NSharp.Tests
 		private static void AddFrenchXliff(string folderPath)
 		{
 			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
-
+			doc.File.Original = "test.dll";
 			// first unit
 			var sources = new List<TransUnitVariant>
 			{
