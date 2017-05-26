@@ -256,7 +256,6 @@ namespace L10NSharp
 					return;
 			}
 
-			// Before wasting a bunch of time, make sure we can open the file for writing. .Elements("note")
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 

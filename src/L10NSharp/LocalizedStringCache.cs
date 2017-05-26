@@ -264,24 +264,6 @@ namespace L10NSharp
 				xliffDoc.Save(OwningManager.GetXliffPathForLanguage(langId, true));
 		}
 
-		///// ------------------------------------------------------------------------------------
-		///// <summary>
-		///// Saves the cache to the specified file, if the cache is dirty. If the cache is
-		///// dirty and saved, then true is returned. Otherwise, false is returned.
-		///// </summary>
-		///// ------------------------------------------------------------------------------------
-		//private bool SaveIfDirty(string XliffFile)
-		//{
-		//	if (!IsDirty || string.IsNullOrEmpty(XliffFile))
-		//		return false;
-
-		//	//_XliffFile = XliffFile;
-		//	IsDirty = false;
-		//	xliffDoc.File.TransUnits.Sort(TuComparer);
-		//	xliffDoc.Save(XliffFile);
-		//	return true;
-		//}
-
 		#endregion
 
 		/// ------------------------------------------------------------------------------------

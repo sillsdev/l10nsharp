@@ -30,7 +30,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			SourceLang = "en";
 			ProductVersion = "0.0.0";
-			DataType = "csharp";
+			DataType = "plaintext";
 		}
 
         private int _transUnitId;
