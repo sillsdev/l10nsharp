@@ -115,10 +115,9 @@ namespace L10NSharp.Tests
 				var xmlDoc = XElement.Load(generatedFilePath);
 				var docNamespace = xmlDoc.GetDefaultNamespace();
 				var fileElt = xmlDoc.Element(docNamespace + "file");
-				var verAttribute = fileElt == null ? null
-					: fileElt.Attribute("product-version");
-				var generatedVersion = verAttribute == null ? null : new Version(verAttribute.Value);
-				Assert.AreEqual(new Version(AppVersion), generatedVersion, "Generated file should have been updated to the current version");
+				Assert.NotNull(fileElt);
+				var generatedVersion = fileElt.Attribute("product-version").Value;
+				Assert.AreEqual(new Version(AppVersion).ToString(), generatedVersion, "Generated file should have been updated to the current version");
 			}
 		}
 
@@ -277,7 +276,7 @@ namespace L10NSharp.Tests
 			englishDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + LiteralNewline;
 			englishDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English Xliff"}};
+			var sources = new TransUnitVariant {Lang = "en", Value = "from English Xliff"};
 			var note = new XLiffNote();
 			note.Text = "Test";
 			var tu = new TransUnit
@@ -288,7 +287,7 @@ namespace L10NSharp.Tests
 			};
 			englishDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
+			var sources2 = new TransUnitVariant {Lang = "en", Value = "no longer used English text"};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
@@ -296,7 +295,7 @@ namespace L10NSharp.Tests
 			};
 			englishDoc.AddTransUnit(tu2);
 			// third unit
-			var variants3 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "blah"}};
+			var variants3 = new TransUnitVariant {Lang = "en", Value = "blah"};
 			var tu3 = new TransUnit
 			{
 				Id = "blahId",
@@ -311,13 +310,13 @@ namespace L10NSharp.Tests
 			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
 			arabicDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant>
+			var sources = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "wrong"}
+				Lang = "en", Value = "wrong"
 			};
-			var targets = new List<TransUnitVariant>
+			var targets = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
+				Lang = "ar", Value = "inArabic"
 			};
 			var note = new XLiffNote();
 			note.Text = "Test";
@@ -330,13 +329,13 @@ namespace L10NSharp.Tests
 			};
 			arabicDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new List<TransUnitVariant>
+			var sources2 = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicXliff"}
+				Lang = "en", Value = "inEnglishpartofArabicXliff"
 			};
-			var targets2 = new List<TransUnitVariant>
+			var targets2 = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
+				Lang = "ar", Value = "inArabic"
 			};
 			var tu2 = new TransUnit
 			{
@@ -353,13 +352,13 @@ namespace L10NSharp.Tests
 			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
 			doc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant>
+			var sources = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "blah"},
+				Lang = "en", Value = "blah",
 			};
-			var targets = new List<TransUnitVariant>
+			var targets = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "fr", Value = "blahInFrench"}
+				Lang = "fr", Value = "blahInFrench"
 			};
 			var note = new XLiffNote();
 			note.Text = "Test";
@@ -465,12 +464,12 @@ namespace L10NSharp.Tests
 
 		static TransUnit MakeTransUnit(string lang, string englishVal, string val, string id, bool dynamic)
 		{
-			var sources = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
-			var targets = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
+			var sources = new TransUnitVariant { Lang = lang, Value = val };
+			var targets = new TransUnitVariant { Lang = lang, Value = val };
 			if (englishVal != null)
 			{
-				sources.Add(new TransUnitVariant {Lang = "en", Value = englishVal});
-				targets.Add(new TransUnitVariant {Lang = lang, Value = val});
+				sources = new TransUnitVariant {Lang = "en", Value = englishVal};
+				targets = new TransUnitVariant {Lang = lang, Value = val};
 			}
 				
 			var tu = new TransUnit

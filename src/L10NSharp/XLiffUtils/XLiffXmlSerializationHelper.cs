@@ -52,19 +52,6 @@ namespace L10NSharp.XLiffUtils
 				m_fKeepWhitespaceInElements = fKeepWhitespaceInElements;
 			}
 
-			///// --------------------------------------------------------------------------------
-			///// <summary>
-			///// Gets the namespace URI (as defined in the W3C Namespace specification) of the
-			///// node on which the reader is positioned.
-			///// </summary>
-			///// <value></value>
-			///// <returns>The namespace URI of the current node; otherwise an empty string.</returns>
-			///// --------------------------------------------------------------------------------
-			//public override string NamespaceURI
-			//{
-			//	get { return string.Empty; }
-			//}
-
 			/// --------------------------------------------------------------------------------
 			/// <summary>
 			/// Reads the next node from the stream.
@@ -150,7 +137,6 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public static bool SerializeToFile<T>(string filename, T data)
 		{
-            //((XLiffDocument)data).File.Body = ((XLiffDocument)data).Body.TransUnits;
             try
 			{
 				using (TextWriter writer = new StreamWriter(filename))

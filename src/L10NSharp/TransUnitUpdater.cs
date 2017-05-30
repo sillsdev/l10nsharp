@@ -129,7 +129,7 @@ namespace L10NSharp
 
 					_updated = true;
 					tu.RemoveVariant(tuv);
-					if (tu.Sources.Count == 0 && tu.Targets.Count == 0)
+					if (tu.Sources == null && tu.Targets == null)
 					{
 						_xliffDoc.RemoveTransUnit(tu);
 						tu = null; // so we will make a new one if needed.

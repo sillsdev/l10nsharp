@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------------------------
 #region // Copyright (c) 2009, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2009' company='SIL International'>
+// <copyright from='2009' to='2017' company='SIL International'>
 //		Copyright (c) 2009, SIL International. All Rights Reserved.
 //
 //		Distributable under the terms of either the Common Public License or the
@@ -32,18 +32,13 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("xml:lang")]
 		public string Lang { get; set; }
 
-		private string _value;
         /// ------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the value of the translation unit variant.
         /// </summary>
         /// ------------------------------------------------------------------------------------
         [XmlText]
-        public string Value
-        {
-            get { return _value; }
-            set { _value = value; }
-        }
+		public string Value { get; set; }
 
 		#endregion
 	}
