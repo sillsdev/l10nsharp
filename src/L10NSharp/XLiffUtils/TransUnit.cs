@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright (c) 2009, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2009' company='SIL International'>
-//		Copyright (c) 2009, SIL International. All Rights Reserved.
+#region // Copyright (c) 2009-2017, SIL International. All Rights Reserved.
+// <copyright from='2009' to='2017' company='SIL International'>
+//		Copyright (c) 2009-2017, SIL International. All Rights Reserved.
 //
 //		Distributable under the terms of either the Common Public License or the
 //		GNU Lesser General Public License, as specified in the LICENSING.txt file.
@@ -24,11 +24,14 @@ namespace L10NSharp.XLiffUtils
 	[XmlType("trans-unit", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class TransUnit : XLiffBaseWithNotesAndProps
 	{
+		internal const string kDefaultLangId = "en";
+
 		/// ------------------------------------------------------------------------------------
 		public TransUnit()
 		{
-			Sources = new List<TransUnitVariant>();
-			Targets = new List<TransUnitVariant>();
+			Source = new TransUnitVariant();
+			Target = null;
+			Notes = new List<XLiffNote>();
 		}
 
 		#region Properties
@@ -51,7 +54,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("source")]
-		public List<TransUnitVariant> Sources { get; set; }
+		public TransUnitVariant Source { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -59,7 +62,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("target")]
-		public List<TransUnitVariant> Targets { get; set; }
+		public TransUnitVariant Target { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -67,11 +70,8 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("note")]
-		public List<XLiffNote> Notes
-		{
-			get { return _notes; }
-			set { _notes = value; }
-		}
+		public List<XLiffNote> Notes { get; set; }
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a value indicating whether this instance is empty.
@@ -82,7 +82,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			get
 			{
-				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && (Sources == null || Sources.Count == 0));
+				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null && Target == null);
 			}
 		}
 
@@ -118,10 +118,10 @@ namespace L10NSharp.XLiffUtils
 
 			// If a variant exists for the specified language, then remove it first.
 			RemoveVariant(tuv.Lang);
-			if (tuv.Lang == "en")
-				Sources.Add(tuv);
+			if (tuv.Lang == kDefaultLangId)
+				Source = tuv;
 			else
-				Targets.Add(tuv);
+				Target = tuv;
 			return true;
 		}
 
@@ -146,10 +146,10 @@ namespace L10NSharp.XLiffUtils
 			TransUnitVariant tuv = GetVariantForLang(langId);
 			if (tuv != null)
 			{
-				if (langId == "en")
-					Sources.Remove(tuv);
+				if (langId == kDefaultLangId)
+					Source = new TransUnitVariant();
 				else
-					Targets.Remove(tuv);
+					Target = new TransUnitVariant();
 			}
 		}
 
@@ -160,10 +160,10 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public TransUnitVariant GetVariantForLang(string langId)
 		{
-			if (langId == "en")
-				return Sources.FirstOrDefault(x => x.Lang == langId);
+			if (langId == kDefaultLangId)
+				return Source;
 			else
-				return Targets.FirstOrDefault(x => x.Lang == langId);
+				return Target != null && langId == Target.Lang ? Target : null;
 		}
 
 		/// ------------------------------------------------------------------------------------

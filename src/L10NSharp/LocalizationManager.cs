@@ -256,7 +256,7 @@ namespace L10NSharp
 					return;
 			}
 
-			// Before wasting a bunch of time, make sure we can open the file for writing. .Elements("note")
+			// Before wasting a bunch of time, make sure we can open the file for writing.
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 
@@ -346,7 +346,7 @@ namespace L10NSharp
 			var allLangs = groups.Select(g => g.First()).ToList();
 
 			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
-				LoadedManagers.Values.SelectMany(lm => lm.StringCache.XliffDocument.GetAllVariantLanguagesFound())
+				LoadedManagers.Values.SelectMany(lm => lm.StringCache.XliffDocument.GetAllVariantLanguagesFound(false))
 				.Distinct().ToList());
 
 			// BL-1011: Make sure cultures that have existing localizations are included

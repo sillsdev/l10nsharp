@@ -82,9 +82,12 @@ namespace L10NSharp.XLiffUtils
 		/// Gets all the unique language ids found in the XLIFF file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<string> GetAllVariantLanguagesFound()
+		public IEnumerable<string> GetAllVariantLanguagesFound(bool isTargetNeeded)
 		{
-			return File.Body.TransUnits.SelectMany(tu => tu.Sources).Select(v => v.Lang).Union(File.Body.TransUnits.SelectMany(tu => tu.Targets).Select(v => v.Lang)).Distinct();
+			if(isTargetNeeded)
+				return File.Body.TransUnits.Select(tu => tu.Source).Select(v => v.Lang).Union(File.Body.TransUnits.Select(tu => tu.Target).Where(x => x.Lang != null).Select(v => v.Lang)).Distinct();
+			else
+				return File.Body.TransUnits.Select(tu => tu.Source).Select(v => v.Lang);
 		}
 
 		/// ------------------------------------------------------------------------------------
