@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------------------------
 #region // Copyright (c) 2009, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2009' company='SIL International'>
+// <copyright from='2009' to='2017' company='SIL International'>
 //		Copyright (c) 2009, SIL International. All Rights Reserved.
 //
 //		Distributable under the terms of either the Common Public License or the
@@ -26,7 +26,7 @@ namespace L10NSharp.XLiffUtils
 		#region Properties
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the lang.
+		/// Gets or sets the type.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("type")]
@@ -100,11 +100,11 @@ namespace L10NSharp.XLiffUtils
         /// Adds the note.
         /// </summary>
         /// ------------------------------------------------------------------------------------
-        public static bool AddNote(string lang, string text, List<XLiffNote> noteList)
+		public static bool AddNote(string type, string text, List<XLiffNote> noteList)
         {
             var note = new XLiffNote();
             note.Text = text;
-            note.Type = lang;
+			note.Type = type;
             return AddNote(note, noteList);
         }
 

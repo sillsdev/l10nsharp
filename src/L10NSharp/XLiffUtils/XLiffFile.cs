@@ -4,7 +4,7 @@
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 #endregion
 //
-// File: XLiffHeader.cs
+// File: XLiffFile.cs
 //
 // <remarks>
 // </remarks>
@@ -30,11 +30,11 @@ namespace L10NSharp.XLiffUtils
 		{
 			SourceLang = "en";
 			ProductVersion = "0.0.0";
-			DataType = "csharp";
+			DataType = "plaintext";
 		}
 
-        private int _transUnitId;
-        private bool _idsVerified;
+		private int _transUnitId;
+		private bool _idsVerified;
 		protected XLiffHeader _header = new XLiffHeader();
 		protected XLiffBody _body = new XLiffBody();
 		private List<TransUnit> _transUnits = new List<TransUnit>();

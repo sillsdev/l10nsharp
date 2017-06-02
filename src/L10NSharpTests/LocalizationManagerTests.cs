@@ -115,10 +115,9 @@ namespace L10NSharp.Tests
 				var xmlDoc = XElement.Load(generatedFilePath);
 				var docNamespace = xmlDoc.GetDefaultNamespace();
 				var fileElt = xmlDoc.Element(docNamespace + "file");
-				var verAttribute = fileElt == null ? null
-					: fileElt.Attribute("product-version");
-				var generatedVersion = verAttribute == null ? null : new Version(verAttribute.Value);
-				Assert.AreEqual(new Version(AppVersion), generatedVersion, "Generated file should have been updated to the current version");
+				Assert.NotNull(fileElt);
+				var generatedVersion = fileElt.Attribute("product-version").Value;
+				Assert.AreEqual(new Version(AppVersion).ToString(), generatedVersion, "Generated file should have been updated to the current version");
 			}
 		}
 
@@ -277,30 +276,30 @@ namespace L10NSharp.Tests
 			englishDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + LiteralNewline;
 			englishDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant> {new TransUnitVariant{Lang = "en", Value = "from English Xliff"}};
+			var sources = new TransUnitVariant {Lang = "en", Value = "from English Xliff"};
 			var note = new XLiffNote();
 			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Sources = sources,
+				Source = sources,
 				Notes = { note }
 			};
 			englishDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "no longer used English text"}};
+			var sources2 = new TransUnitVariant {Lang = "en", Value = "no longer used English text"};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Sources = sources2
+				Source = sources2
 			};
 			englishDoc.AddTransUnit(tu2);
 			// third unit
-			var variants3 = new List<TransUnitVariant> {new TransUnitVariant {Lang = "en", Value = "blah"}};
+			var variants3 = new TransUnitVariant {Lang = "en", Value = "blah"};
 			var tu3 = new TransUnit
 			{
 				Id = "blahId",
-				Sources = variants3
+				Source = variants3
 			};
 			englishDoc.AddTransUnit(tu3);
 			englishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
@@ -311,38 +310,38 @@ namespace L10NSharp.Tests
 			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
 			arabicDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant>
+			var sources = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "wrong"}
+				Lang = "en", Value = "wrong"
 			};
-			var targets = new List<TransUnitVariant>
+			var targets = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
+				Lang = "ar", Value = "inArabic"
 			};
 			var note = new XLiffNote();
 			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Sources = sources,
+				Source = sources,
 				Notes = { note },
-				Targets = targets
+				Target = targets
 			};
 			arabicDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new List<TransUnitVariant>
+			var sources2 = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicXliff"}
+				Lang = "en", Value = "inEnglishpartofArabicXliff"
 			};
-			var targets2 = new List<TransUnitVariant>
+			var targets2 = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "ar", Value = "inArabic"}
+				Lang = "ar", Value = "inArabic"
 			};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Sources = sources2,
-				Targets = targets2
+				Source = sources2,
+				Target = targets2
 			};
 			arabicDoc.AddTransUnit(tu2);
 			arabicDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "ar")));
@@ -353,22 +352,22 @@ namespace L10NSharp.Tests
 			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
 			doc.File.Original = "test.dll";
 			// first unit
-			var sources = new List<TransUnitVariant>
+			var sources = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "en", Value = "blah"},
+				Lang = "en", Value = "blah",
 			};
-			var targets = new List<TransUnitVariant>
+			var targets = new TransUnitVariant
 			{
-				new TransUnitVariant {Lang = "fr", Value = "blahInFrench"}
+				Lang = "fr", Value = "blahInFrench"
 			};
 			var note = new XLiffNote();
 			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "blahId",
-				Sources = sources,
+				Source = sources,
 				Notes = { note },
-				Targets = targets
+				Target = targets
 			};
 			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
 			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
@@ -446,7 +445,7 @@ namespace L10NSharp.Tests
 			var englishDoc = new XLiffDocument { File = {SourceLang = "en", ProductVersion = AppVersion}};
 			englishDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
 			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "SuperClassMethod.TestId", false)); // This is the one ID found in our test code
-			englishDoc.AddTransUnit(MakeTransUnit("en", null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
+			englishDoc.AddTransUnit(MakeTransUnit(null, null, "Title", "AnotherContext.AnotherDialog.TestId", true)); // Simulates an 'orphan' that we can't otherwise tell we need.
 			Directory.CreateDirectory(GetInstalledDirectory(folder));
 			englishDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
 		}
@@ -456,28 +455,23 @@ namespace L10NSharp.Tests
 			var arabicDoc = new XLiffDocument { File = { SourceLang = "ar"} };
 			arabicDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
 			// Note that we do NOT have arabic for SuperClassMethod.TestId. We may end up getting a translation from the orphan, however.
-			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title", "Title in Arabic", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English Xliff has this too
+			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title in Arabic", "Title", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English Xliff has this too
 			// Interpreted as an orphan iff englishForObsoleteTitle is "Title" (matching the English for SuperClassMethod.TestId)
-			arabicDoc.AddTransUnit(MakeTransUnit("ar", englishForObsoleteTitle, "Title in Arabic", "AnObsoleteNameForSuperclass.TestId", true));
+			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title in Arabic", englishForObsoleteTitle, "AnObsoleteNameForSuperclass.TestId", true));
 			Directory.CreateDirectory(GetInstalledDirectory(folder));
 			arabicDoc.Save(Path.Combine(GetInstalledDirectory(folder), LocalizationManager.GetXliffFileNameForLanguage(AppId, "ar")));
 		}
 
-		static TransUnit MakeTransUnit(string lang, string englishVal, string val, string id, bool dynamic)
+		static TransUnit MakeTransUnit(string lang, string val, string englishVal, string id, bool dynamic)
 		{
-			var sources = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
-			var targets = new List<TransUnitVariant> { new TransUnitVariant { Lang = lang, Value = val } };
-			if (englishVal != null)
-			{
-				sources.Add(new TransUnitVariant {Lang = "en", Value = englishVal});
-				targets.Add(new TransUnitVariant {Lang = lang, Value = val});
-			}
-				
+			var source = new TransUnitVariant { Lang = "en", Value = englishVal };
+			var target = lang == null ? null : new TransUnitVariant { Lang = lang, Value = val };
+
 			var tu = new TransUnit
 			{
 				Id = id,
-				Sources = sources,
-				Targets = targets
+				Source = source,
+				Target = target
 			};
 			if (dynamic)
 				tu.AddProp(lang, LocalizedStringCache.kDiscoveredDyanmically, "true");

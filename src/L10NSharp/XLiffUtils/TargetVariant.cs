@@ -15,7 +15,7 @@ namespace L10NSharp.XLiffUtils
 {
 	#region TargetVariant class
 	/// ----------------------------------------------------------------------------------------
-	[XmlType("variant")]
+	[XmlType("variant", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class TargetVariant : XLiffBaseWithNotesAndProps
 	{
 		#region Properties
@@ -27,18 +27,13 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("xml:lang")]
 		public string Lang { get; set; }
 
-		private string _value;
         /// ------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the value of the translation unit variant.
         /// </summary>
         /// ------------------------------------------------------------------------------------
         [XmlText]
-        public string Value
-        {
-            get { return _value; }
-            set { _value = value; }
-        }
+		public string Value { get; set; }
 
 		#endregion
 	}
