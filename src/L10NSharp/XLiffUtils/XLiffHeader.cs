@@ -20,7 +20,7 @@ namespace L10NSharp.XLiffUtils
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
 	[XmlType("header", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
-	public class XLiffHeader : XLiffBaseWithNotesAndProps
+	public class XLiffHeader
 	{
 		/// ------------------------------------------------------------------------------------
 		public XLiffHeader()
@@ -29,7 +29,7 @@ namespace L10NSharp.XLiffUtils
         }
 
 		#region Properties
-		protected XLiffNote _note = new XLiffNote();
+		private XLiffNote _note = new XLiffNote();
 
 		[XmlElement("note")]
 		public XLiffNote Note
