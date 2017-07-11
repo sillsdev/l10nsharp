@@ -11,6 +11,8 @@ namespace L10NSharp.XLiffUtils
 	internal static class XLiffXmlSerializationHelper
 	{
 		#region XLiffXmlReader class
+		public const string kSilNamespace = "http://sil.org/software/XLiff";
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Custom XmlTextReader that can preserve whitespace characters (spaces, tabs, etc.)
@@ -114,6 +116,7 @@ namespace L10NSharp.XLiffUtils
 				{
 					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
 					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
+					nameSpace.Add("sil", kSilNamespace);
 					XmlSerializer serializer = new XmlSerializer(typeof(T));
 					serializer.Serialize(writer, data, nameSpace);
 					writer.Close();
@@ -121,6 +124,7 @@ namespace L10NSharp.XLiffUtils
 
 				return (output.Length == 0 ? null : output.ToString());
 			}
+			#pragma warning disable CS0168, CS0162
 			catch (Exception e)
 			{
 				//Debug.Fail(e.Message);
@@ -128,6 +132,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			return null;
+			#pragma warning restore CS0168, CS0162
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -141,14 +146,16 @@ namespace L10NSharp.XLiffUtils
 			{
 				using (TextWriter writer = new StreamWriter(filename))
 				{
-					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
-					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
+					XmlSerializerNamespaces nameSpaces = new XmlSerializerNamespaces();
+					nameSpaces.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
+					nameSpaces.Add("sil", kSilNamespace);
 					XmlSerializer serializer = new XmlSerializer(typeof(T));
-					serializer.Serialize(writer, data, nameSpace);
+					serializer.Serialize(writer, data, nameSpaces);
 					writer.Close();
 					return true;
 				}
 			}
+			#pragma warning disable CS0168, CS0162
 			catch (Exception e)
 			{
 				//Debug.Fail(e.Message);
@@ -156,6 +163,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			return false;
+			#pragma warning restore CS0168, CS0162
 		}
 
 		/// ------------------------------------------------------------------------------------

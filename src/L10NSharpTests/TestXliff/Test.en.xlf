@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-<file source-language="en" product-version="1.0.0.0"  original="Palaso.dll" datatype="csharp">
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:sil="http://sil.org/software/XLiff">
+<file source-language="en" product-version="1.0.0.0"  original="Palaso.dll" datatype="csharp" sil:hard-linebreak-replacement="\n">
 	<header>
-		<note>hardlinebreakreplacement:\n</note>
+		<note>This is a test.  This is only a test.</note>
+		<note>I'm not sure I agree with the previous note.</note>
 	</header>
 	<body>
 		<trans-unit id="TestItem.Bird.Crow">

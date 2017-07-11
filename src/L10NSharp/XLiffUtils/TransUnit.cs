@@ -45,12 +45,12 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the type of translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("extype")]
-		public string Type { get; set; }
+		[XmlAttribute("dynamic", Namespace=XLiffXmlSerializationHelper.kSilNamespace), System.ComponentModel.DefaultValue(false)]
+		public bool Dynamic { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation unit.
+		/// Gets the source of the translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("source")]
@@ -58,7 +58,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation unit.
+		/// Gets the target of the translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("target")]
@@ -66,7 +66,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation unit.
+		/// Gets the list of translation notes.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("note")]
