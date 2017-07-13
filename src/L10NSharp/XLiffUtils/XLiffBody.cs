@@ -92,8 +92,6 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// When all but the last part of the id changed, this can help reunite things
 		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
 		internal TransUnit GetTransUnitForOrphan(TransUnit orphan)
 		{
 			var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(orphan.Id);

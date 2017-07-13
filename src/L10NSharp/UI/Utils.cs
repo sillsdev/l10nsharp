@@ -72,8 +72,6 @@ namespace L10NSharp.UI
 
 			return binding.GetType().GetMember(propertyName,
 				flags | BindingFlags.Instance).Length > 0;
-
-			return false;
 		}
 
 		/// ------------------------------------------------------------------------------------

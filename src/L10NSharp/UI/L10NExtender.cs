@@ -33,7 +33,9 @@ namespace L10NSharp.UI
 	{
 		private static HashSet<Type> s_doNotExtend;
 
+		#pragma warning disable CS0414	// field is assigned a value but its value is never used
 		private Container components = null;
+		#pragma warning restore CS0414
 		private Dictionary<object, LocalizingInfo> m_extendedCtrls;
 		private LocalizationManager _manager;
 		private string _locManagerId;

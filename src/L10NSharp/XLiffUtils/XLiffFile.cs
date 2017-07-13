@@ -33,11 +33,9 @@ namespace L10NSharp.XLiffUtils
 			DataType = "plaintext";
 		}
 
-		private int _transUnitId;
-		private bool _idsVerified;
-		protected XLiffHeader _header = new XLiffHeader();
+		protected XLiffHeader _header/* = new XLiffHeader()*/;
 		protected XLiffBody _body = new XLiffBody();
-		private List<TransUnit> _transUnits = new List<TransUnit>();
+
 		#region Properties
 
 		/// ------------------------------------------------------------------------------------
@@ -72,6 +70,15 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("source-language")]
 		public string SourceLang { get; set; }
 
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the target language found in the XLiff file.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("target-language")]
+		public string TargetLang { get; set; }
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets or sets the product version found in the XLiff file.
@@ -96,6 +103,15 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("datatype")]
 		public string DataType { get; set; }
 
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the hard linebreak replacement string.  This is the literal value displayed
+		/// to the translator (in the L10nSharp GUI) to indicate a hard linebreak in the source text.  It
+		/// defaults to \n.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("hard-linebreak-replacement", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		public string HardLineBreakReplacement { get; set; }
 		#endregion
     }
 

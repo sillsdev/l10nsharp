@@ -10,6 +10,7 @@
 // </remarks>
 // ---------------------------------------------------------------------------------------------
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -25,18 +26,14 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public XLiffHeader()
 		{
-
+			Notes = new List<XLiffNote>();
         }
 
 		#region Properties
-		private XLiffNote _note = new XLiffNote();
 
 		[XmlElement("note")]
-		public XLiffNote Note
-		{
-			get { return _note; }
-			set { _note = value; }
-		}
+		public List<XLiffNote> Notes { get; private set; }
+
 		#endregion
 	}
 

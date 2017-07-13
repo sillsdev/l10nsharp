@@ -25,7 +25,7 @@ namespace L10NSharp
 		internal TransUnitUpdater(XLiffDocument xliffDoc)
 		{
 			_xliffDoc = xliffDoc;
-			var replacement = _xliffDoc.File.GetPropValue(LocalizedStringCache.kHardLineBreakReplacementProperty);
+			var replacement = _xliffDoc.File.HardLineBreakReplacement;
 			if (replacement != null)
 				_literalNewline = replacement;
 		}
@@ -92,7 +92,7 @@ namespace L10NSharp
 		{
 			if (locInfo.DiscoveredDynamically && (tu.GetPropValue(LocalizedStringCache.kDiscoveredDyanmically) != "true"))
 			{
-				tu.Type = LocalizedStringCache.kDiscoveredDyanmically;
+				tu.Dynamic = true;
 				_updated = true;
 			}
 
@@ -129,7 +129,8 @@ namespace L10NSharp
 
 					_updated = true;
 					tu.RemoveVariant(tuv);
-					if (tu.Source == null && tu.Target == null)
+					if ((tu.Source == null || tu.Source.Value == null) &&
+						(tu.Target == null || tu.Target.Value == null))
 					{
 						_xliffDoc.RemoveTransUnit(tu);
 						tu = null; // so we will make a new one if needed.

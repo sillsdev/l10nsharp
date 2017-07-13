@@ -24,11 +24,6 @@ namespace L10NSharp
 		// character which, when included, messes up the display of text in controls.
 		internal const string kOSRealNewline = "\n";
 
-		/// <summary>
-		/// review: I (JH) don't know what this is about
-		/// </summary>
-		internal const string kHardLineBreakReplacementProperty = "x-hardlinebreakreplacement";
-
 		private readonly string _ampersandReplacement = "|amp|";
 
 		// This is the symbol for a newline that users put in their localized text when
@@ -52,6 +47,7 @@ namespace L10NSharp
 		{
 			OwningManager = owningManager;
 			XliffDocument = CreateEmptyStringFile();
+			XliffDocument.File.Original = owningManager.Name + ".dll";
 			try
 			{
 				MergeXliffFilesIntoCache(OwningManager.XliffFilenamesToAddToCache);
@@ -69,7 +65,7 @@ namespace L10NSharp
 			if (replacement != null)
 				_ampersandReplacement = replacement;
 
-			replacement = XliffDocument.File.GetPropValue(kHardLineBreakReplacementProperty);
+			replacement = XliffDocument.File.HardLineBreakReplacement;
 			if (replacement != null)
 				s_literalNewline = replacement;
 
@@ -162,7 +158,7 @@ namespace L10NSharp
 			var xliffDoc = new XLiffDocument();
 			xliffDoc.File.SourceLang = LocalizationManager.kDefaultLang;
 			xliffDoc.File.ProductVersion = "0.0.0";
-			xliffDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + s_literalNewline;
+			xliffDoc.File.HardLineBreakReplacement = s_literalNewline;
 			return xliffDoc;
 		}
 
@@ -245,7 +241,9 @@ namespace L10NSharp
 			var xliffDoc = CreateEmptyStringFile();
 			xliffDoc.File.SourceLang = langId;
 			xliffDoc.File.ProductVersion = OwningManager.AppVersion;
-			xliffDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + s_literalNewline;
+			xliffDoc.File.HardLineBreakReplacement = s_literalNewline;
+			if (OwningManager != null && OwningManager.Name != null)
+				xliffDoc.File.Original = OwningManager.Name + ".dll";
 
 			foreach (var tu in XliffDocument.File.Body.TransUnits)
 			{

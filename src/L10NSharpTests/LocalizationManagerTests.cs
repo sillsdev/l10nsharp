@@ -273,7 +273,7 @@ namespace L10NSharp.Tests
 			var englishDoc = new XLiffDocument { File = {SourceLang = "en"}};
 			if (!String.IsNullOrEmpty(appVersion))
 				englishDoc.File.ProductVersion = appVersion;
-			englishDoc.File.Header.Note.Text = "hardlinebreakreplacement:" + LiteralNewline;
+			englishDoc.File.HardLineBreakReplacement = LiteralNewline;
 			englishDoc.File.Original = "test.dll";
 			// first unit
 			var sources = new TransUnitVariant {Lang = "en", Value = "from English Xliff"};

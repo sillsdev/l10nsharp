@@ -13,7 +13,9 @@ namespace L10NSharp.UI
 		private PopupControl m_popupCtrl;
 
 		/// ------------------------------------------------------------------------------------
+		#pragma warning disable CS0649	// field declaration is never assigned a value
 		public EventHandler PopupClosed;
+		#pragma warning restore CS0649
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
