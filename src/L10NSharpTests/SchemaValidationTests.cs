@@ -28,7 +28,7 @@ namespace L10NSharp.Tests
 			LocalizationManagerTests.SetupManager(folder);
 			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
 
-			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-strict.xsd");
+			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
 			var schemas = new XmlSchemaSet();
 			using (var reader = XmlReader.Create(schemaLocation))
 			{

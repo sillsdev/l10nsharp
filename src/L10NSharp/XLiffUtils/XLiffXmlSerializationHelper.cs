@@ -11,6 +11,8 @@ namespace L10NSharp.XLiffUtils
 	internal static class XLiffXmlSerializationHelper
 	{
 		#region XLiffXmlReader class
+		public const string kSilNamespace = "http://sil.org/software/XLiff";
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Custom XmlTextReader that can preserve whitespace characters (spaces, tabs, etc.)
@@ -107,27 +109,17 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public static string SerializeToString<T>(T data)
 		{
-			try
+			StringBuilder output = new StringBuilder();
+			using (StringWriter writer = new StringWriter(output))
 			{
-				StringBuilder output = new StringBuilder();
-				using (StringWriter writer = new StringWriter(output))
-				{
-					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
-					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
-					XmlSerializer serializer = new XmlSerializer(typeof(T));
-					serializer.Serialize(writer, data, nameSpace);
-					writer.Close();
-				}
-
-				return (output.Length == 0 ? null : output.ToString());
+				XmlSerializerNamespaces nameSpaces = new XmlSerializerNamespaces();
+				nameSpaces.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
+				nameSpaces.Add("sil", kSilNamespace);
+				XmlSerializer serializer = new XmlSerializer(typeof(T));
+				serializer.Serialize(writer, data, nameSpaces);
+				writer.Close();
 			}
-			catch (Exception e)
-			{
-				//Debug.Fail(e.Message);
-				throw; //hatton says: I'd rather deal with the problem in the client app, then swallow it and have a mystery
-			}
-
-			return null;
+			return (output.Length == 0 ? null : output.ToString());
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -137,25 +129,16 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public static bool SerializeToFile<T>(string filename, T data)
 		{
-            try
+			using (TextWriter writer = new StreamWriter(filename))
 			{
-				using (TextWriter writer = new StreamWriter(filename))
-				{
-					XmlSerializerNamespaces nameSpace = new XmlSerializerNamespaces();
-					nameSpace.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
-					XmlSerializer serializer = new XmlSerializer(typeof(T));
-					serializer.Serialize(writer, data, nameSpace);
-					writer.Close();
-					return true;
-				}
+				XmlSerializerNamespaces nameSpaces = new XmlSerializerNamespaces();
+				nameSpaces.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
+				nameSpaces.Add("sil", kSilNamespace);
+				XmlSerializer serializer = new XmlSerializer(typeof(T));
+				serializer.Serialize(writer, data, nameSpaces);
+				writer.Close();
+				return true;
 			}
-			catch (Exception e)
-			{
-				//Debug.Fail(e.Message);
-				throw; //hatton says: I'd rather deal with the problem in the client app, then swallow it and have a mystery
-			}
-
-			return false;
 		}
 
 		/// ------------------------------------------------------------------------------------

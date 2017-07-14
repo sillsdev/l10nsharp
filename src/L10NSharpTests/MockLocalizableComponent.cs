@@ -88,7 +88,10 @@ namespace L10NSharp.Tests
 
 #region unused IComponent support
 
+		#pragma warning disable CS0067	// event is never used
+		// needed to implement the IComponent interface
 		public event EventHandler Disposed;
+		#pragma warning restore CS0067
 
 		public ISite Site
 		{

@@ -85,9 +85,10 @@ namespace L10NSharp.XLiffUtils
 		public IEnumerable<string> GetAllVariantLanguagesFound(bool isTargetNeeded)
 		{
 			if(isTargetNeeded)
-				return File.Body.TransUnits.Select(tu => tu.Source).Select(v => v.Lang).Union(File.Body.TransUnits.Select(tu => tu.Target).Where(x => x.Lang != null).Select(v => v.Lang)).Distinct();
+				return File.Body.TransUnits.Select(tu => tu.Source).Where(s => (s != null && s.Lang != null)).Select(s => s.Lang)
+					.Union(File.Body.TransUnits.Select(tu => tu.Target).Where(t => (t != null && t.Lang != null)).Select(t => t.Lang)).Distinct();
 			else
-				return File.Body.TransUnits.Select(tu => tu.Source).Select(v => v.Lang);
+				return File.Body.TransUnits.Select(tu => tu.Source).Where(s => (s != null && s.Lang != null)).Select(s => s.Lang).Distinct();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -150,7 +151,6 @@ namespace L10NSharp.XLiffUtils
 		/// This helps with the common case were we just changed the hierarchical organizaiton of the id,
 		/// that is, the parts of the id before th final '.'.
 		/// </summary>
-		/// <param name="id"></param>
 		 public TransUnit GetTransUnitForOrphan(TransUnit orphan)
 		{
 			 return File.Body.GetTransUnitForOrphan(orphan);

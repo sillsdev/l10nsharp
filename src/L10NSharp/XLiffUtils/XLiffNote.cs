@@ -26,11 +26,37 @@ namespace L10NSharp.XLiffUtils
 		#region Properties
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the type.
+		/// Gets or sets the language of the note.  Optional.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("type")]
-		public string Type { get; set; }
+		[XmlAttribute("xml:lang")]
+		public string NoteLang { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets who wrote the note.  Optional
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("from")]
+		public string From { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the priority of the note.  Optional.  If set, 1=high, 10=low.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("priority"), System.ComponentModel.DefaultValue(0)]
+		public int Priority { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets which element the note applies to, the source or the target.  Optional.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("annotates")]
+		public string Annotates { get; set; }
+
+
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -39,18 +65,6 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		[XmlText]
 		public string Text { get; set; }
-
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-		/// Gets the list of notes in the document header.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-		[XmlElement("note")]
-		public List<XLiffNote> Notes
-        {
-            get { return _notes; }
-            set { _notes = value; }
-        }
         #endregion
 
         #region Methods
@@ -59,7 +73,7 @@ namespace L10NSharp.XLiffUtils
         {
             return new XLiffNote
             {
-                Type = Type,
+                NoteLang = NoteLang,
                 Text = Text
             };
         }
@@ -71,7 +85,7 @@ namespace L10NSharp.XLiffUtils
         /// ------------------------------------------------------------------------------------
         public bool IsEmpty
         {
-            get { return (string.IsNullOrEmpty(Type) && string.IsNullOrEmpty(Text)); }
+			get { return (string.IsNullOrEmpty(Text)); }
         }
 
         /// ------------------------------------------------------------------------------------
@@ -81,8 +95,8 @@ namespace L10NSharp.XLiffUtils
         /// ------------------------------------------------------------------------------------
         public override string ToString()
         {
-            return (IsEmpty ? "Empty" : (string.IsNullOrEmpty(Type) ?
-                string.Empty : Type + ": ") + Text);
+            return (IsEmpty ? "Empty" : (string.IsNullOrEmpty(NoteLang) ?
+                string.Empty : NoteLang + ": ") + Text);
         }
 
         /// ------------------------------------------------------------------------------------
@@ -100,11 +114,11 @@ namespace L10NSharp.XLiffUtils
         /// Adds the note.
         /// </summary>
         /// ------------------------------------------------------------------------------------
-		public static bool AddNote(string type, string text, List<XLiffNote> noteList)
+		public static bool AddNote(string lang, string text, List<XLiffNote> noteList)
         {
             var note = new XLiffNote();
             note.Text = text;
-			note.Type = type;
+			note.NoteLang = lang;
             return AddNote(note, noteList);
         }
 

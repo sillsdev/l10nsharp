@@ -84,9 +84,9 @@ namespace L10NSharp.CodeReader
 							}
 						}
 					}
-					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
+					//Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
 				}
-				catch (MissingManifestResourceException e)
+				catch (MissingManifestResourceException /*e*/)
 				{
 					// If it doesn't find any resources, no reason to die, we're just making a best attempt.
 					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() could not load resources for {0}", type.FullName));

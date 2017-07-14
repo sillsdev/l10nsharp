@@ -24,17 +24,6 @@ namespace L10NSharp.UI
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Handles the shortcut keys drop down closed.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		protected override void OnPopupClosed(object sender, EventArgs e)
-		{
-			base.OnPopupClosed(sender, e);
-			SetCurrentKeysFromEditor();
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
 		/// Gets or sets the shortcut keys.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
