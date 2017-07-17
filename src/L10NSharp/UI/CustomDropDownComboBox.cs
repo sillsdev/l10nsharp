@@ -13,9 +13,6 @@ namespace L10NSharp.UI
 		private PopupControl m_popupCtrl;
 
 		/// ------------------------------------------------------------------------------------
-		public EventHandler PopupClosed;
-
-		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CustomDropDownComboBox"/> class.
 		/// </summary>
@@ -98,27 +95,7 @@ namespace L10NSharp.UI
 		internal PopupControl PopupCtrl
 		{
 			get { return m_popupCtrl; }
-			set
-			{
-				if (m_popupCtrl != null)
-					m_popupCtrl.PopupClosed -= OnPopupClosed;
-
-				m_popupCtrl = value;
-
-				if (m_popupCtrl != null)
-					m_popupCtrl.PopupClosed += OnPopupClosed;
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Handles the VisibleChanged event of the m_popupCtrl control.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		protected virtual void OnPopupClosed(object sender, EventArgs e)
-		{
-			if (PopupClosed != null)
-				PopupClosed(this, e);
+			set { m_popupCtrl = value; }
 		}
 
 		/// ------------------------------------------------------------------------------------
