@@ -55,6 +55,12 @@ namespace L10NSharp.XLiffUtils
 		[XmlElement("file", Namespace = null)]
 		public XLiffFile File { get; set; }
 
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this has changes that need to be written.
+		/// </summary>
+		[XmlIgnore]
+		public bool IsDirty { get; set; }
 		#endregion
 
 		#region Methods
@@ -75,20 +81,6 @@ namespace L10NSharp.XLiffUtils
 				   let variant = tu.GetVariantForLang(langId)
 				   where variant != null && variant.Value == text
 				   select tu;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets all the unique language ids found in the XLIFF file.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public IEnumerable<string> GetAllVariantLanguagesFound(bool isTargetNeeded)
-		{
-			if(isTargetNeeded)
-				return File.Body.TransUnits.Select(tu => tu.Source).Where(s => (s != null && s.Lang != null)).Select(s => s.Lang)
-					.Union(File.Body.TransUnits.Select(tu => tu.Target).Where(t => (t != null && t.Lang != null)).Select(t => t.Lang)).Distinct();
-			else
-				return File.Body.TransUnits.Select(tu => tu.Source).Where(s => (s != null && s.Lang != null)).Select(s => s.Lang).Distinct();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -148,7 +140,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// <summary>
 		/// When we change ids after people have already been localizing, we have a BIG PROBLEM.
-		/// This helps with the common case were we just changed the hierarchical organizaiton of the id,
+		/// This helps with the common case were we just changed the hierarchical organization of the id,
 		/// that is, the parts of the id before th final '.'.
 		/// </summary>
 		 public TransUnit GetTransUnitForOrphan(TransUnit orphan)

@@ -28,7 +28,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public XLiffFile()
 		{
-			SourceLang = "en";
+			SourceLang = LocalizationManager.kDefaultLang;
 			ProductVersion = "0.0.0";
 			DataType = "plaintext";
 		}
@@ -112,6 +112,16 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("hard-linebreak-replacement", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
 		public string HardLineBreakReplacement { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the ampersand (&amp;) replacement string.  This is the literal value displayed
+		/// to the translator (in the L10nSharp GUI) to indicate an ampersand in the source text.  It
+		/// defaults to |amp|.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("ampersand-replacement", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		public string AmpersandReplacement { get; set; }
 		#endregion
     }
 

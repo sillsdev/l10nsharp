@@ -21,7 +21,42 @@ namespace L10NSharp.Tests
 	public class SchemaValidationTests
 	{
 		[Test]
-		public void ValidateAgainstSchema()
+		public void ValidateInFoldersAgainstSchema()
+		{
+			LocalizationManager.UseLanguageCodeFolders = true;
+			var folder = new TempFolder("FileLocation");
+			Directory.CreateDirectory(folder.Path);
+			LocalizationManagerTests.SetupManager(folder);
+			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
+
+			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
+			var schemas = new XmlSchemaSet();
+			using (var reader = XmlReader.Create(schemaLocation))
+			{
+				schemas.Add("urn:oasis:names:tc:xliff:document:1.2", reader);
+
+				//English
+				var filepath = Path.Combine(folder.Path, "test.xlf");
+				var document = XDocument.Load(filepath);
+				document.Validate(schemas, (sender, args) =>
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
+
+				//French
+				filepath = Path.Combine(folder.Path, "fr", "test.xlf");
+				document = XDocument.Load(filepath);
+				document.Validate(schemas, (sender, args) =>
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
+
+				//Arabic
+				filepath = Path.Combine(folder.Path, "ar", "test.xlf");
+				document = XDocument.Load(filepath);
+				document.Validate(schemas, (sender, args) =>
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
+			}
+		}
+
+		[Test]
+		public void ValidateFlatFilesAgainstSchema()
 		{
 			var folder = new TempFolder("FileLocation");
 			Directory.CreateDirectory(folder.Path);
@@ -35,19 +70,22 @@ namespace L10NSharp.Tests
 				schemas.Add("urn:oasis:names:tc:xliff:document:1.2", reader);
 
 				//English
-				var document = XDocument.Load(Path.Combine(folder.Path, "test.en.xlf"));
+				var filepath = Path.Combine(folder.Path, "test.en.xlf");
+				var document = XDocument.Load(filepath);
 				document.Validate(schemas, (sender, args) =>
-					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", Path.Combine(folder.Path, "test.en.xlf"), args.Message));
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
 
 				//French
-				document = XDocument.Load(Path.Combine(folder.Path, "test.fr.xlf"));
+				filepath = Path.Combine(folder.Path, "test.fr.xlf");
+				document = XDocument.Load(filepath);
 				document.Validate(schemas, (sender, args) =>
-					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", Path.Combine(folder.Path, "test.fr.xlf"), args.Message));
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
 
 				//Arabic
-				document = XDocument.Load(Path.Combine(folder.Path, "test.ar.xlf"));
+				filepath = Path.Combine(folder.Path, "test.ar.xlf");
+				document = XDocument.Load(filepath);
 				document.Validate(schemas, (sender, args) =>
-					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", Path.Combine(folder.Path, "test.ar.xlf"), args.Message));
+					Assert.Fail("Xliff saved at {0} did not validate against schema: {1}", filepath, args.Message));
 			}
 		}
 	}

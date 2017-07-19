@@ -129,6 +129,10 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public static bool SerializeToFile<T>(string filename, T data)
 		{
+			// Ensure that the file can be written, even to a new language tag subfolder.
+			var folder = Path.GetDirectoryName(filename);
+			if (!String.IsNullOrEmpty(folder) && !Directory.Exists(folder))
+				Directory.CreateDirectory(folder);
 			using (TextWriter writer = new StreamWriter(filename))
 			{
 				XmlSerializerNamespaces nameSpaces = new XmlSerializerNamespaces();

@@ -13,10 +13,6 @@ namespace L10NSharp
 	/// ----------------------------------------------------------------------------------------
 	internal class LocalizedStringCache
 	{
-		internal const string kPriorityPropTag = "x-priority";
-		internal const string kGroupPropTag = "x-group";
-		internal const string kCategoryPropTag = "x-category";
-		internal const string kDiscoveredDyanmically = "x-dynamic";
 		internal const string kToolTipSuffix = "_ToolTip_";
 		internal const string kShortcutSuffix = "_ShortcutKeys_";
 
@@ -35,7 +31,19 @@ namespace L10NSharp
 
 		internal List<LocTreeNode> LeafNodeList { get; private set; }
 		internal LocalizationManager OwningManager { get; private set; }
-		public XLiffDocument XliffDocument { get; private set; }
+		private XLiffDocument DefaultXliffDocument { get; set; }	// matches LanguageManager.kDefaultLanguage
+
+		/// <summary>
+		/// For each language and TransUnit encountered, store a dictionary mapping the string id onto the string in that language.
+		/// Note: the TransUnit objects for the LocalizationManager.kDefaultLanguage will reference the source elements in
+		/// xliff.  All other TransUnit objects will reference the target elements.
+		/// </summary>
+		internal readonly Dictionary<string, Dictionary<string, TransUnit> > LookupDictsForTransUnits = new Dictionary<string, Dictionary<string, TransUnit>>();
+
+		/// <summary>
+		/// Record the xliff document loaded for each language.
+		/// </summary>
+		internal readonly Dictionary<string, XLiffDocument> XliffDocuments = new Dictionary<string, XLiffDocument>();
 
 		#region Loading methods
 		/// ------------------------------------------------------------------------------------
@@ -43,29 +51,35 @@ namespace L10NSharp
 		/// Loads the string cache from all the specified Xliff files
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal LocalizedStringCache(LocalizationManager owningManager)
+		internal LocalizedStringCache(LocalizationManager owningManager, bool loadAvailableXliffFiles = true)
 		{
 			OwningManager = owningManager;
-			XliffDocument = CreateEmptyStringFile();
-			XliffDocument.File.Original = owningManager.Name + ".dll";
-			try
+			DefaultXliffDocument = CreateEmptyStringFile();
+			DefaultXliffDocument.File.Original = owningManager.Name + ".dll";
+			if (loadAvailableXliffFiles)
 			{
-				MergeXliffFilesIntoCache(OwningManager.XliffFilenamesToAddToCache);
+				try
+				{
+					MergeXliffFilesIntoCache(OwningManager.XliffFilenamesToAddToCache);
+				}
+				catch (Exception e)
+				{
+					MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
+						Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+				}
 			}
-			catch (Exception e)
+			else
 			{
-				MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
-					Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+				XliffDocuments.Add(LocalizationManager.kDefaultLang, DefaultXliffDocument);
 			}
+			_tuUpdater = new TransUnitUpdater(this);
 
-			_tuUpdater = new TransUnitUpdater(XliffDocument);
-
-			var replacement = XliffDocument.File.GetPropValue("x-ampersandreplacement");
+			var replacement = DefaultXliffDocument.File.AmpersandReplacement;
 			if (replacement != null)
 				_ampersandReplacement = replacement;
 
-			replacement = XliffDocument.File.HardLineBreakReplacement;
+			replacement = DefaultXliffDocument.File.HardLineBreakReplacement;
 			if (replacement != null)
 				s_literalNewline = replacement;
 
@@ -76,10 +90,10 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private void MergeXliffFilesIntoCache(IEnumerable<string> xliffFiles)
 		{
-			var defaultxliffDoc = XLiffDocument.Read(OwningManager.DefaultStringFilePath);
-			foreach (var tu in defaultxliffDoc.File.Body.TransUnits)
+			var defaultXliffDoc = XLiffDocument.Read(OwningManager.DefaultStringFilePath);
+			foreach (var tu in defaultXliffDoc.File.Body.TransUnits)
 			{
-				XliffDocument.File.Body.AddTransUnit(tu);
+				DefaultXliffDocument.File.Body.AddTransUnit(tu);
 			}
 			// It's possible (I think when there is no customizable Xliff, as on first install, but the version in the installed Xliff
 			// is out of date with the app) that we don't have all the info from the installed Xliff in the customizable one.
@@ -87,57 +101,84 @@ namespace L10NSharp
 			// (b) any newly obsolete IDs are noted.
 			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
 			{
-				var defaultInstalledxliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
-				foreach (var tu in defaultInstalledxliffDoc.File.Body.TransUnits)
+				var defaultInstalledXliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
+				foreach (var tu in defaultInstalledXliffDoc.File.Body.TransUnits)
 				{
-					XliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, "en");
+					DefaultXliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, LocalizationManager.kDefaultLang);
 					// also needed in this, to prevent things we find here from being considered orphans.
-					defaultxliffDoc.File.Body.AddTransUnitOrVariantFromExisting(tu, "en");
+					defaultXliffDoc.File.Body.AddTransUnitOrVariantFromExisting(tu, LocalizationManager.kDefaultLang);
 				}
 			}
+			XliffDocuments.Add(LocalizationManager.kDefaultLang, DefaultXliffDocument);
+			// Create the lookup dictionary for the default language
+			var lookupSource = new Dictionary<string, TransUnit>(DefaultXliffDocument.File.Body.TransUnits.Count);
+			foreach (var tu in DefaultXliffDocument.File.Body.TransUnits)
+				lookupSource.Add(tu.Id, tu);
+			LookupDictsForTransUnits.Add(LocalizationManager.kDefaultLang, lookupSource);
+
 			Exception error = null;
+
 			foreach (var file in xliffFiles.Where(f => Path.GetFileName(f) != OwningManager.DefaultStringFilePath))
 			{
 				try
 				{
 					var xliffDoc = XLiffDocument.Read(file);
-					var langId = xliffDoc.File.SourceLang;
+					var langId = xliffDoc.File.TargetLang;
+					XliffDocuments.Add(langId, xliffDoc);
+					var defunctUnits = new List<TransUnit>();
 					foreach (var tu in xliffDoc.File.Body.TransUnits)
 					{
 						// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
 						// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
 						// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
 						// was regarded as an obsolete id for PublishTab.Upload.Title
-						if (langId != LocalizationManager.kDefaultLang && defaultxliffDoc.GetTransUnitForId(tu.Id) == null &&
+						if (langId != LocalizationManager.kDefaultLang && defaultXliffDoc.GetTransUnitForId(tu.Id) == null &&
 							!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 						{
 							//if we couldn't find it, maybe the id just changed and then if so re-id it.
-							var movedUnit = defaultxliffDoc.GetTransUnitForOrphan(tu);
+							var movedUnit = defaultXliffDoc.GetTransUnitForOrphan(tu);
 							if (movedUnit == null)
 							{
-								if (tu.GetPropValue(kDiscoveredDyanmically) == "true")
+								// with dynamic strings, by definition we won't find them during a static code scan
+								if (!tu.Dynamic)
 								{
-									//ok, no big deal, that what we expect with dynamic strings, by definition... that we won't find them during a static code scan
+									defunctUnits.Add(tu);
+									xliffDoc.IsDirty = true;
+									IsDirty = true;
 								}
 							}
 							else
 							{
 								tu.Id = movedUnit.Id;
+								xliffDoc.IsDirty = true;
+								IsDirty = true;
 							}
 						}
-
-						XliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, langId);
 					}
+					// Now we can delete any invalid TransUnit objects from this document.
+					foreach (var tuBad in defunctUnits)
+						xliffDoc.File.Body.RemoveTransUnit(tuBad);
+
+					var lookupTarget = new Dictionary<string, TransUnit>(DefaultXliffDocument.File.Body.TransUnits.Count);
+					foreach (var tu in xliffDoc.File.Body.TransUnits)
+					{
+						if (lookupTarget.ContainsKey(tu.Id))
+							Console.WriteLine("WARNING: string ID \"{0}\" already found in \"{1}\".", tu.Id, file);
+						else
+							lookupTarget.Add(tu.Id, tu);
+//#if DEBUG
+//						if (!lookupSource.ContainsKey(tu.Id))
+//							Console.WriteLine("DEBUG: string ID \"{0}\" in \"{1}\" is not found in the English xliff file.", tu.Id, file);
+//#endif
+					}
+					LookupDictsForTransUnits.Add(langId, lookupTarget);
 				}
 				catch (Exception e)
 				{
 	#if DEBUG
 					throw e;
 	#else
-
-					//REVIEW: Better explain the conditions where we get an error on a file but don't care about it?
-
-					// If error happened reading some localization file other than the one we care
+					// If an error happened reading some localization file other than one we care
 					// about right now, just ignore it.
 					if (file == OwningManager.GetXliffPathForLanguage(LocalizationManager.UILanguageId, false))
 						error = e;
@@ -182,7 +223,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal void UpdateLocalizedInfo(LocalizingInfo locInfo)
 		{
-			if (_tuUpdater.Update(locInfo) && !IsDirty)
+			if (_tuUpdater.Update(locInfo))
 				IsDirty = true;
 		}
 
@@ -191,7 +232,7 @@ namespace L10NSharp
 		#region Methods for saving cache to disk
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Saves the cache to the file from which the cache was originally loaded, but only
+		/// Saves the cache to the files from which the cache was originally loaded, but only
 		/// if the cache is dirty. If the cache is dirty and saved, then true is returned.
 		/// Otherwise, false is returned.
 		/// </summary>
@@ -202,12 +243,12 @@ namespace L10NSharp
 				return;
 
 			StringBuilder errorMsg = null;
-			// ToArray() prevents exception "Collection was modified" in rare cases (e.g., Bloom BL-2400).
-			foreach (var langId in XliffDocument.GetAllVariantLanguagesFound(true).ToArray())
+			foreach (var langId in XliffDocuments.Keys)
 			{
 				try
 				{
-					SaveFileForLangId(langId, langIdsToForceCreate != null && langIdsToForceCreate.Contains(langId));
+					if (XliffDocuments[langId].IsDirty)
+						SaveFileForLangId(langId, langIdsToForceCreate != null && langIdsToForceCreate.Contains(langId), XliffDocuments[langId]);
 				}
 				catch (Exception e)
 				{
@@ -236,32 +277,39 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void SaveFileForLangId(string langId, bool forceCreation)
+		private void SaveFileForLangId(string langId, bool forceCreation, XLiffDocument xliffOriginal)
 		{
+			if (!forceCreation && !OwningManager.DoesCustomizedXliffExistForLanguage(langId))
+				return;
+			Dictionary<string, TransUnit> lookup;
+			if (!LookupDictsForTransUnits.TryGetValue(langId, out lookup))
+				lookup = new Dictionary<string, TransUnit>();	// so it's empty, it won't crash...
+
 			var xliffDoc = CreateEmptyStringFile();
-			xliffDoc.File.SourceLang = langId;
+			if (langId != LocalizationManager.kDefaultLang)
+				xliffDoc.File.TargetLang = langId;
 			xliffDoc.File.ProductVersion = OwningManager.AppVersion;
 			xliffDoc.File.HardLineBreakReplacement = s_literalNewline;
 			if (OwningManager != null && OwningManager.Name != null)
 				xliffDoc.File.Original = OwningManager.Name + ".dll";
 
-			foreach (var tu in XliffDocument.File.Body.TransUnits)
+			foreach (var tu in DefaultXliffDocument.File.Body.TransUnits)
 			{
-				var tuv = tu.GetVariantForLang(langId);
-				if (tuv == null)
-					continue;
-
+				TransUnit tuTarget;
+				TransUnitVariant tuv = null;
+				if (lookup.TryGetValue(tu.Id, out tuTarget))
+					tuv = tuTarget.GetVariantForLang(langId);
+				// REVIEW: should we write units with no translation (target)?
 				var newTu = new TransUnit { Id = tu.Id };
-				xliffDoc.AddTransUnit(newTu);
 				newTu.AddOrReplaceVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
-				newTu.AddOrReplaceVariant(tuv);
+				if (tuv != null)
+					newTu.AddOrReplaceVariant(tuv);
 				newTu.Notes = tu.CopyNotes();
+				xliffDoc.AddTransUnit(newTu);
 			}
 			xliffDoc.File.Body.TransUnits.Sort(TuComparer);
-			if (forceCreation || OwningManager.DoesCustomizedXliffExistForLanguage(langId))
-				xliffDoc.Save(OwningManager.GetXliffPathForLanguage(langId, true));
+			xliffDoc.Save(OwningManager.GetXliffPathForLanguage(langId, true));
 		}
-
 		#endregion
 
 		/// ------------------------------------------------------------------------------------
@@ -280,8 +328,8 @@ namespace L10NSharp
 			if (tu2 == null)
 				return 1;
 
-			string x = tu1.GetPropValue(kGroupPropTag);
-			string y = tu2.GetPropValue(kGroupPropTag);
+			string x = tu1.Group;
+			string y = tu2.Group;
 
 			if (x == y)
 				return String.CompareOrdinal(tu1.Id, tu2.Id);
@@ -409,8 +457,11 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
 		{
-			var tu = XliffDocument.GetTransUnitForId(id);
-			if (tu == null)
+			Dictionary<string, TransUnit> lookup;
+			if (!LookupDictsForTransUnits.TryGetValue(langId, out lookup))
+				return null;
+			TransUnit tu;
+			if (!lookup.TryGetValue(id, out tu))
 				return null;
 
 			var tuv = tu.GetVariantForLang(langId);
@@ -440,7 +491,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetComment(string id)
 		{
-			TransUnit tu = XliffDocument.GetTransUnitForId(id);
+			TransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
 			return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
 		}
 
@@ -451,8 +502,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetGroup(string id)
 		{
-			TransUnit tu = XliffDocument.GetTransUnitForId(id);
-			return (tu == null ? null : tu.GetPropValue(kGroupPropTag));
+			TransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
+			return (tu == null ? null : tu.Group);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -462,18 +513,18 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationPriority GetPriority(string id)
 		{
-			TransUnit tu = XliffDocument.GetTransUnitForId(id);
+			TransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
-				string priority = tu.GetPropValue(kPriorityPropTag);
+				if (String.IsNullOrEmpty(tu.Priority))
+					return LocalizationPriority.High;
 
 				try
 				{
-					return (LocalizationPriority)Enum.Parse(typeof(LocalizationPriority), priority);
+					return (LocalizationPriority)Enum.Parse(typeof(LocalizationPriority), tu.Priority);
 				}
 				catch { }
 			}
-
 			return LocalizationPriority.NotLocalizable;
 		}
 
@@ -484,10 +535,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationCategory GetCategory(string id)
 		{
-			TransUnit tu = XliffDocument.GetTransUnitForId(id);
+			TransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
-				string category = tu.GetPropValue(kCategoryPropTag);
+				string category = tu.Category;
+				if (String.IsNullOrEmpty(category))
+					return LocalizationCategory.DontCare;
 
 				try
 				{
@@ -537,7 +590,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal void LoadGroupNodes(TreeNodeCollection topCollection)
 		{
-			XliffDocument.File.Body.TransUnits.Sort(TuComparer);
+			DefaultXliffDocument.File.Body.TransUnits.Sort(TuComparer);
 			LeafNodeList.Clear();
 
 			foreach (var tu in GetTranslationUnitsForTree())
@@ -578,7 +631,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private IEnumerable<TransUnit> GetTranslationUnitsForTree()
 		{
-			foreach (var tu in XliffDocument.File.Body.TransUnits)
+			foreach (var tu in DefaultXliffDocument.File.Body.TransUnits)
 			{
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
 				if (!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
@@ -590,7 +643,7 @@ namespace L10NSharp
 				// skip the current tooltip or shortcutkeys translation unit since the base
 				// one is all that's needed in the tree.
 				var tmpId = GetBaseId(tu.Id);
-				if (XliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
+				if (DefaultXliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
 					continue;
 
 				// At this point, we know there is not a base translation unit so return the
@@ -602,7 +655,7 @@ namespace L10NSharp
 				// translation unit is for a shortcutkeys. Therefore, only return the current
 				// translation unit if there is not associated tooltip translation unit.
 				tmpId = tu.Id.Replace(kShortcutSuffix, kToolTipSuffix);
-				if (!XliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
+				if (!DefaultXliffDocument.File.Body.TransUnits.Any(t => t.Id == tmpId))
 					yield return tu;
 			}
 		}

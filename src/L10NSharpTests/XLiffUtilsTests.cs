@@ -24,37 +24,6 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void TestGetAllVariantLanguagesFound()
-		{
-			var enfile = Path.Combine(_testFolder, "Test.en.xlf");
-			var doc = XLiffDocument.Read(enfile);
-			var variantsList = new List<string>();
-			variantsList.AddRange(doc.GetAllVariantLanguagesFound(false));
-			Assert.AreEqual(1, variantsList.Count);
-			Assert.AreEqual("en", variantsList[0]);
-			variantsList.Clear();
-
-			variantsList.AddRange(doc.GetAllVariantLanguagesFound(true));
-			Assert.AreEqual(1, variantsList.Count);
-			Assert.AreEqual("en", variantsList[0]);
-			variantsList.Clear();
-
-			var frfile = Path.Combine(_testFolder, "Test.fr.xlf");
-			doc = XLiffDocument.Read(frfile);
-			variantsList.AddRange(doc.GetAllVariantLanguagesFound(false));
-			Assert.AreEqual(1, variantsList.Count);
-			Assert.AreEqual("en", variantsList[0]);
-			variantsList.Clear();
-
-			variantsList.AddRange(doc.GetAllVariantLanguagesFound(true));
-			Assert.AreEqual(2, variantsList.Count);
-			variantsList.Sort();
-			Assert.AreEqual("en", variantsList[0]);	// redundant to be sure...
-			Assert.AreEqual("fr", variantsList[1]);
-			variantsList.Clear();
-		}
-
-		[Test]
 		public void TestHeaderNotes()
 		{
 			var enfile = Path.Combine(_testFolder, "Test.en.xlf");
