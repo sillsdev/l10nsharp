@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -29,6 +30,15 @@ namespace L10NSharp
 		/// </summary>
 		public static event EventHandler LaunchingLocalizationDialog;
 		public static event EventHandler ClosingLocalizationDialog;
+
+		/// <summary>
+		/// Flag that the program organizes translation files by folder rather than by filename.
+		/// That is, localization/en/AppName.xlf (English) and localization/id/AppName.xlf (Indonesian)
+		/// instead of localization/AppName.en.xlf and localization/AppName.id.xlf.
+		/// Note that this must be set before creating any LocalizationManager objects.
+		/// The default is the old way of organizing (by filename).
+		/// </summary>
+		public static bool UseLanguageCodeFolders;
 
 		private static string s_uiLangId;
 		private static List<string> s_fallbackLanguageIds = new List<string>(new[] { kDefaultLang });
@@ -260,19 +270,16 @@ namespace L10NSharp
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 
-			var XliffDoc = LocalizedStringCache.CreateEmptyStringFile();
-			XliffDoc.File.ProductVersion = AppVersion;
-			XliffDoc.File.Original = Id + ".dll";
-			var tuUpdater = new TransUnitUpdater(XliffDoc);
+			var stringCache = new LocalizedStringCache(this, false);
 
 			using (var dlg = new InitializationProgressDlg(Name, _applicationIcon, namespaceBeginnings))
 			{
 				dlg.ShowDialog();
 				foreach (var locInfo in dlg.ExtractedInfo)
-					tuUpdater.Update(locInfo);
+					stringCache.UpdateLocalizedInfo(locInfo);
 			}
 
-			XliffDoc.Save(DefaultStringFilePath);
+			stringCache.SaveIfDirty(stringCache.XliffDocuments.Keys);
 		}
 
 		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
@@ -346,7 +353,7 @@ namespace L10NSharp
 			var allLangs = groups.Select(g => g.First()).ToList();
 
 			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
-				LoadedManagers.Values.SelectMany(lm => lm.StringCache.XliffDocument.GetAllVariantLanguagesFound(false))
+				LoadedManagers.Values.SelectMany(lm => lm.GetAvailableUILanguageTags())
 				.Distinct().ToList());
 
 			// BL-1011: Make sure cultures that have existing localizations are included
@@ -378,21 +385,27 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// Return the language tags for those languages that have been localized for the given program
-		/// in its localization folder.
+		/// Return the language tags for those languages that have been localized for the given program.
 		/// </summary>
-		public static IEnumerable<string> GetAvailableUILanguageTags(string localizationFolder, string programName)
+		public IEnumerable<string> GetAvailableUILanguageTags()
 		{
-			var tags = new List<string>();
-			if (!Directory.Exists(localizationFolder))
-				return tags;
-			foreach (var filepath in Directory.GetFiles(localizationFolder, programName + ".*" + kFileExtension))
+			return StringCache.XliffDocuments.Keys.ToList();
+		}
+
+		/// <summary>
+		/// If the given file exists, return its parent folder name as a language tag if it
+		/// appears to be valid (2 characters long or "zh-CN").  Otherwise return null.
+		/// </summary>
+		private static string GetLanguageTagFromFilePath(string xliffFile)
+		{
+			Debug.Assert(UseLanguageCodeFolders);
+			if (File.Exists(xliffFile))
 			{
-				var filename = Path.GetFileNameWithoutExtension(filepath);
-				var tag = filename.Substring(programName.Length + 1);
-				tags.Add(tag);
+				var langId = Path.GetFileName(Path.GetDirectoryName(xliffFile));
+				if ((langId.Length == 2 || langId == "zh-CN"))
+					return langId;
 			}
-			return tags;
+			return null;
 		}
 		#endregion
 
@@ -536,23 +549,57 @@ namespace L10NSharp
 				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
 				string langId;
 				if (_customXliffFileFolder != null && Directory.Exists(_customXliffFileFolder))
-					foreach (var XliffFile in Directory.GetFiles(_customXliffFileFolder, Id + ".*" + kFileExtension))
+				{
+					if (UseLanguageCodeFolders)
 					{
-						langId = GetLangIdFromXliffFileName(XliffFile);
-						if (langId != kDefaultLang) // should never happen for customized languages
+						foreach (var folder in Directory.GetDirectories(_customXliffFileFolder))
 						{
-							langIdsOfCustomizedLocales.Add(langId);
-							yield return XliffFile;
+							var XliffFile = Path.Combine(folder, Id + kFileExtension);
+							langId = GetLanguageTagFromFilePath(XliffFile);
+							if (!String.IsNullOrEmpty(langId) && langId != kDefaultLang)
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return XliffFile;
+							}
 						}
 					}
+					else
+					{
+						foreach (var XliffFile in Directory.GetFiles(_customXliffFileFolder, Id + ".*" + kFileExtension))
+						{
+							langId = GetLangIdFromXliffFileName(XliffFile);
+							if (langId != kDefaultLang)
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return XliffFile;
+							}
+						}
+					}
+				}
 				if (_installedXliffFileFolder != null)
 				{
-					foreach (var XliffFile in Directory.GetFiles(_installedXliffFileFolder, Id + ".*" + kFileExtension))
+					if (UseLanguageCodeFolders)
 					{
-						langId = GetLangIdFromXliffFileName(XliffFile);
-						if (langId != kDefaultLang &&    //Don't return the english Xliff here because we separately process it first.
-							!langIdsOfCustomizedLocales.Contains(langId))
-							yield return XliffFile;
+						foreach (var folder in Directory.GetDirectories(_installedXliffFileFolder))
+						{
+							var XliffFile = Path.Combine(folder, Id + kFileExtension);
+							langId = GetLanguageTagFromFilePath(XliffFile);
+							if (!String.IsNullOrEmpty(langId) && langId != kDefaultLang)
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return XliffFile;
+							}
+						}
+					}
+					else
+					{
+						foreach (var XliffFile in Directory.GetFiles(_installedXliffFileFolder, Id + ".*" + kFileExtension))
+						{
+							langId = GetLangIdFromXliffFileName(XliffFile);
+							if (langId != kDefaultLang &&    //Don't return the english Xliff here because we separately process it first.
+								!langIdsOfCustomizedLocales.Contains(langId))
+								yield return XliffFile;
+						}
 					}
 				}
 			}
@@ -710,6 +757,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private string GetLangIdFromXliffFileName(string fileName)
 		{
+			Debug.Assert(!UseLanguageCodeFolders);
 			fileName = fileName.Substring(0, fileName.Length - kFileExtension.Length);
 			int i = fileName.LastIndexOf('.');
 			return (i < 0 ? null : fileName.Substring(i + 1));
@@ -1097,7 +1145,14 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetXliffFileNameForLanguage(string appId, string langId)
 		{
-			return string.Format("{0}.{1}" + kFileExtension, appId, langId);
+			if (UseLanguageCodeFolders)
+			{
+				return Path.Combine(langId, appId + kFileExtension);
+			}
+			else
+			{
+				return string.Format("{0}.{1}{2}", appId, langId, kFileExtension);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
