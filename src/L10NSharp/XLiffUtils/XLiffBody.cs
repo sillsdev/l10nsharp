@@ -34,7 +34,7 @@ namespace L10NSharp.XLiffUtils
 		#region Properties
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the list of translation units in the header.
+		/// Gets the list of translation units in the file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("trans-unit")]
@@ -55,26 +55,15 @@ namespace L10NSharp.XLiffUtils
 			set { _transUnits = value; }
 		}
 
-		///// ------------------------------------------------------------------------------------
-		///// <summary>
-		///// Gets the list of translation units in the document.
-		///// </summary>
-		///// ------------------------------------------------------------------------------------
-		//[XmlIgnore]
-		//public Dictionary<string, TransUnit> TransUnitsById
-		//{
-		//	get
-		//	{
-		//		if (m_transUnitsById.Count == 0 && m_transUnits != null && m_transUnits.Count > 0)
-		//		{
-		//			foreach (TransUnit tu in m_transUnits)
-		//				m_transUnitsById[tu.Id] = tu;
-		//		}
-
-		//		return m_transUnitsById;
-		//	}
-		//}
-
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Get a dictionary to access the translations by id.  For the default language (almost
+		/// certainly English), this will be the value of the source.  For all other languages,
+		/// this will be the value of the target.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlIgnore]
+		public readonly Dictionary<string, string> TranslationsById = new Dictionary<string, string>();
 		#endregion
 
 
@@ -127,6 +116,12 @@ namespace L10NSharp.XLiffUtils
 				return false;
 
 			_transUnits.Add(tu);
+			// If the target exists, store its value in the dictionary lookup.  Otherwise, store
+			// the source value there.
+			if (tu.Target != null && tu.Target.Value != null)
+				TranslationsById[tu.Id] = tu.Target.Value;
+			else
+				TranslationsById[tu.Id] = tu.Source.Value;
 			return true;
 		}
 
@@ -147,13 +142,10 @@ namespace L10NSharp.XLiffUtils
 			var existingTu = GetTransUnitForId(tu.Id);
 
 			//notice, we don't care if there is already a string in there for this language
-			//(that was the source of a previous bug), because the XLiff of language X should
-			//surely take precedence, as source of the translation, over other language's
-			//tms files which, by virtue of their alphabetica order (e.g. arabic), came
-			//first. This probably only effects English, as it has variants in all the other
-			//languages. Previously, Arabic would be processed first, so when English came
-			//along, it was too late.
+			//(that was the cause of a previous bug), because the XLiff of language X should
+			//surely take precedence, as the translation for that language.
 			existingTu.AddOrReplaceVariant(variantToAdd);
+			TranslationsById[tu.Id] = variantToAdd.Value;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -167,13 +159,19 @@ namespace L10NSharp.XLiffUtils
 				return;
 
 			if (_transUnits.Contains(tu))
+			{
 				_transUnits.Remove(tu);
+			}
 			else if (tu.Id != null)
 			{
 				var tmptu = GetTransUnitForId(tu.Id);
 				if (tmptu != null)
+				{
 					_transUnits.Remove(tmptu);
+				}
 			}
+			if (tu.Id != null)
+				TranslationsById.Remove(tu.Id);
 		}
 
 		#endregion

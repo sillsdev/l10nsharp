@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
@@ -17,15 +19,17 @@ namespace L10NSharp
 		// with the value of kOSNewline.
 		internal string _literalNewline = "\\n";
 
-		private readonly XLiffDocument _xliffDoc;
+		private readonly LocalizedStringCache _stringCache;
+		private readonly string _defaultLang;
 		private bool _updated;
 
 
 		/// ------------------------------------------------------------------------------------
-		internal TransUnitUpdater(XLiffDocument xliffDoc)
+		internal TransUnitUpdater(LocalizedStringCache cache)
 		{
-			_xliffDoc = xliffDoc;
-			var replacement = _xliffDoc.File.HardLineBreakReplacement;
+			_stringCache = cache;
+			_defaultLang = LocalizationManager.kDefaultLang;
+			var replacement = _stringCache.XliffDocuments[_defaultLang].File.HardLineBreakReplacement;
 			if (replacement != null)
 				_literalNewline = replacement;
 		}
@@ -44,26 +48,56 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(locInfo.LangId))
 				return _updated;
 
-			var tuText = _xliffDoc.GetTransUnitForId(locInfo.Id);
+			var xliffSource = _stringCache.XliffDocuments[_defaultLang];
+			Debug.Assert(xliffSource != null);
 
-			var tuToolTip = _xliffDoc.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
-			var tuShortcutKeys = _xliffDoc.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
+			XLiffDocument xliffTarget;
+			if (!_stringCache.XliffDocuments.TryGetValue(locInfo.LangId, out xliffTarget))
+			{
+				xliffTarget = new XLiffDocument();
+				xliffTarget.File.AmpersandReplacement = xliffSource.File.AmpersandReplacement;
+				xliffTarget.File.DataType = xliffSource.File.DataType;
+				xliffTarget.File.HardLineBreakReplacement = xliffSource.File.HardLineBreakReplacement;
+				xliffTarget.File.Original = xliffSource.File.Original;
+				xliffTarget.File.ProductVersion = xliffSource.File.ProductVersion;
+				xliffTarget.File.SourceLang = xliffSource.File.SourceLang;
+				xliffTarget.File.TargetLang = locInfo.LangId;
+				xliffTarget.IsDirty = true;
+				_updated = true;
+				_stringCache.XliffDocuments.Add(locInfo.LangId, xliffTarget);
+			}
+
+			var tuSourceText = xliffSource.GetTransUnitForId(locInfo.Id);
+			var tuSourceToolTip = xliffSource.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
+			var tuSourceShortcutKeys = xliffSource.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
 			if (locInfo.Priority == LocalizationPriority.NotLocalizable)
 			{
-				_updated = (tuText != null || tuToolTip != null || tuShortcutKeys != null);
-				_xliffDoc.RemoveTransUnit(tuText);
-				_xliffDoc.RemoveTransUnit(tuToolTip);
-				_xliffDoc.RemoveTransUnit(tuShortcutKeys);
+				_updated = (tuSourceText != null || tuSourceToolTip != null || tuSourceShortcutKeys != null);
+				xliffSource.RemoveTransUnit(tuSourceText);
+				xliffSource.RemoveTransUnit(tuSourceToolTip);
+				xliffSource.RemoveTransUnit(tuSourceShortcutKeys);
+				if (_defaultLang != locInfo.LangId)
+				{
+					xliffTarget.RemoveTransUnit(tuSourceText);
+					xliffTarget.RemoveTransUnit(tuSourceToolTip);
+					xliffTarget.RemoveTransUnit(tuSourceShortcutKeys);
+				}
 				return _updated;
 			}
 
 			// Save the shortcut keys
+			var shortcutId = locInfo.Id + kShortcutSuffix;
 			if ((locInfo.UpdateFields & UpdateFields.ShortcutKeys) == UpdateFields.ShortcutKeys)
-				tuShortcutKeys = UpdateValue(tuShortcutKeys, locInfo.ShortcutKeys, locInfo, locInfo.Id + kShortcutSuffix);
+			{
+				UpdateValueAndComment(xliffTarget, tuSourceShortcutKeys, locInfo.ShortcutKeys, locInfo, shortcutId);
+			}
 
 			// Save the tooltips
+			var tooltipId = locInfo.Id + kToolTipSuffix;
 			if ((locInfo.UpdateFields & UpdateFields.ToolTip) == UpdateFields.ToolTip)
-				tuToolTip = UpdateValue(tuToolTip, locInfo.ToolTipText, locInfo, locInfo.Id + kToolTipSuffix);
+			{
+				UpdateValueAndComment(xliffTarget, tuSourceToolTip, locInfo.ToolTipText, locInfo, tooltipId);
+			}
 
 			// Save the text
 			if ((locInfo.UpdateFields & UpdateFields.Text) == UpdateFields.Text)
@@ -73,36 +107,39 @@ namespace L10NSharp
 				text = text.Replace(_literalNewline, "@#$");
 				text = text.Replace(kOSRealNewline, _literalNewline);
 				text = text.Replace("@#$", _literalNewline);
-				tuText = UpdateValue(tuText, text, locInfo, locInfo.Id);
+				UpdateValueAndComment(xliffTarget, tuSourceText, text, locInfo, locInfo.Id);
 			}
 
-			if (tuText != null)
-				UpdateTransUnitComment(tuText, locInfo);
-
-			if (tuToolTip != null)
-				UpdateTransUnitComment(tuToolTip, locInfo);
-
-			if (tuShortcutKeys != null)
-				UpdateTransUnitComment(tuShortcutKeys, locInfo);
-
+			if (_updated)
+				xliffTarget.IsDirty = true;
 			return _updated;
 		}
 
-		private void UpdateTransUnitComment(TransUnit tu, LocalizingInfo locInfo)
+		void UpdateValueAndComment(XLiffDocument xliffTarget, TransUnit tuSource, string newText, LocalizingInfo locInfo, string tuId)
 		{
-			if (locInfo.DiscoveredDynamically && (tu.GetPropValue(LocalizedStringCache.kDiscoveredDyanmically) != "true"))
+			var tuTarget = UpdateValue(xliffTarget, tuSource, newText, locInfo, tuId);
+			UpdateTransUnitComment(xliffTarget, tuSource, locInfo);
+			UpdateTransUnitComment(xliffTarget, tuTarget, locInfo);
+		}
+
+		private void UpdateTransUnitComment(XLiffDocument xliffTarget, TransUnit tu, LocalizingInfo locInfo)
+		{
+			if (tu == null)
+				return;
+			if (locInfo.DiscoveredDynamically && !tu.Dynamic)
 			{
 				tu.Dynamic = true;
 				_updated = true;
 			}
+			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment)
+				return;
+			if (tu.Notes.Count == 0 && string.IsNullOrEmpty(locInfo.Comment))
+				return;		// empty comment and already no comment in TransUnit
+			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment))
+				return;		// exactly the same comment already exists in TransUnit
 
-			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment) return;
-
-			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment)) return;
-
-			tu.Notes.Clear();
 			_updated = true;
-
+			tu.Notes.Clear();
 			if (!string.IsNullOrEmpty(locInfo.Comment))
 				tu.AddNote(locInfo.Comment);
 		}
@@ -112,46 +149,61 @@ namespace L10NSharp
 		/// Updates the value for the specified translation unit with the specified new value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private TransUnit UpdateValue(TransUnit tu, string newValue, LocalizingInfo locInfo, string tuId)
+		private TransUnit UpdateValue(XLiffDocument xliffTarget, TransUnit tuSource, string newValue, LocalizingInfo locInfo, string tuId)
 		{
-			newValue = newValue ?? string.Empty;
-
-			// Get rid of the variant we are about to set if it is present.
-			// If no variants remain get rid of the whole thing.
-			// Later we will create whatever we need.
-			if (tu != null)
+			// One would think there would be a source TransUnit, but that isn't necessarily true
+			// with users editing interactively and adding tooltips or shortcuts.
+			Debug.Assert(tuSource == null || tuId == tuSource.Id);
+			Debug.Assert(tuId.StartsWith(locInfo.Id));
+			var tuTarget = xliffTarget.GetTransUnitForId(tuId);
+			// If the TransUnit exists in the target language, check whether we're removing the translation
+			// instead of adding or changing it.
+			if (tuTarget != null)
 			{
-				var tuv = tu.GetVariantForLang(locInfo.LangId);
-				if (tuv != null)
+				var tuvTarg = tuTarget.GetVariantForLang(locInfo.LangId);
+				if (tuvTarg != null)
 				{
 					// don't need to update if the value hasn't changed
-					if (tuv.Value == newValue) return tu;
+					if (tuvTarg.Value == newValue)
+						return tuTarget;
 
-					_updated = true;
-					tu.RemoveVariant(tuv);
-					if ((tu.Source == null || tu.Source.Value == null) &&
-						(tu.Target == null || tu.Target.Value == null))
+					if (String.IsNullOrEmpty(newValue))
 					{
-						_xliffDoc.RemoveTransUnit(tu);
-						tu = null; // so we will make a new one if needed.
+						_updated = true;
+						tuTarget.RemoveVariant(tuvTarg);
+						if ((tuTarget.Source == null || String.IsNullOrEmpty(tuTarget.Source.Value)) &&
+							(tuTarget.Target == null || String.IsNullOrEmpty(tuTarget.Target.Value)))
+						{
+							xliffTarget.RemoveTransUnit(tuTarget);
+							tuTarget = null;
+						}
 					}
 				}
 			}
-
-			if (newValue == string.Empty)
-				return tu;
-
-			// Create a new entry if needed.
-			if (tu == null)
+			// If we're removing an existing translation, we can quit now.
+			if (String.IsNullOrEmpty(newValue))
 			{
-				tu = new TransUnit();
-				tu.Id = tuId;
-				_xliffDoc.AddTransUnit(tu);
+				xliffTarget.File.Body.TranslationsById.Remove(tuId);
+				return tuTarget;
 			}
-
-			tu.AddOrReplaceVariant(locInfo.LangId, newValue);
+			// If the TransUnit does not exist in the target language yet, create it and fill in the
+			// source language value (if any).
+			if (tuTarget == null)
+			{
+				tuTarget = new TransUnit();
+				tuTarget.Id = tuId;
+				xliffTarget.AddTransUnit(tuTarget);
+				if (tuSource != null && locInfo.LangId != _defaultLang)
+				{
+					var tuvSrc = tuSource.GetVariantForLang(_defaultLang);
+					if (tuvSrc != null && !String.IsNullOrEmpty(tuvSrc.Value))
+						tuTarget.AddOrReplaceVariant(_defaultLang, tuvSrc.Value);
+				}
+			}
+			tuTarget.AddOrReplaceVariant(locInfo.LangId, newValue);
+			xliffTarget.File.Body.TranslationsById[tuId] = newValue;
 			_updated = true;
-			return tu;
+			return tuTarget;
 		}
 	}
 }

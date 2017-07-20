@@ -21,6 +21,14 @@ namespace L10NSharp.Tests
 		private const string LowerVersion = "0.0.1";
 		private const string LiteralNewline = "\\n";
 
+		[TearDown]
+		public void TearDownLocalizationManagers()
+		{
+			LocalizationManager.UseLanguageCodeFolders = false;
+			LocalizationManager.LoadedManagers.Clear();
+			LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+		}
+
 		/// <summary>
 		/// If there is no GeneratedDefault Xliff file, but the file we need has been installed, copy the installed version to circumvent
 		/// a crash trying to generate this Xliff file on Linux.
@@ -173,8 +181,10 @@ namespace L10NSharp.Tests
 			{
 				SetupManager(folder, "ar");
 				Assert.AreEqual("blahInEnglishInCode", GetBlah("en"), "If asked for English, should give whatever is in the code.");
-				Assert.AreEqual("blahInFrench", GetBlah("fr"), "We do have french for this, should have found it.");
-				Assert.AreEqual("blahInEnglishInCode", GetBlah("ar"), "We don't have french so should get the English from code.");
+				Assert.AreEqual("blahInEnglishInCode", GetBlah("ar"), "We don't have Arabic so should get the English from code.");
+				LocalizationManager.SetUILanguage("fr", true);
+				Assert.AreEqual("blahInEnglishInCode", GetBlah("en"), "If asked for English, should give whatever is in the code.");
+				Assert.AreEqual("blahInFrench", GetBlah("fr"), "We do have French for this, should have found it.");
 			}
 		}
 
@@ -208,6 +218,7 @@ namespace L10NSharp.Tests
 		{
 			using(var folder = new TempFolder("GetString"))
 			{
+				AddRandomXliff("ii", GetInstalledDirectory(folder));
 				SetupManager(folder, "ii" /* UI language not important */);
 				string languageFound;
 				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", preferredLangIds, out languageFound);
@@ -221,6 +232,92 @@ namespace L10NSharp.Tests
 		{
 			var cultures = LocalizationManager.GetUILanguages(false);
 			Assert.AreEqual("English", cultures.Where(c => c.Name == "en").Select(c => c.NativeName).FirstOrDefault());
+		}
+
+		[Test]
+		public void GetUiLanguages_FindsAll()
+		{
+			using (var folder = new TempFolder("AllLanguages"))
+			{
+				SetupManager(folder);
+				var cultures = new List<CultureInfo>(LocalizationManager.GetUILanguages(true));
+				Assert.AreEqual(4, cultures.Count);
+				Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
+				Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
+				Assert.AreEqual("fr", cultures[2].IetfLanguageTag);		// French
+				Assert.AreEqual("es", cultures[3].IetfLanguageTag);		// Spanish
+			}
+		}
+
+		[Test]
+		public void GetUiLanguages_FindsAllWithFolders()
+		{
+			try
+			{
+				LocalizationManager.UseLanguageCodeFolders = true;
+				using (var folder = new TempFolder("AllLanguages"))
+				{
+					SetupManager(folder);
+					var cultures = new List<CultureInfo>(LocalizationManager.GetUILanguages(true));
+					Assert.AreEqual(4, cultures.Count);
+					Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
+					Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
+					Assert.AreEqual("fr", cultures[2].IetfLanguageTag);		// French
+					Assert.AreEqual("es", cultures[3].IetfLanguageTag);		// Spanish
+				}
+			}
+			finally
+			{
+				LocalizationManager.UseLanguageCodeFolders = false;
+			}
+		}
+
+		int compareCultureTags(CultureInfo first, CultureInfo second)
+		{
+			return first.IetfLanguageTag.CompareTo(second.IetfLanguageTag);
+		}
+
+		[Test]
+		public void GetDynamicStringInEnglish_NoDefault_FindsEnglishWithFolders()
+		{
+			try
+			{
+				LocalizationManager.UseLanguageCodeFolders = true;
+				using (var folder = new TempFolder("GetDynamicStringInEnglish_NoDefault_FindsEnglish"))
+				{
+					SetupManager(folder);
+					Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
+				}
+			}
+			finally
+			{
+				LocalizationManager.UseLanguageCodeFolders = false;
+			}
+		}
+
+		//NOTE: the TestName parameter is only here to work around an NUnit bug in which 
+		//NUnit doesn't run alll the test cases when some differ only by the values in an array parameter
+		//cases where we expect to get back the english in the code
+		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_1")]
+		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_2")]
+		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_3")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_4")]
+		//cases where we expect to get back the French
+		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_5")]
+		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_6")]
+		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_7")] // our arabic doesn't have a translation of 'blah', so fall to French
+		public void GetString_OverloadThatTakesListOfLanguages_WorksWithFolders(IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
+		{
+			LocalizationManager.UseLanguageCodeFolders = true;
+			using (var folder = new TempFolder("GetString"))
+			{
+				AddRandomXliff("ii", GetInstalledDirectory(folder));
+				SetupManager(folder, "ii" /* UI language not important */);
+				string languageFound;
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", preferredLangIds, out languageFound);
+				Assert.AreEqual(expectedResult, result);
+				Assert.AreEqual(expectedLanguage, languageFound);
+			}
 		}
 
 		[Test]
@@ -239,11 +336,13 @@ namespace L10NSharp.Tests
 		/// - Sets the UI language
 		/// - Constructs a LocalizationManager and adds it to LocalizationManager.LoadedManagers[AppId]
 		/// </summary>
-		public static void SetupManager(TempFolder folder, string uiLanguageId = null)
+		public static void SetupManager(TempFolder folder, string uiLanguageId = LocalizationManager.kDefaultLang)
 		{
+			LocalizationManager.LoadedManagers.Clear();
 			AddEnglishXliff(GetInstalledDirectory(folder), AppVersion);
 			AddArabicXliff(GetInstalledDirectory(folder));
 			AddFrenchXliff(GetInstalledDirectory(folder));
+			AddSpanishXliff(GetInstalledDirectory(folder));
 
 			LocalizationManager.SetUILanguage(uiLanguageId, true);
 			var manager = new LocalizationManager(AppId, AppName, AppVersion,
@@ -276,30 +375,25 @@ namespace L10NSharp.Tests
 			englishDoc.File.HardLineBreakReplacement = LiteralNewline;
 			englishDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new TransUnitVariant {Lang = "en", Value = "from English Xliff"};
-			var note = new XLiffNote();
-			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Source = sources,
-				Notes = { note }
+				Source = new TransUnitVariant {Lang = "en", Value = "from English Xliff"},
+				Notes = { new XLiffNote {Text = "Test"} }
 			};
 			englishDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new TransUnitVariant {Lang = "en", Value = "no longer used English text"};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Source = sources2
+				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"}
 			};
 			englishDoc.AddTransUnit(tu2);
 			// third unit
-			var variants3 = new TransUnitVariant {Lang = "en", Value = "blah"};
 			var tu3 = new TransUnit
 			{
 				Id = "blahId",
-				Source = variants3
+				Source = new TransUnitVariant {Lang = "en", Value = "blah"}
 			};
 			englishDoc.AddTransUnit(tu3);
 			englishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
@@ -307,41 +401,23 @@ namespace L10NSharp.Tests
 
 		private static void AddArabicXliff(string folderPath)
 		{
-			var arabicDoc = new XLiffDocument { File = {SourceLang = "ar"}};
+			var arabicDoc = new XLiffDocument { File = {SourceLang = "en", TargetLang="ar"}};
 			arabicDoc.File.Original = "test.dll";
 			// first unit
-			var sources = new TransUnitVariant
-			{
-				Lang = "en", Value = "wrong"
-			};
-			var targets = new TransUnitVariant
-			{
-				Lang = "ar", Value = "inArabic"
-			};
-			var note = new XLiffNote();
-			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "theId",
-				Source = sources,
-				Notes = { note },
-				Target = targets
+				Source = new TransUnitVariant {Lang = "en", Value = "wrong"},
+				Target = new TransUnitVariant {Lang = "ar", Value = "inArabic"},
+				Notes = { new XLiffNote {Text = "Test"} }
 			};
 			arabicDoc.AddTransUnit(tu);
 			// second unit
-			var sources2 = new TransUnitVariant
-			{
-				Lang = "en", Value = "inEnglishpartofArabicXliff"
-			};
-			var targets2 = new TransUnitVariant
-			{
-				Lang = "ar", Value = "inArabic"
-			};
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
-				Source = sources2,
-				Target = targets2
+				Source = new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicXliff"},
+				Target = new TransUnitVariant {Lang = "ar", Value = "inArabic"}
 			};
 			arabicDoc.AddTransUnit(tu2);
 			arabicDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "ar")));
@@ -349,30 +425,68 @@ namespace L10NSharp.Tests
 
 		private static void AddFrenchXliff(string folderPath)
 		{
-			var doc = new XLiffDocument { File = {SourceLang = "fr"}};
+			var doc = new XLiffDocument { File = {SourceLang = "en", TargetLang = "fr"}};
 			doc.File.Original = "test.dll";
 			// first unit
-			var sources = new TransUnitVariant
-			{
-				Lang = "en", Value = "blah",
-			};
-			var targets = new TransUnitVariant
-			{
-				Lang = "fr", Value = "blahInFrench"
-			};
-			var note = new XLiffNote();
-			note.Text = "Test";
 			var tu = new TransUnit
 			{
 				Id = "blahId",
-				Source = sources,
-				Notes = { note },
-				Target = targets
+				Source = new TransUnitVariant {Lang = "en", Value = "blah"},
+				Target = new TransUnitVariant {Lang = "fr", Value = "blahInFrench"},
+				Notes = { new XLiffNote {Text = "Test"} }
 			};
-			tu.AddProp("ar", LocalizedStringCache.kDiscoveredDyanmically, "true");
-			tu.AddProp("en", LocalizedStringCache.kDiscoveredDyanmically, "true");
+			tu.Dynamic = true;
 			doc.AddTransUnit(tu);
 			doc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "fr")));
+		}
+
+		internal static void AddSpanishXliff(string folderPath)
+		{
+			var spanishDoc = new XLiffDocument { File = {SourceLang = "en", TargetLang="es"}};
+			spanishDoc.File.HardLineBreakReplacement = LiteralNewline;
+			spanishDoc.File.Original = "test.dll";
+			// first unit
+			var tu = new TransUnit
+			{
+				Id = "theId",
+				Source = new TransUnitVariant {Lang = "en", Value = "from English Xliff"},
+				Target = new TransUnitVariant {Lang = "es", Value = "from Spanish Xliff"},
+				Notes = { new XLiffNote {Text = "Test"} }
+			};
+			spanishDoc.AddTransUnit(tu);
+			// second unit
+			var tu2 = new TransUnit
+			{
+				Id = "notUsedId",
+				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"},
+				Target = new TransUnitVariant {Lang = "es", Value = "no longer used Spanish text"}
+			};
+			spanishDoc.AddTransUnit(tu2);
+			// third unit
+			var tu3 = new TransUnit
+			{
+				Id = "blahId",
+				Source = new TransUnitVariant {Lang = "en", Value = "blah"},
+				Target = new TransUnitVariant {Lang = "es", Value = "bleah"}
+			};
+			spanishDoc.AddTransUnit(tu3);
+			spanishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "es")));
+		}
+
+		internal static void AddRandomXliff(string langId, string folderPath)
+		{
+			var doc = new XLiffDocument { File = {SourceLang = "en", TargetLang=langId}};
+			doc.File.HardLineBreakReplacement = LiteralNewline;
+			doc.File.Original = "test.dll";
+			// only unit
+			var tu2 = new TransUnit
+			{
+				Id = "notUsedId",
+				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"},
+				Target = new TransUnitVariant {Lang = langId, Value = "no longer used Random text"}
+			};
+			doc.AddTransUnit(tu2);
+			doc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, langId)));
 		}
 
 		/// <summary>
@@ -407,10 +521,12 @@ namespace L10NSharp.Tests
 			{
 				MakeEnglishXliffWithApparentOrphan(folder);
 				MakeArabicXliffWithApparentOrphans(folder, "Title");
+
 				var manager = new LocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
 				LocalizationManager.LoadedManagers[AppId] = manager;
+				LocalizationManager.SetUILanguage("ar", false);
 
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
@@ -427,10 +543,12 @@ namespace L10NSharp.Tests
 				MakeEnglishXliffWithApparentOrphan(folder);
 				// The critical difference compared to OrphanLogicUsedForArabic_ButNotIfFoundInEnglishXliff is that the English version of the orphan doesn't match
 				MakeArabicXliffWithApparentOrphans(folder, "Some other Title, unrelated to SuperclassMethod.TestId");
+
 				var manager = new LocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
 				LocalizationManager.LoadedManagers[AppId] = manager;
+				LocalizationManager.SetUILanguage("ar", false);
 
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
@@ -452,7 +570,7 @@ namespace L10NSharp.Tests
 
 		private static void MakeArabicXliffWithApparentOrphans(TempFolder folder, string englishForObsoleteTitle)
 		{
-			var arabicDoc = new XLiffDocument { File = { SourceLang = "ar"} };
+			var arabicDoc = new XLiffDocument { File = { SourceLang = "en", TargetLang = "ar" } };
 			arabicDoc.File.SetPropValue(LocalizationManager.kAppVersionPropTag, LowerVersion);
 			// Note that we do NOT have arabic for SuperClassMethod.TestId. We may end up getting a translation from the orphan, however.
 			arabicDoc.AddTransUnit(MakeTransUnit("ar", "Title in Arabic", "Title", "AnotherContext.AnotherDialog.TestId", true)); // Not an orphan, because English Xliff has this too
@@ -470,11 +588,11 @@ namespace L10NSharp.Tests
 			var tu = new TransUnit
 			{
 				Id = id,
-				Source = source,
+			Source = source,
 				Target = target
 			};
 			if (dynamic)
-				tu.AddProp(lang, LocalizedStringCache.kDiscoveredDyanmically, "true");
+				tu.Dynamic = true;
 			return tu;
 		}
 
@@ -484,10 +602,12 @@ namespace L10NSharp.Tests
 			using (var folder = new TempFolder("GetAvailableUILanguageTags_FindsThreeLanguages"))
 			{
 				SetupManager(folder, "en");
-				var tags = LocalizationManager.GetAvailableUILanguageTags(GetInstalledDirectory(folder), AppId).ToArray();
-				Assert.That(tags.Length, Is.EqualTo(3));
+				var lm = LocalizationManager.LoadedManagers.Values.First();
+				var tags = lm.GetAvailableUILanguageTags().ToArray();
+				Assert.That(tags.Length, Is.EqualTo(4));
 				Assert.That(tags.Contains("ar"), Is.True);
 				Assert.That(tags.Contains("en"), Is.True);
+				Assert.That(tags.Contains("es"), Is.True);
 				Assert.That(tags.Contains("fr"), Is.True);
 			}
 		}
