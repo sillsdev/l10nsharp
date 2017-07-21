@@ -74,6 +74,39 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
+		/// Gets or sets the priority value.  This is an enumeration which defaults to "High" (of
+		/// course): everything is HIGH PRIORITY!!!!  We treat it as a string to more gracefully
+		/// handle "creative" users.
+		/// See LocalizationPriority in LocalizingInfo.cs for the full list of values.
+		/// </summary>
+		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("priority", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		public string Priority { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the group value.  This is an arbitrary string value.  The default is
+		/// null or the empty string.
+		/// </summary>
+		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("group", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		public string Group { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the category value.  This is an enumeration which defaults to "DontCare".
+		/// We treat it as a string to more gracefully handle "creative" users.
+		/// See LocalizationCategory in LocalizingInfo.cs for the full list of values.
+		/// </summary>
+		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// ------------------------------------------------------------------------------------
+		[XmlAttribute("category", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		public string Category { get; set; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
 		/// Gets a value indicating whether this instance is empty.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
