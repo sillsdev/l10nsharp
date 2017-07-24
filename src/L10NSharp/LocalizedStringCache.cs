@@ -459,16 +459,15 @@ namespace L10NSharp
 		/// Gets the comment for the specified id.
 		/// </summary>
 		/// <remarks>
-		/// The xliff standard allows multiple notes in a trans-unit element.  However, we use
-		/// only one note, treating it as a comment on how to translate the source string.
-		/// (There are lots of other complexities in the xliff standard that we don't represent
-		/// well or at all.)
+		/// The xliff standard allows multiple notes in a trans-unit element.  We use one to
+		/// represent the id string (prefacing it with "ID: ").  Any other note is liable to be
+		/// considered the "comment" if it exists.
 		/// </remarks>
 		/// ------------------------------------------------------------------------------------
 		internal string GetComment(string id)
 		{
 			TransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
-			return (tu == null || tu.Notes.Count == 0 ? null : tu.Notes[0].Text);
+			return (tu == null ? null : tu.GetComment());
 		}
 
 		/// ------------------------------------------------------------------------------------

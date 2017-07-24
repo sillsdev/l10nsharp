@@ -135,11 +135,12 @@ namespace L10NSharp
 				return;
 			if (tu.Notes.Count == 0 && string.IsNullOrEmpty(locInfo.Comment))
 				return;		// empty comment and already no comment in TransUnit
-			if ((tu.Notes.Count > 0) && (tu.Notes[0].Text == locInfo.Comment))
+			if (tu.NotesContain(locInfo.Comment))
 				return;		// exactly the same comment already exists in TransUnit
 
 			_updated = true;
 			tu.Notes.Clear();
+			tu.AddNote("ID: " + tu.Id);
 			if (!string.IsNullOrEmpty(locInfo.Comment))
 				tu.AddNote(locInfo.Comment);
 		}
@@ -199,6 +200,7 @@ namespace L10NSharp
 					if (tuvSrc != null && !String.IsNullOrEmpty(tuvSrc.Value))
 						tuTarget.AddOrReplaceVariant(_defaultLang, tuvSrc.Value);
 				}
+				tuTarget.AddNote("ID: " + tuId);
 			}
 			tuTarget.AddOrReplaceVariant(locInfo.LangId, newValue);
 			xliffTarget.File.Body.TranslationsById[tuId] = newValue;

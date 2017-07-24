@@ -31,7 +31,6 @@ namespace L10NSharp.XLiffUtils
 		{
 			Source = new TransUnitVariant();
 			Target = null;
-			Notes = new List<XLiffNote>();
 		}
 
 		#region Properties
@@ -70,7 +69,11 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("note")]
-		public List<XLiffNote> Notes { get; set; }
+		public List<XLiffNote> Notes
+		{
+			get { return _notes; }
+			set { _notes = value; }
+		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

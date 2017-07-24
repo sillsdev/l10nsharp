@@ -124,6 +124,34 @@ namespace L10NSharp.XLiffUtils
 		{
 			return _props.Where(p => p.Type == type).Select(p => p.Value).FirstOrDefault();
 		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Check whether the give comment already exists as a note.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public bool NotesContain(string comment)
+		{
+			for (int i = 0; i < _notes.Count; ++i)
+			{
+				if (_notes[i].Text == comment)
+					return true;
+			}
+			return false;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Return the "comment" string if it exists in the notes.  We use one to represent the
+		/// id string (prefacing it with "ID: ").  Any other note is liable to be considered the
+		/// "comment" if it exists.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string GetComment()
+		{
+			var commentNote = _notes.FirstOrDefault(n => !string.IsNullOrEmpty(n.Text) && !n.Text.StartsWith("ID: "));
+			return commentNote == null ? null : commentNote.Text;
+		}
 	}
 
 	#endregion

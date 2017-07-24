@@ -60,6 +60,7 @@
 				<xsl:attribute name="sil:dynamic"><xsl:value-of select="prop[@type='x-dynamic']"/></xsl:attribute>
 			</xsl:if>
 			<xsl:apply-templates select="tuv"/>
+			<xsl:element name="note">ID: <xsl:value-of select="@tuid"/></xsl:element>
 			<xsl:apply-templates select="note"/> <!-- note must follow the source and target elements in xliff. -->
 		</xsl:element>
 	</xsl:template>
