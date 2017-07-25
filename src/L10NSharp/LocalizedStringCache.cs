@@ -433,6 +433,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
 		{
+			if (String.IsNullOrEmpty(langId) || String.IsNullOrEmpty(id))
+				return null;
 			XLiffDocument xliff;
 			if (!XliffDocuments.TryGetValue(langId, out xliff))
 				return null;
