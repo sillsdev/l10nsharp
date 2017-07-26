@@ -516,7 +516,7 @@ namespace L10NSharp
 
 		internal string DefaultInstalledStringFilePath
 		{
-			get { return Path.Combine(_installedXliffFileFolder, Id + "." + kDefaultLang + kFileExtension); }
+			get { return Path.Combine(_installedXliffFileFolder, GetXliffFileNameForLanguage(Id, kDefaultLang)); }
 		}
 
 		/// ------------------------------------------------------------------------------------
