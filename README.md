@@ -29,3 +29,7 @@ For Linux, the command to run the tests would look something like this:
     /opt/mono4-sil/bin/mono packages/NUnit.Runners.Net4.2.6.4/tools/nunit-console.exe output/Debug/L10NSharpTests.dll
 
 It is also possible to run the tests from inside MonoDevelop, at least if mono4-sil is installed and made the default Mono runtime.
+
+## HtmlToXliff and XliffToHtml
+
+The HtmlToXLiff and XliffToHtml programs help with localizing HTML files by providing a means to transform an HTML file into an XLIFF 1.2 file, and back again.  XLIFF, the XML Localization Interchange File Format, is a standard for representing data that needs to be translated for a computer program.  L10NSharp now uses XLIFF for its data storage, and these programs help with localization beyond C# code to HTML browser interactions.  These programs are independent of the L10NSharp assembly, but are themselves C# code.
