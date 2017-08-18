@@ -208,12 +208,19 @@ namespace L10NSharp.CodeReader
 			methodsInType.AddRange(type.GetConstructors(BindingFlags.Static |
 				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
 
-			// The DeclaredOnly flag ensures we do not include public methods from superclasses of this subtype.
-			// If the superclass is in a requested namespace, we will collect it from the superclass directly.
-			// But this ensures we don't collect it if the superclass is in a namespace which wasn't requested.
-			methodsInType.AddRange(type.GetMethods(BindingFlags.Static |
-				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
-
+			try
+			{
+				// The DeclaredOnly flag ensures we do not include public methods from superclasses of this subtype.
+				// If the superclass is in a requested namespace, we will collect it from the superclass directly.
+				// But this ensures we don't collect it if the superclass is in a namespace which wasn't requested.
+				methodsInType.AddRange(type.GetMethods(BindingFlags.Static |
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
+			}
+			catch (TypeLoadException)
+			{
+				// Caused by assemblies that have odd runtime loading problems (e.g. SIL.Windows.Forms.Keyboarding). Ignore.
+				return;
+			}
 			foreach (var method in methodsInType)
 			{
 				try
