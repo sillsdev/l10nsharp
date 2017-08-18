@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp.CodeReader;
@@ -49,7 +50,14 @@ namespace L10NSharp.UI
 
 		private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			ExtractedInfo = (IEnumerable<LocalizingInfo>) e.Result;
+			try
+			{
+				ExtractedInfo = (IEnumerable<LocalizingInfo>) e.Result;
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("Error in extracting localizable strings: {0} ({1})", ex.Message, e.Error);
+			}
 			Close();
 		}
 
