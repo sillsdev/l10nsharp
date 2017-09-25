@@ -986,7 +986,7 @@ namespace L10NSharp
 			//itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
 			{
-				return id;
+				return langId == "en" ? englishText ?? id : id;
 			}
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
@@ -997,7 +997,6 @@ namespace L10NSharp
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
-			// some TMX, following the rule that the current c# code always wins.
 			// some TMX, following the rule that the current c# code always wins. In case we really need to
 			// recover the TMX version, we will retrieve that if no default is provided.
 			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX

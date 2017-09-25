@@ -20,6 +20,12 @@ namespace L10NSharp.Tests
 		private const string HigherVersion = "2.0.0";
 		private const string LowerVersion = "0.0.1";
 
+		[TearDown]
+		public void TearDown()
+		{
+			LocalizationManager.LoadedManagers.Clear();
+		}
+
 		/// <summary>
 		/// If there is no GeneratedDefault TMX file, but the file we need has been installed, copy the installed version to circumvent
 		/// a crash trying to generate this TMX file on Linux.
@@ -516,6 +522,40 @@ namespace L10NSharp.Tests
 				Assert.That(tags.Contains("en"), Is.True);
 				Assert.That(tags.Contains("fr"), Is.True);
 			}
+		}
+	}
+
+	[TestFixture]
+	public class LocalizationManagerTests_NoManagersLoaded
+	{
+		[TestFixtureSetUp]
+		public void TearDown()
+		{
+			LocalizationManager.LoadedManagers.Clear();
+		}
+
+		/// <summary>
+		/// According to a comment in GetDynamicStringOrEnglish, in unit test environments,
+		/// it's possible for no LM to be loaded, but according to the description of this
+		/// method, there is a "Special case" for English whereby the English string should
+		/// ALWAYS be returned. This test covers the intersection of those two special cases.
+		/// </summary>
+		[Test]
+		public void GetDynamicString_NoManagerLoaded_EnglishNotNull_ReturnsEnglishString()
+		{
+			Assert.AreEqual("data", LocalizationManager.GetDynamicString("Glom", "prefix.data", "data"));
+		}
+
+		[Test]
+		public void GetDynamicString_NoManagerLoaded_EnglishNull_ReturnsId()
+		{
+			Assert.AreEqual("prefix.data", LocalizationManager.GetDynamicString("Glom", "prefix.data", null));
+		}
+
+		[Test]
+		public void GetDynamicStringOrEnglish_NoManagerLoaded_NonEnglish_ReturnsId()
+		{
+			Assert.AreEqual("prefix.data", LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", "data", "no comment", "es"));
 		}
 	}
 }
