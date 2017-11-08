@@ -394,7 +394,7 @@ namespace L10NSharp
 
 		/// <summary>
 		/// If the given file exists, return its parent folder name as a language tag if it
-		/// appears to be valid (2 characters long or "zh-CN").  Otherwise return null.
+		/// appears to be valid (2 or 3 letters long or "zh-CN").  Otherwise return null.
 		/// </summary>
 		private static string GetLanguageTagFromFilePath(string xliffFile)
 		{
@@ -402,7 +402,7 @@ namespace L10NSharp
 			if (File.Exists(xliffFile))
 			{
 				var langId = Path.GetFileName(Path.GetDirectoryName(xliffFile));
-				if ((langId.Length == 2 || langId == "zh-CN"))
+				if (System.Text.RegularExpressions.Regex.IsMatch(langId, "[a-z]{2,3}") || langId == "zh-CN")
 					return langId;
 			}
 			return null;
