@@ -314,6 +314,18 @@ namespace L10NSharp
 		}
 
 		/// <summary>
+		/// Get the language tags for all languages that have localized data that has
+		/// been loaded.
+		/// </summary>
+		public static List<string> GetAvailableLocalizedLanguages()
+		{
+			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
+				LoadedManagers.Values.SelectMany(lm => lm.GetAvailableUILanguageTags())
+					.Distinct().ToList());
+			return langsHavinglocalizations;
+		}
+
+		/// <summary>
 		/// Returns one L10NCultureInfo object for each distinct language found in the collection of all
 		/// cultures on the computer. Some languages are represented by more than one culture, and in
 		/// those cases just the first culture is returned. There are several reasons for multiple
@@ -352,9 +364,7 @@ namespace L10NSharp
 			// finally, select the first culture in each language code group
 			var allLangs = groups.Select(g => g.First()).ToList();
 
-			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
-				LoadedManagers.Values.SelectMany(lm => lm.GetAvailableUILanguageTags())
-				.Distinct().ToList());
+			var langsHavinglocalizations = GetAvailableLocalizedLanguages();
 
 			// BL-1011: Make sure cultures that have existing localizations are included
 			var missingCultures = langsHavinglocalizations.Where(l => allLangs.Any(al => al.Name == l) == false);
