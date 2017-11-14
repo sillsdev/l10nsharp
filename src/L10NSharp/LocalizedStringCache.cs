@@ -293,7 +293,7 @@ namespace L10NSharp
 		/// Compares two translation units for equality.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static int TuComparer(TransUnit tu1, TransUnit tu2)
+		internal static int TuComparer(TransUnit tu1, TransUnit tu2)
 		{
 			if (tu1 == null && tu2 == null)
 				return 0;

@@ -47,7 +47,8 @@ namespace L10NSharp.CodeReader
 			{
 				FindLocalizedStringsInType(type);
 				var pct = (int)Math.Round(((i++) / (double)typesToScan.Length) * 100d, 0, MidpointRounding.AwayFromZero);
-				worker.ReportProgress(pct);
+				if (worker != null)
+					worker.ReportProgress(pct);
 				_scannedTypes.Add(type.FullName);
 
 				// The above code finds calls in sets like
@@ -102,7 +103,8 @@ namespace L10NSharp.CodeReader
 			_getStringCallsInfo.AddRange(extenderInfo);
 			_getStringCallsInfo = _getStringCallsInfo.Distinct(new LocInfoDistinctComparer()).OrderBy(l => l.Id).ToList();
 
-			worker.ReportProgress(100);
+			if (worker != null)
+				worker.ReportProgress(100);
 
 			foreach (var locInfo in _getStringCallsInfo)
 			{
@@ -171,6 +173,8 @@ namespace L10NSharp.CodeReader
 			}
 		}
 
+		public Assembly[] ExternalAssembliesToScan;
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a list of all assemblies referenced by the entry assembly
@@ -178,6 +182,9 @@ namespace L10NSharp.CodeReader
 		/// ------------------------------------------------------------------------------------
 		private IEnumerable<Assembly> GetAllAssemblies()
 		{
+			if (ExternalAssembliesToScan != null && ExternalAssembliesToScan.Length > 0)
+				return ExternalAssembliesToScan;
+
 			// If no entry assembly, just get assemblies loaded in AppDomain
 			if (Assembly.GetEntryAssembly() != null)
 			{

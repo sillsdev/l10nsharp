@@ -236,6 +236,13 @@ namespace L10NSharp
 			LocalizableComponents = new Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>>();
 		}
 
+		internal LocalizationManager(string appId, string appName, string appVersion)
+		{
+			Id = appId;
+			Name = appName;
+			AppVersion = appVersion;
+		}
+
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultXliffFileIfNecessary(params string[] namespaceBeginnings)
 		{
