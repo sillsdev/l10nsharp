@@ -236,6 +236,27 @@ namespace L10NSharp
 			LocalizableComponents = new Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>>();
 		}
 
+		/// <summary>
+		/// Minimal constructor for a new instance of the <see cref="L10NSharp.LocalizationManager"/> class.
+		/// </summary>
+		/// <param name="appId">
+		/// The application Id (e.g. 'Pa' for Phonology Assistant).  This should be a unique name that
+		/// identifies the manager for an assembly or application.
+		/// </param>
+		/// <param name="appName">
+		/// The application's name. This will appear to the user in the localization dialog box as a
+		/// parent item in the tree.  It may be the same as appId.
+		/// </param>
+		/// <param name="appVersion">
+		/// The application's version.
+		/// </param>
+		internal LocalizationManager(string appId, string appName, string appVersion)
+		{
+			Id = appId;
+			Name = appName;
+			AppVersion = appVersion;
+		}
+
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultXliffFileIfNecessary(params string[] namespaceBeginnings)
 		{
