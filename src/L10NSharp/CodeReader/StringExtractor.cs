@@ -47,7 +47,8 @@ namespace L10NSharp.CodeReader
 			{
 				FindLocalizedStringsInType(type);
 				var pct = (int)Math.Round(((i++) / (double)typesToScan.Length) * 100d, 0, MidpointRounding.AwayFromZero);
-				worker.ReportProgress(pct);
+				if (worker != null)
+					worker.ReportProgress(pct);
 				_scannedTypes.Add(type.FullName);
 
 				// The above code finds calls in sets like
@@ -102,7 +103,8 @@ namespace L10NSharp.CodeReader
 			_getStringCallsInfo.AddRange(extenderInfo);
 			_getStringCallsInfo = _getStringCallsInfo.Distinct(new LocInfoDistinctComparer()).OrderBy(l => l.Id).ToList();
 
-			worker.ReportProgress(100);
+			if (worker != null)
+				worker.ReportProgress(100);
 
 			foreach (var locInfo in _getStringCallsInfo)
 			{
@@ -173,11 +175,24 @@ namespace L10NSharp.CodeReader
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a list of all assemblies referenced by the entry assembly
+		/// Optional list of assemblies to scan that aren't part of the currently executing code.
+		/// If this is set, no other loaded assemblies are scanned.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public Assembly[] ExternalAssembliesToScan;
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// If ExternalAssembliesToScan has data, return its value. Otherwise, return a list of
+		/// all assemblies referenced by the entry assembly if it exists, or a list of assemblies
+		/// loaded in the AppDomain as a last resort.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		private IEnumerable<Assembly> GetAllAssemblies()
 		{
+			if (ExternalAssembliesToScan != null && ExternalAssembliesToScan.Length > 0)
+				return ExternalAssembliesToScan;
+
 			// If no entry assembly, just get assemblies loaded in AppDomain
 			if (Assembly.GetEntryAssembly() != null)
 			{
