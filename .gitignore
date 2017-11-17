@@ -4,6 +4,7 @@ output/
 obj/
 *.suo
 *.user
+L10NSharp.userprefs
 bin/
 *.ncrunchsolution
 *Copy*.bat
