@@ -1075,8 +1075,8 @@ namespace L10NSharp
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
 				throw new ArgumentException(
-					string.Format("The application id '{0}' does not have an associated localization manager.",
-					appId));
+					string.Format("The application id '{0}' does not have an associated localization manager. Initialized LMs are {1}",
+					appId, String.Join(", ", LoadedManagers.Keys)));
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
@@ -1144,7 +1144,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		private static string GetStringFromAnyLocalizationManager(string stringId)
 		{
-			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the 
+			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the
 			// English from the program source to the English from the Xliff.
 
 			// This will enforce that the text to localize is just returned to the caller
