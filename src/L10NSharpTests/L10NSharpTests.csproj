@@ -74,6 +74,7 @@
     <Compile Include="ILocalizableComponentTests.cs" />
     <Compile Include="MockLocalizableComponent.cs" />
     <Compile Include="LocalizationManagerTests.cs" />
+    <Compile Include="L10NCultureInfoTests.cs" />
     <Compile Include="SchemaValidationTests.cs" />
     <Compile Include="TempFile.cs" />
     <Compile Include="UtilsTests.cs" />

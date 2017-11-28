@@ -240,7 +240,7 @@ namespace L10NSharp.Tests
 			using (var folder = new TempFolder("AllLanguages"))
 			{
 				SetupManager(folder);
-				var cultures = new List<CultureInfo>(LocalizationManager.GetUILanguages(true));
+				var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
 				Assert.AreEqual(4, cultures.Count);
 				Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
 				Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
@@ -258,7 +258,7 @@ namespace L10NSharp.Tests
 				using (var folder = new TempFolder("AllLanguages"))
 				{
 					SetupManager(folder);
-					var cultures = new List<CultureInfo>(LocalizationManager.GetUILanguages(true));
+					var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
 					Assert.AreEqual(4, cultures.Count);
 					Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
 					Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
