@@ -111,7 +111,7 @@ namespace L10NSharp
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
-				desiredUiLangId = L10NCultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 			}
 
 			var ci = L10NCultureInfo.GetCultureInfo(desiredUiLangId);
@@ -325,9 +325,12 @@ namespace L10NSharp
 		{
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
-
 			var ci = L10NCultureInfo.GetCultureInfo(langId);
-			Thread.CurrentThread.CurrentUICulture = ci;
+			if (ci.RawCultureInfo != null)
+				Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo;
+			else
+				Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+			L10NCultureInfo.CurrentCulture = ci;
 			s_uiLangId = langId;
 
 			if (reapplyLocalizationsToAllObjectsInAllManagers)
@@ -366,7 +369,7 @@ namespace L10NSharp
 		/// then all languages found are returned.
 		/// </param>
 		/// <returns>IEnumerable of L10NCultureInfo declared as IEnumerable of CultureInfo</returns>
-		public static IEnumerable<CultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
+		public static IEnumerable<L10NCultureInfo> GetUILanguages(bool returnOnlyLanguagesHavingLocalizations)
 		{
 			// BL-922, filter out duplicate languages. It may be surprising that we get more than one
 			// neutral culture for a given language; however, some languages are written in more than one
@@ -483,7 +486,7 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the current UI language Id (i.e. the target language).
+		/// Gets the current UI language Id (i.e. the target language).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string UILanguageId
