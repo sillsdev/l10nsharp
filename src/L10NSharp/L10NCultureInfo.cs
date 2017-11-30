@@ -82,6 +82,7 @@ namespace L10NSharp
 			}
 			else
 			{
+				InitializeFromRawCultureInfo();
 				// The Windows .Net runtime returns 'Azərbaycan dili (Azərbaycan)' for az-Latn, and
 				// something totally different for az.
 				// The Mono runtime returns "azərbaycan" for both az and az-Latn.
@@ -91,17 +92,26 @@ namespace L10NSharp
 				// The Windows .Net runtime returns 'Indonesia' for id.  It should be 'Bahasa Indonesia'.
 				else if (name == "id")
 					NativeName = "Bahasa Indonesia";
-				else
-					NativeName = RawCultureInfo.NativeName;
-				EnglishName = RawCultureInfo.EnglishName;
-				DisplayName = RawCultureInfo.DisplayName;
-				IsNeutralCulture = RawCultureInfo.IsNeutralCulture;
-				NumberFormat = RawCultureInfo.NumberFormat;
-				Name = RawCultureInfo.Name;
-				TwoLetterISOLanguageName = RawCultureInfo.TwoLetterISOLanguageName;
-				ThreeLetterISOLanguageName = RawCultureInfo.ThreeLetterISOLanguageName;
-				IetfLanguageTag = RawCultureInfo.IetfLanguageTag;
 			}
+		}
+
+		private L10NCultureInfo(CultureInfo ci)
+		{
+			RawCultureInfo = ci;
+			InitializeFromRawCultureInfo();
+		}
+
+		private void InitializeFromRawCultureInfo()
+		{
+			EnglishName = RawCultureInfo.EnglishName;
+			DisplayName = RawCultureInfo.DisplayName;
+			NativeName = RawCultureInfo.NativeName;
+			IsNeutralCulture = RawCultureInfo.IsNeutralCulture;
+			NumberFormat = RawCultureInfo.NumberFormat;
+			Name = RawCultureInfo.Name;
+			TwoLetterISOLanguageName = RawCultureInfo.TwoLetterISOLanguageName;
+			ThreeLetterISOLanguageName = RawCultureInfo.ThreeLetterISOLanguageName;
+			IetfLanguageTag = RawCultureInfo.IetfLanguageTag;
 		}
 
 		/// <summary>
@@ -129,7 +139,20 @@ namespace L10NSharp
 
 		public NumberFormatInfo NumberFormat { get; set; }
 
-		public static L10NCultureInfo CurrentCulture { get; internal set; }
+		private static L10NCultureInfo _currentInfo;
+		public static L10NCultureInfo CurrentCulture
+		{
+			get
+			{
+				if (_currentInfo == null)
+					_currentInfo = new L10NCultureInfo(CultureInfo.CurrentCulture);
+				return _currentInfo;
+			}
+			internal set
+			{
+				_currentInfo = value;
+			}
+		}
 
 		/// <summary>
 		/// Gets the list of supported cultures in the form of L10NCultureInfo objects.
