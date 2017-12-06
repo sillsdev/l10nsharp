@@ -27,7 +27,17 @@ namespace L10NSharp.Tests
 		{
 			var pbuci = L10NCultureInfo.GetCultureInfo("pbu");
 			Assert.AreEqual("Northern Pashto", pbuci.EnglishName);
+			// Linux/Mono4 and Windows7 will have null for pbuci.RawCultureInfo.
+			// Windows10 will produce a dummy object with no read information.
+#if __MonoCS__
 			Assert.IsNull(pbuci.RawCultureInfo);
+#else
+			if (pbuci.RawCultureInfo != null)
+			{
+				Assert.AreEqual("pbu", pbuci.RawCultureInfo.Name);
+				Assert.AreEqual("Unknown Language (pbu)", pbuci.RawCultureInfo.EnglishName);
+			}
+#endif
 		}
 
 		[Test]
