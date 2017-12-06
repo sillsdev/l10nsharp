@@ -107,6 +107,7 @@ namespace L10NSharp
 					directoryOfWritableXliffFiles, directoryOfWritableXliffFiles, namespaceBeginnings);
 
 				LoadedManagers[appId] = lm;
+				PreviouslyLoadedManagers.Remove(appId);
 			}
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
@@ -182,6 +183,8 @@ namespace L10NSharp
 		{
 			get { return s_loadedManagers; }
 		}
+
+		private static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
 
 		#endregion
 
@@ -313,7 +316,10 @@ namespace L10NSharp
 		public void Dispose()
 		{
 			if (LoadedManagers.ContainsKey(Id))
+			{
 				LoadedManagers.Remove(Id);
+				PreviouslyLoadedManagers.Add(Id);
+			}
 		}
 
 		#endregion
@@ -1072,11 +1078,23 @@ namespace L10NSharp
 			//itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
 			{
+				if (PreviouslyLoadedManagers.Contains(appId))
+				{
+					throw new ObjectDisposedException(
+						string.Format("The application id '{0}' refers to a LocalizationManager that has been disposed",
+							appId));
+				}
 				return id;
 			}
 			LocalizationManager lm;
 			if (!LoadedManagers.TryGetValue(appId, out lm))
 			{
+				if (PreviouslyLoadedManagers.Contains(appId))
+				{
+					throw new ObjectDisposedException(
+						string.Format("The application id '{0}' refers to a LocalizationManager that has been disposed",
+							appId));
+				}
 				throw new ArgumentException(
 					string.Format("The application id '{0}' does not have an associated localization manager. Initialized LMs are {1}",
 					appId, String.Join(", ", LoadedManagers.Keys)));

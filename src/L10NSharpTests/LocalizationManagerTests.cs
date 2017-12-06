@@ -203,7 +203,24 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		//NOTE: the TestName parameter is only here to work around an NUnit bug in which 
+		[Test]
+		public void GetDynamicStringOrEnglish_LmDisposed_GivesUsefulException()
+		{
+			using (var folder = new TempFolder("GetDynamicStringOrEnglish_LmDisposed_GivesUsefulException"))
+			{
+				SetupManager(folder, "en");
+				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
+				var extra = new LocalizationManager("nonsense", "more nonsense", "1.0");
+				LocalizationManager.LoadedManagers.Add(extra.Id, extra);
+				LocalizationManager.LoadedManagers[AppId].Dispose();
+				Assert.Throws<ObjectDisposedException>(() => LocalizationManager.GetDynamicString(AppId, "blahId", null));
+				extra.Dispose();
+				// A different path when there are none left
+				Assert.Throws<ObjectDisposedException>(() => LocalizationManager.GetDynamicString(AppId, "blahId", null));
+			}
+		}
+
+		//NOTE: the TestName parameter is only here to work around an NUnit bug in which
 		//NUnit doesn't run alll the test cases when some differ only by the values in an array parameter
 		//cases where we expect to get back the english in the code
 		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_1")]
@@ -295,7 +312,7 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		//NOTE: the TestName parameter is only here to work around an NUnit bug in which 
+		//NOTE: the TestName parameter is only here to work around an NUnit bug in which
 		//NUnit doesn't run alll the test cases when some differ only by the values in an array parameter
 		//cases where we expect to get back the english in the code
 		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_1")]
