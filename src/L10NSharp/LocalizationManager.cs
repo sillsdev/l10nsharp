@@ -1059,6 +1059,17 @@ namespace L10NSharp
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, UILanguageId);
 		}
 
+		/// <summary>
+		/// This is useful in unit testing. If some unit tests create LMs and dispose them,
+		/// but other unit tests assume default behavior when no LMs exist at all,
+		/// the unit tests that dispose of LMs should also call this so the others don't
+		/// throw ObjectDisposedExceptions.
+		/// </summary>
+		public static void ForgetDisposedManagers()
+		{
+			PreviouslyLoadedManagers.Clear();
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a string for the specified application id and string id, in the requested
