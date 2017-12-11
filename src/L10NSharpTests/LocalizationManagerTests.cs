@@ -628,5 +628,170 @@ namespace L10NSharp.Tests
 				Assert.That(tags.Contains("fr"), Is.True);
 			}
 		}
+
+		[Test]
+		public void MergeXliffDocuments_WorksAsExpected()
+		{
+			var oldDoc = CreateXLiffDocument();
+			var newDoc = CreateXLiffDocument();
+			AdjustXliffDocumentForTestingMerge(newDoc);
+
+			var mergedDoc = LocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
+			Assert.IsNotNull(mergedDoc);
+			Assert.AreEqual(4, oldDoc.File.Body.TransUnits.Count);
+			Assert.AreEqual(6, newDoc.File.Body.TransUnits.Count);
+			Assert.AreEqual(7, mergedDoc.File.Body.TransUnits.Count);
+
+			var tu = mergedDoc.GetTransUnitForId("This.test");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("This is a test.", tu.Source.Value);
+			Assert.AreEqual(2, tu.Notes.Count);
+			Assert.AreEqual("ID: This.test", tu.Notes[0].Text);
+			Assert.AreEqual("This is only a test", tu.Notes[1].Text);
+			Assert.IsFalse(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("That.test");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("That was a test.", tu.Source.Value);
+			Assert.AreEqual(3, tu.Notes.Count);
+			Assert.AreEqual("ID: That.test", tu.Notes[0].Text);
+			Assert.AreEqual("That is hard to explain, but a literal rendition is okay.", tu.Notes[1].Text);
+			// should be note that this static string may be obsolete
+			Assert.AreEqual("Not found in current scan of compiled code", tu.Notes[2].Text);
+			Assert.IsFalse(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("What.test");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("What is a good test?", tu.Source.Value);
+			Assert.AreEqual(1, tu.Notes.Count);
+			Assert.AreEqual("ID: What.test", tu.Notes[0].Text);
+			Assert.IsTrue(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("What.this");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("What is this nonsense?", tu.Source.Value);
+			Assert.AreEqual(2, tu.Notes.Count);
+			Assert.AreEqual("ID: What.this", tu.Notes[0].Text);
+			// should be note that this was marked dynamic but isn't any longer
+			Assert.AreEqual("Found in current static scan of compiled code", tu.Notes[1].Text);
+			Assert.IsFalse(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("This.new1");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("This is a new test.", tu.Source.Value);
+			Assert.AreEqual(2, tu.Notes.Count);
+			Assert.AreEqual("ID: This.new1", tu.Notes[0].Text);
+			Assert.AreEqual("This is still only a test", tu.Notes[1].Text);
+			Assert.IsFalse(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("That.new2");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("That was an old test.", tu.Source.Value);
+			Assert.AreEqual(2, tu.Notes.Count);
+			Assert.AreEqual("ID: That.new2", tu.Notes[0].Text);
+			Assert.AreEqual("That should be easy to translate.", tu.Notes[1].Text);
+			Assert.IsFalse(tu.Dynamic);
+
+			tu = mergedDoc.GetTransUnitForId("What.new3");
+			Assert.IsNotNull(tu);
+			Assert.AreEqual("en", tu.Source.Lang);
+			Assert.AreEqual("What's up, doc?", tu.Source.Value);
+			Assert.AreEqual(1, tu.Notes.Count);
+			Assert.AreEqual("ID: What.new3", tu.Notes[0].Text);
+			Assert.IsTrue(tu.Dynamic);
+		}
+
+		private XLiffDocument CreateXLiffDocument()
+		{
+			var doc = new XLiffDocument();
+			doc.File.Original = "Testing.dll";
+			doc.File.DataType = "plaintext";
+			doc.File.ProductVersion = "3.1.4";
+			doc.File.SourceLang = "en";
+			doc.Version = "1.2";
+
+			var tu1 = new TransUnit();
+			tu1.Id = "This.test";
+			tu1.Source = new TransUnitVariant();
+			tu1.Source.Lang = "en";
+			tu1.Source.Value = "This is a test.";
+			tu1.AddNote("ID: This.test");
+			tu1.AddNote("en", "This is only a test");
+			doc.AddTransUnit(tu1);
+
+			var tu2 = new TransUnit();
+			tu2.Id = "That.test";
+			tu2.Source = new TransUnitVariant();
+			tu2.Source.Lang = "en";
+			tu2.Source.Value = "That was a test.";
+			tu2.AddNote("ID: That.test");
+			tu2.AddNote("en", "That is hard to explain, but a literal rendition is okay.");
+			doc.AddTransUnit(tu2);
+
+			var tu3 = new TransUnit();
+			tu3.Id = "What.test";
+			tu3.Source = new TransUnitVariant();
+			tu3.Source.Lang = "en";
+			tu3.Source.Value = "What is good test.";
+			tu3.AddNote("ID: What.test");
+			tu3.Dynamic = true;
+			doc.AddTransUnit(tu3);
+
+			var tu4 = new TransUnit();
+			tu4.Id = "What.this";
+			tu4.Source = new TransUnitVariant();
+			tu4.Source.Lang = "en";
+			tu4.Source.Value = "What is this nonsense?";
+			tu4.AddNote("ID: What.this");
+			tu4.Dynamic = true;
+			doc.AddTransUnit(tu4);
+
+			return doc;
+		}
+
+		private void AdjustXliffDocumentForTestingMerge(XLiffDocument doc)
+		{
+			var tu1 = new TransUnit();
+			tu1.Id = "This.new1";
+			tu1.Source = new TransUnitVariant();
+			tu1.Source.Lang = "en";
+			tu1.Source.Value = "This is a new test.";
+			tu1.AddNote("ID: This.new1");
+			tu1.AddNote("en", "This is still only a test");
+			doc.AddTransUnit(tu1);
+
+			var tu2 = new TransUnit();
+			tu2.Id = "That.new2";
+			tu2.Source = new TransUnitVariant();
+			tu2.Source.Lang = "en";
+			tu2.Source.Value = "That was an old test.";
+			tu2.AddNote("ID: That.new2");
+			tu2.AddNote("en", "That should be easy to translate.");
+			doc.AddTransUnit(tu2);
+
+			var tu3 = new TransUnit();
+			tu3.Id = "What.new3";
+			tu3.Source = new TransUnitVariant();
+			tu3.Source.Lang = "en";
+			tu3.Source.Value = "What's up, doc?";
+			tu3.AddNote("ID: What.new3");
+			tu3.Dynamic = true;
+			doc.AddTransUnit(tu3);
+
+			var tu = doc.GetTransUnitForId("What.this");
+			tu.Dynamic = false;
+
+			tu = doc.GetTransUnitForId("That.test");
+			doc.RemoveTransUnit(tu);
+
+			tu = doc.GetTransUnitForId("What.test");
+			tu.Source.Value = "What is a good test?";
+		}
 	}
 }

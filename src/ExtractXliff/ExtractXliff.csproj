@@ -24,7 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <Commandlineparameters>-v -n Bloom -o Bloom.exe -p 3.1.000.0 -x /tmp/Bloom.xlf -b /d/github/BloomV4.0/DistFiles/localization/en/Bloom.xlf /d/github/BloomV4.0/output/Debug/Bloom.exe</Commandlineparameters>
+    <Commandlineparameters>-v -n Bloom -o Bloom.exe -p 3.1.000.0 -x /tmp/Bloom.xlf -b /d/github/BloomMaster/DistFiles/localization/en/Bloom.xlf /d/github/BloomMaster/output/Debug/Bloom.exe</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
