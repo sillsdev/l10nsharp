@@ -130,6 +130,7 @@ namespace L10NSharp
 			{
 				tu.Dynamic = true;
 				_updated = true;
+				Console.WriteLine("DEBUG: mark {0} trans-unit dynamic id=\"{1}\"; text=\"{2}\"", xliffTarget.File.Original, tu.Id, tu.Source.Value);
 			}
 			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment)
 				return;
@@ -193,6 +194,9 @@ namespace L10NSharp
 			{
 				tuTarget = new TransUnit();
 				tuTarget.Id = tuId;
+				tuTarget.Dynamic = locInfo.DiscoveredDynamically;
+				if (locInfo.DiscoveredDynamically)
+					Console.WriteLine("DEBUG: {0} dynamic trans-unit id=\"{1}\"; text=\"{2}\"", xliffTarget.File.Original, tuId, newValue);
 				xliffTarget.AddTransUnit(tuTarget);
 				if (tuSource != null && locInfo.LangId != _defaultLang)
 				{

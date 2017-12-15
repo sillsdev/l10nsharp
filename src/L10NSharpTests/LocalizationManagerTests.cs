@@ -628,5 +628,121 @@ namespace L10NSharp.Tests
 				Assert.That(tags.Contains("fr"), Is.True);
 			}
 		}
+
+		[Test]
+		public void MergeXliffDocuments_WorksAsExpected()
+		{
+			var oldDoc = CreateTestXLiffDocument();
+			var newDoc = CreateTestXLiffDocument();
+			AdjustXliffDocumentForTestingMerge(newDoc);
+
+			var mergedDoc = LocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
+			Assert.IsNotNull(mergedDoc);
+			Assert.That(5, Is.EqualTo(oldDoc.File.Body.TransUnits.Count));
+			Assert.That(6, Is.EqualTo(newDoc.File.Body.TransUnits.Count));
+			Assert.That(8, Is.EqualTo(mergedDoc.File.Body.TransUnits.Count));
+
+			var tu = mergedDoc.GetTransUnitForId("This.test");
+			CheckMergedTransUnit(tu, "This is a test.", new[] {"ID: This.test", "This is only a test"}, false);
+
+			tu = mergedDoc.GetTransUnitForId("That.test");
+			CheckMergedTransUnit(tu, "That was a test.", new[] {"ID: That.test", "That is hard to explain, but a literal rendition is okay.", "Not found in static scan of compiled code (version 3.1.4)"}, false);
+
+			tu = mergedDoc.GetTransUnitForId("What.test");
+			CheckMergedTransUnit(tu, "What is a good test?", new[] {"ID: What.test", "OLD (before 3.1.4): What is good test."}, true);
+
+			tu = mergedDoc.GetTransUnitForId("What.this");
+			CheckMergedTransUnit(tu, "What is this nonsense?", new[] {"ID: What.this", "Not dynamic: found in static scan of compiled code (version 3.1.4)"}, false);
+			Assert.IsNotNull(tu);
+
+			tu = mergedDoc.GetTransUnitForId("This.new1");
+			CheckMergedTransUnit(tu, "This is a new test.", new[] {"ID: This.new1", "This is still only a test"}, false);
+
+			tu = mergedDoc.GetTransUnitForId("That.new2");
+			CheckMergedTransUnit(tu, "That was an old test.", new[] {"ID: That.new2", "That should be easy to translate."}, false);
+
+			tu = mergedDoc.GetTransUnitForId("What.new3");
+			CheckMergedTransUnit(tu, "What's up, doc?", new[] {"ID: What.new3"}, true);
+
+			tu = mergedDoc.GetTransUnitForId("How.now");
+			CheckMergedTransUnit(tu, "How now brown cow", new[] {"ID: How.now", "Not found when running compiled program (version 3.1.4)"}, true);
+		}
+
+		private void CheckMergedTransUnit(TransUnit tu, string sourceText, string[] notes, bool isDynamic)
+		{
+			Assert.IsNotNull(tu);
+			Assert.That("en", Is.EqualTo(tu.Source.Lang));
+			Assert.That(sourceText, Is.EqualTo(tu.Source.Value));
+			Assert.That(notes.Length, Is.EqualTo(tu.Notes.Count));
+			for (int i = 0; i < notes.Length; ++i)
+				Assert.That(notes[i], Is.EqualTo(tu.Notes[i].Text));
+			Assert.That(isDynamic, Is.EqualTo(tu.Dynamic));
+		}
+
+		private TransUnit CreateTestTransUnit(string id, string source, string[] notes, bool isDynamic)
+		{
+			var tu = new TransUnit();
+			tu.Id = id;
+			tu.Source = new TransUnitVariant();
+			tu.Source.Lang = "en";
+			tu.Source.Value = source;
+			tu.AddNote(String.Format("ID: {0}", id));
+			for (int i = 0; i < notes.Length; ++i)
+				tu.AddNote("en", notes[i]);
+			tu.Dynamic = isDynamic;
+			return tu;
+		}
+
+		private XLiffDocument CreateTestXLiffDocument()
+		{
+			var doc = new XLiffDocument();
+			doc.File.Original = "Testing.dll";
+			doc.File.DataType = "plaintext";
+			doc.File.ProductVersion = "2.7.1";
+			doc.File.SourceLang = "en";
+			doc.Version = "1.2";
+
+			var tu1 = CreateTestTransUnit("This.test", "This is a test.", new[] {"This is only a test"}, false);
+			doc.AddTransUnit(tu1);
+			var tu2 = CreateTestTransUnit("That.test", "That was a test.", new[] {"That is hard to explain, but a literal rendition is okay."}, false);
+			doc.AddTransUnit(tu2);
+			var tu3 = CreateTestTransUnit("What.test", "What is good test.", new string[] {}, true);
+			doc.AddTransUnit(tu3);
+			var tu4 = CreateTestTransUnit("What.this", "What is this nonsense?", new string[] {}, true);
+			doc.AddTransUnit(tu4);
+			var tu5 = CreateTestTransUnit("How.now", "How now brown cow", new string[] {}, true);
+			doc.AddTransUnit(tu5);
+
+			return doc;
+		}
+
+		private void AdjustXliffDocumentForTestingMerge(XLiffDocument doc)
+		{
+			doc.File.ProductVersion = "3.1.4";
+
+			// Test for adding new units.
+			var tu1 = CreateTestTransUnit("This.new1", "This is a new test.", new[] {"This is still only a test"}, false);
+			doc.AddTransUnit(tu1);
+			var tu2 = CreateTestTransUnit("That.new2", "That was an old test.", new[] {"That should be easy to translate."}, false);
+			doc.AddTransUnit(tu2);
+			var tu3 = CreateTestTransUnit("What.new3", "What's up, doc?", new string[] {}, true);
+			doc.AddTransUnit(tu3);
+
+			// Test for invalid dynamic setting
+			var tu = doc.GetTransUnitForId("What.this");
+			tu.Dynamic = false;
+
+			// Test for deleted static unit
+			tu = doc.GetTransUnitForId("That.test");
+			doc.RemoveTransUnit(tu);
+
+			// Test for modified unit
+			tu = doc.GetTransUnitForId("What.test");
+			tu.Source.Value = "What is a good test?";
+
+			// Test for deleted (or not covered) dynamic unit
+			tu = doc.GetTransUnitForId("How.now");
+			doc.RemoveTransUnit(tu);
+		}
 	}
 }

@@ -93,9 +93,12 @@ namespace L10NSharp
 			// (b) any newly obsolete IDs are noted.
 			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
 			{
-				var defaultInstalledXliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
-				foreach (var tu in defaultInstalledXliffDoc.File.Body.TransUnits)
-					DefaultXliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, LocalizationManager.kDefaultLang);
+				if (!LocalizationManager.ScanningForCurrentStrings)
+				{
+					var defaultInstalledXliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
+					foreach (var tu in defaultInstalledXliffDoc.File.Body.TransUnits)
+						DefaultXliffDocument.File.Body.AddTransUnitOrVariantFromExisting(tu, LocalizationManager.kDefaultLang);
+				}
 			}
 			XliffDocuments.Add(LocalizationManager.kDefaultLang, DefaultXliffDocument);
 
@@ -276,7 +279,7 @@ namespace L10NSharp
 				if (tuTarget != null)
 					tuv = tuTarget.GetVariantForLang(langId);
 				// REVIEW: should we write units with no translation (target)?
-				var newTu = new TransUnit { Id = tu.Id };
+				var newTu = new TransUnit { Id = tu.Id, Dynamic = tu.Dynamic };
 				newTu.AddOrReplaceVariant(tu.GetVariantForLang(LocalizationManager.kDefaultLang));
 				if (tuv != null)
 					newTu.AddOrReplaceVariant(tuv);
