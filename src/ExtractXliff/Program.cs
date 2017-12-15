@@ -83,151 +83,19 @@ namespace ExtractXliff
 			var baseDoc = LoadBaselineAndCompare(newDoc);
 
 			// Save the results to the output file, merging in data from the baseline XLIFF if one was specified.
-			MergeAndSaveXliffDataToFile(newDoc, baseDoc);
-		}
-
-		/// <summary>
-		/// Saves the merged XLIFF data to the output file.
-		/// </summary>
-		private static void MergeAndSaveXliffDataToFile(XLiffDocument xliffNew, XLiffDocument xliffOld)
-		{
-			// xliffNew has the data found in the current scan.
-			// xliffOld is that data from the (optional) input baseline XLIFF file.
-			// xliffOutput is the data that is actually written to the designated output XLIFF file.  It combines
-			//   data from both xliffNew and xliffOld.
-
-			// write the header elements of the new XLIFF file.
-			var xliffOutput = new XLiffDocument();
+			var xliffOutput = LocalizationManager.MergeXliffDocuments(newDoc, baseDoc, _verbose);
 			xliffOutput.File.SourceLang = kDefaultLangId;
 			if (!String.IsNullOrEmpty(_fileProductVersion))
 				xliffOutput.File.ProductVersion = _fileProductVersion;
 			else
-				xliffOutput.File.ProductVersion = xliffNew.File.ProductVersion;
+				xliffOutput.File.ProductVersion = newDoc.File.ProductVersion;
 			xliffOutput.File.HardLineBreakReplacement = kDefaultNewlineReplacement;
 			xliffOutput.File.AmpersandReplacement = kDefaultAmpersandReplacement;
 			xliffOutput.File.Original = _fileOriginal;
 			if (!String.IsNullOrEmpty(_fileDatatype))
 				xliffOutput.File.DataType = _fileDatatype;
 			else
-				xliffOutput.File.DataType = xliffNew.File.DataType;
-
-			var newStringCount = 0;
-			var changedStringCount = 0;
-			var wrongDynamicFlagCount = 0;
-			var missingDynamicStringCount = 0;
-			var missingStringCount = 0;
-
-			var newStringIds = new List<string>();
-			var changedStringIds = new List<string>();
-			var wrongDynamicStringIds = new List<string>();
-			var missingDynamicStringIds = new List<string>();
-			var missingStringIds = new List<string>();
-
-			// write out the newly-found units, comparing against units with the same ids
-			// found in the old XLIFF file.
-			foreach (var tu in xliffNew.File.Body.TransUnits)
-			{
-				xliffOutput.File.Body.TransUnits.Add(tu);
-				if (xliffOld != null)
-				{
-					var tuOld = xliffOld.File.Body.GetTransUnitForId(tu.Id);
-					if (tuOld == null)
-					{
-						++newStringCount;
-						newStringIds.Add(tu.Id);
-					}
-					else
-					{
-						if (tu.Source.Value != tuOld.Source.Value)
-						{
-							++changedStringCount;
-							changedStringIds.Add(tu.Id);
-						}
-						if (tuOld.Dynamic)
-						{
-							++wrongDynamicFlagCount;
-							wrongDynamicStringIds.Add(tu.Id);
-						}
-					}
-				}
-			}
-
-			// write out any units found in the old XLIFF file that were not found
-			// in the new scan.
-			if (xliffOld != null)
-			{
-				foreach (var tu in xliffOld.File.Body.TransUnits)
-				{
-					var tuNew = xliffNew.File.Body.GetTransUnitForId(tu.Id);
-					if (tuNew == null)
-					{
-						xliffOutput.File.Body.TransUnits.Add(tu);
-						if (tu.Dynamic)
-						{
-							++missingDynamicStringCount;
-							missingDynamicStringIds.Add(tu.Id);
-						}
-						else
-						{
-							++missingStringCount;
-							missingStringIds.Add(tu.Id);
-						}
-					}
-				}
-			}
-
-			// report on the differences between the new scan and the old XLIFF file.
-			if (newStringCount > 0)
-			{
-				Console.WriteLine("Added {0} new strings to the xliff file", newStringCount);
-				if (_verbose)
-				{
-					newStringIds.Sort();
-					foreach (var id in newStringIds)
-						Console.WriteLine("    {0}", id);
-				}
-			}
-			if (changedStringCount > 0)
-			{
-				Console.WriteLine("{0} strings were updated in the xliff file.", changedStringCount);
-				if (_verbose)
-				{
-					changedStringIds.Sort();
-					foreach (var id in changedStringIds)
-						Console.WriteLine("    {0}", id);
-				}
-			}
-			if (wrongDynamicFlagCount > 0)
-			{
-				Console.WriteLine("{0} strings were marked dynamic incorrectly.", wrongDynamicFlagCount);
-				if (_verbose)
-				{
-					wrongDynamicStringIds.Sort();
-					foreach (var id in wrongDynamicStringIds)
-						Console.WriteLine("    {0}", id);
-				}
-			}
-			if (missingDynamicStringCount > 0)
-			{
-				Console.WriteLine("{0} dynamic strings were added back from the old xliff file", missingDynamicStringCount);
-				if (_verbose)
-				{
-					missingDynamicStringIds.Sort();
-					foreach (var id in missingDynamicStringIds)
-						Console.WriteLine("    {0}", id);
-				}
-			}
-			if (missingStringCount > 0)
-			{
-				Console.WriteLine("{0} possibly obsolete (maybe dynamic?) strings were added back from the old xliff file", missingStringCount);
-				if (_verbose)
-				{
-					missingStringIds.Sort();
-					foreach (var id in missingStringIds)
-						Console.WriteLine("    {0}", id);
-				}
-			}
-			xliffOutput.File.Body.TransUnits.Sort(LocalizedStringCache.TuComparer);
+				xliffOutput.File.DataType = newDoc.File.DataType;
 			xliffOutput.Save(_xliffOutputFilename);
 		}
 

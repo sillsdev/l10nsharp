@@ -12,6 +12,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using L10NSharp.UI;
+using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
@@ -39,6 +40,12 @@ namespace L10NSharp
 		/// The default is the old way of organizing (by filename).
 		/// </summary>
 		public static bool UseLanguageCodeFolders;
+
+		/// <summary>
+		/// Ignore any existing English xliff files, creating the working (English) file only from what
+		/// is gathered by static analyis or dynamic harvesting of requests.
+		/// </summary>
+		public static bool IgnoreExistingEnglishXliffFiles;
 
 		private static string s_uiLangId;
 		private static List<string> s_fallbackLanguageIds = new List<string>(new[] { kDefaultLang });
@@ -269,10 +276,12 @@ namespace L10NSharp
 				Directory.CreateDirectory(dir);
 
 			var defaultStringFileInstalledPath = Path.Combine(_installedXliffFileFolder, GetXliffFileNameForLanguage(kDefaultLang));
-			if (!DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
-			{
+
+			if (ScanningForCurrentStrings && DefaultStringFileExistsAndHasContents())
+				File.Delete(DefaultStringFilePath);
+
+			if (!ScanningForCurrentStrings && !DefaultStringFileExistsAndHasContents() && File.Exists(defaultStringFileInstalledPath))
 				File.Copy(defaultStringFileInstalledPath, DefaultStringFilePath, true);
-			}
 
 			if (DefaultStringFileExistsAndHasContents())
 			{
@@ -310,6 +319,12 @@ namespace L10NSharp
 		private bool DefaultStringFileExistsAndHasContents()
 		{
 			return File.Exists(DefaultStringFilePath) && !String.IsNullOrWhiteSpace(File.ReadAllText(DefaultStringFilePath));
+		}
+
+		/// <summary>Check if we are collecting strings to localize, not setting up to display localized strings.</summary>
+		internal static bool ScanningForCurrentStrings
+		{
+			get { return UILanguageId == "en" && IgnoreExistingEnglishXliffFiles; }
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -1762,5 +1777,173 @@ namespace L10NSharp
 		{
 			return Id + ", " + Name;
 		}
+
+		/// <summary>
+		/// Merge the existing English xliff file into newly collected data and write the result to the temp
+		/// directory.
+		/// </summary>
+		public static void MergeExistingEnglishXliffFileIntoNew(string installedStringFileFolder, string appId)
+		{
+			LocalizationManager lm;
+			if (!LoadedManagers.TryGetValue(appId, out lm))
+				return;
+			XLiffDocument newDoc;
+			if (!lm.StringCache.XliffDocuments.TryGetValue("en", out newDoc))
+				return;
+			var oldDocPath = Path.Combine(installedStringFileFolder, LocalizationManager.GetXliffFileNameForLanguage(appId, "en"));
+			var oldDoc = XLiffDocument.Read(oldDocPath);
+			var outputDoc = MergeXliffDocuments(newDoc, oldDoc, true);
+
+			outputDoc.File.SourceLang = oldDoc.File.SourceLang;
+			outputDoc.File.ProductVersion = oldDoc.File.ProductVersion;
+			outputDoc.File.HardLineBreakReplacement = oldDoc.File.HardLineBreakReplacement;
+			outputDoc.File.AmpersandReplacement = oldDoc.File.AmpersandReplacement;
+			outputDoc.File.Original = oldDoc.File.Original;
+			outputDoc.File.DataType = oldDoc.File.DataType;
+			var outputPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(LocalizationManager.GetXliffFileNameForLanguage(appId, "en")));
+			outputDoc.Save(outputPath);
+		}
+
+		/// <summary>
+		/// Return the XLiffDocument that results from merging two XLiffDocument objects.
+		/// </summary>
+		internal static XLiffDocument MergeXliffDocuments(XLiffDocument xliffNew, XLiffDocument xliffOld, bool verbose = false)
+		{
+			// xliffNew has the data found in the current scan.
+			// xliffOld is that data from the (optional) input baseline XLIFF file.
+			// xliffOutput combines data from both xliffNew and xliffOld, preferring the new data when the two differ in the
+			//    actual string content.
+
+			// write the header elements of the new XLIFF file.
+			var xliffOutput = new XLiffDocument();
+
+			var newStringCount = 0;
+			var changedStringCount = 0;
+			var wrongDynamicFlagCount = 0;
+			var missingDynamicStringCount = 0;
+			var missingStringCount = 0;
+			var newDynamicCount = 0;
+
+			var newStringIds = new List<string>();
+			var changedStringIds = new List<string>();
+			var wrongDynamicStringIds = new List<string>();
+			var missingDynamicStringIds = new List<string>();
+			var missingStringIds = new List<string>();
+
+			// write out the newly-found units, comparing against units with the same ids
+			// found in the old XLIFF file.
+			foreach (var tu in xliffNew.File.Body.TransUnits)
+			{
+				xliffOutput.File.Body.TransUnits.Add(tu);
+				if (tu.Dynamic)
+					++newDynamicCount;
+				if (xliffOld != null)
+				{
+					var tuOld = xliffOld.File.Body.GetTransUnitForId(tu.Id);
+					if (tuOld == null)
+					{
+						++newStringCount;
+						newStringIds.Add(tu.Id);
+					}
+					else
+					{
+						if (tu.Source.Value != tuOld.Source.Value)
+						{
+							++changedStringCount;
+							changedStringIds.Add(tu.Id);
+							tu.AddNote("en", String.Format("OLD (before {0}): {1}", xliffNew.File.ProductVersion, tuOld.Source.Value));
+						}
+						if (tuOld.Dynamic && !tu.Dynamic)
+						{
+							++wrongDynamicFlagCount;
+							wrongDynamicStringIds.Add(tu.Id);
+							tu.AddNote("en", String.Format("Not dynamic: found in static scan of compiled code (version {0})", xliffNew.File.ProductVersion));
+						}
+					}
+				}
+			}
+
+			// write out any units found in the old XLIFF file that were not found
+			// in the new scan.
+			if (xliffOld != null)
+			{
+				foreach (var tu in xliffOld.File.Body.TransUnits)
+				{
+					var tuNew = xliffNew.File.Body.GetTransUnitForId(tu.Id);
+					if (tuNew == null)
+					{
+						xliffOutput.File.Body.TransUnits.Add(tu);
+						if (tu.Dynamic)
+						{
+							++missingDynamicStringCount;
+							missingDynamicStringIds.Add(tu.Id);
+							if (newDynamicCount > 0)	// note only if attempt made to collect dynamic strings
+								tu.AddNote("en", String.Format("Not found when running compiled program (version {0})", xliffNew.File.ProductVersion));
+						}
+						else
+						{
+							++missingStringCount;
+							missingStringIds.Add(tu.Id);
+							tu.AddNote("en", String.Format("Not found in static scan of compiled code (version {0})", xliffNew.File.ProductVersion));
+						}
+					}
+				}
+			}
+
+			// report on the differences between the new scan and the old XLIFF file.
+			if (newStringCount > 0)
+			{
+				if (verbose)
+				{
+					Console.WriteLine("Added {0} new strings to the {1} xliff file", newStringCount, xliffNew.File.Original);
+					newStringIds.Sort();
+					foreach (var id in newStringIds)
+						Console.WriteLine("    {0}", id);
+				}
+			}
+			if (changedStringCount > 0)
+			{
+				if (verbose)
+				{
+					Console.WriteLine("{0} strings were updated in the {1} xliff file.", changedStringCount, xliffNew.File.Original);
+					changedStringIds.Sort();
+					foreach (var id in changedStringIds)
+						Console.WriteLine("    {0}", id);
+				}
+			}
+			if (wrongDynamicFlagCount > 0)
+			{
+				if (verbose)
+				{
+					Console.WriteLine("{0} strings were marked dynamic incorrectly in the old {1} xliff file.", wrongDynamicFlagCount, xliffNew.File.Original);
+					wrongDynamicStringIds.Sort();
+					foreach (var id in wrongDynamicStringIds)
+						Console.WriteLine("    {0}", id);
+				}
+			}
+			if (missingDynamicStringCount > 0)
+			{
+				if (verbose)
+				{
+					Console.WriteLine("{0} dynamic strings were added back from the old {1} xliff file", missingDynamicStringCount, xliffNew.File.Original);
+					missingDynamicStringIds.Sort();
+					foreach (var id in missingDynamicStringIds)
+						Console.WriteLine("    {0}", id);
+				}
+			}
+			if (missingStringCount > 0)
+			{
+				if (verbose)
+				{
+					Console.WriteLine("{0} possibly obsolete (maybe dynamic?) strings were added back from the old {1} xliff file", missingStringCount, xliffNew.File.Original);
+					missingStringIds.Sort();
+					foreach (var id in missingStringIds)
+						Console.WriteLine("    {0}", id);
+				}
+			}
+			xliffOutput.File.Body.TransUnits.Sort(LocalizedStringCache.TuComparer);
+			return xliffOutput;
+		}
+
 	}
 }
