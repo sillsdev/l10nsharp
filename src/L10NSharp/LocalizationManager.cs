@@ -1847,11 +1847,25 @@ namespace L10NSharp
 					}
 					else
 					{
+						foreach (var note in tuOld.Notes)
+						{
+							bool haveAlready = false;
+							foreach (var newnote in tu.Notes)
+							{
+								if (newnote.Text == note.Text)
+								{
+									haveAlready = true;
+									break;
+								}
+							}
+							if (!haveAlready)
+								tu.AddNote(note.NoteLang, "[OLD NOTE] " + note.Text);
+						}
 						if (tu.Source.Value != tuOld.Source.Value)
 						{
 							++changedStringCount;
 							changedStringIds.Add(tu.Id);
-							tu.AddNote("en", String.Format("OLD (before {0}): {1}", xliffNew.File.ProductVersion, tuOld.Source.Value));
+							tu.AddNote("en", String.Format("OLD TEXT (before {0}): {1}", xliffNew.File.ProductVersion, tuOld.Source.Value));
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{
