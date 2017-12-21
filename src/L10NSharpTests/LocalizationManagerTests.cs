@@ -748,5 +748,57 @@ namespace L10NSharp.Tests
 			tu = doc.GetTransUnitForId("How.now");
 			doc.RemoveTransUnit(tu);
 		}
+
+		[Test]
+		public void XLiffWithNewlineReplacement_YieldsStandardizedNewline()
+		{
+			LocalizationManager.LoadedManagers.Clear();
+			using (var folder = new TempFolder("XLiffWithNewlineReplacement_YieldsRealNewline"))
+			{
+				AddArabicXliff(GetInstalledDirectory(folder));
+				AddFrenchXliff(GetInstalledDirectory(folder));
+				AddSpanishXliff(GetInstalledDirectory(folder));
+
+				var englishDoc = new XLiffDocument { File = { SourceLang = "en" } };
+				englishDoc.File.HardLineBreakReplacement = LiteralNewline;
+				englishDoc.File.Original = "test.dll";
+				// first unit
+				var tu = new TransUnit
+				{
+					Id = "theId",
+					Source = new TransUnitVariant { Lang = "en", Value = "from English\\n Xliff" },
+				};
+				englishDoc.AddTransUnit(tu);
+				englishDoc.Save(Path.Combine(folder.Path, LocalizationManager.GetXliffFileNameForLanguage(AppId, "en")));
+
+				var doc = new XLiffDocument { File = { SourceLang = "en", TargetLang = "fr" } };
+				doc.File.Original = "test.dll";
+				// first unit
+				var tuF = new TransUnit
+				{
+					Id = "theId",
+					Source = new TransUnitVariant { Lang = "en", Value = "from English\\n Xliff" },
+					Target = new TransUnitVariant { Lang = "fr", Value = "from French\\n Xliff" },
+				};
+				tu.Dynamic = true;
+				doc.AddTransUnit(tuF);
+				doc.Save(Path.Combine(folder.Path, LocalizationManager.GetXliffFileNameForLanguage(AppId, "fr")));
+
+				LocalizationManager.SetUILanguage("fr", true);
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
+				LocalizationManager.LoadedManagers[AppId] = manager;
+				Assert.That(LocalizationManager.GetString("theId", "from English\\n Xliff"), Is.EqualTo("from French" + LocalizedStringCache.kOSRealNewline + " Xliff"));
+
+				// what about one added dynamically, as if discovered in code?
+				// We'd like it to correctly handle both the current environment.Newline and a literal \r\n
+				// The latter may well fail on Linux though passing on Windows.
+				var li = new LocalizingInfo("anotherId") { Text = "Three\r\nlines of" + Environment.NewLine + "French", LangId = "fr" };
+				manager.StringCache.UpdateLocalizedInfo(li);
+				// The actual stored value, that would be written to the xliff, should have the replacement text in it.
+				Assert.That(manager.StringCache.GetValueForExactLangAndId("fr", "anotherId", false), Is.EqualTo("Three\\nlines of\\nFrench"));
+				Assert.That(LocalizationManager.GetString("anotherId", "Three\r\nlines of" + Environment.NewLine + "English"), Is.EqualTo("Three" + LocalizedStringCache.kOSRealNewline + "lines of" + LocalizedStringCache.kOSRealNewline + "French"));
+			}
+		}
 	}
 }

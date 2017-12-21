@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using L10NSharp.XLiffUtils;
@@ -103,6 +103,9 @@ namespace L10NSharp
 			if ((locInfo.UpdateFields & UpdateFields.Text) == UpdateFields.Text)
 			{
 				var text = locInfo.Text ?? string.Empty;
+				// first because Environment.Newline might be one part of it. We include this explicitly
+				// in case some Windows data somehow finds its way to Linux.
+				text = text.Replace("\r\n", _literalNewline);
 				text = text.Replace(Environment.NewLine, _literalNewline);
 				text = text.Replace(_literalNewline, "@#$");
 				text = text.Replace(kOSRealNewline, _literalNewline);
