@@ -1859,7 +1859,12 @@ namespace L10NSharp
 								}
 							}
 							if (!haveAlready)
-								tu.AddNote(note.NoteLang, "[OLD NOTE] " + note.Text);
+							{
+								if (note.Text.StartsWith("[OLD NOTE]") || note.Text.StartsWith("OLD TEXT"))
+									tu.AddNote(note.NoteLang, note.Text);
+								else
+									tu.AddNote(note.NoteLang, "[OLD NOTE] " + note.Text);
+							}
 						}
 						if (tu.Source.Value != tuOld.Source.Value)
 						{

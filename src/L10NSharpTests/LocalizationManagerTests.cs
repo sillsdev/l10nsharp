@@ -649,7 +649,9 @@ namespace L10NSharp.Tests
 			CheckMergedTransUnit(tu, "That was a test.", new[] {"ID: That.test", "That is hard to explain, but a literal rendition is okay.", "Not found in static scan of compiled code (version 3.1.4)"}, false);
 
 			tu = mergedDoc.GetTransUnitForId("What.test");
-			CheckMergedTransUnit(tu, "What is a good test?", new[] {"ID: What.test", "[OLD NOTE] Whatever you say...", "OLD TEXT (before 3.1.4): What is good test."}, true);
+			CheckMergedTransUnit(tu, "What is a good test?", new[] {"ID: What.test",
+				"[OLD NOTE] Whatever you say...", "[OLD NOTE] This should be a question.",
+				"OLD TEXT (before 1.0): What are good test.", "OLD TEXT (before 3.1.4): What is good test."}, true);
 
 			tu = mergedDoc.GetTransUnitForId("What.this");
 			CheckMergedTransUnit(tu, "What is this nonsense?", new[] {"ID: What.this", "Not dynamic: found in static scan of compiled code (version 3.1.4)"}, false);
@@ -702,11 +704,11 @@ namespace L10NSharp.Tests
 			doc.File.SourceLang = "en";
 			doc.Version = "1.2";
 
-			var tu1 = CreateTestTransUnit("This.test", "This is a test.", new[] {"This is only a test"}, false);
+			var tu1 = CreateTestTransUnit("This.test", "This is a test.", new[] {"This is only a test", }, false);
 			doc.AddTransUnit(tu1);
 			var tu2 = CreateTestTransUnit("That.test", "That was a test.", new[] {"That is hard to explain, but a literal rendition is okay."}, false);
 			doc.AddTransUnit(tu2);
-			var tu3 = CreateTestTransUnit("What.test", "What is good test.", new string[] {"Whatever you say..."}, true);
+			var tu3 = CreateTestTransUnit("What.test", "What is good test.", new string[] {"Whatever you say...", "[OLD NOTE] This should be a question.", "OLD TEXT (before 1.0): What are good test." }, true);
 			doc.AddTransUnit(tu3);
 			var tu4 = CreateTestTransUnit("What.this", "What is this nonsense?", new string[] {}, true);
 			doc.AddTransUnit(tu4);
