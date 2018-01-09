@@ -1,16 +1,16 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("L10NSharp")]
-[assembly: AssemblyDescription("Localization For .net")]
+[assembly: AssemblyTitle("CheckOrFixXliff")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("L10NSharp")]
-[assembly: AssemblyCopyright("Copyright © SIL 2010-2014")]
+[assembly: AssemblyCompany("SIL International")]
+[assembly: AssemblyProduct("CheckOrFixXliff")]
+[assembly: AssemblyCopyright("Copyright © SIL International 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9c902b01-6007-4554-b0aa-1ea40ab35a6d")]
+[assembly: Guid("e4bb984d-dfb8-42ef-860d-5a038ff85b1c")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,8 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("2.0.*")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
-[assembly: InternalsVisibleTo("L10NSharpTests")]
-[assembly: InternalsVisibleTo("ExtractXliff")]
-[assembly: InternalsVisibleTo("CheckOrFixXliff")]
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
