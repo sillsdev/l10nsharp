@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using L10NSharp.XLiffUtils;
 using L10NSharp.UI;
@@ -453,6 +454,24 @@ namespace L10NSharp
 			if (formatForDisplay && _ampersandReplacement != null)
 				value = value.Replace(_ampersandReplacement, "&");
 
+			if (langId != "en")
+			{
+				var tu = xliff.File.Body.GetTransUnitForId(id);
+				if (tu != null && tu.Source != null && !String.IsNullOrWhiteSpace(tu.Source.Value))
+				{
+					var markersCount = CountSubstitutionMarkers(tu);
+					if (!CheckForValidSubstitutionMarkers(markersCount, value, id))
+					{
+						var fixedValue = FixBrokenFormattingString(value);
+						if (fixedValue != value && CheckForValidSubstitutionMarkers(markersCount, fixedValue, id))
+						{
+							Console.WriteLine("L10NSharp fixed invalid substitution markers in {0} for {1}", id, langId);
+							return fixedValue;
+						}
+						return null;	// don't use an invalid formatting string!
+					}
+				}
+			}
 			return value;
 		}
 
@@ -673,5 +692,128 @@ namespace L10NSharp
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Check that all substitution markers in the target string are valid.
+		/// </summary>
+		/// <returns>
+		/// true if all markers are okay, false if any are malformed.
+		/// </returns>
+		internal static bool CheckForValidSubstitutionMarkers(int markersCount, string targetValue, string tuId, bool quiet = true)
+		{
+			try
+			{
+				string s;
+				switch (markersCount)
+				{
+					case 0:
+						// targetValue won't be presented to String.Format().
+						break;
+					case 1:
+						s = String.Format(targetValue, "FIRST");
+						break;
+					case 2:
+						s = String.Format(targetValue, "FIRST", "SECOND");
+						break;
+					case 3:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD");
+						break;
+					case 4:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH");
+						break;
+					case 5:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH");
+						break;
+					case 6:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH");
+						break;
+					case 7:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH");
+						break;
+					case 8:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH", "EIGHTH");
+						break;
+					case 9:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH", "EIGHTH", "NINTH");
+						break;
+					case 10:
+						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH", "EIGHTH", "NINTH", "TENTH");
+						break;
+					default:
+						Console.WriteLine("trans-unit {0} has more than ten distinct substitution markers!", tuId);
+						break;
+				}
+				return true;
+			}
+			catch (Exception e)
+			{
+				if (!quiet)
+				{
+					Console.WriteLine(@"Translation of " + tuId + @" will cause crash");
+					WritePossiblyBadSubstitutionMarkerDataForAnalysis(tuId, targetValue);
+				}
+				return false;
+			}
+		}
+
+		private static int CountSubstitutionMarkers(TransUnit tu)
+		{
+			var matchesSource = Regex.Matches(tu.Source.Value, "{[0-9]+}");
+			var markers = new List<string>();
+			for (int i = 0; i < matchesSource.Count; ++i)
+			{
+				var key = matchesSource[i].Value;
+				if (!markers.Contains(key))
+					markers.Add(key);
+			}
+			return markers.Count;
+		}
+
+		/// <summary>
+		/// Dump the 3 characters before and 6 characters following each { character in the string.  This
+		/// should be enough to show how a substitution marker has been mangled, or that it is okay.
+		/// </summary>
+		private static void WritePossiblyBadSubstitutionMarkerDataForAnalysis(string tuid, string target)
+		{
+			var data = target.ToCharArray();
+			for (int i = 0; i < data.Length; ++i)
+			{
+				if (data[i] == '{')
+				{
+					Console.Write("{0}({1}):", tuid, i);
+					var first = Math.Max(0, i - 3);
+					var last = Math.Min(i + 6, data.Length - 1);
+					for (int j = first; j <= last; ++j)
+					{
+						if (data[j] > 32 && data[j] < 127)
+							Console.Write(" " + data[j]);
+						else
+							Console.Write(" {0:X4}", (ushort)data[j]);
+					}
+					Console.WriteLine();
+					i = last;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Fix any mangled format substitution markers that we can.  Almost all of the problems I've seen are due
+		/// to confusion in RTL scripts.  The following regular expression operations fix the patterns of mistakes
+		/// that I've seen.  The first four would look okay visually in RTL scripts even though the underlying
+		/// string is wrong.
+		/// </summary>
+		/// <remarks>
+		/// Note that \u200E is 'LEFT-TO-RIGHT MARK' and \u200F is 'RIGHT-TO-LEFT MARK'.
+		/// </remarks>
+		internal static string FixBrokenFormattingString(string target)
+		{
+			var target1 = Regex.Replace(target, "'{\u200E'{([0-9]+)\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
+			var target2 = Regex.Replace(target1, "\"{\u200E\"{([0-9]+)\u200F*", "\u200E\"{$1}\"\u200F", RegexOptions.CultureInvariant);
+			var target3 = Regex.Replace(target2, " {\u200E {([0-9]+)\u200F*", " \u200E{$1}\u200F ", RegexOptions.CultureInvariant);
+			var target4 = Regex.Replace(target3, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
+			var target5 = Regex.Replace(target4, "'{\u200E([0-9]+)}'\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
+			var target6 = Regex.Replace(target5, "{\u200E([0-9]+)}\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
+			return target6;
+		}
 	}
 }
