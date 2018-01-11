@@ -797,10 +797,12 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// Fix any mangled format substitution markers that we can.  Almost all of the problems I've seen are due
+		/// Fix any mangled format substitution markers that we can.  Most of the problems I've seen are due
 		/// to confusion in RTL scripts.  The following regular expression operations fix the patterns of mistakes
 		/// that I've seen.  The first four would look okay visually in RTL scripts even though the underlying
 		/// string is wrong.
+		/// The other mistake I've seen is translating the number inside the curly brackets.  Bengali is the only
+		/// language with an occurrence of this problem so far.
 		/// </summary>
 		/// <remarks>
 		/// Note that \u200E is 'LEFT-TO-RIGHT MARK' and \u200F is 'RIGHT-TO-LEFT MARK'.
@@ -813,7 +815,12 @@ namespace L10NSharp
 			var target4 = Regex.Replace(target3, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
 			var target5 = Regex.Replace(target4, "'{\u200E([0-9]+)}'\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
 			var target6 = Regex.Replace(target5, "{\u200E([0-9]+)}\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
-			return target6;
+			// Bengali numbers
+			var target7 = target6.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
+								.Replace("{\u09E9}", "{3}").Replace("{\u09EA}", "{4}").Replace("{\u09EB}", "{5}")
+								.Replace("{\u09EC}", "{6}").Replace("{\u09ED}", "{7}").Replace("{\u09EE}", "{8}")
+								.Replace("{\u09EF}", "{9}");
+			return target7;
 		}
 	}
 }

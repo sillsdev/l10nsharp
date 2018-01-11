@@ -28,16 +28,28 @@ namespace CheckOrFixXliff
 	/// </summary>
 	class Program
 	{
+		enum ErrorState
+		{
+			Okay = 0,
+			Warning,
+			Error
+		}
 		/// <summary>
 		/// List of trans-unit id values whose target value contains a malformed substitution marker.
 		/// </summary>
 		private static List<string> _mangledTargets = new List<string>();
 		private static bool _quiet = false;
 
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
 			bool validate = false;
 			bool fix = false;
+			bool missingFile = false;
+			bool invalidXml = false;
+			bool invalidXliff = false;
+			bool mismatchedFormatMarker = false;
+			bool invalidFormatMarker = false;
+
 			for (int i = 0; i < args.Length; ++i)
 			{
 				if (args[i] == "--validate")
@@ -58,16 +70,30 @@ namespace CheckOrFixXliff
 					if (!File.Exists(filename))
 					{
 						Console.WriteLine("{0} does not exist!", filename);
+						missingFile = true;
+						continue;
 					}
 					if (!CheckForWellFormedXml(filename))
-						return;	// all other checks depend on loading XML
-					if (validate)
-						ValidateXliffAgainstSchema(filename);
-					CheckFormatStringMarkers(filename);
+					{
+						invalidXml = true;
+						continue;	// all other checks depend on loading XML
+					}
+					if (validate && !ValidateXliffAgainstSchema(filename))
+						invalidXliff = true;
+					var formatState = CheckFormatStringMarkers(filename);
+					if (formatState == ErrorState.Warning)
+						mismatchedFormatMarker = true;
+					else if (formatState == ErrorState.Error)
+						invalidFormatMarker = true;
 					if (fix)
 						FixMangledFormatMarkers(filename);
 				}
 			}
+			if (missingFile || invalidXml || invalidXliff || invalidFormatMarker)
+				return (int)ErrorState.Error;
+			if (mismatchedFormatMarker)
+				return (int)ErrorState.Warning;
+			return (int)ErrorState.Okay;
 		}
 
 		/// <summary>
@@ -128,8 +154,9 @@ namespace CheckOrFixXliff
 				xdoc.Load(filename);
 				return true;
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+				Console.WriteLine("{0} is invalid XML: {1}", filename, e.Message);
 				return false;
 			}
 		}
@@ -168,9 +195,9 @@ namespace CheckOrFixXliff
 		/// <returns>
 		/// true if the translation substitution markers are all valid and match the source markers, false otherwise
 		/// </returns>
-		private static bool CheckFormatStringMarkers(string filename)
+		private static ErrorState CheckFormatStringMarkers(string filename)
 		{
-			bool allOkay = true;
+			var retval = ErrorState.Okay;
 			var doc = XLiffDocument.Read(filename);
 			var dictSourceMarkers = new Dictionary<string, int>();
 			var dictTargetMarkers = new Dictionary<string, int>();
@@ -187,16 +214,18 @@ namespace CheckOrFixXliff
 				TabulateMarkers(matchesSource, dictSourceMarkers);
 				TabulateMarkers(matchesTarget, dictTargetMarkers);
 				var okay = CheckForExactlyMatchingSubstitutionMarkers(tu.Id, dictSourceMarkers, dictTargetMarkers);
+				if (!okay && retval == ErrorState.Okay)
+					retval = ErrorState.Warning;
 				if (!LocalizedStringCache.CheckForValidSubstitutionMarkers(dictSourceMarkers.Count, tu.Target.Value, tu.Id, _quiet))
 				{
 					_mangledTargets.Add(tu.Id);
+					retval = ErrorState.Error;
 					okay = false;
 				}
 				if (!okay && !_quiet)
 					Console.WriteLine();	// separate the messages for differect trans-units
-				allOkay &= okay;
 			}
-			return allOkay;
+			return retval;
 		}
 
 		/// <summary>
