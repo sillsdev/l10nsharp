@@ -25,6 +25,8 @@ namespace L10NSharp.Tests
 		[TestCase(1, "\u0647 '{\u200E0}'\u200F \u0627", false, TestName="CheckSubstitutionMarkers_15")]
 		[TestCase(1, "\u062A\u0646 {\u200E {0 \u0631", false, TestName="CheckSubstitutionMarkers_16")]
 		[TestCase(1, "\u0632\u0020\"{\u200E\"{0\u200F.", false, TestName="CheckSubstitutionMarkers_17")]
+
+		[TestCase(3, "{\u09E6} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {\u09E8}pt.", false, TestName="CheckSubstitutionMarkers_18")]
 		public void CheckStringsForValidSubstitionMarkers(int markerCount, string formatting, bool isValid)
 		{
 			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(markerCount, formatting, "a.b"), Is.EqualTo(isValid));
@@ -37,13 +39,18 @@ namespace L10NSharp.Tests
 		[TestCase("\u0627\u06CC {\u200E0}\u200F \u0627", "\u0627\u06CC \u200E{0}\u200F \u0627",  TestName = "FixBrokenFormattingString_Works_4")]
 		[TestCase("\u0627\u06CC {\u200E{0",              "\u0627\u06CC \u200E{0}\u200F",         TestName = "FixBrokenFormattingString_Works_5")]
 		[TestCase("\u0647 '{\u200E0}'\u200F \u0627",     "\u0647 \u200E'{0}'\u200F \u0627",      TestName = "FixBrokenFormattingString_Works_6")]
-		[TestCase("\u062A\u0646 {\u200E {0 \u0631",      "\u062A\u0646 \u200E{0}\u200F  \u0631",  TestName = "FixBrokenFormattingString_Works_7")]
+		[TestCase("\u062A\u0646 {\u200E {0 \u0631",      "\u062A\u0646 \u200E{0}\u200F  \u0631", TestName = "FixBrokenFormattingString_Works_7")]
 		[TestCase("\u0632 \"{\u200E\"{0\u200F.",         "\u0632 \u200E\"{0}\"\u200F.",          TestName = "FixBrokenFormattingString_Works_8")]
+
+		[TestCase("{\u09E6} \u09A7\u09B0\u09A3",         "{0} \u09A7\u09B0\u09A3",               TestName = "FixBrokenFormattingString_Works_9")]
+		[TestCase("{\u09E6} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {\u09E8}pt.",
+						"{0} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {2}pt.",    TestName = "FixBrokenFormattingString_Works_10")]
 		public void TryToFixBrokenSubstitutionMarkers(string badFormat, string goodFormat)
 		{
 			var result = LocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
-			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(1, result, "a.b"), Is.True);
+			// Check for the maximum number of possible substitution markers: unused arguments don't matter for validity.
+			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(3, result, "a.b"), Is.EqualTo(true));
 		}
 	}
 }
