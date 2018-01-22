@@ -809,18 +809,22 @@ namespace L10NSharp
 		/// </remarks>
 		internal static string FixBrokenFormattingString(string target)
 		{
+			// RTL confusion
 			var target1 = Regex.Replace(target, "'{\u200E'{([0-9]+)\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
 			var target2 = Regex.Replace(target1, "\"{\u200E\"{([0-9]+)\u200F*", "\u200E\"{$1}\"\u200F", RegexOptions.CultureInvariant);
 			var target3 = Regex.Replace(target2, " {\u200E {([0-9]+)\u200F*", " \u200E{$1}\u200F ", RegexOptions.CultureInvariant);
 			var target4 = Regex.Replace(target3, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
 			var target5 = Regex.Replace(target4, "'{\u200E([0-9]+)}'\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
 			var target6 = Regex.Replace(target5, "{\u200E([0-9]+)}\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
+			var target7 = Regex.Replace(target6, " \"{\"{([0-9]+)\\. ", " \u200E\"{$1}\"\u200F. ", RegexOptions.CultureInvariant);
+			var target8 = Regex.Replace(target7, " \"{\"{([0-9]+) ", " \u200E\"{$1}\"\u200F ", RegexOptions.CultureInvariant);
+			var target9 = Regex.Replace(target8, " ([0-9]+)}{{. ", " \u200E{$1}\u200F. ", RegexOptions.CultureInvariant);
 			// Bengali numbers
-			var target7 = target6.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
+			var target10 = target9.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
 								.Replace("{\u09E9}", "{3}").Replace("{\u09EA}", "{4}").Replace("{\u09EB}", "{5}")
 								.Replace("{\u09EC}", "{6}").Replace("{\u09ED}", "{7}").Replace("{\u09EE}", "{8}")
 								.Replace("{\u09EF}", "{9}");
-			return target7;
+			return target10;
 		}
 	}
 }
