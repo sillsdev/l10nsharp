@@ -45,12 +45,37 @@ namespace L10NSharp.Tests
 		[TestCase("{\u09E6} \u09A7\u09B0\u09A3",         "{0} \u09A7\u09B0\u09A3",               TestName = "FixBrokenFormattingString_Works_9")]
 		[TestCase("{\u09E6} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {\u09E8}pt.",
 						"{0} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {2}pt.",    TestName = "FixBrokenFormattingString_Works_10")]
+
+		[TestCase("\u0632 \"{\"{0. \u0631",              "\u0632 \u200E\"{0}\"\u200F. \u0631",   TestName = "FixBrokenFormattingString_Works_11")]
+		[TestCase("\u0632 \"{\"{0 \u0631",               "\u0632 \u200E\"{0}\"\u200F \u0631",    TestName = "FixBrokenFormattingString_Works_12")]
+		[TestCase("\u0632 \"{\"{0 \u0631",               "\u0632 \u200E\"{0}\"\u200F \u0631",    TestName = "FixBrokenFormattingString_Works_13")]
+		[TestCase("\u0632 0}{{. \u0631",                 "\u0632 \u200E{0}\u200F. \u0631",       TestName = "FixBrokenFormattingString_Works_14")]
 		public void TryToFixBrokenSubstitutionMarkers(string badFormat, string goodFormat)
 		{
 			var result = LocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
 			// Check for the maximum number of possible substitution markers: unused arguments don't matter for validity.
 			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(3, result, "a.b"), Is.EqualTo(true));
+		}
+
+		// This checks for a wider range of substition marker numbers.
+		[Test]
+		[TestCase("\u0645 '{\u200E'{10 \u0627",           "\u0645 \u200E'{10}'\u200F \u0627",      TestName = "FixBrokenSubstitution_Works_1")]
+		[TestCase("\u0647 '{\u200E'{11\u0646\u0627",      "\u0647 \u200E'{11}'\u200F\u0646\u0627", TestName = "FixBrokenSubstitution_Works_2")]
+		[TestCase("\u0632 \"{\u200E\"{12\u200F \u0627",   "\u0632 \u200E\"{12}\"\u200F \u0627",    TestName = "FixBrokenSubstitution_Works_3")]
+		[TestCase("\u0627\u06CC {\u200E13}\u200F \u0627", "\u0627\u06CC \u200E{13}\u200F \u0627",  TestName = "FixBrokenSubstitution_Works_4")]
+		[TestCase("\u0627\u06CC {\u200E{14",              "\u0627\u06CC \u200E{14}\u200F",         TestName = "FixBrokenSubstitution_Works_5")]
+		[TestCase("\u0647 '{\u200E15}'\u200F \u0627",     "\u0647 \u200E'{15}'\u200F \u0627",      TestName = "FixBrokenSubstitution_Works_6")]
+		[TestCase("\u062A\u0646 {\u200E {16 \u0631",      "\u062A\u0646 \u200E{16}\u200F  \u0631", TestName = "FixBrokenSubstitution_Works_7")]
+		[TestCase("\u0632 \"{\u200E\"{17\u200F.",         "\u0632 \u200E\"{17}\"\u200F.",          TestName = "FixBrokenSubstitution_Works_8")]
+		[TestCase("\u0632 \"{\"{18. \u0631",              "\u0632 \u200E\"{18}\"\u200F. \u0631",   TestName = "FixBrokenSubstitution_Works_9")]
+		[TestCase("\u0632 \"{\"{19 \u0631",               "\u0632 \u200E\"{19}\"\u200F \u0631",    TestName = "FixBrokenSubstitution_Works_10")]
+		[TestCase("\u0632 \"{\"{20 \u0631",               "\u0632 \u200E\"{20}\"\u200F \u0631",    TestName = "FixBrokenSubstitution_Works_11")]
+		[TestCase("\u0632 21}{{. \u0631",                 "\u0632 \u200E{21}\u200F. \u0631",       TestName = "FixBrokenSubstitution_Works_12")]
+		public void FixBrokenSubstitutionMarkersOnly(string badFormat, string goodFormat)
+		{
+			var result = LocalizedStringCache.FixBrokenFormattingString(badFormat);
+			Assert.That(result, Is.EqualTo(goodFormat));
 		}
 	}
 }
