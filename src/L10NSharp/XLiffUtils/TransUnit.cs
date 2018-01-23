@@ -31,6 +31,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			Source = new TransUnitVariant();
 			Target = null;
+			TranslationStatus = Status.Unapproved;
 		}
 
 		#region Properties
@@ -38,6 +39,23 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("id")]
 		public string Id { get; set; }
+
+		//  approved="yes"
+
+		public enum Status
+		{
+			[XmlEnumAttribute("yes")]
+			Approved,
+			[XmlEnumAttribute("no")]
+			Unapproved
+		}
+
+		/// <summary>
+		/// The state of a target element.
+		/// </summary>
+		[XmlAttribute("approved"), System.ComponentModel.DefaultValue(Status.Unapproved)]
+		public Status TranslationStatus;
+
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

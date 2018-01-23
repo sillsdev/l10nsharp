@@ -13,6 +13,7 @@
 // <remarks>
 // </remarks>
 // ---------------------------------------------------------------------------------------------
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -30,6 +31,8 @@ namespace L10NSharp.XLiffUtils
 		private int _transUnitId;
 		private bool _idsVerified;
 		private List<TransUnit> _transUnits = new List<TransUnit>();
+		private int _translatedCount = -1;
+		private int _approvedCount = -1;
 
 		#region Properties
 		/// ------------------------------------------------------------------------------------
@@ -176,6 +179,71 @@ namespace L10NSharp.XLiffUtils
 
 		#endregion
 
+		/// <summary>
+		/// Return the number of the strings that appear to be translated.
+		/// </summary>
+		/// <remarks>
+		/// This value never changes once it is set.
+		/// </remarks>
+		internal int NumberTranslated
+		{
+			get
+			{
+				if (_translatedCount < 0)
+				{
+					_translatedCount = 0;
+					foreach (var tu in TransUnits)
+					{
+						if (tu.Target == null || String.IsNullOrWhiteSpace(tu.Target.Value))
+							continue;
+						if (tu.TranslationStatus == TransUnit.Status.Approved ||
+							tu.Target.TargetState == TransUnitVariant.TranslationState.Translated)
+						{
+							++_translatedCount;
+						}
+						else if (tu.Target.Value != tu.Source.Value &&
+							tu.Target.TargetState == TransUnitVariant.TranslationState.Undefined)
+						{
+							++_translatedCount;
+						}
+					}
+				}
+				return _translatedCount;
+			}
+		}
+
+		/// <summary>
+		/// Return the number of the strings that are translated and marked approved.
+		/// </summary>
+		/// <remarks>
+		/// This value never changes once it is set.
+		/// </remarks>
+		internal int NumberApproved
+		{
+			get
+			{
+				if (_approvedCount < 0)
+				{
+					_approvedCount = 0;
+					foreach (var tu in TransUnits)
+					{
+						if (tu.Target == null || String.IsNullOrWhiteSpace(tu.Target.Value))
+							continue;
+						if (tu.TranslationStatus == TransUnit.Status.Approved)
+							++_approvedCount;
+					}
+				}
+				return _approvedCount;
+			}
+		}
+
+		/// <summary>
+		/// Return the total number of strings.
+		/// </summary>
+		internal int StringCount
+		{
+			get { return TransUnits.Count; }
+		}
 	}
 
 	#endregion

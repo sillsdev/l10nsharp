@@ -36,6 +36,31 @@ namespace L10NSharp.Tests
 			// Test that what once was passed in a note is still being read correctly.
 			Assert.AreEqual("\\n", doc.File.HardLineBreakReplacement);
 		}
+
+		[Test]
+		public void TestCounts()
+		{
+			var enfile = Path.Combine(_testFolder, "Test.en.xlf");
+			var endoc = XLiffDocument.Read(enfile);
+			// These numbers may be counter-intuitive, but then the English isn't translated, is it?
+			// Code at the LocalizationManager level will make English look okay for display by
+			// faking the approved and translated counts.
+			Assert.AreEqual(4, endoc.StringCount);
+			Assert.AreEqual(0, endoc.NumberApproved);
+			Assert.AreEqual(0, endoc.NumberTranslated);
+
+			var frfile = Path.Combine(_testFolder, "Test.fr.xlf");
+			var frdoc = XLiffDocument.Read(frfile);
+			Assert.AreEqual(4, frdoc.StringCount);
+			Assert.AreEqual(0, frdoc.NumberApproved);
+			Assert.AreEqual(4, frdoc.NumberTranslated);
+
+			var esfile = Path.Combine(_testFolder, "Test.es.xlf");
+			var esdoc = XLiffDocument.Read(esfile);
+			Assert.AreEqual(4, esdoc.StringCount);
+			Assert.AreEqual(2, esdoc.NumberApproved);
+			Assert.AreEqual(3, esdoc.NumberTranslated);
+		}
 	}
 }
 

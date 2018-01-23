@@ -23,6 +23,11 @@ namespace L10NSharp.XLiffUtils
 	[XmlType("source", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
 	public class TransUnitVariant : XLiffBaseWithNotesAndProps
 	{
+		public TransUnitVariant()
+		{
+			TargetState = TranslationState.Undefined;
+		}
+
 		#region Properties
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -31,6 +36,41 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("xml:lang")]
 		public string Lang { get; set; }
+
+		// Crowdin uses only "needs-translated" and "translated" as far as I can tell.  It appears to remove
+		// this attribute ("undefined") and use the "approved" attribute on the the trans-unit element to
+		// signal that it's been "reviewed and approved".
+		public enum TranslationState
+		{
+			[XmlEnumAttribute("undefined")]
+			Undefined,
+			[XmlEnumAttribute("translated")]				// Indicates that the item has been translated.
+			Translated,
+			[XmlEnumAttribute("needs-translation")]			// Indicates that the item needs to be translated.
+			NeedsTranslation,
+			[XmlEnumAttribute("final")]						// Indicates the terminating state.
+			Final,
+			[XmlEnumAttribute("needs-adaptation")]			//Indicates only non-textual information needs adaptation.
+			NeedsAdaptation,
+			[XmlEnumAttribute("needs-l10n")]				// Indicates both text and non-textual information needs adaptation.
+			NeedsLocalization,
+			[XmlEnumAttribute("needs-review-adaptation")]	// Indicates only non-textual information needs review.
+			AdaptationNeedsReview,
+			[XmlEnumAttribute("needs-review-l10n")]			// Indicates both text and non-textual information needs review.
+			LocalizationNeedsReview,
+			[XmlEnumAttribute("needs-review-translation")]	// Indicates that only the text of the item needs to be reviewed.
+			TranslationNeedsReview,
+			[XmlEnumAttribute("new")]						// Indicates that the item is new. For example, translation units that were not in a previous version of the document.
+			New,
+			[XmlEnumAttribute("signed-off")]				// Indicates that changes are reviewed and approved.
+			SignedOff
+		};
+
+		/// <summary>
+		/// The state of a target element.
+		/// </summary>
+		[XmlAttribute("state"), System.ComponentModel.DefaultValue(TranslationState.Undefined)]
+		public TranslationState TargetState;
 
         /// ------------------------------------------------------------------------------------
         /// <summary>

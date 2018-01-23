@@ -164,6 +164,36 @@ namespace L10NSharp.XLiffUtils
 		{
 			 return File.Body.GetTransUnitForOrphan(orphan);
 		}
+
+		/// <summary>
+		/// Return the total number of strings.
+		/// </summary>
+		public int StringCount
+		{
+			get { return File.Body.StringCount; }
+		}
+
+		/// <summary>
+		/// Return the number of strings that appear to be translated.
+		/// </summary>
+		/// <remarks>
+		/// This value never changes once it is set.
+		/// </remarks>
+		public int NumberTranslated
+		{
+			get { return File.Body.NumberTranslated; }
+		}
+
+		/// <summary>
+		/// Return the number of strings that are translated and marked approved.
+		/// </summary>
+		/// <remarks>
+		/// This value never changes once it is set.
+		/// </remarks>
+		public int NumberApproved
+		{
+			get { return File.Body.NumberApproved; }
+		}
 	}
 
 
