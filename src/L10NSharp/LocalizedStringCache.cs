@@ -805,22 +805,47 @@ namespace L10NSharp
 		/// language with an occurrence of this problem so far.
 		/// </summary>
 		/// <remarks>
-		/// Note that \u200E is 'LEFT-TO-RIGHT MARK' and \u200F is 'RIGHT-TO-LEFT MARK'.
+		/// In C# Regular Expressions, unquoted parentheses group the characters match inside the parentheses,
+		/// unquoted square brackets group a set of alternative characters to match, unquoted curly brackets
+		/// (braces) match themselves, unquoted + means "1 or more of the previous expression", and unquoted *
+		/// means "0 or more of the previous expression".
+		/// The order of replacement operations in this matter should not matter.
 		/// </remarks>
 		internal static string FixBrokenFormattingString(string target)
 		{
-			var target1 = Regex.Replace(target, "'{\u200E'{([0-9]+)\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
-			var target2 = Regex.Replace(target1, "\"{\u200E\"{([0-9]+)\u200F*", "\u200E\"{$1}\"\u200F", RegexOptions.CultureInvariant);
-			var target3 = Regex.Replace(target2, " {\u200E {([0-9]+)\u200F*", " \u200E{$1}\u200F ", RegexOptions.CultureInvariant);
-			var target4 = Regex.Replace(target3, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
-			var target5 = Regex.Replace(target4, "'{\u200E([0-9]+)}'\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
+			// RTL confusion
+			// Note that \u200E is 'LEFT-TO-RIGHT MARK' and \u200F is 'RIGHT-TO-LEFT MARK'.  The Unicode standard
+			// defines some characters as mirrored in RTL vs LTR display.  CURLY BRACKET, SQUARE BRACKET, and
+			// PARENTHESIS are some of those mirroring pairs.  Other characters like SPACE, SINGLE QUOTE MARK and
+			// DOUBLE QUOTE MARK display the same in either direction and do not affect the directionality of the
+			// display.  Many characters have an implicit direction and will change the directionality of the
+			// display automatically.  This includes the ASCII numerals 0-9.  This means that embedding something
+			// like {0} in a RTL string is inherently difficult to get right.  It can look right on the screen
+			// and still cause a program to crash when trying to use the string in String.Format().
+			// The best fix I've come up with is to have an LTR MARK precede any quotation marks and the OPEN CURLY
+			// BRACKET, then the rest of the substitution marker and any quotation marks, and then an RTL MARK.
+
+			// Fix having an LTR mark follow an OPEN CURLY BRACKET, possibly with an enclosing QUOTE MARKs
+			// or SPACEs, and an optional trailing RTL mark.
+			var target1 = Regex.Replace(target,  "'{\u200E'{([0-9]+)\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
+			var target2 = Regex.Replace(target1, "'{\u200E([0-9]+)}'\u200F*", "\u200E'{$1}'\u200F", RegexOptions.CultureInvariant);
+			var target3 = Regex.Replace(target2, "\"{\u200E\"{([0-9]+)\u200F*", "\u200E\"{$1}\"\u200F", RegexOptions.CultureInvariant);
+			var target4 = Regex.Replace(target3, " {\u200E {([0-9]+)\u200F*", " \u200E{$1}\u200F ", RegexOptions.CultureInvariant);
+			var target5 = Regex.Replace(target4, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
 			var target6 = Regex.Replace(target5, "{\u200E([0-9]+)}\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
+			// Fix having no LTR or RTL marks in the input, with a doubled QUOTE MARK and OPEN CURLY BRACKET
+			// pair, with or without a trailing period.
+			var target7 = Regex.Replace(target6, " \"{\"{([0-9]+)\\. ", " \u200E\"{$1}\"\u200F. ", RegexOptions.CultureInvariant);
+			var target8 = Regex.Replace(target7, " \"{\"{([0-9]+) ", " \u200E\"{$1}\"\u200F ", RegexOptions.CultureInvariant);
+			// Fix a very broken pattern found in one string with doubled OPEN CURLY BRACKETs and a CLOSE CURLY BRACKET.
+			var target9 = Regex.Replace(target8, " ([0-9]+)}{{\\. ", " \u200E{$1}\u200F. ", RegexOptions.CultureInvariant);
+
 			// Bengali numbers
-			var target7 = target6.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
+			var target10 = target9.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
 								.Replace("{\u09E9}", "{3}").Replace("{\u09EA}", "{4}").Replace("{\u09EB}", "{5}")
 								.Replace("{\u09EC}", "{6}").Replace("{\u09ED}", "{7}").Replace("{\u09EE}", "{8}")
 								.Replace("{\u09EF}", "{9}");
-			return target7;
+			return target10;
 		}
 	}
 }
