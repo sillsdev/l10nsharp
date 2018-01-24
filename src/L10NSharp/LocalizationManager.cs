@@ -47,6 +47,12 @@ namespace L10NSharp
 		/// </summary>
 		public static bool IgnoreExistingEnglishXliffFiles;
 
+		/// <summary>
+		/// Ignore any translated strings that are not marked "approved", acting as though the
+		/// translation didn't exist.
+		/// </summary>
+		public static bool ReturnOnlyApprovedStrings;
+
 		private static string s_uiLangId;
 		private static List<string> s_fallbackLanguageIds = new List<string>(new[] { kDefaultLang });
 
