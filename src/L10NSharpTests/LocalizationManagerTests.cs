@@ -424,6 +424,7 @@ namespace L10NSharp.Tests
 			var tu = new TransUnit
 			{
 				Id = "theId",
+				TranslationStatus = TransUnit.Status.Approved,
 				Source = new TransUnitVariant {Lang = "en", Value = "wrong"},
 				Target = new TransUnitVariant {Lang = "ar", Value = "inArabic"},
 				Notes = { new XLiffNote {Text = "Test"} }
@@ -433,6 +434,7 @@ namespace L10NSharp.Tests
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
+				TranslationStatus = TransUnit.Status.Approved,
 				Source = new TransUnitVariant {Lang = "en", Value = "inEnglishpartofArabicXliff"},
 				Target = new TransUnitVariant {Lang = "ar", Value = "inArabic"}
 			};
@@ -466,6 +468,7 @@ namespace L10NSharp.Tests
 			var tu = new TransUnit
 			{
 				Id = "theId",
+				TranslationStatus = TransUnit.Status.Approved,
 				Source = new TransUnitVariant {Lang = "en", Value = "from English Xliff"},
 				Target = new TransUnitVariant {Lang = "es", Value = "from Spanish Xliff"},
 				Notes = { new XLiffNote {Text = "Test"} }
@@ -475,6 +478,7 @@ namespace L10NSharp.Tests
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
+				TranslationStatus = TransUnit.Status.Approved,
 				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"},
 				Target = new TransUnitVariant {Lang = "es", Value = "no longer used Spanish text"}
 			};
@@ -499,6 +503,7 @@ namespace L10NSharp.Tests
 			var tu2 = new TransUnit
 			{
 				Id = "notUsedId",
+				TranslationStatus = TransUnit.Status.Approved,
 				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"},
 				Target = new TransUnitVariant {Lang = langId, Value = "no longer used Random text"}
 			};
@@ -800,6 +805,29 @@ namespace L10NSharp.Tests
 				// The actual stored value, that would be written to the xliff, should have the replacement text in it.
 				Assert.That(manager.StringCache.GetValueForExactLangAndId("fr", "anotherId", false), Is.EqualTo("Three\\nlines of\\nFrench"));
 				Assert.That(LocalizationManager.GetString("anotherId", "Three\r\nlines of" + Environment.NewLine + "English"), Is.EqualTo("Three" + LocalizedStringCache.kOSRealNewline + "lines of" + LocalizedStringCache.kOSRealNewline + "French"));
+			}
+		}
+
+		[Test]
+		public void TestFractionsTranslatedAndApproved()
+		{
+			LocalizationManager.UseLanguageCodeFolders = true;
+			using (var folder = new TempFolder("TestFractionsTranslatedAndApproved"))
+			{
+				AddRandomXliff("ii", GetInstalledDirectory(folder));
+				SetupManager(folder, "ii" /* UI language not important */);
+
+				Assert.That(LocalizationManager.FractionTranslated("en"), Is.EqualTo(1.0F));
+				Assert.That(LocalizationManager.FractionTranslated("ar"), Is.EqualTo(2F/3F));
+				Assert.That(LocalizationManager.FractionTranslated("es"), Is.EqualTo(1.0F));
+				Assert.That(LocalizationManager.FractionTranslated("fr"), Is.EqualTo(1F/3F));
+				Assert.That(LocalizationManager.FractionTranslated("ii"), Is.EqualTo(1F/3F));
+
+				Assert.That(LocalizationManager.FractionApproved("en"), Is.EqualTo(1.0F));
+				Assert.That(LocalizationManager.FractionApproved("ar"), Is.EqualTo(2F/3F));
+				Assert.That(LocalizationManager.FractionApproved("es"), Is.EqualTo(2F/3F));
+				Assert.That(LocalizationManager.FractionApproved("fr"), Is.EqualTo(0.0F));
+				Assert.That(LocalizationManager.FractionApproved("ii"), Is.EqualTo(1F/3F));
 			}
 		}
 	}

@@ -448,6 +448,88 @@ namespace L10NSharp
 		}
 
 		/// <summary>
+		/// Return the number of strings that appear to have been translated and approved for the
+		/// given language in all the loaded managers.
+		/// </summary>
+		public static int NumberApproved(string lang)
+		{
+			if (lang == kDefaultLang)
+				return StringCount(lang);
+			var approved = 0;
+			foreach (var lm in s_loadedManagers.Values)
+			{
+				XLiffDocument xdoc;
+				if (lm.StringCache.XliffDocuments.TryGetValue(lang, out xdoc))
+					approved += xdoc.NumberApproved;
+			}
+			return approved;
+		}
+
+		/// <summary>
+		/// Return the fraction of strings that appear to have been translated and approved for the
+		/// given language in all the loaded managers.
+		/// </summary>
+		public static float FractionApproved(string lang)
+		{
+			if (lang == kDefaultLang)
+				return 1.0F;
+			var total = Math.Max(StringCount(lang), StringCount(kDefaultLang));
+			if (total == 0)
+				return 0.0F;
+			var approved = NumberApproved(lang);
+			return (float)approved / (float)total;
+		}
+
+		/// <summary>
+		/// Return the number of strings that appear to have been translated for the given language
+		/// in all the loaded managers.
+		/// </summary>
+		public static int NumberTranslated(string lang)
+		{
+			if (lang == kDefaultLang)
+				return StringCount(lang);
+			var translated = 0;
+			foreach (var lm in s_loadedManagers.Values)
+			{
+				XLiffDocument xdoc;
+				if (lm.StringCache.XliffDocuments.TryGetValue(lang, out xdoc))
+					translated += xdoc.NumberTranslated;
+			}
+			return translated;
+		}
+
+		/// <summary>
+		/// Return the fraction of strings that appear to have been translated for the given language
+		/// in all the loaded managers.
+		/// </summary>
+		public static float FractionTranslated(string lang)
+		{
+			if (lang == kDefaultLang)
+				return 1.0F;
+			var total = Math.Max(StringCount(lang), StringCount(kDefaultLang));
+			if (total == 0)
+				return 0.0F;
+			var translated = NumberTranslated(lang);
+			return (float)translated / (float)total;
+		}
+
+		/// <summary>
+		/// Return the number of strings that appear to be available for the given language in all
+		/// the loaded managers.
+		/// </summary>
+		public static int StringCount(string lang)
+		{
+			var count = 0;
+			foreach (var lm in s_loadedManagers.Values)
+			{
+				XLiffDocument xdoc;
+				if (lm.StringCache.XliffDocuments.TryGetValue(lang, out xdoc))
+					count += xdoc.StringCount;
+			}
+			return count;
+		}
+
+		/// <summary>
 		/// If the given file exists, return its parent folder name as a language tag if it
 		/// appears to be valid (2 or 3 letters long or "zh-CN").  Otherwise return null.
 		/// </summary>
