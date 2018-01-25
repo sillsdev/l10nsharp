@@ -143,7 +143,9 @@ namespace L10NSharp.XLiffUtils
 				{
 					Console.WriteLine("WARNING: string ID \"{0}\" already found in \"{1}\".", tu.Id, xLiffFile);
 				}
-				else
+				else if ((langId == xLiffDoc.File.SourceLang && langId == LocalizationManager.kDefaultLang) ||
+					!LocalizationManager.ReturnOnlyApprovedStrings ||
+					(tu.TranslationStatus == TransUnit.Status.Approved))
 				{
 					var target = tu.GetVariantForLang(langId);
 					if (target != null && !String.IsNullOrEmpty(target.Value))
