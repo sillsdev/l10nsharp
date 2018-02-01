@@ -834,18 +834,23 @@ namespace L10NSharp
 			var target5 = Regex.Replace(target4, "{\u200E{([0-9]+)\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
 			var target6 = Regex.Replace(target5, "{\u200E([0-9]+)}\u200F*", "\u200E{$1}\u200F", RegexOptions.CultureInvariant);
 			// Fix having no LTR or RTL marks in the input, with a doubled QUOTE MARK and OPEN CURLY BRACKET
-			// pair, with or without a trailing period.
+			// pair, with or without a trailing period.  This confusion indicates an underlying RTL language
+			// since the bidirectional algorithm may make it look okay on the screen.
 			var target7 = Regex.Replace(target6, " \"{\"{([0-9]+)\\. ", " \u200E\"{$1}\"\u200F. ", RegexOptions.CultureInvariant);
 			var target8 = Regex.Replace(target7, " \"{\"{([0-9]+) ", " \u200E\"{$1}\"\u200F ", RegexOptions.CultureInvariant);
 			// Fix a very broken pattern found in one string with doubled OPEN CURLY BRACKETs and a CLOSE CURLY BRACKET.
 			var target9 = Regex.Replace(target8, " ([0-9]+)}{{\\. ", " \u200E{$1}\u200F. ", RegexOptions.CultureInvariant);
+			// Fix probably bogus (since repeated) LTR marks.  Leave the first one since it shouldn't hurt anything, and
+			// conceivably could be needed.
+			var target10 = Regex.Replace(target9, "\u200E{([0-9]+)\u200E}\u200E", "\u200E{$1}", RegexOptions.CultureInvariant);
+			var target11 = Regex.Replace(target10, "\u200E{([0-9]+)\u200E}", "\u200E{$1}", RegexOptions.CultureInvariant);
 
 			// Bengali numbers
-			var target10 = target9.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
+			var target12 = target11.Replace("{\u09E6}", "{0}").Replace("{\u09E7}", "{1}").Replace("{\u09E8}", "{2}")
 								.Replace("{\u09E9}", "{3}").Replace("{\u09EA}", "{4}").Replace("{\u09EB}", "{5}")
 								.Replace("{\u09EC}", "{6}").Replace("{\u09ED}", "{7}").Replace("{\u09EE}", "{8}")
 								.Replace("{\u09EF}", "{9}");
-			return target10;
+			return target12;
 		}
 	}
 }
