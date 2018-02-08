@@ -830,5 +830,58 @@ namespace L10NSharp.Tests
 				Assert.That(LocalizationManager.FractionApproved("ii"), Is.EqualTo(1F/3F));
 			}
 		}
+
+		[Test]
+		public void TestInexactLanguageMatching()
+		{
+			// Note that there are no loaded localization managers, so the initial processing
+			// of setting the UI language will result in the default fallback list and an
+			// unchanged UI language.  Calling the method to set the fallback languages will
+			// possibly change the UI language to something less (or more) specific, and
+			// possibly have a longer fallback list.
+			LocalizationManager.SetUILanguage("es", true);
+			Assert.AreEqual("es", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+			LocalizationManager.SetAvailableFallbackLanguageIds(new [] {"en", "es-ES", "fr", "pt-PT", "zh-CN"});
+			Assert.AreEqual("es-ES", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+
+			LocalizationManager.SetUILanguage("fr-FR", true);
+			Assert.AreEqual("fr-FR", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+			LocalizationManager.SetAvailableFallbackLanguageIds(new [] {"en", "es-ES", "fr", "pt-PT", "zh-CN"});
+			Assert.AreEqual("fr", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+
+			LocalizationManager.SetUILanguage("en-GB", true);
+			Assert.AreEqual("en-GB", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+			LocalizationManager.SetAvailableFallbackLanguageIds(new [] {"en", "en-GB", "en-US", "es-ES", "fr", "pt-PT", "zh-CN"});
+			Assert.AreEqual("en-GB", LocalizationManager.UILanguageId);
+			var fallbacks = LocalizationManager.FallbackLanguageIds.ToList();
+			Assert.AreEqual(2, fallbacks.Count);
+			Assert.AreEqual("en", fallbacks[0]);
+			Assert.AreEqual("en-US", fallbacks[1]);
+			LocalizationManager.SetAvailableFallbackLanguageIds(new [] {"en", "es-ES", "fr", "pt-PT", "zh-CN"});
+			Assert.AreEqual("en", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+
+			LocalizationManager.SetUILanguage("en-GB", true);
+			Assert.AreEqual("en-GB", LocalizationManager.UILanguageId);
+			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
+			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
+			LocalizationManager.SetAvailableFallbackLanguageIds(new [] {"en", "en-US", "es-ES", "fr", "pt-PT", "zh-CN"});
+			Assert.AreEqual("en", LocalizationManager.UILanguageId);
+			fallbacks = LocalizationManager.FallbackLanguageIds.ToList();
+			Assert.AreEqual(2, fallbacks.Count);
+			Assert.AreEqual("en-US", fallbacks[0]);
+			Assert.AreEqual("en", fallbacks[1]);
+		}
 	}
 }

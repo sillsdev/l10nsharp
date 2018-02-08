@@ -703,11 +703,12 @@ namespace L10NSharp
 		{
 			try
 			{
-				string s;
+				string s = null;
 				switch (markersCount)
 				{
 					case 0:
 						// targetValue won't be presented to String.Format().
+						s = targetValue;
 						break;
 					case 1:
 						s = String.Format(targetValue, "FIRST");
@@ -740,12 +741,13 @@ namespace L10NSharp
 						s = String.Format(targetValue, "FIRST", "SECOND", "THIRD", "FOURTH", "FIFTH", "SIXTH", "SEVENTH", "EIGHTH", "NINTH", "TENTH");
 						break;
 					default:
+						s = targetValue;
 						Console.WriteLine("trans-unit {0} has more than ten distinct substitution markers!", tuId);
 						break;
 				}
-				return true;
+				return s != null;
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				if (!quiet)
 				{

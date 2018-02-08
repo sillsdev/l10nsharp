@@ -359,9 +359,44 @@ namespace L10NSharp
 				Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 			L10NCultureInfo.CurrentCulture = ci;
 			s_uiLangId = langId;
+			SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 
 			if (reapplyLocalizationsToAllObjectsInAllManagers)
 				ReapplyLocalizationsToAllObjectsInAllManagers();
+		}
+
+		/// <summary>
+		/// Fill FallbackLanguages with the right values for the current s_uiLangId.  Also adjust
+		/// s_uiLangId if needed to exactly match an available language.
+		/// </summary>
+		internal static void SetAvailableFallbackLanguageIds(IEnumerable<string> availableLanguages)
+		{
+			var uiPieces = s_uiLangId.Split('-');
+			s_fallbackLanguageIds.Clear();
+			var exactMatch = false;
+			foreach (var lang in availableLanguages)
+			{
+				if (lang == s_uiLangId)
+				{
+					exactMatch = true;
+					continue;
+				}
+				var langPieces = lang.Split('-');
+				if (uiPieces[0] == langPieces[0])
+					s_fallbackLanguageIds.Add(lang);
+			}
+			if (!exactMatch && s_fallbackLanguageIds.Count > 0)
+			{
+				// The exact language doesn't exist, but we do have something close (for example,
+				// "es" instead of "es-ES" or "fr-FR" instead of "fr".  Change our idea of the UI
+				// language to be something we have, not necessarily what the system thinks it has.
+				s_uiLangId = s_fallbackLanguageIds[0];
+				s_fallbackLanguageIds.RemoveAt(0);
+			}
+			// We always fall back to the default language (English), since it's guaranteed to have
+			// a string, even if nobody can read it.
+			if (!s_fallbackLanguageIds.Contains(kDefaultLang))
+				s_fallbackLanguageIds.Add(kDefaultLang);
 		}
 
 		/// <summary>
@@ -615,6 +650,7 @@ namespace L10NSharp
 					int i = s_uiLangId.IndexOf('-');
 					if (i >= 0)
 						s_uiLangId = s_uiLangId.Substring(0, i);
+					SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 				}
 
 				return s_uiLangId;
@@ -1215,7 +1251,6 @@ namespace L10NSharp
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
-			// some Xliff, following the rule that the current c# code always wins.
 			// some Xliff, following the rule that the current c# code always wins. In case we really need to
 			// recover the Xliff version, we will retrieve that if no default is provided.
 			// Otherwise, let's look up this string, maybe it has been translated and put into a Xliff
