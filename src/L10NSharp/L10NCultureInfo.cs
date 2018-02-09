@@ -30,7 +30,7 @@ namespace L10NSharp
 			{
 				RawCultureInfo = CultureInfo.GetCultureInfo(name);
 			}
-			catch (CultureNotFoundException ex)
+			catch (CultureNotFoundException)
 			{
 				RawCultureInfo = null;
 			}
