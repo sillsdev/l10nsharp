@@ -26,6 +26,12 @@ namespace L10NSharp
 		internal const string kFileExtension = ".xlf";
 
 		/// <summary>
+		/// Map from the given language code to a variant we actually have.  (It can map from a
+		/// language code onto itself.)
+		/// </summary>
+		internal static Dictionary<string, string> MapToExistingLanguage = new Dictionary<string, string>();
+
+		/// <summary>
 		/// These two events allow us to know when the localization dialog is running.
 		/// For example, HearThis needs to turn off some event prefiltering.
 		/// </summary>
@@ -1041,21 +1047,38 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Get the best possible language id to use for retrieving a string.  In most cases,
+		/// we would expect an identity transformation.  But this allows "es-ES" to map to "es"
+		/// and vice versa depending on the actual data available.
+		/// </summary>
+		private static string MapToExistingLanguageIfPossible(string langId)
+		{
+			string realId;
+			if (MapToExistingLanguage.TryGetValue(langId, out realId))
+				return realId;
+			return langId;
+		}
+
+		/// ------------------------------------------------------------------------------------
 		private string GetStringFromStringCache(string uiLangId, string id)
 		{
-			return StringCache.GetString(uiLangId, id);
+			var realLangId =  MapToExistingLanguageIfPossible(uiLangId);
+			return StringCache.GetString(realLangId, id);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		private string GetTooltipFromStringCache(string uiLangId, string id)
 		{
-			return StringCache.GetToolTipText(uiLangId, id);
+			var realLangId =  MapToExistingLanguageIfPossible(uiLangId);
+			return StringCache.GetToolTipText(realLangId, id);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		private Keys GetShortCutKeyFromStringCache(string uiLangId, string id)
 		{
-			return StringCache.GetShortcutKeys(uiLangId, id);
+			var realLangId =  MapToExistingLanguageIfPossible(uiLangId);
+			return StringCache.GetShortcutKeys(realLangId, id);
 		}
 
 		#endregion
@@ -1296,7 +1319,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
-			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, id, false))
+			var realLangId =  MapToExistingLanguageIfPossible(langId);
+			return LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(realLangId, id, false))
 				.FirstOrDefault(txt => txt != null) != null;
 		}
 
@@ -1331,12 +1355,34 @@ namespace L10NSharp
 		{
 			foreach (var langId in preferredLanguageIds)
 			{
-				var bestAnswer = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(langId, stringId, true))
+				var realLangId =  MapToExistingLanguageIfPossible(langId);
+				var bestAnswer = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(realLangId, stringId, true))
 					.FirstOrDefault(text => text != null);
 				if (!string.IsNullOrEmpty(bestAnswer))
 				{
-					languageIdUsed = langId;
+					languageIdUsed = realLangId;
 					return bestAnswer;
+				}
+				if (langId.Contains('-') && !MapToExistingLanguage.ContainsKey(langId))
+				{
+					var pieces = langId.Split('-');
+					if (MapToExistingLanguage.ContainsKey(pieces[0]))
+					{
+						var realLangId2 = MapToExistingLanguage[pieces[0]];
+						MapToExistingLanguage.Add(langId, realLangId2);
+						if (realLangId != realLangId2)
+						{
+							bestAnswer = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(realLangId2, stringId, true))
+								.FirstOrDefault(text => text != null);
+							if (!string.IsNullOrEmpty(bestAnswer))
+							{
+								languageIdUsed = realLangId2;
+								return bestAnswer;
+							}
+						}
+					}
+					if  (!MapToExistingLanguage.ContainsKey(langId))
+						MapToExistingLanguage[langId] = langId;	// prevent trying this again and again.
 				}
 			}
 			languageIdUsed = null;
