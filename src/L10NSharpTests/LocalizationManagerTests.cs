@@ -26,6 +26,7 @@ namespace L10NSharp.Tests
 		{
 			LocalizationManager.UseLanguageCodeFolders = false;
 			LocalizationManager.LoadedManagers.Clear();
+			LocalizationManager.MapToExistingLanguage.Clear();
 			LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
 		}
 
@@ -882,6 +883,111 @@ namespace L10NSharp.Tests
 			Assert.AreEqual(2, fallbacks.Count);
 			Assert.AreEqual("en-US", fallbacks[0]);
 			Assert.AreEqual("en", fallbacks[1]);
+		}
+
+		// This mimics the situation we have in Bloom for our Spanish translations from Crowdin.
+		internal static void AddOverSpecifiedSpanishXliff(string folderPath)
+		{
+			var spanishDoc = new XLiffDocument { File = {SourceLang = "en", TargetLang="es-ES"}};
+			spanishDoc.File.HardLineBreakReplacement = LiteralNewline;
+			spanishDoc.File.Original = "test.dll";
+			// first unit
+			var tu = new TransUnit
+			{
+				Id = "theId",
+				TranslationStatus = TransUnit.Status.Approved,
+				Source = new TransUnitVariant {Lang = "en", Value = "from English Xliff"},
+				Target = new TransUnitVariant {Lang = "es-ES", Value = "from Spanish Xliff"},
+				Notes = { new XLiffNote {Text = "Test"} }
+			};
+			spanishDoc.AddTransUnit(tu);
+			// second unit
+			var tu2 = new TransUnit
+			{
+				Id = "notUsedId",
+				TranslationStatus = TransUnit.Status.Approved,
+				Source = new TransUnitVariant {Lang = "en", Value = "no longer used English text"},
+				Target = new TransUnitVariant {Lang = "es-ES", Value = "no longer used Spanish text"}
+			};
+			spanishDoc.AddTransUnit(tu2);
+			// third unit
+			var tu3 = new TransUnit
+			{
+				Id = "blahId",
+				Source = new TransUnitVariant {Lang = "en", Value = "blah"},
+				Target = new TransUnitVariant {Lang = "es-ES", Value = "bleah"}
+			};
+			spanishDoc.AddTransUnit(tu3);
+			spanishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetXliffFileNameForLanguage(AppId, "es")));
+		}
+
+		[Test]
+		public void TestMappingLanguageCodesToAvailable()
+		{
+			LocalizationManager.SetUILanguage("en", true);
+			LocalizationManager.LoadedManagers.Clear();
+			using (var folder = new TempFolder("TestMappingLanguageCodesToAvailable"))
+			{
+				AddEnglishXliff(GetInstalledDirectory(folder), "1.0");
+				AddArabicXliff(GetInstalledDirectory(folder));
+				AddFrenchXliff(GetInstalledDirectory(folder));
+				AddOverSpecifiedSpanishXliff(GetInstalledDirectory(folder));
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
+				LocalizationManager.LoadedManagers[AppId] = manager;
+
+				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
+				Assert.AreEqual(4, langs.Count);
+				Assert.IsTrue(langs.Contains("en"));
+				Assert.IsTrue(langs.Contains("ar"));
+				Assert.IsTrue(langs.Contains("fr"));
+				Assert.IsTrue(langs.Contains("es-ES"));
+
+				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es-ES"));
+				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es"));
+				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es-MX"));
+				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "ar"));
+				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "ar-AR"));
+				Assert.IsFalse(LocalizationManager.GetIsStringAvailableForLangId("theId", "fr"));
+				Assert.IsFalse(LocalizationManager.GetIsStringAvailableForLangId("theId", "fr-FR"));
+
+				string languageIdUsed;
+
+				// Check that we return the provided string for English.
+				string str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new[]{ "en", "fr", "ar" }, out languageIdUsed);
+				Assert.AreEqual("This is a test!", str);
+				Assert.AreEqual("en", languageIdUsed);
+
+				// Check that asking for a specific form of English still returns the provided string.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "en-US", "es-ES", "fr-FR" }, out languageIdUsed);
+				Assert.AreEqual("This is a test!", str);
+				Assert.AreEqual("en", languageIdUsed);
+
+				// Check that we return the string from the second language when the first language doesn't have the string.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new[]{ "fr", "ar", "es" }, out languageIdUsed);
+				Assert.AreEqual("inArabic", str);
+				Assert.AreEqual("ar", languageIdUsed);
+
+				// Check that we return the string from the first language when it exists.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es-ES", "en", "fr" }, out languageIdUsed);
+				Assert.AreEqual("from Spanish Xliff", str);
+				Assert.AreEqual("es-ES", languageIdUsed);
+
+				// Check asking for the general form of the language when we have only a specific form.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es", "en", "fr" }, out languageIdUsed);
+				Assert.AreEqual("from Spanish Xliff", str);
+				Assert.AreEqual("es-ES", languageIdUsed);
+
+				// Check asking for a specific form of the language when we have only the general form.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "ar-AR", "en", "fr" }, out languageIdUsed);
+				Assert.AreEqual("inArabic", str);
+				Assert.AreEqual("ar", languageIdUsed);
+
+				// Check asking for a specific form of the language when we have only a different specific form.
+				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es-MX", "en-GB", "fr-FR" }, out languageIdUsed);
+				Assert.AreEqual("from Spanish Xliff", str);
+				Assert.AreEqual("es-ES", languageIdUsed);
+			}
 		}
 	}
 }
