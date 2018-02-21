@@ -102,6 +102,8 @@ namespace L10NSharp
 				}
 			}
 			XliffDocuments.Add(LocalizationManager.kDefaultLang, DefaultXliffDocument);
+			// Map the default language onto itself.
+			LocalizationManager.MapToExistingLanguage[LocalizationManager.kDefaultLang] = LocalizationManager.kDefaultLang;
 
 			Exception error = null;
 
@@ -113,6 +115,16 @@ namespace L10NSharp
 					var langId = xliffDoc.File.TargetLang;
 					Debug.Assert(!String.IsNullOrEmpty(langId));
 					Debug.Assert(langId != LocalizationManager.kDefaultLang);
+					// Provide a mapping from a specific variant of a language to the base language.
+					// For example, "es-ES" can provide translations for "es" if we don't have "es" specifically.
+					var pieces = langId.Split('-');
+					if (pieces.Length > 1)
+					{
+						if (!LocalizationManager.MapToExistingLanguage.ContainsKey(pieces[0]))
+							LocalizationManager.MapToExistingLanguage.Add(pieces[0], langId);
+					}
+					// Identity mapping always wins.  Storing it simplifies code elsewhere.
+					LocalizationManager.MapToExistingLanguage[langId] = langId;
 					XliffDocuments.Add(langId, xliffDoc);
 					var defunctUnits = new List<TransUnit>();
 					foreach (var tu in xliffDoc.File.Body.TransUnits)
