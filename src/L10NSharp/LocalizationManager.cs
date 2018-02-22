@@ -1054,6 +1054,8 @@ namespace L10NSharp
 		/// </summary>
 		private static string MapToExistingLanguageIfPossible(string langId)
 		{
+			if (string.IsNullOrEmpty(langId))
+				return langId;
 			string realId;
 			if (MapToExistingLanguage.TryGetValue(langId, out realId))
 				return realId;
@@ -1319,6 +1321,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
+			if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(langId))
+				return false;
 			var realLangId =  MapToExistingLanguageIfPossible(langId);
 			var str = LoadedManagers.Values.Select(lm => lm.StringCache.GetValueForExactLangAndId(realLangId, id, false))
 				.FirstOrDefault(txt => !string.IsNullOrEmpty(txt));
