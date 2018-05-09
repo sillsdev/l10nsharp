@@ -1893,7 +1893,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal void HandleListViewColumnHeaderClicked(object sender, ColumnClickEventArgs e)
 		{
-			if (DoHandleMouseDown)
+			if (!DoHandleMouseDown)
 				return;
 
 			var lv = sender as ListView;
