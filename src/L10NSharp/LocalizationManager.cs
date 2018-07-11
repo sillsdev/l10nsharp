@@ -297,16 +297,24 @@ namespace L10NSharp
 
 			if (DefaultStringFileExistsAndHasContents())
 			{
-				var xmlDoc = XElement.Load(DefaultStringFilePath);
-				var docNamespace = xmlDoc.GetDefaultNamespace();
-				var file = xmlDoc.Element(docNamespace + "file");
-
 				XAttribute verAttribute = null;
-				if (file != null)
+				try
 				{
-					verAttribute = file.Attribute("product-version");
+					var xmlDoc = XElement.Load(DefaultStringFilePath);
+					var docNamespace = xmlDoc.GetDefaultNamespace();
+					var file = xmlDoc.Element(docNamespace + "file");
+					if (file != null)
+					{
+						verAttribute = file.Attribute("product-version");
+					}
 				}
-
+				catch (System.Xml.XmlException)
+				{
+					// If the file has been corrupted somehow, delete it and carry on.
+					// See https://silbloom.myjetbrains.com/youtrack/issue/BL-6146.
+					File.Delete(DefaultStringFilePath);
+					Console.WriteLine("WARNING - L10NSharp Update deleted corrupted {0}", DefaultStringFilePath);
+				}
 				if (verAttribute != null && new Version(verAttribute.Value) >= new Version(AppVersion ?? "0.0.1"))
 					return;
 			}
