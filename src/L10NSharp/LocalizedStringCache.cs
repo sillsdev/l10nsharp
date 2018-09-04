@@ -168,13 +168,14 @@ namespace L10NSharp
 				}
 				catch (Exception e)
 				{
+					var msg = String.Format("Caught exception in MergeXliffFilesIntoCache [{0}] - {1}", file, e.Message);
 	#if DEBUG
-					throw new Exception("Caught exception in MergeXliffFilesIntoCache", e);
+					throw new Exception(msg, e);
 	#else
 					// If an error happened reading some localization file other than one we care
 					// about right now, just ignore it.
 					if (file == OwningManager.GetXliffPathForLanguage(LocalizationManager.UILanguageId, false))
-						error = new Exception("Caught exception in MergeXliffFilesIntoCache", e);
+						error = new Exception(msg, e);
 	#endif
 				}
 			}
