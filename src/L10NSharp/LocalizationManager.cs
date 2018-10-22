@@ -1374,7 +1374,11 @@ namespace L10NSharp
 				return null;
 
 			string languageIdUsed;
-			return GetStringFromAnyLocalizationManager(stringId, new[] { UILanguageId }, out languageIdUsed);
+
+			var langSeq = new List<string>(new[] {UILanguageId});
+			langSeq.AddRange(FallbackLanguageIds);
+			langSeq.Remove("en"); // don't ever want a value from the "en" LM; want to use the program default.
+			return GetStringFromAnyLocalizationManager(stringId, langSeq, out languageIdUsed);
 		}
 
 		/// ------------------------------------------------------------------------------------
