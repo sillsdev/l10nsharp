@@ -1374,7 +1374,14 @@ namespace L10NSharp
 				return null;
 
 			string languageIdUsed;
-			return GetStringFromAnyLocalizationManager(stringId, new[] { UILanguageId }, out languageIdUsed);
+
+			var langSeq = new List<string>(new[] {UILanguageId});
+			langSeq.AddRange(FallbackLanguageIds);
+			// don't ever want a value from the "en" LM, even if that is the UI language and the
+			// only thing in the sequence; want to use the program default. (This method will return null,
+			// and clients, which are passed an English default value, will use it.)
+			langSeq.Remove("en");
+			return GetStringFromAnyLocalizationManager(stringId, langSeq, out languageIdUsed);
 		}
 
 		/// ------------------------------------------------------------------------------------

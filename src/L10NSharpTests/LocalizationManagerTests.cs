@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -883,6 +883,51 @@ namespace L10NSharp.Tests
 			Assert.AreEqual(2, fallbacks.Count);
 			Assert.AreEqual("en-US", fallbacks[0]);
 			Assert.AreEqual("en", fallbacks[1]);
+		}
+
+		[Test]
+		public void GetString_UsesFallbackLanguages()
+		{
+			using (var folder = new TempFolder("GetString_UsesFallbackLanguages"))
+			{
+				LocalizationManager.LoadedManagers.Clear();
+				var doc = new XLiffDocument { File = { SourceLang = "en", TargetLang = "ha" } };
+				doc.File.Original = "test.dll";
+				// first unit
+				var tu = new TransUnit
+				{
+					Id = "blahId",
+					Source = new TransUnitVariant { Lang = "en", Value = "blah" },
+					Target = new TransUnitVariant { Lang = "ha", Value = "blahInHausa" },
+				};
+				tu.Dynamic = true;
+				doc.AddTransUnit(tu);
+				doc.Save(Path.Combine(folder.Path, LocalizationManager.GetXliffFileNameForLanguage(AppId, "ha")));
+
+				AddEnglishXliff(GetInstalledDirectory(folder), AppVersion);
+				AddFrenchXliff(GetInstalledDirectory(folder));
+				AddSpanishXliff(GetInstalledDirectory(folder));
+
+				LocalizationManager.SetUILanguage("ha", true);
+				var manager = new LocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
+				LocalizationManager.LoadedManagers[AppId] = manager;
+
+				Assert.That(LocalizationManager.GetString("blahId", "blah"), Is.EqualTo("blahInHausa"));
+				Assert.That(LocalizationManager.GetString("theId", "program English Id"), Is.EqualTo("program English Id")); // xliff has "from English Xliff" but we prefer the program-supplied value
+
+				LocalizationManager.FallbackLanguageIds = new[] {"es", "en"};
+				Assert.That(LocalizationManager.GetString("blahId", "blah"), Is.EqualTo("blahInHausa")); // still from primary
+				Assert.That(LocalizationManager.GetString("theId", "nonsense"), Is.EqualTo("from Spanish Xliff")); // from fallback
+
+				LocalizationManager.FallbackLanguageIds = new[] { "fr", "en" };
+				Assert.That(LocalizationManager.GetString("blahId", "blah"), Is.EqualTo("blahInHausa")); // still from primary
+				Assert.That(LocalizationManager.GetString("theId", "program English Id"), Is.EqualTo("program English Id")); // French doesn't have this either.
+
+				LocalizationManager.FallbackLanguageIds = new[] { "fr", "es", "en" };
+				Assert.That(LocalizationManager.GetString("blahId", "blah"), Is.EqualTo("blahInHausa")); // still from primary
+				Assert.That(LocalizationManager.GetString("theId", "nonsense"), Is.EqualTo("from Spanish Xliff")); // from 2nd fallback
+			}
 		}
 
 		// This mimics the situation we have in Bloom for our Spanish translations from Crowdin.
