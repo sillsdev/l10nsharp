@@ -7,8 +7,13 @@ insert_final_newline = true
 charset = utf-8
 indent_size = 4
 
-[*.{cs,csproj,sln}]
+[*.cs]
 indent_style = tab
+
+# Settings Visual Studio uses for generated files
+[*.{csproj,resx,settings,vcxproj*,vdproj,xml}]
+indent_style = space
+indent_size = 2
 
 [*.pug]
 indent_style = tab

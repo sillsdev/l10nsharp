@@ -1,6 +1,7 @@
 
 _ReSharper*
 .idea/
+.vs/
 output/
 obj/
 *.suo
