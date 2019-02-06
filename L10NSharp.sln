@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharpTests", "src\L10NS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{58923B30-FD84-4BCC-85E0-607DCA7E7C95}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{7BE95674-0B77-4BA4-9A8A-57718D2B196C}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	GitVersion.yml = GitVersion.yml
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	README.md = README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
