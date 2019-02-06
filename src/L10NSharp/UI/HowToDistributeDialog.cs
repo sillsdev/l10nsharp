@@ -13,18 +13,20 @@ namespace L10NSharp.UI
 			_targetTmxFilePath = targetTmxFilePath;
 			InitializeComponent();
 
-#if __MonoCS__
-			// In Mono, Label.AutoSize=true sets Size to PreferredSize (which is always
-			// one line high) even if the Size has already been explicitly set.  In Windows,
-			// Label.AutoSize=false makes the labels disappear.  So we need to turn off
-			// AutoSize here and set the multiline labels explicitly to their largest
-			// possible sizes for this fixed-size dialog.  (That allows all the available
-			// space for localizations that may need more space.)
-			label1.AutoSize = label2.AutoSize = label4.AutoSize = false;
-			label4.Size = new System.Drawing.Size(300, 142);	// top message
-			label2.Size = new System.Drawing.Size(300, 56);		// middle message
-			label1.Size = new System.Drawing.Size(300, 112);	// bottom message
-#endif
+			if (Utils.IsMono)
+			{
+				// In Mono, Label.AutoSize=true sets Size to PreferredSize (which is always
+				// one line high) even if the Size has already been explicitly set.  In Windows,
+				// Label.AutoSize=false makes the labels disappear.  So we need to turn off
+				// AutoSize here and set the multiline labels explicitly to their largest
+				// possible sizes for this fixed-size dialog.  (That allows all the available
+				// space for localizations that may need more space.)
+				label1.AutoSize = label2.AutoSize = label4.AutoSize = false;
+				label4.Size = new System.Drawing.Size(300, 142); // top message
+				label2.Size = new System.Drawing.Size(300, 56);  // middle message
+				label1.Size = new System.Drawing.Size(300, 112); // bottom message
+			}
+
 			_emailLabel.Text=emailForSubmissions;
 		}
 
