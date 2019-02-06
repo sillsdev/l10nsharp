@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Pack">
 	<PropertyGroup>
 		<RootDir Condition="'$(teamcity_version)' == '' Or '$(OS)'!='Windows_NT'">$(MSBuildProjectDirectory)\..</RootDir>
 		<RootDir Condition="'$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'">$(teamcity_build_checkoutDir)</RootDir>
@@ -18,7 +18,13 @@
 
 	<Target Name="Build" DependsOnTargets="RestorePackages">
 		<MSBuild Projects="$(RootDir)/$(Solution)"
-			Targets="Rebuild"
+			Targets="Restore;Rebuild"
+			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+	<Target Name="Pack" DependsOnTargets="Build">
+		<MSBuild Projects="$(RootDir)/src/L10NSharp/L10NSharp.csproj"
+			Targets="Pack"
 			Properties="Configuration=$(Configuration)" />
 	</Target>
 
