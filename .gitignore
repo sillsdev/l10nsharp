@@ -1,5 +1,6 @@
 
 _ReSharper*
+.idea/
 output/
 obj/
 *.suo
@@ -11,3 +12,4 @@ bin/
 *.bak
 packages/
 build/NuGet.exe
+build/nuget.exe
