@@ -12,6 +12,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractXliff", "src\Extract
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckOrFixXliff", "src\CheckOrFixXliff\CheckOrFixXliff.csproj", "{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{7BE95674-0B77-4BA4-9A8A-57718D2B196C}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	GitVersion.yml = GitVersion.yml
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	README.md = README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -21,7 +21,7 @@ indent_style = tab
 [*.{ts,json,js,md,jsx,css,less}]
 indent_style = space
 
-[*.tmx]
+[*.{tmx,yml}]
 indent_style = space
 indent_size = 2
 
