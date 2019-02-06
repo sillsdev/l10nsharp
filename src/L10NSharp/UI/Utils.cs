@@ -8,17 +8,33 @@ namespace L10NSharp.UI
 	/// ----------------------------------------------------------------------------------------
 	internal static class Utils
 	{
+		private static bool? _isMono;
 
-#if !__MonoCS__
-		[DllImport("user32.dll", CharSet = CharSet.Auto)]
-		public static extern void SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-#else
+		public static bool IsMono
+		{
+			get
+			{
+				if (_isMono == null)
+					_isMono = Type.GetType("Mono.Runtime")
+							!= null;
+
+				return (bool)_isMono;
+			}
+		}
+
+
+		[DllImport("user32.dll", CharSet = CharSet.Auto, EntryPoint = "SendMessage")]
+		private static extern void SendMessageWindows(IntPtr hWnd, int msg, int wParam, int lParam);
+
 		public static void SendMessage(IntPtr hWnd, int msg, int wParam, int lParam)
 		{
-			Console.WriteLine("Warning--using unimplemented method SendMessage"); // FIXME Linux
-			return;
+			if (IsMono)
+				Console.WriteLine("Warning--using unimplemented method SendMessage"); // FIXME Linux
+			else
+			{
+				SendMessageWindows(hWnd, msg, wParam, lParam);
+			}
 		}
-#endif
 
 
 		private const int WM_SETREDRAW = 0xB;
@@ -39,14 +55,18 @@ namespace L10NSharp.UI
 		{
 			if (ctrl != null && !ctrl.IsDisposed && ctrl.IsHandleCreated)
 			{
-#if !__MonoCS__
-				SendMessage(ctrl.Handle, WM_SETREDRAW, (turnOn ? 1 : 0), 0);
-#else
-				if (turnOn)
-					ctrl.ResumeLayout(invalidateAfterTurningOn);
+				if (IsMono)
+				{
+					if (turnOn)
+						ctrl.ResumeLayout(invalidateAfterTurningOn);
+					else
+						ctrl.SuspendLayout();
+				}
 				else
-					ctrl.SuspendLayout();
-#endif
+				{
+					SendMessage(ctrl.Handle, WM_SETREDRAW, (turnOn ? 1 : 0), 0);
+				}
+
 				if (turnOn && invalidateAfterTurningOn)
 					ctrl.Invalidate(true);
 			}
