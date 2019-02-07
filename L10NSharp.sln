@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp", "src\L10NSharp\L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{7BE95674-0B77-4BA4-9A8A-57718D2B196C}"
 ProjectSection(SolutionItems) = preProject
+	CHANGELOG.md = CHANGELOG.md
 	.editorconfig = .editorconfig
 	GitVersion.yml = GitVersion.yml
 	.gitattributes = .gitattributes
