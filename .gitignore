@@ -10,6 +10,7 @@ L10NSharp.userprefs
 bin/
 *.ncrunchsolution
 *Copy*.bat
+*.userprefs
 
 *.bak
 packages/
