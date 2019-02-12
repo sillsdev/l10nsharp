@@ -25,7 +25,7 @@ namespace L10NSharp.Tests
 		[SetUp]
 		public void TestSetup()
 		{
-			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
+			var installedXliffDir = "../../../src/L10NSharpTests/TestXliff";
 			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0", installedXliffDir, "", null, "");
 			m_xliffPath = m_manager.GetXliffPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender();

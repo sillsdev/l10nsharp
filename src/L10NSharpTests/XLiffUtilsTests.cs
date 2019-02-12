@@ -20,6 +20,7 @@ namespace L10NSharp.Tests
 			var folder = Path.GetDirectoryName(asmFile);	// will be something like <repodir>/output/Debug
 			folder = Path.GetDirectoryName(folder);
 			folder = Path.GetDirectoryName(folder);
+			folder = Path.GetDirectoryName(folder);
 			_testFolder = Path.Combine(folder, "src", "L10NSharpTests", "TestXliff");
 		}
 

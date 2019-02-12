@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <RootNamespace>L10NSharp</RootNamespace>
-    <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which needs localization when your application first runs and saves them in a Translation Memory eXchange (TMX) file. It can also dynamically collect strings at runtime.</Description>
+    <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which needs localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
     <AssemblyTitle>L10NSharp</AssemblyTitle>
     <Company>SIL</Company>
     <Product>L10NSharp</Product>
@@ -17,7 +17,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <Authors>SIL International</Authors>
     <OutputPath>../../output/$(Configuration)</OutputPath>
-    <PackageId>L10NSharp.tmx</PackageId>
+    <PackageId>L10NSharp.xliff</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
