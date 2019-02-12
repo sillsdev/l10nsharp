@@ -27,7 +27,7 @@ namespace L10NSharp.Tests
 			var folder = new TempFolder("FileLocation");
 			Directory.CreateDirectory(folder.Path);
 			LocalizationManagerTests.SetupManager(folder);
-			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
+			var installedXliffDir = "../../../src/L10NSharpTests/TestXliff";
 
 			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
 			var schemas = new XmlSchemaSet();
@@ -67,7 +67,7 @@ namespace L10NSharp.Tests
 			var folder = new TempFolder("FileLocation");
 			Directory.CreateDirectory(folder.Path);
 			LocalizationManagerTests.SetupManager(folder);
-			var installedXliffDir = "../../src/L10NSharpTests/TestXliff";
+			var installedXliffDir = "../../../src/L10NSharpTests/TestXliff";
 
 			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
 			var schemas = new XmlSchemaSet();
