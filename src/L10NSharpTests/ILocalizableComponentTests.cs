@@ -25,7 +25,7 @@ namespace L10NSharp.Tests
 		[SetUp]
 		public void TestSetup()
 		{
-			var installedTmxDir = "../../src/L10NSharpTests/TestTmx";
+			var installedTmxDir = "../../../src/L10NSharpTests/TestTmx";
 			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0", installedTmxDir, "", null, "");
 			m_tmxPath = m_manager.GetTmxPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender();
