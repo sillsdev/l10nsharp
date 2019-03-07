@@ -1,10 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp", "src\L10NSharp\L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L10NSharp", "src\L10NSharp\L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharpTests", "src\L10NSharpTests\L10NSharpTests.csproj", "{BCE5B569-057C-4D7E-832E-E44A2DA705AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L10NSharpTests", "src\L10NSharpTests\L10NSharpTests.csproj", "{BCE5B569-057C-4D7E-832E-E44A2DA705AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{58923B30-FD84-4BCC-85E0-607DCA7E7C95}"
 EndProject
@@ -13,14 +13,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckOrFixXliff", "src\CheckOrFixXliff\CheckOrFixXliff.csproj", "{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{7BE95674-0B77-4BA4-9A8A-57718D2B196C}"
-ProjectSection(SolutionItems) = preProject
-	CHANGELOG.md = CHANGELOG.md
-	.editorconfig = .editorconfig
-	GitVersion.yml = GitVersion.yml
-	.gitattributes = .gitattributes
-	.gitignore = .gitignore
-	README.md = README.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		CHANGELOG.md = CHANGELOG.md
+		GitVersion.yml = GitVersion.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp-Designer", "src\L10NSharp\L10NSharp-Designer.csproj", "{91806E96-1F40-46DF-AEC9-0095D695E5EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,8 +88,17 @@ Global
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|x86.ActiveCfg = Release|Any CPU
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|x86.Build.0 = Release|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C94DFCDA-FC93-4E55-BA2C-E15D8057AC7A}
 	EndGlobalSection
 EndGlobal
