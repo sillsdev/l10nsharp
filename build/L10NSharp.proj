@@ -3,23 +3,38 @@
 		<RootDir Condition="'$(teamcity_version)' == '' Or '$(OS)'!='Windows_NT'">$(MSBuildProjectDirectory)\..</RootDir>
 		<RootDir Condition="'$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'">$(teamcity_build_checkoutDir)</RootDir>
 		<Solution>L10NSharp.sln</Solution>
-		<Configuration>Release</Configuration>
-		<teamcity_agent_home_dir Condition="'$(teamcity_agent_home_dir)'=='' And '$(OS)'!='Windows_NT'">/var/lib/TeamCity/agent</teamcity_agent_home_dir>
+		<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">true</RestartBuild>
+		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">false</RestartBuild>
+		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
+		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
+		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue,</ExtraExcludeCategories>
+		<ExtraExcludeCategories Condition="'$(teamcity_version)' != ''">SkipOnTeamCity,$(ExtraExcludeCategories)</ExtraExcludeCategories>
 	</PropertyGroup>
 
-	<UsingTask TaskName="NUnitTeamCity"
-		AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)"
-		Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
-	<UsingTask TaskName="NUnitTeamCity"
-		AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll"
-		Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
+	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll"
+		Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
 
 	<Import Project="NuGet.targets"/>
 
-	<Target Name="Build" DependsOnTargets="RestorePackages">
+	<Target Name="Build">
+		<CallTarget Targets="RestoreBuildTasks" />
+		<CallTarget Targets="BuildInternal" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildInternal"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir)"
+			Condition="$(RestartBuild)" />
+	</Target>
+
+	<Target Name="BuildInternal" DependsOnTargets="RestorePackages">
 		<MSBuild Projects="$(RootDir)/$(Solution)"
 			Targets="Restore;Rebuild"
 			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
+		<Message Text="RestartBuild=$(RestartBuild)" />
+		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.2.0 -solutionDirectory "$(RootDir)"' />
 	</Target>
 
 	<Target Name="Pack" DependsOnTargets="Build">
@@ -29,18 +44,32 @@
 	</Target>
 
 	<Target Name="Test" DependsOnTargets="Build">
-		<CallTarget Targets="TestOnly"/>
+		<CallTarget Targets="TestOnly" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="TestOnly"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir);Platform=$(Platform)"
+			Condition="$(RestartBuild)" />
 	</Target>
 
+
 	<Target Name="TestOnly">
+		<PropertyGroup>
+			<NUnitVersion>2.6.4</NUnitVersion>
+			<NUnitRunnerPackage>$(RootDir)/packages/NUnit.Runners.Net4.$(NUnitVersion)</NUnitRunnerPackage>
+		</PropertyGroup>
 		<ItemGroup>
-			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/L10NSharpTests.dll"/>
+			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/net461/L10NSharpTests.dll"/>
 		</ItemGroup>
 
-		<NUnitTeamCity
-			Assemblies="@(TestAssemblies)"
-			ExcludeCategory="SkipOnTeamCity"
-			NUnitVersion="NUnit-2.6.3" />
+		<NUnit Assemblies="@(TestAssemblies)"
+			ToolPath="$(NUnitRunnerPackage)/tools"
+			TestInNewThread="false"
+			ExcludeCategory="$(ExtraExcludeCategories)$(excludedCategories)"
+			WorkingDirectory="$(RootDir)/output/$(Configuration)/net461"
+			Force32Bit="$(useNUnit-x86)"
+			Verbose="true"
+			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"/>
+		<Message Text="##teamcity[importData type='nunit' path='$(RootDir)/output/$(Configuration)/net461/TestResults.xml']"
+			Condition="'$(teamcity_version)' != ''"/>
 	</Target>
 
 </Project>
