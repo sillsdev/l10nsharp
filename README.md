@@ -2,6 +2,8 @@
 
 L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which needs localization when your application first runs and saves them in a Translation Memory eXchange (TMX) file. It can also dynamically collect strings at runtime.
 
+The `master` branch works with TMX files, the `xliff` branch with XLIFF files as translation memory.
+
 ## L10NSharpExtender
 
 To localize a Windows Forms form or control, simply add the `L10NSharpExtender`. It will automatically collect all the localizable strings on your form or control and its children.
