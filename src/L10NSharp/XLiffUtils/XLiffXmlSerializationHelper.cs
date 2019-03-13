@@ -74,6 +74,10 @@ namespace L10NSharp.XLiffUtils
 				{
 					return true;
 				}
+				catch (Exception e)
+				{
+					throw e;	// helps in setting breakpoint for debugging problems
+				}
 			}
 
 			/// --------------------------------------------------------------------------------
@@ -333,6 +337,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			XmlSerializer deserializer = new XmlSerializer(typeof(T));
 			deserializer.UnknownAttribute += deserializer_UnknownAttribute;
+			deserializer.UnknownElement += new XmlElementEventHandler(deserializer_UnknownElement);
 			return (T)deserializer.Deserialize(reader);
 		}
 
@@ -380,6 +385,109 @@ namespace L10NSharp.XLiffUtils
 			}
 		}
 
+		/// <summary>
+		/// Handle complex encoded HTML markup inside the translated strings.  This is detected by unknown
+		/// elements encountered while deserializing TransUnitVariant objects.
+		/// </summary>
+		static void deserializer_UnknownElement(object sender, XmlElementEventArgs e)
+		{
+			/* The XLIFF standard allows for internal markup inside <source> and <target> elements.
+			 * This markup takes the form of <g> and <x> elements.  As far I can tell, the only
+			 * difference between <g> and <x> elements is that <g> elements have content and <x>
+			 * elements do not.  Consider an input like this:
+			 *
+			 * <target xml:lang='en'>This is a <g id='gen1' ctype='x-html-strong' html:style='color:red;'>test</g>.</target>
+			 *
+			 * The default XmlSerializer stores "This is a " in the TransUnitVariant Value property, skips
+			 * over the "<g id='gen1' ctype='x-html-strong' html:style='color:red;'>test</g>", and
+			 * stores "." in the TransUnitVariant Value property, wiping out what it had stored earlier.
+			 * This behavior motivates this method, which is called whenever an element is encountered
+			 * reading the content of <source> or <target> elements.
+			 *
+			 * When the content of the <target> element in the example above is deserialized, the following steps
+			 * occur:
+			 * 1) The XmlSerializer encounters the text node containing "This is a " and stores it in the Value
+			 *    property of the TransUnitVariant object (which places it in the private _value variable).
+			 *
+			 *** tuv._value = "This is a "
+			 *** tuv._deserializedFromElement = null
+			 *
+			 * 2) The XmlSerializer encounters the <g> element and calls this method.
+			 * 3) A string builder is created and initialized with "This is a " from the existing Value.
+			 * 4) The ctype attribute of the <g> element is decoded to "strong", and the string builder is
+			 *    updated to contain "This is a <strong".
+			 * 5) Stepping through the attributes, the html:style attribute is found and decoded, and the
+			 *    string builder is updated to contain "This is a <strong style=\"color:red;\"".
+			 * 6) Reaching the end of the attributes, the code notices that it is processing a <g> element
+			 *    so it updates the string builder to contain "This is a <strong style=\"color:red;\">test</strong>".
+			 * 7) The content of the string builder is stored in the private _deserializedFromElement variable
+			 *    of the TransUnitVariant object.
+			 *
+			 *** tuv._value = null
+			 *** tuv._deserializedFromElement = "This is a <strong style=\"color:red;\">test</strong>"
+			 *
+			 * 8) The XmlSerializer encounters the text node containing "." and stores it in the Value property
+			 *    of the TransUnitVariant object.
+			 *
+			 *** tuv._value = "."
+			 *** tuv._deserializedFromElement = "This is a <strong style=\"color:red;\">test</strong>"
+			 *
+			 * At this point, the desired value of the TransUnitVariant object's Value property is split between
+			 * two private string variables: _value and _deserializedFromElement.  The next call from anywhere
+			 * to the getter of the Value property will put the pieces together.  This could even be from the
+			 * XmlSerializer code if the input had another <g> or <x> element in it.
+			 */
+			var tuv = e.ObjectBeingDeserialized as TransUnitVariant;
+			if (tuv == null)
+			{
+				Console.WriteLine("{0} being deserialized: UnknownElement OuterXml={1}",
+					e.ObjectBeingDeserialized.GetType().ToString(), e.Element.OuterXml);
+				return;
+			}
+			// Only <g></g> and <x/> elements can be encountered since that's all the xliff standard allows
+			// inside <source> and <target> elements (other than text of course).  <g> elements have internal
+			// content while <x> elements do not.  The expected attributes are the same for both <g> and <x>
+			// elements.
+			var bldr = new StringBuilder();
+			bldr.Append(tuv.Value);
+			// Most common HTML elements are marked by ctype="x-html-NAME". img elements are an exception,
+			// marked by ctype="image".
+			// ENHANCE: more possibilities exist for ctype, but this covers by far the most common ones.
+			var ctype = e.Element.GetAttribute("ctype");
+			if (ctype.StartsWith("x-html-"))
+			{
+				ctype = ctype.Substring(7);
+			}
+			else if (ctype == "image")
+			{
+				ctype = "img";
+			}
+			else
+			{
+				Console.WriteLine("TransUnitVariant being deserialized: UnknownElement OuterXml={0}", e.Element.OuterXml);
+				return;
+			}
+			bldr.AppendFormat("<{0}", ctype);
+			for (int i = 0; i < e.Element.Attributes.Count; ++i)
+			{
+				// HTML element attributes are reproduced with a leading html: namespace tag.
+				// All other attributes can be ignored at this point.
+				var attr = e.Element.Attributes[i];
+				if (attr.Name.StartsWith("html:"))
+					bldr.AppendFormat(" {0}=\"{1}\"", attr.LocalName, attr.Value);
+			}
+			// ENHANCE: handle nested <g> (and <x> inside <g>) elements.  Perhaps a recursive method?
+			if (e.Element.Name == "g")
+				bldr.AppendFormat(">{0}</{1}>", e.Element.InnerText.Replace("\\n", Environment.NewLine), ctype);
+			else
+				bldr.Append("/>");
+			// We can't just set tuv.Value from here because it would get wiped out by a following text node.
+			// The string would end up equal to just the content of the last text node if the overall content
+			// ends in a text node.  So we let the Value getter code in the TransUnitVariant figure things
+			// out properly.  (Note that what we store here is the entire string so far, not just what we
+			// obtained from the current element.)
+			tuv.SaveDeserializationFromElement(bldr.ToString());
+		}
 		#endregion
 	}
 }

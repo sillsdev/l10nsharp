@@ -145,6 +145,36 @@ namespace L10NSharp.Tests
 				LocalizationManager.ReturnOnlyApprovedStrings = false;	// restore default for other tests
 			}
 		}
+
+		[Test]
+		public void TestReturningHtmlMarkup()
+		{
+			var enfile = Path.Combine(_testFolder, "Test2.en.xlf");
+			var endoc = XLiffDocument.Read(enfile);
+			string source;
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.PlainText", out source));
+			Assert.AreEqual("This is plain text.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Bold", out source));
+			Assert.AreEqual("This is <strong>bold</strong>.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Italic", out source));
+			Assert.AreEqual("This is <em>italic</em>.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Superscript", out source));
+			Assert.AreEqual("This is <sup>superscript</sup>.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Link", out source));
+			Assert.AreEqual("This is a <a href=\"https://sil.org\" id=\"note1\">link</a>.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Image", out source));
+			Assert.AreEqual("This has an embedded image: <img src=\"images/test.png\" alt=\"This is a test.\"/>.", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Paragraph", out source));
+			Assert.AreEqual("<p>This is a paragraph.</p>", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Div", out source));
+			Assert.AreEqual("<div class=\"author\">This is a div.</div>", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Blockquote", out source));
+			Assert.AreEqual("<blockquote class=\"poetry\">This is a block quote.</blockquote>", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Pre", out source));
+			Assert.AreEqual("<pre>This is in"+Environment.NewLine+"presentation"+Environment.NewLine+"display.</pre>", source);
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Multiple", out source));
+			Assert.AreEqual("<em>This</em> is more <a href=\"https://mit.edu\">complex</a><strong>!!</strong>", source);
+		}
 	}
 }
 

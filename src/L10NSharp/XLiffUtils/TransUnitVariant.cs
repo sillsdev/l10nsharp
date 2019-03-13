@@ -72,14 +72,59 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("state"), System.ComponentModel.DefaultValue(TranslationState.Undefined)]
 		public TranslationState TargetState;
 
+		private string _value;
         /// ------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the value of the translation unit variant.
         /// </summary>
         /// ------------------------------------------------------------------------------------
         [XmlText]
-		public string Value { get; set; }
+		public string Value
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_value) && string.IsNullOrEmpty(_deserializedFromElement))
+					return string.Empty;
+				if (!string.IsNullOrEmpty(_deserializedFromElement))
+				{
+					// See the extended comment in  XLiffXmlSerializationHelper.deserializer_UnknownElement()
+					// to explain better why this code is needed.
+					if (_value == null)
+						_value = _deserializedFromElement;			// last thing deserialized was an element
+					else
+						_value = _deserializedFromElement + _value;	// last thing deserialized was a text node following an element.
+					_deserializedFromElement = null;
+				}
+				return _value;
+			}
+			set { _value = value; }
+		}
 
+		/// <summary>
+		/// This is a temp value that allows complex input strings (with xliff-style html markup)
+		/// to be deserialized properly.
+		/// </summary>
+		private string _deserializedFromElement;
+
+		/// <summary>
+		/// Save the value deserialized from an element (and anything preceding it), and clear
+		/// the Value.  The getter will use what we store here the next time it is accessed.
+		/// This is needed because the XmlSerializer for XmlText just stores the content of
+		/// each text node it encounters, ignoring whatever may already be there.
+		/// The deserialization stored here should look like it has HTML markup since that's
+		/// all that we have represented this way in the xliff files.
+		/// </summary>
+		/// <remarks>
+		/// We are shifting toward using markdown if possible since it is easier for translators
+		/// to deal with.  But at the moment, only a small subset of markdown in handled, and
+		/// then only in the context of translating content for TSX.  But this may still be
+		/// needed/wanted for some items.
+		/// </remarks>
+		internal void SaveDeserializationFromElement(string value)
+		{
+			_value = null;
+			_deserializedFromElement = value;
+		}
 		#endregion
 	}
 

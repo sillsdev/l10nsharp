@@ -328,8 +328,11 @@ namespace L10NSharp
 			using (var dlg = new InitializationProgressDlg(Name, _applicationIcon, namespaceBeginnings))
 			{
 				dlg.ShowDialog();
-				foreach (var locInfo in dlg.ExtractedInfo)
-					stringCache.UpdateLocalizedInfo(locInfo);
+				if (dlg.ExtractedInfo != null)
+				{
+					foreach (var locInfo in dlg.ExtractedInfo)
+						stringCache.UpdateLocalizedInfo(locInfo);
+				}
 			}
 
 			stringCache.SaveIfDirty(stringCache.XliffDocuments.Keys);
