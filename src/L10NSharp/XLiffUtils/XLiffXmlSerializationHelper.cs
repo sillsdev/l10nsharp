@@ -74,6 +74,10 @@ namespace L10NSharp.XLiffUtils
 				{
 					return true;
 				}
+				catch (Exception e)
+				{
+					throw e;	// helps in setting breakpoint for debugging problems
+				}
 			}
 
 			/// --------------------------------------------------------------------------------
@@ -333,6 +337,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			XmlSerializer deserializer = new XmlSerializer(typeof(T));
 			deserializer.UnknownAttribute += deserializer_UnknownAttribute;
+			deserializer.UnknownElement += new XmlElementEventHandler(deserializer_UnknownElement);
 			return (T)deserializer.Deserialize(reader);
 		}
 
@@ -380,6 +385,43 @@ namespace L10NSharp.XLiffUtils
 			}
 		}
 
+		/// <summary>
+		/// Handle complex encoded HTML markup inside the translated strings.  This is detected by unknown
+		/// elements encountered while deserializing TransUnitVariant objects.
+		/// </summary>
+		static void deserializer_UnknownElement(object sender, XmlElementEventArgs e)
+		{
+			var tuv = e.ObjectBeingDeserialized as TransUnitVariant;
+			if (tuv == null)
+			{
+				Console.WriteLine("Object being deserialized " + e.ObjectBeingDeserialized.GetType().ToString());
+				Console.WriteLine("UnknownElement OuterXml: " + e.Element.OuterXml);
+				return;
+			}
+			var bldr = new StringBuilder();
+			bldr.Append(tuv.Value);
+			var ctype = e.Element.GetAttribute("ctype");
+			if (ctype.StartsWith("x-html-"))
+				ctype = ctype.Substring(7);
+			else if (ctype == "image")
+				ctype = "img";
+			else
+				return;
+			bldr.AppendFormat("<{0}", ctype);
+			for (int i = 0; i < e.Element.Attributes.Count; ++i)
+			{
+				var attr = e.Element.Attributes[i];
+				if (attr.Name.StartsWith("html:"))
+					bldr.AppendFormat(" {0}=\"{1}\"", attr.LocalName, attr.Value);
+			}
+			// TODO: handle nested <g> (and <x> inside <g>) elements.  Perhaps a recursive method?
+			if (e.Element.Name == "g")
+				bldr.AppendFormat(">{0}</{1}>", e.Element.InnerText.Replace("\\n", Environment.NewLine), ctype);
+			else
+				bldr.Append("/>");
+			tuv.Value = bldr.ToString();
+			tuv.DeserializeValue = tuv.Value;
+		}
 		#endregion
 	}
 }

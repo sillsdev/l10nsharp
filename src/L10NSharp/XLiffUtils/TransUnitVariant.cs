@@ -72,14 +72,43 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("state"), System.ComponentModel.DefaultValue(TranslationState.Undefined)]
 		public TranslationState TargetState;
 
+		private string _value;
         /// ------------------------------------------------------------------------------------
         /// <summary>
         /// Gets or sets the value of the translation unit variant.
         /// </summary>
         /// ------------------------------------------------------------------------------------
         [XmlText]
-		public string Value { get; set; }
+		public string Value
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_value) && string.IsNullOrEmpty(DeserializeValue))
+					return string.Empty;
+				if (!string.IsNullOrEmpty(DeserializeValue) && DeserializeValue != _value)
+				{
+					if (_value == null)
+						_value = DeserializeValue;
+					else
+						_value = DeserializeValue + _value;
+				}
+				DeserializeValue = string.Empty;
+				return _value;
+			}
+			set { _value = value; }
+		}
 
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// This is a temp value that allows complex input strings (with xliff-style html markup)
+		/// to be deserialized.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlIgnore]
+		internal string DeserializeValue
+		{
+			get; set;
+		}
 		#endregion
 	}
 
