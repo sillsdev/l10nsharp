@@ -440,8 +440,9 @@ namespace L10NSharp.XLiffUtils
 			var tuv = e.ObjectBeingDeserialized as TransUnitVariant;
 			if (tuv == null)
 			{
-				Console.WriteLine("{0} being deserialized: UnknownElement OuterXml={1}",
-					e.ObjectBeingDeserialized.GetType().ToString(), e.Element.OuterXml);
+				if (e.ObjectBeingDeserialized is TransUnit && e.Element.LocalName == "alt-trans")
+					return;	// legal xliff that we totally don't care about.
+				Debug.WriteLine($"{e.ObjectBeingDeserialized.GetType()} being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
 				return;
 			}
 			// Only <g></g> and <x/> elements can be encountered since that's all the xliff standard allows
@@ -464,7 +465,7 @@ namespace L10NSharp.XLiffUtils
 			}
 			else
 			{
-				Console.WriteLine("TransUnitVariant being deserialized: UnknownElement OuterXml={0}", e.Element.OuterXml);
+				Debug.WriteLine($"TransUnitVariant being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
 				return;
 			}
 			bldr.AppendFormat("<{0}", ctype);
