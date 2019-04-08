@@ -2,15 +2,7 @@
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
-using System.Linq;
-using System.Diagnostics;
-using System.Resources;
-using System.Globalization;
-using System.Collections;
 using L10NSharp;
 using L10NSharp.CodeReader;
 using L10NSharp.XLiffUtils;
