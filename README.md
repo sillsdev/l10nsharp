@@ -34,6 +34,6 @@ It is also possible to run the tests from inside Visual Studio, Rider or MonoDev
 
 ## Working on UI related files
 
-The L10NSharp project uses SDK style .csproj files which doesn't allow to use the Designer in Visual Studio 2017.
-There is a `src\L10NSharp\L10NSharp-Designer.csproj` file which uses the old .csproj style and thus allows to
-edit the files in the designer.
+The L10NSharp project uses SDK style .csproj files which don't allow the Designer to be used in Visual Studio 2017. There is a
+`src\L10NSharp\L10NSharp-Designer.csproj` file which uses the old .csproj style and thus allows the programmer to edit the files
+with the Designer in Visual Studio 2017.
