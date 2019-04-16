@@ -47,6 +47,8 @@ namespace ExtractXliff
 				return;
 			}
 
+			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
+
 			// Load the input assemblies so that they can be scanned.
 			List<Assembly> assemblies = new List<Assembly>();
 			foreach (var file in _assemblyFiles)
@@ -57,16 +59,15 @@ namespace ExtractXliff
 			}
 
 			// Scan the input assemblies for localizable strings.
-			var extractor = new StringExtractor();
-			extractor.ExternalAssembliesToScan = assemblies.ToArray();
+			var extractor = new StringExtractor<XLiffDocument> { ExternalAssembliesToScan = assemblies.ToArray() };
 			var localizedStrings = extractor.DoExtractingWork(_namespaces.ToArray(), null);
 
 			// The arguments to this constructor don't really matter much as they're used internally by
-			// L10NSharp for reasons that may not percolate out to xliff.  We just need a LocalizationManager
+			// L10NSharp for reasons that may not percolate out to xliff.  We just need a LocalizationManagerInternal
 			// to feed into the constructor the LocalizedStringCache that does some heavy lifting for us in
 			// creating the XliffDocument from the newly extracted localized strings.
-			var lm = new LocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
-			var stringCache = new LocalizedStringCache(lm, false);
+			var lm = new XLiffLocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
+			var stringCache = new XLiffLocalizedStringCache(lm, false);
 			foreach (var locInfo in localizedStrings)
 				stringCache.UpdateLocalizedInfo(locInfo);
 
@@ -75,19 +76,13 @@ namespace ExtractXliff
 			var baseDoc = LoadBaselineAndCompare(newDoc);
 
 			// Save the results to the output file, merging in data from the baseline XLIFF if one was specified.
-			var xliffOutput = LocalizationManager.MergeXliffDocuments(newDoc, baseDoc, _verbose);
+			var xliffOutput = XLiffLocalizationManager.MergeXliffDocuments(newDoc, baseDoc, _verbose);
 			xliffOutput.File.SourceLang = kDefaultLangId;
-			if (!String.IsNullOrEmpty(_fileProductVersion))
-				xliffOutput.File.ProductVersion = _fileProductVersion;
-			else
-				xliffOutput.File.ProductVersion = newDoc.File.ProductVersion;
+			xliffOutput.File.ProductVersion = !string.IsNullOrEmpty(_fileProductVersion) ? _fileProductVersion : newDoc.File.ProductVersion;
 			xliffOutput.File.HardLineBreakReplacement = kDefaultNewlineReplacement;
 			xliffOutput.File.AmpersandReplacement = kDefaultAmpersandReplacement;
 			xliffOutput.File.Original = _fileOriginal;
-			if (!String.IsNullOrEmpty(_fileDatatype))
-				xliffOutput.File.DataType = _fileDatatype;
-			else
-				xliffOutput.File.DataType = newDoc.File.DataType;
+			xliffOutput.File.DataType = !string.IsNullOrEmpty(_fileDatatype) ? _fileDatatype : newDoc.File.DataType;
 			xliffOutput.Save(_xliffOutputFilename);
 		}
 
@@ -128,8 +123,8 @@ namespace ExtractXliff
 				_assemblyFiles.Add(args[i]);
 			}
 			return _namespaces.Count > 0 &&
-				!String.IsNullOrEmpty(_xliffOutputFilename) &&
-				!String.IsNullOrEmpty(_fileOriginal) &&
+				!string.IsNullOrEmpty(_xliffOutputFilename) &&
+				!string.IsNullOrEmpty(_fileOriginal) &&
 				_assemblyFiles.Count > 0;
 		}
 
@@ -277,7 +272,7 @@ namespace ExtractXliff
 					Console.WriteLine("WARNING: old original ({0}) is not the same as the new original ({1})",
 						baseDoc.File.Original, _fileOriginal);
 				}
-				if (String.IsNullOrEmpty(_fileDatatype))
+				if (string.IsNullOrEmpty(_fileDatatype))
 				{
 					if (baseDoc.File.DataType != newDoc.File.DataType)
 					{
@@ -293,7 +288,7 @@ namespace ExtractXliff
 							baseDoc.File.DataType, _fileDatatype);
 					}
 				}
-				if (String.IsNullOrEmpty(_fileProductVersion))
+				if (string.IsNullOrEmpty(_fileProductVersion))
 				{
 					if (baseDoc.File.ProductVersion != newDoc.File.ProductVersion)
 					{

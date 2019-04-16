@@ -15,6 +15,7 @@ using System.Collections.Generic;
 namespace L10NSharp.XLiffUtils
 {
 	#region XliffHeader class
+
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
 	/// Xliff header
@@ -27,7 +28,7 @@ namespace L10NSharp.XLiffUtils
 		public XLiffHeader()
 		{
 			Notes = new List<XLiffNote>();
-        }
+		}
 
 		#region Properties
 

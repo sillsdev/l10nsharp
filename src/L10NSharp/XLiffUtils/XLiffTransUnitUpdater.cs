@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using L10NSharp.XLiffUtils;
 
-namespace L10NSharp
+namespace L10NSharp.XLiffUtils
 {
-	internal class TransUnitUpdater
+	internal class XLiffTransUnitUpdater
 	{
-		internal const string kToolTipSuffix = "_ToolTip_";
+		internal const string kToolTipSuffix  = "_ToolTip_";
 		internal const string kShortcutSuffix = "_ShortcutKeys_";
 
 		// Cannot use Environment.NewLine because that also includes a carriage return
@@ -19,17 +19,18 @@ namespace L10NSharp
 		// with the value of kOSNewline.
 		internal string _literalNewline = "\\n";
 
-		private readonly LocalizedStringCache _stringCache;
-		private readonly string _defaultLang;
-		private bool _updated;
+		private readonly XLiffLocalizedStringCache _stringCache;
+		private readonly string                    _defaultLang;
+		private          bool                      _updated;
 
 
 		/// ------------------------------------------------------------------------------------
-		internal TransUnitUpdater(LocalizedStringCache cache)
+		internal XLiffTransUnitUpdater(XLiffLocalizedStringCache cache)
 		{
 			_stringCache = cache;
 			_defaultLang = LocalizationManager.kDefaultLang;
-			var replacement = _stringCache.XliffDocuments[_defaultLang].File.HardLineBreakReplacement;
+			var replacement = _stringCache.XliffDocuments[_defaultLang].File
+				.HardLineBreakReplacement;
 			if (replacement != null)
 				_literalNewline = replacement;
 		}
@@ -57,7 +58,8 @@ namespace L10NSharp
 				xliffTarget = new XLiffDocument();
 				xliffTarget.File.AmpersandReplacement = xliffSource.File.AmpersandReplacement;
 				xliffTarget.File.DataType = xliffSource.File.DataType;
-				xliffTarget.File.HardLineBreakReplacement = xliffSource.File.HardLineBreakReplacement;
+				xliffTarget.File.HardLineBreakReplacement =
+					xliffSource.File.HardLineBreakReplacement;
 				xliffTarget.File.Original = xliffSource.File.Original;
 				xliffTarget.File.ProductVersion = xliffSource.File.ProductVersion;
 				xliffTarget.File.SourceLang = xliffSource.File.SourceLang;
@@ -69,10 +71,12 @@ namespace L10NSharp
 
 			var tuSourceText = xliffSource.GetTransUnitForId(locInfo.Id);
 			var tuSourceToolTip = xliffSource.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
-			var tuSourceShortcutKeys = xliffSource.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
+			var tuSourceShortcutKeys =
+				xliffSource.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
 			if (locInfo.Priority == LocalizationPriority.NotLocalizable)
 			{
-				_updated = (tuSourceText != null || tuSourceToolTip != null || tuSourceShortcutKeys != null);
+				_updated = (tuSourceText != null || tuSourceToolTip != null ||
+							tuSourceShortcutKeys != null);
 				xliffSource.RemoveTransUnit(tuSourceText);
 				xliffSource.RemoveTransUnit(tuSourceToolTip);
 				xliffSource.RemoveTransUnit(tuSourceShortcutKeys);
@@ -82,6 +86,7 @@ namespace L10NSharp
 					xliffTarget.RemoveTransUnit(tuSourceToolTip);
 					xliffTarget.RemoveTransUnit(tuSourceShortcutKeys);
 				}
+
 				return _updated;
 			}
 
@@ -89,14 +94,16 @@ namespace L10NSharp
 			var shortcutId = locInfo.Id + kShortcutSuffix;
 			if ((locInfo.UpdateFields & UpdateFields.ShortcutKeys) == UpdateFields.ShortcutKeys)
 			{
-				UpdateValueAndComment(xliffTarget, tuSourceShortcutKeys, locInfo.ShortcutKeys, locInfo, shortcutId);
+				UpdateValueAndComment(xliffTarget, tuSourceShortcutKeys, locInfo.ShortcutKeys,
+					locInfo, shortcutId);
 			}
 
 			// Save the tooltips
 			var tooltipId = locInfo.Id + kToolTipSuffix;
 			if ((locInfo.UpdateFields & UpdateFields.ToolTip) == UpdateFields.ToolTip)
 			{
-				UpdateValueAndComment(xliffTarget, tuSourceToolTip, locInfo.ToolTipText, locInfo, tooltipId);
+				UpdateValueAndComment(xliffTarget, tuSourceToolTip, locInfo.ToolTipText, locInfo,
+					tooltipId);
 			}
 
 			// Save the text
@@ -118,28 +125,32 @@ namespace L10NSharp
 			return _updated;
 		}
 
-		void UpdateValueAndComment(XLiffDocument xliffTarget, TransUnit tuSource, string newText, LocalizingInfo locInfo, string tuId)
+		void UpdateValueAndComment(XLiffDocument xliffTarget, XLiffTransUnit tuSource,
+			string                               newText,     LocalizingInfo locInfo, string tuId)
 		{
 			var tuTarget = UpdateValue(xliffTarget, tuSource, newText, locInfo, tuId);
 			UpdateTransUnitComment(xliffTarget, tuSource, locInfo);
 			UpdateTransUnitComment(xliffTarget, tuTarget, locInfo);
 		}
 
-		private void UpdateTransUnitComment(XLiffDocument xliffTarget, TransUnit tu, LocalizingInfo locInfo)
+		private void UpdateTransUnitComment(XLiffDocument xliffTarget, XLiffTransUnit tu,
+			LocalizingInfo                                locInfo)
 		{
 			if (tu == null)
 				return;
+
 			if (locInfo.DiscoveredDynamically && !tu.Dynamic)
 			{
 				tu.Dynamic = true;
 				_updated = true;
 			}
+
 			if ((locInfo.UpdateFields & UpdateFields.Comment) != UpdateFields.Comment)
 				return;
 			if (tu.Notes.Count == 0 && string.IsNullOrEmpty(locInfo.Comment))
-				return;		// empty comment and already no comment in TransUnit
+				return; // empty comment and already no comment in XLiffTransUnit
 			if (tu.NotesContain(locInfo.Comment))
-				return;		// exactly the same comment already exists in TransUnit
+				return; // exactly the same comment already exists in XLiffTransUnit
 
 			_updated = true;
 			tu.Notes.Clear();
@@ -153,14 +164,16 @@ namespace L10NSharp
 		/// Updates the value for the specified translation unit with the specified new value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private TransUnit UpdateValue(XLiffDocument xliffTarget, TransUnit tuSource, string newValue, LocalizingInfo locInfo, string tuId)
+		private XLiffTransUnit UpdateValue(XLiffDocument xliffTarget, XLiffTransUnit tuSource,
+			string                                       newValue,    LocalizingInfo locInfo,
+			string                                       tuId)
 		{
-			// One would think there would be a source TransUnit, but that isn't necessarily true
+			// One would think there would be a source XLiffTransUnit, but that isn't necessarily true
 			// with users editing interactively and adding tooltips or shortcuts.
 			Debug.Assert(tuSource == null || tuId == tuSource.Id);
 			Debug.Assert(tuId.StartsWith(locInfo.Id));
 			var tuTarget = xliffTarget.GetTransUnitForId(tuId);
-			// If the TransUnit exists in the target language, check whether we're removing the translation
+			// If the XLiffTransUnit exists in the target language, check whether we're removing the translation
 			// instead of adding or changing it.
 			if (tuTarget != null)
 			{
@@ -171,12 +184,14 @@ namespace L10NSharp
 					if (tuvTarg.Value == newValue)
 						return tuTarget;
 
-					if (String.IsNullOrEmpty(newValue))
+					if (string.IsNullOrEmpty(newValue))
 					{
 						_updated = true;
 						tuTarget.RemoveVariant(tuvTarg);
-						if ((tuTarget.Source == null || String.IsNullOrEmpty(tuTarget.Source.Value)) &&
-							(tuTarget.Target == null || String.IsNullOrEmpty(tuTarget.Target.Value)))
+						if ((tuTarget.Source == null ||
+							string.IsNullOrEmpty(tuTarget.Source.Value)) &&
+							(tuTarget.Target == null ||
+							string.IsNullOrEmpty(tuTarget.Target.Value)))
 						{
 							xliffTarget.RemoveTransUnit(tuTarget);
 							tuTarget = null;
@@ -184,28 +199,32 @@ namespace L10NSharp
 					}
 				}
 			}
+
 			// If we're removing an existing translation, we can quit now.
-			if (String.IsNullOrEmpty(newValue))
+			if (string.IsNullOrEmpty(newValue))
 			{
 				xliffTarget.File.Body.TranslationsById.Remove(tuId);
 				return tuTarget;
 			}
-			// If the TransUnit does not exist in the target language yet, create it and fill in the
+
+			// If the XLiffTransUnit does not exist in the target language yet, create it and fill in the
 			// source language value (if any).
 			if (tuTarget == null)
 			{
-				tuTarget = new TransUnit();
+				tuTarget = new XLiffTransUnit();
 				tuTarget.Id = tuId;
 				tuTarget.Dynamic = locInfo.DiscoveredDynamically;
 				xliffTarget.AddTransUnit(tuTarget);
 				if (tuSource != null && locInfo.LangId != _defaultLang)
 				{
 					var tuvSrc = tuSource.GetVariantForLang(_defaultLang);
-					if (tuvSrc != null && !String.IsNullOrEmpty(tuvSrc.Value))
+					if (tuvSrc != null && !string.IsNullOrEmpty(tuvSrc.Value))
 						tuTarget.AddOrReplaceVariant(_defaultLang, tuvSrc.Value);
 				}
+
 				tuTarget.AddNote("ID: " + tuId);
 			}
+
 			tuTarget.AddOrReplaceVariant(locInfo.LangId, newValue);
 			xliffTarget.File.Body.TranslationsById[tuId] = newValue;
 			_updated = true;

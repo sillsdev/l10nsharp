@@ -20,3 +20,4 @@
 *.xml -whitespace
 *.yml -whitespace
 changelog -whitespace
+*.md -whitespace

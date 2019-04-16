@@ -30,7 +30,7 @@ namespace L10NSharp.XLiffUtils
 		// the case with Lingobit XLiff files).
 		private int _transUnitId;
 		private bool _idsVerified;
-		private List<TransUnit> _transUnits = new List<TransUnit>();
+		private List<XLiffTransUnit> _transUnits = new List<XLiffTransUnit>();
 		private int _translatedCount = -1;
 		private int _approvedCount = -1;
 
@@ -41,7 +41,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("trans-unit")]
-		public List<TransUnit> TransUnits
+		public List<XLiffTransUnit> TransUnits
 		{
 			get
 			{
@@ -76,7 +76,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the translation unit for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal TransUnit GetTransUnitForId(string id)
+		internal XLiffTransUnit GetTransUnitForId(string id)
 		{
 			return _transUnits.FirstOrDefault(tu => tu.Id == id);
 		}
@@ -84,19 +84,17 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// When all but the last part of the id changed, this can help reunite things
 		/// </summary>
-		internal TransUnit GetTransUnitForOrphan(TransUnit orphan)
+		internal XLiffTransUnit GetTransUnitForOrphan(XLiffTransUnit orphan)
 		{
-			var terminalIdToMatch = LocalizedStringCache.GetTerminalIdPart(orphan.Id);
+			var terminalIdToMatch = XLiffLocalizedStringCache.GetTerminalIdPart(orphan.Id);
 			var defaultTextToMatch = GetDefaultVariantValue(orphan);
-			return _transUnits.FirstOrDefault(tu => LocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch && GetDefaultVariantValue(tu) == defaultTextToMatch);
+			return _transUnits.FirstOrDefault(tu => XLiffLocalizedStringCache.GetTerminalIdPart(tu.Id) == terminalIdToMatch && GetDefaultVariantValue(tu) == defaultTextToMatch);
 		}
 
-		string GetDefaultVariantValue(TransUnit tu)
+		string GetDefaultVariantValue(XLiffTransUnit tu)
 		{
 			var variant = tu.GetVariantForLang(LocalizationManager.kDefaultLang);
-			if (variant == null)
-				return null;
-			return variant.Value;
+			return variant?.Value;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -106,7 +104,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="tu">The translation unit.</param>
 		/// <returns>true if the translation unit was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		internal bool AddTransUnit(TransUnit tu)
+		internal bool AddTransUnit(XLiffTransUnit tu)
 		{
 			if (tu == null || tu.IsEmpty)
 				return false;
@@ -135,7 +133,7 @@ namespace L10NSharp.XLiffUtils
 		/// for the specified language does not exist in the translation unit, it is added.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void AddTransUnitOrVariantFromExisting(TransUnit tu, string langId)
+		internal void AddTransUnitOrVariantFromExisting(XLiffTransUnit tu, string langId)
 		{
 			var variantToAdd = tu.GetVariantForLang(langId);
 
@@ -156,7 +154,7 @@ namespace L10NSharp.XLiffUtils
 		/// Removes the specified translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void RemoveTransUnit(TransUnit tu)
+		internal void RemoveTransUnit(XLiffTransUnit tu)
 		{
 			if (tu == null)
 				return;
@@ -194,15 +192,15 @@ namespace L10NSharp.XLiffUtils
 					_translatedCount = 0;
 					foreach (var tu in TransUnits)
 					{
-						if (tu.Target == null || String.IsNullOrWhiteSpace(tu.Target.Value))
+						if (tu.Target == null || string.IsNullOrWhiteSpace(tu.Target.Value))
 							continue;
-						if (tu.TranslationStatus == TransUnit.Status.Approved ||
-							tu.Target.TargetState == TransUnitVariant.TranslationState.Translated)
+						if (tu.TranslationStatus == TranslationStatus.Approved ||
+							tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
 						{
 							++_translatedCount;
 						}
 						else if (tu.Target.Value != tu.Source.Value &&
-							tu.Target.TargetState == TransUnitVariant.TranslationState.Undefined)
+							tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 						{
 							++_translatedCount;
 						}
@@ -227,9 +225,9 @@ namespace L10NSharp.XLiffUtils
 					_approvedCount = 0;
 					foreach (var tu in TransUnits)
 					{
-						if (tu.Target == null || String.IsNullOrWhiteSpace(tu.Target.Value))
+						if (tu.Target == null || string.IsNullOrWhiteSpace(tu.Target.Value))
 							continue;
-						if (tu.TranslationStatus == TransUnit.Status.Approved)
+						if (tu.TranslationStatus == TranslationStatus.Approved)
 							++_approvedCount;
 					}
 				}
@@ -240,10 +238,7 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// Return the total number of strings.
 		/// </summary>
-		internal int StringCount
-		{
-			get { return TransUnits.Count; }
-		}
+		internal int StringCount => TransUnits.Count;
 	}
 
 	#endregion

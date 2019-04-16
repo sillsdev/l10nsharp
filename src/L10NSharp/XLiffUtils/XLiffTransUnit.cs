@@ -8,7 +8,7 @@
 // </copyright>
 #endregion
 //
-// File: TransUnit.cs
+// File: XLiffTransUnit.cs
 //
 // <remarks>
 // </remarks>
@@ -19,19 +19,20 @@ using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils
 {
-	#region TransUnit class
+	#region XLiffTransUnit class
+
 	/// ----------------------------------------------------------------------------------------
 	[XmlType("trans-unit", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
-	public class TransUnit : XLiffBaseWithNotesAndProps
+	public class XLiffTransUnit : XLiffBaseWithNotesAndProps, ITransUnit
 	{
 		internal const string kDefaultLangId = "en";
 
 		/// ------------------------------------------------------------------------------------
-		public TransUnit()
+		public XLiffTransUnit()
 		{
-			Source = new TransUnitVariant();
+			Source = new XLiffTransUnitVariant();
 			Target = null;
-			TranslationStatus = Status.Unapproved;
+			TranslationStatus = TranslationStatus.Unapproved;
 		}
 
 		#region Properties
@@ -42,19 +43,12 @@ namespace L10NSharp.XLiffUtils
 
 		//  approved="yes"
 
-		public enum Status
-		{
-			[XmlEnumAttribute("yes")]
-			Approved,
-			[XmlEnumAttribute("no")]
-			Unapproved
-		}
-
 		/// <summary>
 		/// The state of a target element.
 		/// </summary>
-		[XmlAttribute("approved"), System.ComponentModel.DefaultValue(Status.Unapproved)]
-		public Status TranslationStatus;
+		[XmlAttribute("approved"),
+		System.ComponentModel.DefaultValue(TranslationStatus.Unapproved)]
+		public TranslationStatus TranslationStatus;
 
 
 		/// ------------------------------------------------------------------------------------
@@ -62,7 +56,8 @@ namespace L10NSharp.XLiffUtils
 		/// Gets whether the unit is "dynamic" (discovered dynamically while the program is running).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("dynamic", Namespace=XLiffXmlSerializationHelper.kSilNamespace), System.ComponentModel.DefaultValue(false)]
+		[XmlAttribute("dynamic", Namespace = XLiffXmlSerializationHelper.kSilNamespace),
+		System.ComponentModel.DefaultValue(false)]
 		public bool Dynamic { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -71,7 +66,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("source")]
-		public TransUnitVariant Source { get; set; }
+		public XLiffTransUnitVariant Source { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -79,7 +74,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("target")]
-		public TransUnitVariant Target { get; set; }
+		public XLiffTransUnitVariant Target { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -102,7 +97,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("priority", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("priority", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Priority { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -112,7 +107,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("group", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("group", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Group { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -123,7 +118,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("category", Namespace=XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("category", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Category { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -136,7 +131,8 @@ namespace L10NSharp.XLiffUtils
 		{
 			get
 			{
-				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null && Target == null);
+				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null &&
+						Target == null);
 			}
 		}
 
@@ -152,7 +148,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool AddOrReplaceVariant(string langId, string value)
 		{
-			var tuv = new TransUnitVariant();
+			var tuv = new XLiffTransUnitVariant();
 			tuv.Lang = langId;
 			tuv.Value = value;
 			return AddOrReplaceVariant(tuv);
@@ -165,7 +161,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="tuv">The variant.</param>
 		/// <returns>true if the variant was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		public bool AddOrReplaceVariant(TransUnitVariant tuv)
+		public bool AddOrReplaceVariant(XLiffTransUnitVariant tuv)
 		{
 			if (tuv == null)
 				return false;
@@ -184,7 +180,7 @@ namespace L10NSharp.XLiffUtils
 		/// Removes the specified translation unit variant.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RemoveVariant(TransUnitVariant tuv)
+		public void RemoveVariant(XLiffTransUnitVariant tuv)
 		{
 			if (tuv != null)
 				RemoveVariant(tuv.Lang);
@@ -197,13 +193,13 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void RemoveVariant(string langId)
 		{
-			TransUnitVariant tuv = GetVariantForLang(langId);
+			XLiffTransUnitVariant tuv = GetVariantForLang(langId);
 			if (tuv != null)
 			{
 				if (langId == kDefaultLangId)
-					Source = new TransUnitVariant();
+					Source = new XLiffTransUnitVariant();
 				else
-					Target = new TransUnitVariant();
+					Target = new XLiffTransUnitVariant();
 			}
 		}
 
@@ -212,7 +208,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the translation unit variant for the specified language id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public TransUnitVariant GetVariantForLang(string langId)
+		public XLiffTransUnitVariant GetVariantForLang(string langId)
 		{
 			if (langId == kDefaultLangId)
 				return Source;
