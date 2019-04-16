@@ -1,35 +1,49 @@
+using System;
 using System.IO;
+using System.Reflection;
 using L10NSharp.UI;
+using L10NSharp.XLiffUtils;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
+	[TestFixture]
+	public class ILocalizableComponentXLiffTests : ILocalizableComponentTests<XLiffDocument>
+	{
+		[SetUp]
+		public void TestSetup()
+		{
+			TestSetup(TranslationMemory.XLiff, "../../../src/L10NSharpTests/TestXliff");
+		}
+
+	}
+
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
 	/// These tests need to create a "real" Localization Manager, but with the capability of
 	/// removing all trace of it after the tests.
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
-	[TestFixture]
-	class ILocalizableComponentTests
+	public abstract class ILocalizableComponentTests<T>
 	{
-		private LocalizationManager m_manager;
+		private ILocalizationManagerInternal<T> m_manager;
 		private L10NSharpExtender m_extender;
-		private string m_xliffPath;
+		private string m_translationPath;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Setup for each test.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[SetUp]
-		public void TestSetup()
+		protected void TestSetup(TranslationMemory kind, string installedTranslationDir)
 		{
-			var installedXliffDir = "../../../src/L10NSharpTests/TestXliff";
-			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0", installedXliffDir, "", null, "");
-			m_xliffPath = m_manager.GetXliffPathForLanguage("en", true);
-			m_extender = new L10NSharpExtender();
-			m_extender.LocalizationManagerId = "Test";
+			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			m_manager = LocalizationManager.Create(kind, "en", "Test", "Test", "1.0",
+					Path.Combine(dir, installedTranslationDir),
+					"", null, "")
+				as ILocalizationManagerInternal<T>;
+			m_translationPath = m_manager.GetPathForLanguage("en", true);
+			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -42,7 +56,7 @@ namespace L10NSharp.Tests
 		{
 			m_extender = null;
 			m_manager = null;
-			var localAppDataDir = Directory.GetParent(Path.GetDirectoryName(m_xliffPath));
+			var localAppDataDir = Directory.GetParent(Path.GetDirectoryName(m_translationPath));
 			Directory.Delete(localAppDataDir.FullName, true);
 		}
 

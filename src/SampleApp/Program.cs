@@ -12,6 +12,7 @@ namespace SampleApp
 {
 	static class Program
 	{
+		private static ILocalizationManager _localizationManager;
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -23,16 +24,20 @@ namespace SampleApp
 
 			SetUpLocalization();
 
-			L10NSharp.LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
+			LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
 
 			Application.Run(new Form1());
 			Settings.Default.Save();
+
+			_localizationManager?.Dispose();
+			_localizationManager = null;
 		}
 
 		public static void SetUpLocalization()
 		{
 			//your installer should have a folder where you place the Xliff files you're shipping with the program
 			var directoryOfInstalledXliffFiles = "../../LocalizationFilesFromInstaller";
+			Directory.CreateDirectory(directoryOfInstalledXliffFiles);
 
 			try
 			{
@@ -48,12 +53,13 @@ namespace SampleApp
 
 				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
 
-				LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
-										   "SampleApp", "SampleApp", Application.ProductVersion,
-										   directoryOfInstalledXliffFiles,
-										   "MyCompany/L10NSharpSample",
-										   Resources.Icon, //replace with your icon
-										   "sampleappLocalizations@nowhere.com", "SampleApp");
+				_localizationManager = LocalizationManager.Create(TranslationMemory.XLiff,
+					theLanguageYouRememberedFromLastTime,
+					"SampleApp", "SampleApp", Application.ProductVersion,
+						directoryOfInstalledXliffFiles,
+					"MyCompany/L10NSharpSample",
+						Resources.Icon, //replace with your icon
+					"sampleappLocalizations@nowhere.com", "SampleApp");
 
 				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
 			}

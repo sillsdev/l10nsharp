@@ -38,7 +38,7 @@ namespace L10NSharp.UI
 		private Container components = null;
 		#pragma warning restore CS0414
 		private Dictionary<object, LocalizingInfo> m_extendedCtrls;
-		private LocalizationManager _manager;
+		private ILocalizationManagerInternal _manager;
 		private string _locManagerId;
 		//private string _idPrefixForThisForm="";
 		private bool _okayToLocalizeControls = false;
@@ -70,7 +70,7 @@ namespace L10NSharp.UI
 		/// <summary>
 		/// Gets or sets the id of the localization manager associated with this extender.
 		/// This is only used at runtime so the extender can create a reference to one of the
-		/// loaded localization managers stored in LocalizationManager.LoadedManagers.
+		/// loaded localization managers stored in LocalizationManagerInternal{T}.LoadedManagers.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public string LocalizationManagerId
@@ -365,7 +365,8 @@ namespace L10NSharp.UI
 		private void HandleGridColumnAdded(object sender, DataGridViewColumnEventArgs e)
 		{
 			var locInfo = new LocalizingInfo(e.Column, true);
-			_manager.RegisterComponentForLocalizing(locInfo, (lm, info) => lm.ApplyLocalization(info.Component));
+			_manager.RegisterComponentForLocalizing(locInfo,
+				(lm, info) => lm.ApplyLocalization(info.Component));
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -509,7 +510,7 @@ namespace L10NSharp.UI
 			if (m_extendedCtrls.TryGetValue(component, out loi)) // && !string.IsNullOrEmpty(loi.Id) && loi.Priority != LocalizationPriority.NotLocalizable)
 				return loi;
 
-			loi = new LocalizingInfo((IComponent) component, initTextFromCompIfNewlyCreated);
+			loi = new LocalizingInfo(component, initTextFromCompIfNewlyCreated);
 			m_extendedCtrls[component] = loi;
 			return loi;
 		}

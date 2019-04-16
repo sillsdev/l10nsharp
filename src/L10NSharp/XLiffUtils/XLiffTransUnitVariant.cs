@@ -8,7 +8,7 @@
 // </copyright>
 #endregion
 //
-// File: TransUnitVariant.cs
+// File: XLiffTransUnitVariant.cs
 //
 // <remarks>
 // </remarks>
@@ -18,17 +18,19 @@ using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils
 {
-	#region TransUnitVariant class
+	#region XLiffTransUnitVariant class
+
 	/// ----------------------------------------------------------------------------------------
 	[XmlType("source", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
-	public class TransUnitVariant : XLiffBaseWithNotesAndProps
+	public class XLiffTransUnitVariant : XLiffBaseWithNotesAndProps, ITransUnitVariant
 	{
-		public TransUnitVariant()
+		public XLiffTransUnitVariant()
 		{
 			TargetState = TranslationState.Undefined;
 		}
 
 		#region Properties
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets or sets the lang.
@@ -42,27 +44,50 @@ namespace L10NSharp.XLiffUtils
 		// signal that it's been "reviewed and approved".
 		public enum TranslationState
 		{
-			[XmlEnumAttribute("undefined")]
-			Undefined,
-			[XmlEnumAttribute("translated")]				// Indicates that the item has been translated.
+			[XmlEnumAttribute("undefined")] Undefined,
+
+			[XmlEnumAttribute("translated")] // Indicates that the item has been translated.
 			Translated,
-			[XmlEnumAttribute("needs-translation")]			// Indicates that the item needs to be translated.
+
+			[XmlEnumAttribute(
+				"needs-translation")]
+			// Indicates that the item needs to be translated.
 			NeedsTranslation,
-			[XmlEnumAttribute("final")]						// Indicates the terminating state.
+
+			[XmlEnumAttribute("final")] // Indicates the terminating state.
 			Final,
-			[XmlEnumAttribute("needs-adaptation")]			//Indicates only non-textual information needs adaptation.
+
+			[XmlEnumAttribute(
+				"needs-adaptation")]
+			//Indicates only non-textual information needs adaptation.
 			NeedsAdaptation,
-			[XmlEnumAttribute("needs-l10n")]				// Indicates both text and non-textual information needs adaptation.
+
+			[XmlEnumAttribute(
+				"needs-l10n")]
+			// Indicates both text and non-textual information needs adaptation.
 			NeedsLocalization,
-			[XmlEnumAttribute("needs-review-adaptation")]	// Indicates only non-textual information needs review.
+
+			[XmlEnumAttribute(
+				"needs-review-adaptation")]
+			// Indicates only non-textual information needs review.
 			AdaptationNeedsReview,
-			[XmlEnumAttribute("needs-review-l10n")]			// Indicates both text and non-textual information needs review.
+
+			[XmlEnumAttribute(
+				"needs-review-l10n")]
+			// Indicates both text and non-textual information needs review.
 			LocalizationNeedsReview,
-			[XmlEnumAttribute("needs-review-translation")]	// Indicates that only the text of the item needs to be reviewed.
+
+			[XmlEnumAttribute(
+				"needs-review-translation")]
+			// Indicates that only the text of the item needs to be reviewed.
 			TranslationNeedsReview,
-			[XmlEnumAttribute("new")]						// Indicates that the item is new. For example, translation units that were not in a previous version of the document.
+
+			[XmlEnumAttribute(
+				"new")]
+			// Indicates that the item is new. For example, translation units that were not in a previous version of the document.
 			New,
-			[XmlEnumAttribute("signed-off")]				// Indicates that changes are reviewed and approved.
+
+			[XmlEnumAttribute("signed-off")] // Indicates that changes are reviewed and approved.
 			SignedOff
 		};
 
@@ -73,28 +98,34 @@ namespace L10NSharp.XLiffUtils
 		public TranslationState TargetState;
 
 		private string _value;
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Gets or sets the value of the translation unit variant.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        [XmlText]
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Gets or sets the value of the translation unit variant.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[XmlText]
 		public string Value
 		{
 			get
 			{
-				if (string.IsNullOrEmpty(_value) && string.IsNullOrEmpty(_deserializedFromElement))
+				if (string.IsNullOrEmpty(_value) &&
+					string.IsNullOrEmpty(_deserializedFromElement))
 					return string.Empty;
+
 				if (!string.IsNullOrEmpty(_deserializedFromElement))
 				{
 					// See the extended comment in  XLiffXmlSerializationHelper.deserializer_UnknownElement()
 					// to explain better why this code is needed.
 					if (_value == null)
-						_value = _deserializedFromElement;			// last thing deserialized was an element
+						_value =
+							_deserializedFromElement; // last thing deserialized was an element
 					else
-						_value = _deserializedFromElement + _value;	// last thing deserialized was a text node following an element.
+						_value = _deserializedFromElement +
+								_value; // last thing deserialized was a text node following an element.
 					_deserializedFromElement = null;
 				}
+
 				return _value;
 			}
 			set { _value = value; }
@@ -125,6 +156,7 @@ namespace L10NSharp.XLiffUtils
 			_value = null;
 			_deserializedFromElement = value;
 		}
+
 		#endregion
 	}
 

@@ -11,16 +11,16 @@ using L10NSharp.Properties;
 namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
-	public partial class LocalizeItemDlg : Form
+	public partial class LocalizeItemDlg<T> : Form
 	{
 		public static Font DefaultDisplayFont { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		public delegate void StringsLocalizedHandler();
 		/// ------------------------------------------------------------------------------------
-		public delegate string SetDialogSettingsHandler(LocalizeItemDlg dlg);
+		public delegate string SetDialogSettingsHandler(LocalizeItemDlg<T> dlg);
 		/// ------------------------------------------------------------------------------------
-		public delegate void SaveDialogSettingsHandler(LocalizeItemDlg dlg, string settings);
+		public delegate void SaveDialogSettingsHandler(LocalizeItemDlg<T> dlg, string settings);
 		/// ------------------------------------------------------------------------------------
 		public static event SetDialogSettingsHandler SetDialogSettings;
 		/// ------------------------------------------------------------------------------------
@@ -28,37 +28,38 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public static event StringsLocalizedHandler StringsLocalized;
 
-		private readonly LocalizeItemDlgViewModel _viewModel;
-		private readonly LocalizationManager _callingManager;
+		private readonly LocalizeItemDlgViewModel<T> _viewModel;
+		private readonly ILocalizationManagerInternal<T> _callingManager;
 		private int _tmpSplitDistance;
 		private DateTime _timeToGiveUpLookingForTranslator;
 
 
 		/// ------------------------------------------------------------------------------------
-		internal static DialogResult ShowDialog(LocalizationManager callingManager, IComponent component, bool runInReadonlyMode)
+		internal static DialogResult ShowDialog(ILocalizationManagerInternal<T> callingManager,
+			IComponent component, bool runInReadonlyMode)
 		{
 			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
 				runInReadonlyMode = true;
 
-			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
+			var viewModel = new LocalizeItemDlgViewModel<T>(runInReadonlyMode);
 
 			var id = (callingManager == null ? viewModel.GetObjIdFromAnyCache(component) :
 				callingManager.ComponentCache.FirstOrDefault(kvp => kvp.Key == component).Value);
 
-			using (var dlg = new LocalizeItemDlg(viewModel, id, callingManager))
+			using (var dlg = new LocalizeItemDlg<T>(viewModel, id, callingManager))
 				return dlg.ShowDialog();
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static DialogResult ShowDialog(LocalizationManager callingManager, string id,
-			bool runInReadonlyMode)
+		internal static DialogResult ShowDialog(ILocalizationManagerInternal<T> callingManager,
+			string id, bool runInReadonlyMode)
 		{
 			if (callingManager != null && !callingManager.CanCustomizeLocalizations)
 				runInReadonlyMode = true;
 
-			var viewModel = new LocalizeItemDlgViewModel(runInReadonlyMode);
+			var viewModel = new LocalizeItemDlgViewModel<T>(runInReadonlyMode);
 
-			using (var dlg = new LocalizeItemDlg(viewModel, id, callingManager))
+			using (var dlg = new LocalizeItemDlg<T>(viewModel, id, callingManager))
 				return dlg.ShowDialog();
 		}
 
@@ -73,7 +74,8 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private LocalizeItemDlg(LocalizeItemDlgViewModel viewModel, string id, LocalizationManager callingManager) : this()
+		private LocalizeItemDlg(LocalizeItemDlgViewModel<T> viewModel, string id,
+			ILocalizationManagerInternal<T> callingManager) : this()
 		{
 			_viewModel = viewModel;
 			_callingManager = callingManager;
@@ -108,8 +110,8 @@ namespace L10NSharp.UI
 
 			GetDialogBoxSettings();
 
-			_comboSourceLang.Items.AddRange(LocalizationManager.GetUILanguages(true).ToArray());
-			_comboTargetLang.Items.AddRange(LocalizationManager.GetUILanguages(false).ToArray());
+			_comboSourceLang.Items.AddRange(LocalizationManagerInternal<T>.GetUILanguages(true).ToArray());
+			_comboTargetLang.Items.AddRange(LocalizationManagerInternal<T>.GetUILanguages(false).ToArray());
 			_comboSourceLang.ComboBox.DisplayMember = "NativeName";
 			_comboTargetLang.ComboBox.DisplayMember = "NativeName";
 
@@ -469,7 +471,7 @@ namespace L10NSharp.UI
 				if (int.TryParse(settings[6], out value))
 					_tmpSplitDistance = value;
 				if (int.TryParse(settings[7], out value))
-					_viewModel.GridSortField = (NodeComparer.SortField)value;
+					_viewModel.GridSortField = (NodeComparer<T>.SortField)value;
 				if (int.TryParse(settings[8], out value))
 					_viewModel.GridSortOrder = (value == 2 ? SortOrder.Descending : SortOrder.Ascending);
 
@@ -496,12 +498,12 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void HandleTranslatorServiceButtonClick(object sender, EventArgs e)
 		{
-			Dictionary<int, LocTreeNode> nodesToTranslate = null;
+			Dictionary<int, LocTreeNode<T>> nodesToTranslate = null;
 
 			if (!_grid.Visible)
 			{
-				nodesToTranslate = new Dictionary<int,LocTreeNode>();
-				nodesToTranslate[0] = _treeView.SelectedNode as LocTreeNode;
+				nodesToTranslate = new Dictionary<int,LocTreeNode<T>>();
+				nodesToTranslate[0] = _treeView.SelectedNode as LocTreeNode<T>;
 			}
 			else
 			{
@@ -519,7 +521,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void TranslateSelectedItems(IDictionary<int, LocTreeNode> nodesToTranslate)
+		private void TranslateSelectedItems(IDictionary<int, LocTreeNode<T>> nodesToTranslate)
 		{
 			if (nodesToTranslate == null || nodesToTranslate.Count == 0)
 				return;
@@ -569,7 +571,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void HandleTreeViewAfterSelect(object sender, TreeViewEventArgs e)
 		{
-			var node = e.Node as LocTreeNode;
+			var node = e.Node as LocTreeNode<T>;
 
 			_grid.RowCount = 0;
 
@@ -777,7 +779,7 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void HandleGridCellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
 		{
-			var parentNode = _treeView.SelectedNode as LocTreeNode;
+			var parentNode = _treeView.SelectedNode as LocTreeNode<T>;
 
 			switch (e.ColumnIndex)
 			{
@@ -836,7 +838,7 @@ namespace L10NSharp.UI
 					SortOrder.Descending : SortOrder.Ascending);
 			}
 
-			_viewModel.GridSortField = (NodeComparer.SortField)e.ColumnIndex;
+			_viewModel.GridSortField = (NodeComparer<T>.SortField)e.ColumnIndex;
 			UpdateGridSortGlyph();
 			_viewModel.SortGridNodes();
 			_viewModel.SetCurrentNodeFromGridIndex(_grid.CurrentCellAddress.Y);
@@ -860,10 +862,10 @@ namespace L10NSharp.UI
 		private void _buttonFallbackLanguages_Click(object sender, EventArgs e)
 		{
 			// TODO: Uncomment this button and test to see if the fallback system works.
-			using (var dlg = new FallbackLanguagesDlg())
+			using (var dlg = new FallbackLanguagesDlg<T>())
 			{
 				if (dlg.ShowDialog(this) == DialogResult.OK)
-					LocalizationManager.FallbackLanguageIds = dlg.FallbackLanguageIds.ToList();
+					LocalizationManagerInternal<T>.FallbackLanguageIds = dlg.FallbackLanguageIds.ToList();
 			}
 		}
 
@@ -884,7 +886,8 @@ namespace L10NSharp.UI
 
 		private void _howToDistribute_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			using(var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,_callingManager.GetXliffPathForLanguage(_viewModel.TgtLangId, true)))
+			using(var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,
+				_callingManager.GetPathForLanguage(_viewModel.TgtLangId, true)))
 			{
 				dlg.ShowDialog();
 			}
