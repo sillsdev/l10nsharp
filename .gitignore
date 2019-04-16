@@ -1,5 +1,7 @@
 
 _ReSharper*
+.idea/
+.vs/
 output/
 obj/
 *.suo
@@ -8,8 +10,9 @@ L10NSharp.userprefs
 bin/
 *.ncrunchsolution
 *Copy*.bat
+*.userprefs
 
 *.bak
 packages/
-build/NuGet.exe
 /.vs/
+build/nuget.exe

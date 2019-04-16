@@ -1,38 +1,12 @@
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("L10NSharp")]
-[assembly: AssemblyDescription("Localization For .net")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("L10NSharp")]
-[assembly: AssemblyCopyright("Copyright © SIL 2010-2014")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+// to get the public key, run:
+// 1. extract the public key from the keyfile with
+// sn –p <keyfile.snk> <keyfile.snk.PublicKey>
+// 2. show the public key with
+// sn -tp <keyfile.snk.PublicKey>
+// (use the full public key, not the public key token!)
 
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9c902b01-6007-4554-b0aa-1ea40ab35a6d")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers
-// by using the '*' as shown below:
-[assembly: AssemblyVersion("2.0.*")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
-[assembly: InternalsVisibleTo("L10NSharpTests")]
-[assembly: InternalsVisibleTo("ExtractXliff")]
-[assembly: InternalsVisibleTo("CheckOrFixXliff")]
+[assembly: InternalsVisibleTo("L10NSharpTests, PublicKey=002400000480000094000000060200000024000052534131000400000100010019cae48c6e5703818db31fcca17b87012eef38df95e3961c59b035190eace2c4ee5cfa1a258b84867c7549f60eec00ec1e0004c2ed224457128e841311cea0f5a05c3d69b3dfcb7422b214febce6e06c83ce4d29c62f36a7fd5564e922338c800372a5ec09638671b4db1fb33ccbb1dc48d8122ffe0d30dadbfbf325f65437b2")]
+[assembly: InternalsVisibleTo("ExtractXliff, PublicKey=002400000480000094000000060200000024000052534131000400000100010019cae48c6e5703818db31fcca17b87012eef38df95e3961c59b035190eace2c4ee5cfa1a258b84867c7549f60eec00ec1e0004c2ed224457128e841311cea0f5a05c3d69b3dfcb7422b214febce6e06c83ce4d29c62f36a7fd5564e922338c800372a5ec09638671b4db1fb33ccbb1dc48d8122ffe0d30dadbfbf325f65437b2")]
+[assembly: InternalsVisibleTo("CheckOrFixXliff, PublicKey=002400000480000094000000060200000024000052534131000400000100010019cae48c6e5703818db31fcca17b87012eef38df95e3961c59b035190eace2c4ee5cfa1a258b84867c7549f60eec00ec1e0004c2ed224457128e841311cea0f5a05c3d69b3dfcb7422b214febce6e06c83ce4d29c62f36a7fd5564e922338c800372a5ec09638671b4db1fb33ccbb1dc48d8122ffe0d30dadbfbf325f65437b2")]

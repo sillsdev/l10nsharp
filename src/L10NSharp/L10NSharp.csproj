@@ -1,320 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net461</TargetFramework>
     <RootNamespace>L10NSharp</RootNamespace>
-    <AssemblyName>L10NSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>3.5</OldToolsVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which needs localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
+    <AssemblyTitle>L10NSharp</AssemblyTitle>
+    <Company>SIL</Company>
+    <Product>L10NSharp</Product>
+    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\output\Debug\L10NSharp.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\output\Release\L10NSharp.xml</DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <Authors>SIL International</Authors>
+    <OutputPath>../../output/$(Configuration)</OutputPath>
+    <PackageId>L10NSharp.xliff</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageOutputPath>../../output</PackageOutputPath>
+    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeReader\ILReader.cs" />
-    <Compile Include="CodeReader\StringExtractor.cs" />
-    <Compile Include="NoLocalizableStringsPresent.cs" />
-    <Compile Include="ILocalizableComponent.cs" />
-    <Compile Include="L10NCultureInfo.cs" />
-    <Compile Include="L10NStringExtensions.cs" />
-    <Compile Include="UI\DontShowThisAgainButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\DontShowThisAgainButton.Designer.cs">
-      <DependentUpon>DontShowThisAgainButton.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\HowToDistributeDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\HowToDistributeDialog.Designer.cs">
-      <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\LanguageChoosingDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\LanguageChoosingDialog.Designer.cs">
-      <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\LanguageChoosingSimpleDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\LanguageChoosingSimpleDialog.Designer.cs">
-      <DependentUpon>LanguageChoosingSimpleDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\TipDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\TipDialog.designer.cs">
-      <DependentUpon>TipDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\UILanguageListBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Utility\HttpEncoderFromMono.cs" />
-    <Compile Include="Utility\HttpUtilityFromMono.cs" />
-    <Compile Include="LocalizationManager.cs" />
-    <Compile Include="LocalizedStringCache.cs" />
-    <Compile Include="LocalizingInfo.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="Service References\BingTranslatorService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="TransUnitUpdater.cs" />
-    <Compile Include="UI\ColorHelper.cs" />
-    <Compile Include="UI\CustomDropDownComboBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\CustomDropDownComboBox.Designer.cs">
-      <DependentUpon>CustomDropDownComboBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\EditSourceBeforeTranslatingDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\EditSourceBeforeTranslatingDlg.Designer.cs">
-      <DependentUpon>EditSourceBeforeTranslatingDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\FallbackLanguagesDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\FallbackLanguagesDlg.Designer.cs">
-      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\L10NExtender.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\LocalizeItemDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\LocalizeItemDlg.Designer.cs">
-      <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\LocalizeItemDlgViewModel.cs" />
-    <Compile Include="UI\LocTreeNode.cs" />
-    <Compile Include="UI\PaintingHelper.cs" />
-    <Compile Include="UI\InitializationProgressDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\InitializationProgressDlg.Designer.cs">
-      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ShortcutKeysDropDown.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\ShortcutKeysEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\ShortcutKeysEditor.Designer.cs">
-      <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\PopupControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\PopupControl.designer.cs">
-      <DependentUpon>PopupControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Grid\LmButtonCell.cs" />
-    <Compile Include="UI\Grid\LmButtonColumn.cs" />
-    <Compile Include="UI\Grid\LmGrid.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\UILanguageComboBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\XButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\Utils.cs" />
-    <Compile Include="Translators\BingTranslator.cs" />
-    <Compile Include="Translators\GoogleTranslator.cs" />
-    <Compile Include="Translators\TranslatorBase.cs" />
-    <Compile Include="XLiffUtils\TargetVariant.cs" />
-    <Compile Include="XLiffUtils\XLiffBody.cs" />
-    <Compile Include="XLiffUtils\XLiffHeader.cs" />
-    <Compile Include="XLiffUtils\TransUnit.cs" />
-    <Compile Include="XLiffUtils\TransUnitVariant.cs" />
-    <Compile Include="XLiffUtils\XLiffBaseWithNotesAndProps.cs" />
-    <Compile Include="XLiffUtils\XLiffDocument.cs" />
-    <Compile Include="XLiffUtils\XLiffFile.cs" />
-    <Compile Include="XLiffUtils\XLiffNote.cs" />
-    <Compile Include="XLiffUtils\XLiffProp.cs" />
-    <Compile Include="XLiffUtils\XLiffXmlSerializationHelper.cs" />
+    <PackageReference Include="GitVersionTask.alt" Version="4.0.2-alpha-0006">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="SIL.ReleaseTasks" Version="2.2.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\CustomDropDownComboBox.resx">
-      <DependentUpon>CustomDropDownComboBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\EditSourceBeforeTranslatingDlg.resx">
-      <DependentUpon>EditSourceBeforeTranslatingDlg.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\FallbackLanguagesDlg.resx">
-      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\HowToDistributeDialog.resx">
-      <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\LanguageChoosingDialog.resx">
-      <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\LanguageChoosingSimpleDialog.resx">
-      <DependentUpon>LanguageChoosingSimpleDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\L10NExtender.resx">
-      <DependentUpon>L10NExtender.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
-      <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\InitializationProgressDlg.resx">
-      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\TipDialog.resx">
-      <DependentUpon>TipDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\ShortcutKeysEditor.resx">
-      <DependentUpon>ShortcutKeysEditor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\PopupControl.resx">
-      <DependentUpon>PopupControl.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Resources\bing.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Copy_Translation %28toolbar%29.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Copy_Translation.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Google.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Move_Next.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Resources\Move_Previous.png" />
-    <None Include="Service References\BingTranslatorService\Soap.wsdl" />
-    <None Include="Service References\BingTranslatorService\Soap.xsd" />
-    <None Include="Service References\BingTranslatorService\Soap1.xsd" />
-    <None Include="Service References\BingTranslatorService\Soap2.xsd" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\BingTranslatorService\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\BingTranslatorService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\BingTranslatorService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\BingTranslatorService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Move_down.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Move_up.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Move.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SelectAllRows.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
