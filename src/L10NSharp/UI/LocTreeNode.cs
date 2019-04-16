@@ -5,20 +5,20 @@ using System.Windows.Forms;
 namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class LocTreeNode : TreeNode
+	internal class LocTreeNode<T> : TreeNode
 	{
 		internal string Group { get; set; }
 		internal string Id { get; private set; }
-		internal LocalizationManager Manager { get; private set; }
+		internal ILocalizationManagerInternal<T> Manager { get; private set; }
 		internal Dictionary<string, LocalizingInfo> SavedTranslationInfo { get; private set; }
 		internal string SavedComment { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes a new instance of the <see cref="LocTreeNode"/> class.
+		/// Initializes a new instance of the <see cref="LocTreeNode{T}"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal LocTreeNode(LocalizationManager manager, string text, string id, string key)
+		internal LocTreeNode(ILocalizationManagerInternal<T> manager, string text, string id, string key)
 		{
 			Manager = manager;
 			Text = text;
@@ -31,40 +31,37 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public string GetText(string langId)
 		{
-			return (Manager != null ? Manager.StringCache.GetString(langId, Id, false) : null);
+			return Manager?.StringCache.GetString(langId, Id, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public string GetToolTip(string langId)
 		{
-			return (Manager != null ? Manager.StringCache.GetToolTipText(langId, Id, false) : null);
+			return Manager?.StringCache.GetToolTipText(langId, Id, false);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public string GetShortcutKeys(string langId)
 		{
-			return (Manager != null ? Manager.StringCache.GetShortcutKeysText(langId, Id) : null);
+			return Manager?.StringCache.GetShortcutKeysText(langId, Id);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public string GetTranslatedText(string langId)
 		{
-			LocalizingInfo locInfo;
-			return (SavedTranslationInfo.TryGetValue(langId, out locInfo) ? locInfo.Text : null);
+			return (SavedTranslationInfo.TryGetValue(langId, out var locInfo) ? locInfo.Text : null);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public string GetTranslatedToolTip(string langId)
 		{
-			LocalizingInfo locInfo;
-			return (SavedTranslationInfo.TryGetValue(langId, out locInfo) ? locInfo.ToolTipText : null);
+			return (SavedTranslationInfo.TryGetValue(langId, out var locInfo) ? locInfo.ToolTipText : null);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public string GetTranslatedShortcutKeys(string langId)
 		{
-			LocalizingInfo locInfo;
-			return (SavedTranslationInfo.TryGetValue(langId, out locInfo) ? locInfo.ShortcutKeys : null);
+			return (SavedTranslationInfo.TryGetValue(langId, out var locInfo) ? locInfo.ShortcutKeys : null);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -73,7 +70,7 @@ namespace L10NSharp.UI
 			if (SavedComment != null && SavedComment.Trim() != string.Empty)
 				return SavedComment;
 
-			return (Manager != null ? Manager.StringCache.GetComment(Id) : null);
+			return Manager?.StringCache.GetComment(Id);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -82,7 +79,7 @@ namespace L10NSharp.UI
 			if (SavedTranslationInfo.Values.Any(locInfo => !locInfo.IsEmpty))
 				return true;
 
-			return (considerModifiedComment && SavedComment != null && SavedComment.Trim() != string.Empty);
+			return considerModifiedComment && SavedComment != null && SavedComment.Trim() != string.Empty;
 		}
 	}
 }

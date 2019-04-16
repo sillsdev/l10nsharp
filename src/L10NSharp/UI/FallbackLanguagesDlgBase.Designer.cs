@@ -1,6 +1,6 @@
 namespace L10NSharp.UI
 {
-	partial class FallbackLanguagesDlg
+	partial class FallbackLanguagesDlgBase
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@ namespace L10NSharp.UI
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FallbackLanguagesDlg));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FallbackLanguagesDlgBase));
 			this._listBoxAvailableLanguages = new System.Windows.Forms.ListBox();
 			this._listBoxFallbackLanguages = new System.Windows.Forms.ListBox();
 			this._LabelAvailableLanguages = new System.Windows.Forms.Label();
@@ -196,17 +196,17 @@ namespace L10NSharp.UI
 
 		#endregion
 
-		private System.Windows.Forms.ListBox _listBoxAvailableLanguages;
-		private System.Windows.Forms.ListBox _listBoxFallbackLanguages;
-		private System.Windows.Forms.Label _LabelAvailableLanguages;
-		private System.Windows.Forms.Label _labelFallbackLanguages;
-		private System.Windows.Forms.Button _buttonAdd;
-		private System.Windows.Forms.Button _buttonRemove;
-		private System.Windows.Forms.Button _buttonMoveUp;
-		private System.Windows.Forms.Button _buttonOK;
-		private System.Windows.Forms.Button _buttonCancel;
-		private System.Windows.Forms.ToolTip _toolTip;
-		private System.Windows.Forms.Button _buttonMoveDown;
-		private System.Windows.Forms.Label _labelMessage;
+		protected System.Windows.Forms.ListBox _listBoxAvailableLanguages;
+		protected System.Windows.Forms.ListBox _listBoxFallbackLanguages;
+		protected System.Windows.Forms.Label _LabelAvailableLanguages;
+		protected System.Windows.Forms.Label _labelFallbackLanguages;
+		protected System.Windows.Forms.Button _buttonAdd;
+		protected System.Windows.Forms.Button _buttonRemove;
+		protected System.Windows.Forms.Button _buttonMoveUp;
+		protected System.Windows.Forms.Button _buttonOK;
+		protected System.Windows.Forms.Button _buttonCancel;
+		protected System.Windows.Forms.ToolTip _toolTip;
+		protected System.Windows.Forms.Button _buttonMoveDown;
+		protected System.Windows.Forms.Label _labelMessage;
 	}
 }

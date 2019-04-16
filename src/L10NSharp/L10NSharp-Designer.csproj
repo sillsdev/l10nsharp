@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- This project file exists solely for the purpose to be able to edit the UI related files in the designer in Visual Studio -->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -25,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DESIGNER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\output\Debug\L10NSharp.xml</DocumentationFile>
@@ -33,13 +33,13 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
+    <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;DESIGNER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\..\output\Release\L10NSharp.xml</DocumentationFile>
@@ -69,10 +69,35 @@
   <ItemGroup>
     <Compile Include="CodeReader\ILReader.cs" />
     <Compile Include="CodeReader\StringExtractor.cs" />
+    <Compile Include="IDocument.cs" />
+    <Compile Include="INote.cs" />
+    <Compile Include="TMXUtils\TMXBaseWithNotesAndProps.cs" />
+    <Compile Include="TMXUtils\TMXBody.cs" />
+    <Compile Include="TMXUtils\TMXDocument.cs" />
+    <Compile Include="TMXUtils\TMXHeader.cs" />
+    <Compile Include="TMXUtils\TMXLocalizationManager.cs" />
+    <Compile Include="TMXUtils\TMXLocalizedStringCache.cs" />
+    <Compile Include="TMXUtils\TMXNote.cs" />
+    <Compile Include="TMXUtils\TMXProp.cs" />
+    <Compile Include="TMXUtils\TMXSegment.cs" />
+    <Compile Include="TMXUtils\TMXTags.cs" />
+    <Compile Include="TMXUtils\TMXTransUnitUpdater.cs" />
+    <Compile Include="TMXUtils\TMXWriter.cs" />
+    <Compile Include="TMXUtils\TransUnit.cs" />
+    <Compile Include="TMXUtils\TransUnitVariant.cs" />
+    <Compile Include="TMXUtils\XmlSerializationHelper.cs" />
+    <Compile Include="UI\FallbackLanguagesDlgBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ILocalizationManager.cs" />
+    <Compile Include="ILocalizationManagerInternal.cs" />
+    <Compile Include="ILocalizedStringCache.cs" />
+    <Compile Include="LocalizationManagerInternal.cs" />
     <Compile Include="NoLocalizableStringsPresent.cs" />
     <Compile Include="ILocalizableComponent.cs" />
     <Compile Include="L10NCultureInfo.cs" />
     <Compile Include="L10NStringExtensions.cs" />
+    <Compile Include="TranslationMemory.cs" />
     <Compile Include="UI\DontShowThisAgainButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -84,6 +109,9 @@
     </Compile>
     <Compile Include="UI\HowToDistributeDialog.Designer.cs">
       <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\InitializationProgressDlg.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\LanguageChoosingDialog.cs">
       <SubType>Form</SubType>
@@ -97,6 +125,7 @@
     <Compile Include="UI\LanguageChoosingSimpleDialog.Designer.cs">
       <DependentUpon>LanguageChoosingSimpleDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NodeComparer.cs" />
     <Compile Include="UI\TipDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,8 +173,8 @@
     <Compile Include="UI\FallbackLanguagesDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\FallbackLanguagesDlg.Designer.cs">
-      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
+    <Compile Include="UI\FallbackLanguagesDlgBase.Designer.cs">
+      <DependentUpon>FallbackLanguagesDlgBase.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\L10NExtender.cs">
       <SubType>Component</SubType>
@@ -159,11 +188,11 @@
     <Compile Include="UI\LocalizeItemDlgViewModel.cs" />
     <Compile Include="UI\LocTreeNode.cs" />
     <Compile Include="UI\PaintingHelper.cs" />
-    <Compile Include="UI\InitializationProgressDlg.cs">
+    <Compile Include="UI\InitializationProgressDlgBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\InitializationProgressDlg.Designer.cs">
-      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
+    <Compile Include="UI\InitializationProgressDlgBase.Designer.cs">
+      <DependentUpon>InitializationProgressDlgBase.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\ShortcutKeysDropDown.cs">
       <SubType>UserControl</SubType>
@@ -203,8 +232,11 @@
     <Compile Include="XLiffUtils\XLiffBaseWithNotesAndProps.cs" />
     <Compile Include="XLiffUtils\XLiffDocument.cs" />
     <Compile Include="XLiffUtils\XLiffFile.cs" />
+    <Compile Include="XLiffUtils\XLiffLocalizationManager.cs" />
+    <Compile Include="XLiffUtils\XLiffLocalizedStringCache.cs" />
     <Compile Include="XLiffUtils\XLiffNote.cs" />
     <Compile Include="XLiffUtils\XLiffProp.cs" />
+    <Compile Include="XLiffUtils\XLiffTransUnitUpdater.cs" />
     <Compile Include="XLiffUtils\XLiffXmlSerializationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -218,8 +250,9 @@
     <EmbeddedResource Include="UI\EditSourceBeforeTranslatingDlg.resx">
       <DependentUpon>EditSourceBeforeTranslatingDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FallbackLanguagesDlg.resx">
-      <DependentUpon>FallbackLanguagesDlg.cs</DependentUpon>
+    <EmbeddedResource Include="UI\FallbackLanguagesDlgBase.resx">
+      <DependentUpon>FallbackLanguagesDlgBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\HowToDistributeDialog.resx">
       <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
@@ -237,8 +270,8 @@
     <EmbeddedResource Include="UI\LocalizeItemDlg.resx">
       <DependentUpon>LocalizeItemDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\InitializationProgressDlg.resx">
-      <DependentUpon>InitializationProgressDlg.cs</DependentUpon>
+    <EmbeddedResource Include="UI\InitializationProgressDlgBase.resx">
+      <DependentUpon>InitializationProgressDlgBase.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\TipDialog.resx">
       <DependentUpon>TipDialog.cs</DependentUpon>

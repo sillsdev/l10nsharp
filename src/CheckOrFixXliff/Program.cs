@@ -42,6 +42,8 @@ namespace CheckOrFixXliff
 
 		static int Main(string[] args)
 		{
+			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
+
 			bool validate = false;
 			bool fix = false;
 			bool missingFile = false;
@@ -134,7 +136,7 @@ namespace CheckOrFixXliff
 			var targetValue = target.Value;
 			if (!string.IsNullOrWhiteSpace(targetValue))
 			{
-				var targetFixed = LocalizedStringCache.FixBrokenFormattingString(targetValue);
+				var targetFixed = XLiffLocalizedStringCache.FixBrokenFormattingString(targetValue);
 				if (targetFixed != target.Value)
 					target.SetValue(targetFixed);
 			}
@@ -173,7 +175,7 @@ namespace CheckOrFixXliff
 		private static bool ValidateXliffAgainstSchema(string filename)
 		{
 			bool valid = true;
-			var installedXliffDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var installedXliffDir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
 			var schemas = new XmlSchemaSet();
 			using (var reader = XmlReader.Create(schemaLocation))
@@ -216,14 +218,14 @@ namespace CheckOrFixXliff
 				var okay = CheckForExactlyMatchingSubstitutionMarkers(tu.Id, dictSourceMarkers, dictTargetMarkers);
 				if (!okay && retval == ErrorState.Okay)
 					retval = ErrorState.Warning;
-				if (!LocalizedStringCache.CheckForValidSubstitutionMarkers(dictSourceMarkers.Count, tu.Target.Value, tu.Id, _quiet))
+				if (!XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(dictSourceMarkers.Count, tu.Target.Value, tu.Id, _quiet))
 				{
 					_mangledTargets.Add(tu.Id);
 					retval = ErrorState.Error;
 					okay = false;
 				}
 				if (!okay && !_quiet)
-					Console.WriteLine();	// separate the messages for differect trans-units
+					Console.WriteLine();	// separate the messages for different trans-units
 			}
 			return retval;
 		}

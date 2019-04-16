@@ -1,6 +1,6 @@
 namespace L10NSharp.UI
 {
-	partial class LocalizeItemDlg
+	partial class LocalizeItemDlg<T>
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -293,7 +293,7 @@ namespace L10NSharp.UI
             this._buttonMoveNext.DrawRightArrowButton = false;
             this._buttonMoveNext.Font = new System.Drawing.Font("Marlett", 9F);
             this._buttonMoveNext.Image = global::L10NSharp.Properties.Resources.kimidMoveNext;
-            this._buttonMoveNext.Location = new System.Drawing.Point(407, 133);
+            this._buttonMoveNext.Location = new System.Drawing.Point(403, 133);
             this._buttonMoveNext.Name = "_buttonMoveNext";
             this._buttonMoveNext.Size = new System.Drawing.Size(20, 20);
             this._buttonMoveNext.TabIndex = 2;
@@ -406,7 +406,7 @@ namespace L10NSharp.UI
             this._buttonMovePrev.DrawRightArrowButton = false;
             this._buttonMovePrev.Font = new System.Drawing.Font("Marlett", 9F);
             this._buttonMovePrev.Image = global::L10NSharp.Properties.Resources.kimidMovePrevious;
-            this._buttonMovePrev.Location = new System.Drawing.Point(407, 107);
+            this._buttonMovePrev.Location = new System.Drawing.Point(403, 107);
             this._buttonMovePrev.Name = "_buttonMovePrev";
             this._buttonMovePrev.Size = new System.Drawing.Size(20, 20);
             this._buttonMovePrev.TabIndex = 1;
@@ -449,14 +449,14 @@ namespace L10NSharp.UI
             // _menuTranslateUsingBing
             // 
             this._menuTranslateUsingBing.Name = "_menuTranslateUsingBing";
-            this._menuTranslateUsingBing.Size = new System.Drawing.Size(266, 22);
+            this._menuTranslateUsingBing.Size = new System.Drawing.Size(265, 22);
             this._menuTranslateUsingBing.Text = "Translate Using Bing";
             this._menuTranslateUsingBing.Click += new System.EventHandler(this.HandleTranslatorServiceButtonClick);
             // 
             // _menuEditSourceAndTranslate
             // 
             this._menuEditSourceAndTranslate.Name = "_menuEditSourceAndTranslate";
-            this._menuEditSourceAndTranslate.Size = new System.Drawing.Size(266, 22);
+            this._menuEditSourceAndTranslate.Size = new System.Drawing.Size(265, 22);
             this._menuEditSourceAndTranslate.Text = "Edit Source && Translate Using Bing...";
             this._menuEditSourceAndTranslate.Click += new System.EventHandler(this.HandleEditSourceBeforeTranslatingUsingBing);
             // 
@@ -474,7 +474,7 @@ namespace L10NSharp.UI
             this._labelTargetLang.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this._labelTargetLang.Margin = new System.Windows.Forms.Padding(8, 1, 0, 2);
             this._labelTargetLang.Name = "_labelTargetLang";
-            this._labelTargetLang.Size = new System.Drawing.Size(99, 27);
+            this._labelTargetLang.Size = new System.Drawing.Size(98, 27);
             this._labelTargetLang.Text = "Target Language:";
             // 
             // _comboSourceLang
@@ -641,7 +641,7 @@ namespace L10NSharp.UI
             this._labelTgtToolTip.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._labelTgtToolTip.Location = new System.Drawing.Point(6, 66);
             this._labelTgtToolTip.Name = "_labelTgtToolTip";
-            this._labelTgtToolTip.Size = new System.Drawing.Size(50, 13);
+            this._labelTgtToolTip.Size = new System.Drawing.Size(49, 13);
             this._labelTgtToolTip.TabIndex = 1;
             this._labelTgtToolTip.Text = "&Tool Tip:";
             // 
@@ -733,7 +733,7 @@ namespace L10NSharp.UI
             this._labelSrcToolTip.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._labelSrcToolTip.Location = new System.Drawing.Point(6, 50);
             this._labelSrcToolTip.Name = "_labelSrcToolTip";
-            this._labelSrcToolTip.Size = new System.Drawing.Size(50, 13);
+            this._labelSrcToolTip.Size = new System.Drawing.Size(49, 13);
             this._labelSrcToolTip.TabIndex = 1;
             this._labelSrcToolTip.Text = "Tool Tip:";
             // 
@@ -825,7 +825,7 @@ namespace L10NSharp.UI
             this.mnuCopyText.Name = "mnuCopyText";
             this.mnuCopyText.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.T)));
-            this.mnuCopyText.Size = new System.Drawing.Size(330, 22);
+            this.mnuCopyText.Size = new System.Drawing.Size(329, 22);
             this.mnuCopyText.Text = "Copy Source Translation to Target";
             this.mnuCopyText.Click += new System.EventHandler(this.btnCopyText_Click);
             // 
@@ -834,7 +834,7 @@ namespace L10NSharp.UI
             this.mnuCopyToolTip.Name = "mnuCopyToolTip";
             this.mnuCopyToolTip.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.O)));
-            this.mnuCopyToolTip.Size = new System.Drawing.Size(330, 22);
+            this.mnuCopyToolTip.Size = new System.Drawing.Size(329, 22);
             this.mnuCopyToolTip.Text = "Copy Source Tool Tip to Target";
             this.mnuCopyToolTip.Click += new System.EventHandler(this.btnCopyToolTip_Click);
             // 
@@ -843,21 +843,21 @@ namespace L10NSharp.UI
             this.mnuCopyShortcutKeys.Name = "mnuCopyShortcutKeys";
             this.mnuCopyShortcutKeys.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.S)));
-            this.mnuCopyShortcutKeys.Size = new System.Drawing.Size(330, 22);
+            this.mnuCopyShortcutKeys.Size = new System.Drawing.Size(329, 22);
             this.mnuCopyShortcutKeys.Text = "Copy Source Shortcut Keys to Target";
             this.mnuCopyShortcutKeys.Click += new System.EventHandler(this.btnCopyShortcutKeys_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(327, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(326, 6);
             // 
             // mnuCopyAll
             // 
             this.mnuCopyAll.Name = "mnuCopyAll";
             this.mnuCopyAll.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
             | System.Windows.Forms.Keys.A)));
-            this.mnuCopyAll.Size = new System.Drawing.Size(330, 22);
+            this.mnuCopyAll.Size = new System.Drawing.Size(329, 22);
             this.mnuCopyAll.Text = "Copy All";
             this.mnuCopyAll.Click += new System.EventHandler(this.mnuCopyAll_Click);
             // 

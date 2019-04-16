@@ -3,11 +3,6 @@ using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	/// ----------------------------------------------------------------------------------------
-	/// <summary>
-	///
-	/// </summary>
-	/// ----------------------------------------------------------------------------------------
 	[TestFixture]
 	public class LocalizingInfoTests
 	{
@@ -19,8 +14,7 @@ namespace L10NSharp.Tests
 		[Test]
 		public void MakeIdTest_ForForm()
 		{
-			Form frm = new Form();
-			frm.Name = "hamster";
+			Form frm = new Form { Name = "hamster" };
 			var loi = new LocalizingInfo(frm, true);
 			Assert.AreEqual("hamster.WindowTitle", loi.Id);
 		}
@@ -33,18 +27,15 @@ namespace L10NSharp.Tests
 		[Test]
 		public void MakeIdTest_ForControl()
 		{
-			Form frm = new Form();
-			frm.Name = "racoon";
+			var frm = new Form { Name = "racoon" };
 
-			var btn = new Button();
-			btn.Name = "fox";
+			var btn = new Button { Name = "fox" };
 			frm.Controls.Add(btn);
 
 			var loi = new LocalizingInfo(btn, true);
 			Assert.AreEqual("racoon.fox", loi.Id);
 
-			var lbl = new Label();
-			lbl.Name = "opossum";
+			var lbl = new Label { Name = "opossum" };
 			var pnl1 = new Panel();
 			var pnl2 = new Panel();
 			pnl1.Controls.Add(pnl2);
@@ -62,18 +53,15 @@ namespace L10NSharp.Tests
 		[Test, Ignore("I don't see code around that would make this work(e.g. insert a 'Col'), maybe David left it as a todo?")]
 		public void MakeIdTest_ForColumnHeader()
 		{
-			var lv = new ListView();
-			lv.Name = "fish";
+			var lv = new ListView { Name = "fish" };
 
-			var hdr = new ColumnHeader();
-			hdr.Name = "monkey";
+			var hdr = new ColumnHeader { Name = "monkey" };
 			lv.Columns.Add(hdr);
 
 			var loi = new LocalizingInfo(hdr, true);
 			Assert.AreEqual("fish.Colmonkey", loi.Id);
 
-			Form frm = new Form();
-			frm.Name = "wolf";
+			var frm = new Form { Name = "wolf" };
 			frm.Controls.Add(lv);
 			loi = new LocalizingInfo(hdr, true);
 			Assert.AreEqual("wolf.fishColmonkey", loi.Id);
@@ -87,18 +75,15 @@ namespace L10NSharp.Tests
 		[Test, Ignore("I don't see code around that would make this work(e.g. insert a 'Col'), maybe David left it as a todo?")]
 		public void MakeIdTest_ForDataGridViewColumn()
 		{
-			var grid = new DataGridView();
-			grid.Name = "hippo";
+			var grid = new DataGridView { Name = "hippo" };
 
-			var col = new DataGridViewTextBoxColumn();
-			col.Name = "cheetah";
+			var col = new DataGridViewTextBoxColumn { Name = "cheetah" };
 			grid.Columns.Add(col);
 
 			var loi = new LocalizingInfo(col, true);
 			Assert.AreEqual("hippo.Colcheetah", loi.Id);
 
-			Form frm = new Form();
-			frm.Name = "jackal";
+			var frm = new Form { Name = "jackal" };
 			frm.Controls.Add(grid);
 
 			loi = new LocalizingInfo(col, true);

@@ -1,16 +1,10 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Windows.Forms;
 using L10NSharp.UI;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	/// ----------------------------------------------------------------------------------------
-	/// <summary>
-	///
-	/// </summary>
-	/// ----------------------------------------------------------------------------------------
 	[TestFixture]
 	public class LocalizationExtenderTests
 	{
@@ -130,7 +124,7 @@ namespace L10NSharp.Tests
 			Assert.IsTrue(m_extCtrls.ContainsKey(lv.Columns["steak"]));
 			Assert.IsTrue(m_extCtrls.ContainsKey(lv.Columns["venison"]));
 
-			LocalizingInfo loi = m_extCtrls[lv.Columns["ham"]];
+			var loi = m_extCtrls[lv.Columns["ham"]];
 			Assert.AreEqual("TestDlg.meatColham", loi.Id);
 			Assert.AreEqual("hamtext", loi.Text);
 
@@ -172,7 +166,7 @@ namespace L10NSharp.Tests
 			Assert.IsTrue(m_extCtrls.ContainsKey(grid.Columns["blue"]));
 			Assert.IsTrue(m_extCtrls.ContainsKey(grid.Columns["orange"]));
 
-			LocalizingInfo loi = m_extCtrls[grid.Columns["red"]];
+			var loi = m_extCtrls[grid.Columns["red"]];
 			Assert.AreEqual("TestDlg.colorsColred", loi.Id);
 			Assert.AreEqual("redtext", loi.Text);
 
@@ -194,8 +188,8 @@ namespace L10NSharp.Tests
 		[Test, Ignore("The test body was commented out before I got here, why run it?")]
 		public void GroupAssignmentTest()
 		{
-			//LocalizationManager.StringFilesFolder = Path.GetPathRoot(Path.GetTempPath());
-			//LocalizationManager.Enabled = true;
+			//LocalizationManagerInternal.StringFilesFolder = Path.GetPathRoot(Path.GetTempPath());
+			//LocalizationManagerInternal.Enabled = true;
 
 			//Assert.AreEqual(0, m_extCtrls.Count);
 

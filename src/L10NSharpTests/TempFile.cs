@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
@@ -237,11 +239,18 @@ namespace L10NSharp.Tests
 
 	public class TempFolder : IDisposable
 	{
+		private static string _basePath;
 		private readonly string _path;
+
+		public TempFolder(): this(TestContext.CurrentContext.Test.Name)
+		{
+		}
 
 		public TempFolder(string testName)
 		{
-			_path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), testName);
+			testName = System.IO.Path.GetInvalidPathChars().Aggregate(testName,
+				(current, c) => current.Replace(c, '_')).Replace('`', '_');
+			_path = System.IO.Path.Combine(BasePath, testName);
 			if(Directory.Exists(_path))
 			{
 				TestUtilities.DeleteFolderThatMayBeInUse(_path);
@@ -249,10 +258,12 @@ namespace L10NSharp.Tests
 			Directory.CreateDirectory(_path);
 		}
 
-		public string Path
-		{
-			get { return _path; }
-		}
+		private static string BasePath =>
+			_basePath ?? (_basePath = System.IO.Path.Combine(
+				System.IO.Path.GetTempPath(),
+				System.IO.Path.GetRandomFileName()));
+
+		public string Path => _path;
 
 		public void Dispose()
 		{
@@ -261,7 +272,7 @@ namespace L10NSharp.Tests
 
 		public TempFile GetPathForNewTempFile(bool doCreateTheFile)
 		{
-			string s = System.IO.Path.GetRandomFileName();
+			var s = System.IO.Path.GetRandomFileName();
 			s = System.IO.Path.Combine(_path, s);
 			if(doCreateTheFile)
 			{
@@ -275,42 +286,42 @@ namespace L10NSharp.Tests
 			return System.IO.Path.Combine(_path, innerFileName);
 		}
 	}
+
 	public class TestUtilities
 	{
 		public static void DeleteFolderThatMayBeInUse(string folder)
 		{
-			if(Directory.Exists(folder))
+			if (!Directory.Exists(folder))
+				return;
+
+			for(int i = 0; i < 50; i++) //wait up to five seconds
 			{
-				for(int i = 0; i < 50; i++)//wait up to five seconds
-				{
-					try
-					{
-						Directory.Delete(folder, true);
-						return;
-					}
-					catch(Exception)
-					{
-					}
-					Thread.Sleep(100);
-				}
-				//maybe we can at least clear it out a bit
 				try
 				{
-					Debug.WriteLine("TestUtilities.DeleteFolderThatMayBeInUse(): gave up trying to delete the whole folder. Some files may be abandoned in your temp folder.");
-
-					string[] files = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
-					foreach(string s in files)
-					{
-						File.Delete(s);
-					}
-					//sleep and try again
-					Thread.Sleep(1000);
 					Directory.Delete(folder, true);
+					return;
 				}
 				catch(Exception)
 				{
 				}
+				Thread.Sleep(100);
+			}
+			//maybe we can at least clear it out a bit
+			try
+			{
+				Debug.WriteLine("TestUtilities.DeleteFolderThatMayBeInUse(): gave up trying to delete the whole folder. Some files may be abandoned in your temp folder.");
 
+				string[] files = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
+				foreach(string s in files)
+				{
+					File.Delete(s);
+				}
+				//sleep and try again
+				Thread.Sleep(1000);
+				Directory.Delete(folder, true);
+			}
+			catch(Exception)
+			{
 			}
 		}
 	}

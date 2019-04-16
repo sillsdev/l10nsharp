@@ -18,6 +18,7 @@ using System.Linq;
 namespace L10NSharp.XLiffUtils
 {
 	#region XLiffFile class
+
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
 	/// XLiff file
@@ -34,8 +35,8 @@ namespace L10NSharp.XLiffUtils
 			DataType = "plaintext";
 		}
 
-		protected XLiffHeader _header/* = new XLiffHeader()*/;
-		protected XLiffBody _body = new XLiffBody();
+		protected XLiffHeader _header /* = new XLiffHeader()*/;
+		protected XLiffBody   _body = new XLiffBody();
 
 		#region Properties
 
@@ -111,7 +112,9 @@ namespace L10NSharp.XLiffUtils
 		/// defaults to \n.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("hard-linebreak-replacement", Namespace=XLiffXmlSerializationHelper.kSilNamespace), DefaultValue(LocalizedStringCache.kDefaultNewlineReplacement)]
+		[XmlAttribute("hard-linebreak-replacement", Namespace =
+			XLiffXmlSerializationHelper.kSilNamespace),
+		DefaultValue(LocalizedStringCache.kDefaultNewlineReplacement)]
 		public string HardLineBreakReplacement { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -121,10 +124,13 @@ namespace L10NSharp.XLiffUtils
 		/// defaults to |amp|.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("ampersand-replacement", Namespace=XLiffXmlSerializationHelper.kSilNamespace), DefaultValue(LocalizedStringCache.kDefaultAmpersandReplacement)]
+		[XmlAttribute("ampersand-replacement", Namespace =
+			XLiffXmlSerializationHelper.kSilNamespace),
+		DefaultValue(LocalizedStringCache.kDefaultAmpersandReplacement)]
 		public string AmpersandReplacement { get; set; }
-		#endregion
-    }
 
-    #endregion
+		#endregion
+	}
+
+	#endregion
 }

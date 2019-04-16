@@ -13,7 +13,7 @@ using System.Resources;
 namespace L10NSharp.CodeReader
 {
 	/// ------------------------------------------------------------------------------------
-	public class StringExtractor
+	public class StringExtractor<T>
 	{
 		private MethodInfo[] _getStringMethodOverloads;
 		private List<LocalizingInfo> _getStringCallsInfo;
@@ -27,7 +27,7 @@ namespace L10NSharp.CodeReader
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<LocalizingInfo> DoExtractingWork(string[] namespaceBeginings, BackgroundWorker worker)
+		public IEnumerable<LocalizingInfo> DoExtractingWork(string[] namespaceBeginnings, BackgroundWorker worker)
 		{
 			_getStringMethodOverloads = typeof(LocalizationManager)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -42,11 +42,11 @@ namespace L10NSharp.CodeReader
 			_extenderInfo = new Dictionary<string, LocalizingInfo>();
 
 			int i = 1;
-			var typesToScan = GetTypesToScan(namespaceBeginings).ToArray();
+			var typesToScan = GetTypesToScan(namespaceBeginnings).ToArray();
 			foreach (var type in typesToScan)
 			{
 				FindLocalizedStringsInType(type);
-				var pct = (int)Math.Round(((i++) / (double)typesToScan.Length) * 100d, 0, MidpointRounding.AwayFromZero);
+				var pct = (int)Math.Round((i++ / (double)typesToScan.Length) * 100d, 0, MidpointRounding.AwayFromZero);
 				if (worker != null)
 					worker.ReportProgress(pct);
 				_scannedTypes.Add(type.FullName);
@@ -58,7 +58,7 @@ namespace L10NSharp.CodeReader
 				// this.myControl.Text = resources.GetString("myControl.Text");
 				// The code scanner does not find calls like that, since it is looking for set_Text with a string literal arg.
 				// The following block retrieves the control's resources (if any) and fills in the text field
-				// of any controls which have localizaztion info (typically at least a call to SetLocalizingId
+				// of any controls which have localization info (typically at least a call to SetLocalizingId
 				// has been successfully scanned with a literal string argument).
 				try
 				{
@@ -77,8 +77,7 @@ namespace L10NSharp.CodeReader
 									continue;
 								key = key.Substring(0, key.Length - ".Text".Length);
 								key = GetLocalizingKey(type.Name, key);
-								LocalizingInfo info;
-								if (_extenderInfo.TryGetValue(key, out info) && String.IsNullOrEmpty(info.Text))
+								if (_extenderInfo.TryGetValue(key, out var info) && string.IsNullOrEmpty(info.Text))
 								{
 									info.Text = val;
 								}
@@ -246,7 +245,7 @@ namespace L10NSharp.CodeReader
 					if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
 						Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
 #endif
-					_instructions = new List<ILInstruction>(new ILReader(method));
+					_instructions = new List<ILInstruction>(new ILReader<T>(method));
 
 					foreach (var getStringOverload in _getStringMethodOverloads)
 						FindGetStringCalls(method, getStringOverload);
@@ -261,6 +260,10 @@ namespace L10NSharp.CodeReader
 				{
 					// Caused by assemblies that have odd runtime loading problems (e.g. Chorus). Ignore.
 				}
+				catch (ArgumentException)
+				{
+					// this can happen if we have a generic type (e.g. L10NSharp.dll). Ignore.
+				}
 			}
 		}
 
@@ -268,9 +271,9 @@ namespace L10NSharp.CodeReader
 		public void FindGetStringCalls(MethodBase caller, MethodInfo callee)
 		{
 			var module = caller.Module;
-			var calleeParamCount = callee.GetParameters().Count();
+			var calleeParamCount = callee.GetParameters().Length;
 
-			for (int i = 1; i < _instructions.Count; i++)
+			for (var i = 1; i < _instructions.Count; i++)
 			{
 				if (_instructions[i].opCode != OpCodes.Call)
 					continue;
@@ -278,26 +281,23 @@ namespace L10NSharp.CodeReader
 				Type[] genericMethodArguments = null;
 				var genericTypeArguments = caller.DeclaringType.GetGenericArguments();
 
-				if ((!caller.IsConstructor) && (!caller.Name.Equals(".cctor")))
+				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
 
-				if (callee.Equals(module.ResolveMethod((int)_instructions[i].operand,
+				if (!callee.Equals(module.ResolveMethod((int) _instructions[i].operand,
 					genericTypeArguments, genericMethodArguments)))
 				{
-					LocalizingInfo locInfo;
-					if (callee.Name == "Localize")
-					{
-						locInfo = GetInfoForCallToLocalizeExtension(module, i, calleeParamCount);
-					}
-					else
-					{
-						locInfo = GetInfoForCallToGetStringMethod(module, i, calleeParamCount);
-					}
-					if (locInfo != null)
-						_getStringCallsInfo.Add(locInfo);
-					else
-						Debug.Print("Call to {0} in {1} ({2}) could not be parsed", callee, caller.Name, caller.DeclaringType.Name);
+					continue;
 				}
+
+				LocalizingInfo locInfo;
+				locInfo = callee.Name == "Localize" ?
+					GetInfoForCallToLocalizeExtension(module, i, calleeParamCount) :
+					GetInfoForCallToGetStringMethod(module, i, calleeParamCount);
+				if (locInfo != null)
+					_getStringCallsInfo.Add(locInfo);
+				else
+					Debug.Print("Call to {0} in {1} ({2}) could not be parsed", callee, caller.Name, caller.DeclaringType.Name);
 			}
 		}
 
@@ -494,8 +494,7 @@ namespace L10NSharp.CodeReader
 		{
 			var key = GetLocalizingKey(className, fieldName);
 
-			LocalizingInfo locInfo;
-			if (_extenderInfo.TryGetValue(key, out locInfo))
+			if (_extenderInfo.TryGetValue(key, out var locInfo))
 				return locInfo;
 
 			locInfo = new LocalizingInfo(null) { Priority = LocalizationPriority.Medium };

@@ -129,8 +129,8 @@ namespace L10NSharp
 		public void UpdateTextFromObject()
 		{
 			Text = LocalizationManager.StripOffLocalizationInfoFromText(_component is DataGridViewColumn
-																			? ((DataGridViewColumn) _component).HeaderText
-																			: Utils.GetProperty(_component, "Text") as string);
+				? ((DataGridViewColumn) _component).HeaderText
+				: Utils.GetProperty(_component, "Text") as string);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ namespace L10NSharp
 			if (idPrefixFromFormExtender == null)
 				idPrefixFromFormExtender = "";
 
-			idPrefixFromFormExtender = idPrefixFromFormExtender.Trim(new char[] { '.',' ' });
+			idPrefixFromFormExtender = idPrefixFromFormExtender.Trim('.', ' ');
 			if (idPrefixFromFormExtender.Length > 0)
 				idPrefixFromFormExtender = idPrefixFromFormExtender + ".";
 

@@ -21,7 +21,7 @@ namespace L10NSharp.CodeReader
 	}
 
 	/// ----------------------------------------------------------------------------------------
-	internal class ILReader : IEnumerable<ILInstruction>
+	internal class ILReader<T> : IEnumerable<ILInstruction>
 	{
 		private readonly Byte[] _byteArray;
 		private readonly MethodBase _enclosingMethod;
@@ -49,7 +49,7 @@ namespace L10NSharp.CodeReader
 		public ILReader(MethodBase enclosingMethod)
 		{
 			_enclosingMethod = enclosingMethod;
-			if (StringExtractor.MethodNeedsLocalization(_enclosingMethod))
+			if (StringExtractor<T>.MethodNeedsLocalization(_enclosingMethod))
 			{
 				var methodBody = _enclosingMethod.GetMethodBody();
 				_byteArray = ((methodBody == null) ? new Byte[0] : methodBody.GetILAsByteArray()) ?? new Byte[0];

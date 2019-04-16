@@ -31,9 +31,9 @@ namespace L10NSharp.UI
 			this._uiLanguageListBox = new L10NSharp.UI.UILanguageListBox();
 			this._btnOk = new System.Windows.Forms.Button();
 			this.SuspendLayout();
-			// 
+			//
 			// _uiLanguageListBox
-			// 
+			//
 			this._uiLanguageListBox.DisplayMember = "NativeName";
 			this._uiLanguageListBox.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._uiLanguageListBox.FormattingEnabled = true;
@@ -44,9 +44,9 @@ namespace L10NSharp.UI
 			this._uiLanguageListBox.Size = new System.Drawing.Size(222, 229);
 			this._uiLanguageListBox.TabIndex = 3;
 			this._uiLanguageListBox.DoubleClick += new System.EventHandler(this.m_uiLanguageListBox_DoubleClick);
-			// 
+			//
 			// _btnOk
-			// 
+			//
 			this._btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this._btnOk.Location = new System.Drawing.Point(159, 248);
 			this._btnOk.Name = "_btnOk";
@@ -55,9 +55,9 @@ namespace L10NSharp.UI
 			this._btnOk.Text = "OK";
 			this._btnOk.UseVisualStyleBackColor = true;
 			this._btnOk.Click += new System.EventHandler(this.btnOk_Click);
-			// 
+			//
 			// LanguageChoosingSimpleDialog
-			// 
+			//
 			this.AcceptButton = this._btnOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

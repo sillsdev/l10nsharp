@@ -11,6 +11,7 @@ namespace L10NSharp.XLiffUtils
 	internal static class XLiffXmlSerializationHelper
 	{
 		#region XLiffXmlReader class
+
 		public const string kSilNamespace = "http://sil.org/software/XLiff";
 
 		/// ------------------------------------------------------------------------------------
@@ -76,7 +77,7 @@ namespace L10NSharp.XLiffUtils
 				}
 				catch (Exception e)
 				{
-					throw e;	// helps in setting breakpoint for debugging problems
+					throw e; // helps in setting breakpoint for debugging problems
 				}
 			}
 
@@ -90,7 +91,8 @@ namespace L10NSharp.XLiffUtils
 				get
 				{
 					if (m_fKeepWhitespaceInElements &&
-						(base.NodeType == XmlNodeType.Whitespace || base.NodeType == XmlNodeType.SignificantWhitespace) &&
+						(base.NodeType == XmlNodeType.Whitespace ||
+						base.NodeType == XmlNodeType.SignificantWhitespace) &&
 						Value != null && Value.IndexOf('\n') < 0 && Value.Trim().Length == 0)
 					{
 						// We found some whitespace that was most
@@ -106,6 +108,7 @@ namespace L10NSharp.XLiffUtils
 		#endregion
 
 		#region Methods for XML serializing and deserializing data
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Serializes an object to an XML string.
@@ -123,6 +126,7 @@ namespace L10NSharp.XLiffUtils
 				serializer.Serialize(writer, data, nameSpaces);
 				writer.Close();
 			}
+
 			return (output.Length == 0 ? null : output.ToString());
 		}
 
@@ -164,7 +168,9 @@ namespace L10NSharp.XLiffUtils
 			using (XmlReader reader = XmlReader.Create(new StringReader(xmlData)))
 			{
 				// Read past declaration and whitespace.
-				while (reader.NodeType != XmlNodeType.Element && reader.Read()) { }
+				while (reader.NodeType != XmlNodeType.Element && reader.Read())
+				{
+				}
 
 				if (!reader.EOF)
 				{
@@ -218,7 +224,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static T DeserializeFromString<T>(string input, bool fKeepWhitespaceInElements,
-			out Exception e) where T : class
+			out Exception                               e) where T : class
 		{
 			T data = null;
 			e = null;
@@ -301,7 +307,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="e">The exception generated during the deserialization.</param>
 		/// ------------------------------------------------------------------------------------
 		public static T DeserializeFromFile<T>(string filename, bool fKeepWhitespaceInElements,
-			out Exception e) where T : class
+			out Exception                             e) where T : class
 		{
 			T data = null;
 			e = null;
@@ -337,8 +343,9 @@ namespace L10NSharp.XLiffUtils
 		{
 			XmlSerializer deserializer = new XmlSerializer(typeof(T));
 			deserializer.UnknownAttribute += deserializer_UnknownAttribute;
-			deserializer.UnknownElement += new XmlElementEventHandler(deserializer_UnknownElement);
-			return (T)deserializer.Deserialize(reader);
+			deserializer.UnknownElement +=
+				new XmlElementEventHandler(deserializer_UnknownElement);
+			return (T) deserializer.Deserialize(reader);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -365,8 +372,10 @@ namespace L10NSharp.XLiffUtils
 				Type type = obj.GetType();
 				foreach (FieldInfo field in type.GetFields())
 				{
-					object[] bla = field.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
-					if (bla.Length == 1 && ((XmlAttributeAttribute)bla[0]).AttributeName == "xml:lang")
+					object[] bla =
+						field.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
+					if (bla.Length == 1 &&
+						((XmlAttributeAttribute) bla[0]).AttributeName == "xml:lang")
 					{
 						field.SetValue(obj, e.Attr.Value);
 						return;
@@ -376,7 +385,8 @@ namespace L10NSharp.XLiffUtils
 				foreach (PropertyInfo prop in type.GetProperties())
 				{
 					object[] bla = prop.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
-					if (bla.Length == 1 && ((XmlAttributeAttribute)bla[0]).AttributeName == "xml:lang")
+					if (bla.Length == 1 &&
+						((XmlAttributeAttribute) bla[0]).AttributeName == "xml:lang")
 					{
 						prop.SetValue(obj, e.Attr.Value, null);
 						return;
@@ -387,7 +397,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// <summary>
 		/// Handle complex encoded HTML markup inside the translated strings.  This is detected by unknown
-		/// elements encountered while deserializing TransUnitVariant objects.
+		/// elements encountered while deserializing XLiffTransUnitVariant objects.
 		/// </summary>
 		static void deserializer_UnknownElement(object sender, XmlElementEventArgs e)
 		{
@@ -398,16 +408,16 @@ namespace L10NSharp.XLiffUtils
 			 *
 			 * <target xml:lang='en'>This is a <g id='gen1' ctype='x-html-strong' html:style='color:red;'>test</g>.</target>
 			 *
-			 * The default XmlSerializer stores "This is a " in the TransUnitVariant Value property, skips
+			 * The default XmlSerializer stores "This is a " in the XLiffTransUnitVariant Value property, skips
 			 * over the "<g id='gen1' ctype='x-html-strong' html:style='color:red;'>test</g>", and
-			 * stores "." in the TransUnitVariant Value property, wiping out what it had stored earlier.
+			 * stores "." in the XLiffTransUnitVariant Value property, wiping out what it had stored earlier.
 			 * This behavior motivates this method, which is called whenever an element is encountered
 			 * reading the content of <source> or <target> elements.
 			 *
 			 * When the content of the <target> element in the example above is deserialized, the following steps
 			 * occur:
 			 * 1) The XmlSerializer encounters the text node containing "This is a " and stores it in the Value
-			 *    property of the TransUnitVariant object (which places it in the private _value variable).
+			 *    property of the XLiffTransUnitVariant object (which places it in the private _value variable).
 			 *
 			 *** tuv._value = "This is a "
 			 *** tuv._deserializedFromElement = null
@@ -421,30 +431,34 @@ namespace L10NSharp.XLiffUtils
 			 * 6) Reaching the end of the attributes, the code notices that it is processing a <g> element
 			 *    so it updates the string builder to contain "This is a <strong style=\"color:red;\">test</strong>".
 			 * 7) The content of the string builder is stored in the private _deserializedFromElement variable
-			 *    of the TransUnitVariant object.
+			 *    of the XLiffTransUnitVariant object.
 			 *
 			 *** tuv._value = null
 			 *** tuv._deserializedFromElement = "This is a <strong style=\"color:red;\">test</strong>"
 			 *
 			 * 8) The XmlSerializer encounters the text node containing "." and stores it in the Value property
-			 *    of the TransUnitVariant object.
+			 *    of the XLiffTransUnitVariant object.
 			 *
 			 *** tuv._value = "."
 			 *** tuv._deserializedFromElement = "This is a <strong style=\"color:red;\">test</strong>"
 			 *
-			 * At this point, the desired value of the TransUnitVariant object's Value property is split between
+			 * At this point, the desired value of the XLiffTransUnitVariant object's Value property is split between
 			 * two private string variables: _value and _deserializedFromElement.  The next call from anywhere
 			 * to the getter of the Value property will put the pieces together.  This could even be from the
 			 * XmlSerializer code if the input had another <g> or <x> element in it.
 			 */
-			var tuv = e.ObjectBeingDeserialized as TransUnitVariant;
+			var tuv = e.ObjectBeingDeserialized as XLiffTransUnitVariant;
 			if (tuv == null)
 			{
-				if (e.ObjectBeingDeserialized is TransUnit && e.Element.LocalName == "alt-trans")
-					return;	// legal xliff that we totally don't care about.
-				Debug.WriteLine($"{e.ObjectBeingDeserialized.GetType()} being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
+				if (e.ObjectBeingDeserialized is XLiffTransUnit &&
+					e.Element.LocalName == "alt-trans")
+					return; // legal xliff that we totally don't care about.
+
+				Debug.WriteLine(
+					$"{e.ObjectBeingDeserialized.GetType()} being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
 				return;
 			}
+
 			// Only <g></g> and <x/> elements can be encountered since that's all the xliff standard allows
 			// inside <source> and <target> elements (other than text of course).  <g> elements have internal
 			// content while <x> elements do not.  The expected attributes are the same for both <g> and <x>
@@ -465,9 +479,11 @@ namespace L10NSharp.XLiffUtils
 			}
 			else
 			{
-				Debug.WriteLine($"TransUnitVariant being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
+				Debug.WriteLine(
+					$"XLiffTransUnitVariant being deserialized: UnknownElement OuterXml={e.Element.OuterXml}");
 				return;
 			}
+
 			bldr.AppendFormat("<{0}", ctype);
 			for (int i = 0; i < e.Element.Attributes.Count; ++i)
 			{
@@ -477,18 +493,21 @@ namespace L10NSharp.XLiffUtils
 				if (attr.Name.StartsWith("html:"))
 					bldr.AppendFormat(" {0}=\"{1}\"", attr.LocalName, attr.Value);
 			}
+
 			// ENHANCE: handle nested <g> (and <x> inside <g>) elements.  Perhaps a recursive method?
 			if (e.Element.Name == "g")
-				bldr.AppendFormat(">{0}</{1}>", e.Element.InnerText.Replace("\\n", Environment.NewLine), ctype);
+				bldr.AppendFormat(">{0}</{1}>",
+					e.Element.InnerText.Replace("\\n", Environment.NewLine), ctype);
 			else
 				bldr.Append("/>");
 			// We can't just set tuv.Value from here because it would get wiped out by a following text node.
 			// The string would end up equal to just the content of the last text node if the overall content
-			// ends in a text node.  So we let the Value getter code in the TransUnitVariant figure things
+			// ends in a text node.  So we let the Value getter code in the XLiffTransUnitVariant figure things
 			// out properly.  (Note that what we store here is the entire string so far, not just what we
 			// obtained from the current element.)
 			tuv.SaveDeserializationFromElement(bldr.ToString());
 		}
+
 		#endregion
 	}
 }

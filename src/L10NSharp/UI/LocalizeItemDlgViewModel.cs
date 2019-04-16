@@ -2,43 +2,42 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using L10NSharp.Translators;
 
 namespace L10NSharp.UI
 {
-	internal class LocalizeItemDlgViewModel
+	internal class LocalizeItemDlgViewModel<T>
 	{
 		private bool _runInReadonlyMode;
 		private readonly Color _untranslatedNodeColor = Color.Peru;
 		private string _tgtLangId;
 		private string _srcLangId;
-		private LocTreeNode _currentNode;
+		private LocTreeNode<T> _currentNode;
 		private TreeNodeCollection _allNodes;
 		private BackgroundWorker _translationWorker;
 
-		public List<LocTreeNode> AllLeafNodesShowingInGrid { get; private set; }
-		public List<LocTreeNode> AllLeafNodes { get; private set; }
-		public List<LocalizationManager> EnabledManagers;
+		public List<LocTreeNode<T>> AllLeafNodesShowingInGrid { get; private set; }
+		public List<LocTreeNode<T>> AllLeafNodes { get; private set; }
+		public List<ILocalizationManagerInternal<T>> EnabledManagers;
 		private HashSet<string> _modifiedLanguages = new HashSet<string>();
 		public ITranslator BingTranslator { get; private set; }
-		public NodeComparer.SortField GridSortField { get; set; }
+		public NodeComparer<T>.SortField GridSortField { get; set; }
 		public SortOrder GridSortOrder { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		public LocalizeItemDlgViewModel(bool runInReadonlyMode)
 		{
 			_runInReadonlyMode = runInReadonlyMode;
-			AllLeafNodesShowingInGrid = new List<LocTreeNode>();
+			AllLeafNodesShowingInGrid = new List<LocTreeNode<T>>();
 			SetLanguageIds(null, null);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		public void SetLanguageIds(string srcLangId, string tgtLangId)
 		{
-			_srcLangId = srcLangId ?? LocalizationManager.FallbackLanguageIds.ToArray()[0];
+			_srcLangId = srcLangId ?? LocalizationManagerInternal<T>.FallbackLanguageIds.ToArray()[0];
 			_tgtLangId = tgtLangId ?? LocalizationManager.UILanguageId;
 			CreateTranslator();
 		}
@@ -67,7 +66,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public LocTreeNode CurrentNode
+		public LocTreeNode<T> CurrentNode
 		{
 			get { return _currentNode; }
 			set
@@ -75,7 +74,7 @@ namespace L10NSharp.UI
 				_currentNode = value;
 
 				AllLeafNodesShowingInGrid = (_currentNode == null || _currentNode.FirstNode == null ?
-					new List<LocTreeNode>() : GetLeafNodesOfNode(_currentNode).ToList());
+					new List<LocTreeNode<T>>() : GetLeafNodesOfNode(_currentNode).ToList());
 
 				SortGridNodes();
 			}
@@ -167,15 +166,15 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void LoadTreeNodes(TreeView treeVw)
 		{
-			AllLeafNodes = new List<LocTreeNode>();
+			AllLeafNodes = new List<LocTreeNode<T>>();
 
-			EnabledManagers = LocalizationManager.LoadedManagers.Values
+			EnabledManagers = LocalizationManagerInternal<T>.LoadedManagers.Values
 				.OrderBy(lm => lm.Name).ToList();
 
 			foreach (var lm in EnabledManagers)
 			{
 				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
-				var node = new LocTreeNode(lm, lm.Name, null, lm.Name);
+				var node = new LocTreeNode<T>(lm, lm.Name, null, lm.Name);
 				treeVw.Nodes.Add(node);
 				var	childNodes = node.Nodes;
 
@@ -191,12 +190,12 @@ namespace L10NSharp.UI
 		/// node cannot be found, then each nodes node collection will be searched, and so on.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocTreeNode FindNode(string id, TreeNodeCollection nodeCollection)
+		public LocTreeNode<T> FindNode(string id, TreeNodeCollection nodeCollection)
 		{
 			if (id == null)
 				return null;
 
-			foreach (LocTreeNode node in nodeCollection)
+			foreach (LocTreeNode<T> node in nodeCollection)
 			{
 				if (node.Id == id)
 					return node;
@@ -235,12 +234,12 @@ namespace L10NSharp.UI
 					node.Manager.ApplyLocalization(component);
 			}
 
-			foreach (var lm in LocalizationManager.LoadedManagers.Values)
+			foreach (var lm in LocalizationManagerInternal<T>.LoadedManagers.Values)
 			{
 				lm.PrepareToCustomizeLocalizations();
 				lm.SaveIfDirty(_modifiedLanguages);
 
-				// If saving fails, the LocalizationManager will record the problem .
+				// If saving fails, the LocalizationManagerInternal will record the problem .
 				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
 			}
 
@@ -254,17 +253,16 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		public void SaveChangesInMemory(LocalizingInfo locInfo)
 		{
-			if (locInfo == null || locInfo.Id == null || locInfo.UpdateFields == UpdateFields.None)
+			if (locInfo?.Id == null || locInfo.UpdateFields == UpdateFields.None)
 				return;
 
 			SaveChangesInMemory(CurrentNode, locInfo);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void SaveChangesInMemory(LocTreeNode node, LocalizingInfo locInfo)
+		public void SaveChangesInMemory(LocTreeNode<T> node, LocalizingInfo locInfo)
 		{
-			if (locInfo == null || locInfo.Id == null ||
-				locInfo.UpdateFields == UpdateFields.None || _tgtLangId == _srcLangId)
+			if (locInfo?.Id == null || locInfo.UpdateFields == UpdateFields.None || _tgtLangId == _srcLangId)
 			{
 				return;
 			}
@@ -300,7 +298,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private IEnumerable<IComponent> GetComponentsForId(LocalizationManager lm, string id)
+		private IEnumerable<IComponent> GetComponentsForId(ILocalizationManagerInternal<T> lm, string id)
 		{
 			return lm.ComponentCache.Where(kvp => kvp.Value == id).Select(kvp => kvp.Key);
 		}
@@ -311,13 +309,12 @@ namespace L10NSharp.UI
 			int numStringsTranslated = EnabledManagers.Sum(lm => AllLeafNodes.Count(n =>
 				(n.GetHasModifications(false) || lm.StringCache.DoTranslationsExist(TgtLangId, n.Id))));
 
-			return string.Format("{0} of {1} Items Translated",
-				numStringsTranslated, AllLeafNodes.Count);
+			return $"{numStringsTranslated} of {AllLeafNodes.Count} Items Translated";
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Goes through each loaded LocalizationManager, looking for the one whose component
+		/// Goes through each loaded LocalizationManagerInternal, looking for the one whose component
 		/// cache contains the specified component. When it's found, that component's id is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -325,7 +322,7 @@ namespace L10NSharp.UI
 		{
 			if (component != null)
 			{
-				foreach (var manager in LocalizationManager.LoadedManagers.Values)
+				foreach (var manager in LocalizationManagerInternal<T>.LoadedManagers.Values)
 				{
 					string id;
 					if (manager.ComponentCache.TryGetValue(component, out id))
@@ -366,7 +363,7 @@ namespace L10NSharp.UI
 		public Font GetFontForObject(object obj)
 		{
 			return (obj == null ? null :
-				Utils.GetProperty(obj, "Font") as Font) ?? LocalizeItemDlg.DefaultDisplayFont;
+				Utils.GetProperty(obj, "Font") as Font) ?? LocalizeItemDlg<T>.DefaultDisplayFont;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -376,7 +373,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void Translate(IDictionary<int, LocTreeNode> nodesToTranslate,
+		public void Translate(IDictionary<int, LocTreeNode<T>> nodesToTranslate,
 			Action<int, int> progressAction)
 		{
 			_translationWorker = new BackgroundWorker();
@@ -397,7 +394,7 @@ namespace L10NSharp.UI
 		private void HandleTanslateItems(object sender, DoWorkEventArgs e)
 		{
 			var worker = sender as BackgroundWorker;
-			var nodesToTranslate = e.Argument as IDictionary<int, LocTreeNode>;
+			var nodesToTranslate = e.Argument as IDictionary<int, LocTreeNode<T>>;
 			int i = 0;
 
 			foreach (var kvp in nodesToTranslate)
@@ -438,9 +435,9 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private IEnumerable<LocTreeNode> GetLeafNodesOfNode(LocTreeNode node)
+		private IEnumerable<LocTreeNode<T>> GetLeafNodesOfNode(LocTreeNode<T> node)
 		{
-			foreach (var childNode in node.Nodes.Cast<LocTreeNode>())
+			foreach (var childNode in node.Nodes.Cast<LocTreeNode<T>>())
 			{
 				if (AllLeafNodes.Contains(childNode))
 					yield return childNode;
@@ -469,7 +466,7 @@ namespace L10NSharp.UI
 		public void SortGridNodes()
 		{
 			AllLeafNodesShowingInGrid.Sort(
-				new NodeComparer(_srcLangId, _tgtLangId, GridSortOrder, GridSortField));
+				new NodeComparer<T>(_srcLangId, _tgtLangId, GridSortOrder, GridSortField));
 		}
 
 		#region Methods for returning various grid fields for a specified index
@@ -537,7 +534,7 @@ namespace L10NSharp.UI
 
 			var clrParent = Color.Empty;
 
-			foreach (LocTreeNode node in nodeCollection)
+			foreach (LocTreeNode<T> node in nodeCollection)
 			{
 				if (node.Nodes.Count > 0)
 				{
@@ -579,85 +576,4 @@ namespace L10NSharp.UI
 		}
 	}
 
-	#region NodeComparer class
-	/// ----------------------------------------------------------------------------------------
-	internal class NodeComparer : IComparer<LocTreeNode>
-	{
-		internal enum SortField
-		{
-			Id = 0,
-			SourceText = 1,
-			TargetText = 2,
-			SourceToolTip = 3,
-			TargetToolTip = 4
-		}
-
-		private readonly string _srcLangId;
-		private readonly string _tgtLangId;
-		private readonly SortOrder _sortOrder;
-		private readonly SortField _sortField;
-
-		/// ------------------------------------------------------------------------------------
-		internal NodeComparer(string srcLangId, string tgtLangId, SortOrder sortOrder, SortField sortField)
-		{
-			_srcLangId = srcLangId;
-			_tgtLangId = tgtLangId;
-			_sortOrder = sortOrder;
-			_sortField = sortField;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public int  Compare(LocTreeNode x, LocTreeNode y)
-		{
-			string xText = string.Empty;
-			string yText = string.Empty;
-
-			var prefixToRemove = (x.TreeView != null && x.TreeView.SelectedNode != null ?
-				x.TreeView.SelectedNode.Name : string.Empty);
-
-			const string kNonsenseIfNoPrefixExists = "5%ij#a"; //replace fails if the pattern is "", so use this
-			if (string.IsNullOrEmpty(prefixToRemove))
-				prefixToRemove = kNonsenseIfNoPrefixExists;
-
-			var ci = CultureInfo.GetCultureInfo("en");
-
-			switch ((int)_sortField)
-			{
-				case 0:
-					xText = x.Id.Replace(prefixToRemove, string.Empty).Trim('.');
-					yText = y.Id.Replace(prefixToRemove, string.Empty).Trim('.');
-					break;
-
-				case 1:
-					xText = x.GetText(_srcLangId) ?? string.Empty;
-					yText = y.GetText(_srcLangId) ?? string.Empty;
-					ci = CultureInfo.GetCultureInfo(_srcLangId);
-					break;
-
-				case 2:
-					xText = (x.GetTranslatedText(_tgtLangId) ?? x.GetText(_tgtLangId)) ?? string.Empty;
-					yText = (y.GetTranslatedText(_tgtLangId) ?? y.GetText(_tgtLangId)) ?? string.Empty;
-					ci = CultureInfo.GetCultureInfo(_tgtLangId);
-					break;
-
-				case 3:
-					xText = x.GetToolTip(_srcLangId) ?? string.Empty;
-					yText = y.GetToolTip(_srcLangId) ?? string.Empty;
-					ci = CultureInfo.GetCultureInfo(_srcLangId);
-					break;
-
-				case 4:
-					xText = (x.GetTranslatedToolTip(_tgtLangId) ?? x.GetToolTip(_tgtLangId)) ?? string.Empty;
-					yText = (y.GetTranslatedToolTip(_tgtLangId) ?? y.GetToolTip(_tgtLangId)) ?? string.Empty;
-					ci = CultureInfo.GetCultureInfo(_tgtLangId);
-					break;
-			}
-
-			return (_sortOrder == SortOrder.Ascending ?
-				 string.Compare(xText, yText, false, ci) :
-				 string.Compare(yText, xText, false, ci));
-		}
-	}
-
-	#endregion
 }
