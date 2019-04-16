@@ -22,23 +22,25 @@ using System.Xml.Serialization;
 namespace L10NSharp.XLiffUtils
 {
 	#region XLiffDocment class
+
 	/// ----------------------------------------------------------------------------------------
 
 	[XmlRoot("xliff", Namespace = "urn:oasis:names:tc:xliff:document:1.2")]
-	public class XLiffDocument
+	public class XLiffDocument : IDocument
 	{
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XLiffDocument"/> class.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        public XLiffDocument()
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Initializes a new instance of the <see cref="XLiffDocument"/> class.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public XLiffDocument()
 		{
 			File = new XLiffFile();
 			Version = "1.2";
 		}
 
 		#region Properties
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets or sets the XLIFF version.
@@ -61,26 +63,28 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		[XmlIgnore]
 		public bool IsDirty { get; set; }
+
 		#endregion
 
 		#region Methods
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the translation unit for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public TransUnit GetTransUnitForId(string id)
+		public XLiffTransUnit GetTransUnitForId(string id)
 		{
 			return File.Body.GetTransUnitForId(id);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<TransUnit> GetTransUnitsForTextInLang(string langId, string text)
+		public IEnumerable<XLiffTransUnit> GetTransUnitsForTextInLang(string langId, string text)
 		{
 			return from tu in File.Body.TransUnits
-				   let variant = tu.GetVariantForLang(langId)
-				   where variant != null && variant.Value == text
-				   select tu;
+				let variant = tu.GetVariantForLang(langId)
+				where variant != null && variant.Value == text
+				select tu;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -90,9 +94,9 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="tu">The translation unit.</param>
 		/// <returns>true if the translation unit was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		public bool AddTransUnit(TransUnit tu)
+		public bool AddTransUnit(ITransUnit tu)
 		{
-			return File.Body.AddTransUnit(tu);
+			return File.Body.AddTransUnit(tu as XLiffTransUnit);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -100,58 +104,62 @@ namespace L10NSharp.XLiffUtils
 		/// Remove the specified translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RemoveTransUnit(TransUnit tu)
+		public void RemoveTransUnit(ITransUnit tu)
 		{
-			File.Body.RemoveTransUnit(tu);
+			File.Body.RemoveTransUnit(tu as XLiffTransUnit);
 		}
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Saves the XLIFFDocument to the specified XLIFF file.
-        /// </summary>
-        /// ------------------------------------------------------------------------------------
-        public void Save(string xliffFile)
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Saves the XLIFFDocument to the specified XLIFF file.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public void Save(string xliffFile)
 		{
-            XLiffXmlSerializationHelper.SerializeToFile(xliffFile, this);
+			XLiffXmlSerializationHelper.SerializeToFile(xliffFile, this);
 		}
 
-        /// ------------------------------------------------------------------------------------
-        /// <summary>
-        /// Reads the specified XLIFF file and returns a XLIFFDocument containing the information
-        /// in the file.
-        /// </summary>
-        /// <param name= "xLiffFile">The XLiff file to read.</param>
-        /// ------------------------------------------------------------------------------------
-        public static XLiffDocument Read(string xLiffFile)
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reads the specified XLIFF file and returns a XLIFFDocument containing the information
+		/// in the file.
+		/// </summary>
+		/// <param name= "xLiffFile">The XLiff file to read.</param>
+		/// ------------------------------------------------------------------------------------
+		public static XLiffDocument Read(string xLiffFile)
 		{
 			if (!System.IO.File.Exists(xLiffFile))
 				throw new FileNotFoundException("XLiff file not found.", xLiffFile);
 
 			Exception e;
-			var xLiffDoc = XLiffXmlSerializationHelper.DeserializeFromFile<XLiffDocument>(xLiffFile, out e);
+			var xLiffDoc =
+				XLiffXmlSerializationHelper.DeserializeFromFile<XLiffDocument>(xLiffFile, out e);
 
 			if (e != null)
 				throw e;
 
 			// Fill in the fast lookup dictionary.
 			var langId = xLiffDoc.File.TargetLang;
-			if (String.IsNullOrEmpty(langId))
+			if (string.IsNullOrEmpty(langId))
 				langId = xLiffDoc.File.SourceLang;
 			foreach (var tu in xLiffDoc.File.Body.TransUnits)
 			{
 				if (xLiffDoc.File.Body.TranslationsById.ContainsKey(tu.Id))
 				{
-					Console.WriteLine("WARNING: string ID \"{0}\" already found in \"{1}\".", tu.Id, xLiffFile);
+					Console.WriteLine("WARNING: string ID \"{0}\" already found in \"{1}\".",
+						tu.Id, xLiffFile);
 				}
-				else if ((langId == xLiffDoc.File.SourceLang && langId == LocalizationManager.kDefaultLang) ||
-					!LocalizationManager.ReturnOnlyApprovedStrings ||
-					(tu.TranslationStatus == TransUnit.Status.Approved))
+				else if ((langId == xLiffDoc.File.SourceLang &&
+						langId == LocalizationManager.kDefaultLang) ||
+						!LocalizationManager.ReturnOnlyApprovedStrings ||
+						(tu.TranslationStatus == TranslationStatus.Approved))
 				{
 					var target = tu.GetVariantForLang(langId);
-					if (target != null && !String.IsNullOrEmpty(target.Value))
+					if (target != null && !string.IsNullOrEmpty(target.Value))
 						xLiffDoc.File.Body.TranslationsById.Add(tu.Id, target.Value);
 				}
 			}
+
 			return xLiffDoc;
 		}
 
@@ -162,18 +170,15 @@ namespace L10NSharp.XLiffUtils
 		/// This helps with the common case were we just changed the hierarchical organization of the id,
 		/// that is, the parts of the id before th final '.'.
 		/// </summary>
-		 public TransUnit GetTransUnitForOrphan(TransUnit orphan)
+		public XLiffTransUnit GetTransUnitForOrphan(XLiffTransUnit orphan)
 		{
-			 return File.Body.GetTransUnitForOrphan(orphan);
+			return File.Body.GetTransUnitForOrphan(orphan);
 		}
 
 		/// <summary>
 		/// Return the total number of strings.
 		/// </summary>
-		public int StringCount
-		{
-			get { return File.Body.StringCount; }
-		}
+		public int StringCount => File.Body.StringCount;
 
 		/// <summary>
 		/// Return the number of strings that appear to be translated.
@@ -181,10 +186,7 @@ namespace L10NSharp.XLiffUtils
 		/// <remarks>
 		/// This value never changes once it is set.
 		/// </remarks>
-		public int NumberTranslated
-		{
-			get { return File.Body.NumberTranslated; }
-		}
+		public int NumberTranslated => File.Body.NumberTranslated;
 
 		/// <summary>
 		/// Return the number of strings that are translated and marked approved.
@@ -192,13 +194,9 @@ namespace L10NSharp.XLiffUtils
 		/// <remarks>
 		/// This value never changes once it is set.
 		/// </remarks>
-		public int NumberApproved
-		{
-			get { return File.Body.NumberApproved; }
-		}
+		public int NumberApproved => File.Body.NumberApproved;
 	}
 
 
 	#endregion
 }
-

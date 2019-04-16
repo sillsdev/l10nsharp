@@ -44,7 +44,7 @@ namespace L10NSharp.Tests
 			var enfile = Path.Combine(_testFolder, "Test.en.xlf");
 			var endoc = XLiffDocument.Read(enfile);
 			// These numbers may be counter-intuitive, but then the English isn't translated, is it?
-			// Code at the LocalizationManager level will make English look okay for display by
+			// Code at the LocalizationManagerInternal level will make English look okay for display by
 			// faking the approved and translated counts.
 			Assert.AreEqual(4, endoc.StringCount);
 			Assert.AreEqual(0, endoc.NumberApproved);
@@ -69,7 +69,7 @@ namespace L10NSharp.Tests
 			var enfile = Path.Combine(_testFolder, "Test.en.xlf");
 			var endoc = XLiffDocument.Read(enfile);
 			// These numbers may be counter-intuitive, but then the English isn't translated, is it?
-			// Code at the LocalizationManager level will make English look okay for display by
+			// Code at the LocalizationManagerInternal level will make English look okay for display by
 			// faking the approved and translated counts.
 			Assert.AreEqual(4, endoc.StringCount);
 			string source;
@@ -152,8 +152,7 @@ namespace L10NSharp.Tests
 		{
 			var enfile = Path.Combine(_testFolder, "Test2.en.xlf");
 			var endoc = XLiffDocument.Read(enfile);
-			string source;
-			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.PlainText", out source));
+			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.PlainText", out var source));
 			Assert.AreEqual("This is plain text.", source);
 			Assert.IsTrue(endoc.File.Body.TranslationsById.TryGetValue("TestItem.Bold", out source));
 			Assert.AreEqual("This is <strong>bold</strong>.", source);
@@ -178,4 +177,3 @@ namespace L10NSharp.Tests
 		}
 	}
 }
-

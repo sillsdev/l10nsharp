@@ -1,9 +1,10 @@
-﻿using NUnit.Framework;
+﻿using L10NSharp.XLiffUtils;
+using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
 	[TestFixture]
-	public class LocalizedStringCacheTests
+	public class XLiffLocalizedStringCacheTests
 	{
 		[Test]
 		[TestCase(0, "This is a test.", true, TestName="CheckSubstitutionMarkers_1")]
@@ -29,7 +30,8 @@ namespace L10NSharp.Tests
 		[TestCase(3, "{\u09E6} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {\u09E8}pt.", false, TestName="CheckSubstitutionMarkers_18")]
 		public void CheckStringsForValidSubstitionMarkers(int markerCount, string formatting, bool isValid)
 		{
-			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(markerCount, formatting, "a.b"), Is.EqualTo(isValid));
+			Assert.That(XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(markerCount,
+				formatting, "a.b"), Is.EqualTo(isValid));
 		}
 
 		[Test]
@@ -52,10 +54,10 @@ namespace L10NSharp.Tests
 		[TestCase("\u0632 0}{{. \u0631",                 "\u0632 \u200E{0}\u200F. \u0631",       TestName = "FixBrokenFormattingString_Works_14")]
 		public void TryToFixBrokenSubstitutionMarkers(string badFormat, string goodFormat)
 		{
-			var result = LocalizedStringCache.FixBrokenFormattingString(badFormat);
+			var result = XLiffLocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
 			// Check for the maximum number of possible substitution markers: unused arguments don't matter for validity.
-			Assert.That(LocalizedStringCache.CheckForValidSubstitutionMarkers(3, result, "a.b"), Is.EqualTo(true));
+			Assert.That(XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(3, result, "a.b"), Is.EqualTo(true));
 		}
 
 		// This checks for a wider range of substition marker numbers.
@@ -74,7 +76,7 @@ namespace L10NSharp.Tests
 		[TestCase("\u0632 21}{{. \u0631",                 "\u0632 \u200E{21}\u200F. \u0631",       TestName = "FixBrokenSubstitution_Works_12")]
 		public void FixBrokenSubstitutionMarkersOnly(string badFormat, string goodFormat)
 		{
-			var result = LocalizedStringCache.FixBrokenFormattingString(badFormat);
+			var result = XLiffLocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
 		}
 	}

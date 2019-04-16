@@ -14,6 +14,18 @@ namespace L10NSharp.Tests
 	[TestFixture]
 	public class L10NCultureInfoTests
 	{
+		private static bool? _isMono;
+		private static bool IsMono
+		{
+			get
+			{
+				if (_isMono == null)
+					_isMono = Type.GetType("Mono.Runtime") != null;
+
+				return (bool)_isMono;
+			}
+		}
+
 		[Test]
 		public void L10NCultureInfo_TestEn()
 		{
@@ -29,15 +41,14 @@ namespace L10NSharp.Tests
 			Assert.AreEqual("Northern Pashto", pbuci.EnglishName);
 			// Linux/Mono4 and Windows7 will have null for pbuci.RawCultureInfo.
 			// Windows10 will produce a dummy object with no read information.
-#if __MonoCS__
-			Assert.IsNull(pbuci.RawCultureInfo);
-#else
-			if (pbuci.RawCultureInfo != null)
+
+			if (IsMono)
+				Assert.IsNull(pbuci.RawCultureInfo);
+			else if (pbuci.RawCultureInfo != null)
 			{
 				Assert.AreEqual("pbu", pbuci.RawCultureInfo.Name);
 				Assert.AreEqual("Unknown Language (pbu)", pbuci.RawCultureInfo.EnglishName);
 			}
-#endif
 		}
 
 		[Test]
