@@ -5,7 +5,17 @@ tag-prefix: xliff-
 branches:
   master:
     tag: beta
-    regex: (origin/)?(master|xliff)
+    regex: (origin/)?master
+    is-source-branch-for: [ 'hotfix', 'pull-request' ]
+  xliff:
+    tag: beta
+    regex: (origin/)?xliff
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: true
+    is-source-branch-for: [ 'hotfix', 'pull-request' ]
+    source-branches: []
   hotfix:
     tag: beta
     regex: (origin/)?hotfix[/-]
