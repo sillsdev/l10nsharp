@@ -18,15 +18,13 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <BaseIntermediateOutputPath>obj\Designer</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <OutputPath>..\..\output\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -40,6 +38,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <OutputPath>..\..\..\output\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -193,21 +192,20 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\Utils.cs" />
-    <Compile Include="TMXUtils\TMXBaseWithNotesAndProps.cs" />
-    <Compile Include="TMXUtils\TMXBody.cs" />
-    <Compile Include="TMXUtils\TMXDocument.cs" />
-    <Compile Include="TMXUtils\TMXHeader.cs" />
-    <Compile Include="TMXUtils\TMXNote.cs" />
-    <Compile Include="TMXUtils\TMXProp.cs" />
-    <Compile Include="TMXUtils\TMXSegment.cs" />
-    <Compile Include="TMXUtils\TMXTags.cs" />
-    <Compile Include="TMXUtils\TMXWriter.cs" />
-    <Compile Include="TMXUtils\TransUnit.cs" />
-    <Compile Include="TMXUtils\TransUnitVariant.cs" />
-    <Compile Include="TMXUtils\XmlSerializationHelper.cs" />
     <Compile Include="Translators\BingTranslator.cs" />
     <Compile Include="Translators\GoogleTranslator.cs" />
     <Compile Include="Translators\TranslatorBase.cs" />
+    <Compile Include="XLiffUtils\TargetVariant.cs" />
+    <Compile Include="XLiffUtils\XLiffBody.cs" />
+    <Compile Include="XLiffUtils\XLiffHeader.cs" />
+    <Compile Include="XLiffUtils\TransUnit.cs" />
+    <Compile Include="XLiffUtils\TransUnitVariant.cs" />
+    <Compile Include="XLiffUtils\XLiffBaseWithNotesAndProps.cs" />
+    <Compile Include="XLiffUtils\XLiffDocument.cs" />
+    <Compile Include="XLiffUtils\XLiffFile.cs" />
+    <Compile Include="XLiffUtils\XLiffNote.cs" />
+    <Compile Include="XLiffUtils\XLiffProp.cs" />
+    <Compile Include="XLiffUtils\XLiffXmlSerializationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -225,6 +223,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\HowToDistributeDialog.resx">
       <DependentUpon>HowToDistributeDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\LanguageChoosingDialog.resx">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
