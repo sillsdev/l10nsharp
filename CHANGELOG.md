@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Create .exe for CheckOrFixXliff and ExtractXliff instead of .dll
+
 ## [3.1.0] - 2019-04-16
 
 ### Changed
