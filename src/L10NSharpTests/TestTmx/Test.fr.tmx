@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tmx version="1.4">
+  <header srclang="fr" adminlang="en" creationtool="Palaso Localization Manager" creationtoolversion="2.0.5393.15639" segtype="block" datatype="unknown" o-tmf="PalasoTMXUtils">
+    <prop type="x-appversion">1.0</prop>
+    <prop type="x-hardlinebreakreplacement">\n</prop>
+  </header>
+  <body>
+    <tu tuid="TestItem.Bird.Crow">
+      <prop type="x-dynamic">true</prop>
+      <tuv xml:lang="en">
+        <seg>It's a crow</seg>
+      </tuv>
+      <tuv xml:lang="fr">
+        <seg>C'est un corbeau</seg>
+      </tuv>
+    </tu>
+    <tu tuid="TestItem.Bird.Raven">
+      <prop type="x-dynamic">true</prop>
+      <tuv xml:lang="en">
+        <seg>It's not a crow</seg>
+      </tuv>
+      <tuv xml:lang="fr">
+        <seg>Ce n'est pas un corbeau</seg>
+      </tuv>
+    </tu>
+    <tu tuid="TestItem.Chicken.Rooster">
+      <prop type="x-dynamic">true</prop>
+      <tuv xml:lang="en">
+        <seg>It's a chicken</seg>
+      </tuv>
+      <tuv xml:lang="fr">
+        <seg>C'est un poulet</seg>
+      </tuv>
+    </tu>
+    <tu tuid="TestItem.Bird.Eagle">
+      <prop type="x-dynamic">true</prop>
+      <tuv xml:lang="en">
+        <seg>Fish-eating bird</seg>
+      </tuv>
+      <tuv xml:lang="fr">
+        <seg>Un oiseau qui mange des poissons</seg>
+      </tuv>
+    </tu>
+</body>
+</tmx>
