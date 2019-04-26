@@ -783,7 +783,7 @@ namespace L10NSharp
 			var fileExtension =
 				LocalizationManager.TranslationMemoryKind == TranslationMemory.XLiff
 					? XLiffLocalizationManager.FileExtension
-					: throw new NotImplementedException();
+					: TMXLocalizationManager.FileExtension;
 			return LocalizationManager.UseLanguageCodeFolders
 				? Path.Combine(langId, $"{appId}{fileExtension}")
 				: $"{appId}.{langId}{fileExtension}";

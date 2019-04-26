@@ -6,11 +6,11 @@ namespace L10NSharp.UI
 {
 	public partial class HowToDistributeDialog : Form
 	{
-		private readonly string _targetXliffFilePath;
+		private readonly string _targetTranslationFilePath;
 
-		public HowToDistributeDialog(string emailForSubmissions, string targetXliffFilePath)
+		public HowToDistributeDialog(string emailForSubmissions, string targetTranslationFilePath)
 		{
-			_targetXliffFilePath = targetXliffFilePath;
+			_targetTranslationFilePath = targetTranslationFilePath;
 			InitializeComponent();
 
 			if (Utils.IsMono)
@@ -30,14 +30,14 @@ namespace L10NSharp.UI
 			_emailLabel.Text=emailForSubmissions;
 		}
 
-		private void OnShowXliffFile(object sender, LinkLabelLinkClickedEventArgs e)
+		private void OnShowTranslationFile(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			var path = _targetXliffFilePath;
+			var path = _targetTranslationFilePath;
 			if (Path.DirectorySeparatorChar != '/')
 				path = path.Replace('/', Path.DirectorySeparatorChar); //forward slashes kill the selection attempt and it opens in My Documents.
 			if (!File.Exists(path))
 			{
-				MessageBox.Show("Sorry, the Xliff file hasn't been saved yet, so we can't show it to you yet.");
+				MessageBox.Show("Sorry, the translation memory file hasn't been saved yet, so we can't show it to you yet.");
 				return;
 			}
 			if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)

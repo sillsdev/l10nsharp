@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using L10NSharp.CodeReader;
 using L10NSharp.Tests;
+using L10NSharp.TMXUtils;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
 
@@ -11,7 +12,11 @@ namespace L10NSharp.Tests
 	[TestFixture]
 	public class CodeReaderTestsXliff : CodeReaderTests<XLiffDocument>
 	{
+	}
 
+	[TestFixture]
+	public class CodeReaderTestsTmx : CodeReaderTests<TMXDocument>
+	{
 	}
 
 	public abstract class CodeReaderTests<T>
