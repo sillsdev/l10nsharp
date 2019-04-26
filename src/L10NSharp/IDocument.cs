@@ -9,7 +9,7 @@ namespace L10NSharp
 	{
 		bool IsDirty { get; }
 		void Save(string filename);
-		bool AddTransUnit(TransUnit tu);
-		void RemoveTransUnit(TransUnit tu);
+		bool AddTransUnit(ITransUnit tu);
+		void RemoveTransUnit(ITransUnit tu);
 	}
 }
