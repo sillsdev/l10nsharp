@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
       LocalizationManager.Create(TranslationMemory.XLiff, lang, "SampleApp", "SampleApp",
         Application.ProductVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",
         icon, "sample@example.com", "SampleApp");
+        
+- Nuget package is now called `L10NSharp` instead of `L10NSharp.xliff` or `L10NSharp.tmx`
 
 ## [3.1.1] - 2019-04-26
 

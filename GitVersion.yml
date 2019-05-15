@@ -1,7 +1,5 @@
 assembly-versioning-scheme: MajorMinor
 mode: ContinuousDeployment
-next-version: 3.1.0
-tag-prefix: xliff-
 branches:
   master:
     tag: beta
