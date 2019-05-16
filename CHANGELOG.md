@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.0] - 2019-05-16
+
 ### Changed
 
 - Allow to select translation memory (TMX or XLIFF). This changed a few APIs.
