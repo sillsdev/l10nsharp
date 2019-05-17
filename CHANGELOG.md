@@ -21,7 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Allow to select translation memory (TMX or XLIFF). This changed a few APIs.
-  To create a `LocalizationManager` you now pass a `TranslationMemory` parameter:
+  To create a `LocalizationManager` you now pass a `TranslationMemory` parameter
+  (cf. [migration](https://github.com/sillsdev/l10nsharp/wiki/Migration) guide):
   
       LocalizationManager.Create(TranslationMemory.XLiff, lang, "SampleApp", "SampleApp",
         Application.ProductVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",

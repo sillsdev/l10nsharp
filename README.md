@@ -9,15 +9,19 @@ selected when creating a `LocalizationManager`.
 
 ## How to use
 
-To use L10NSharp in your application, simply create a `LocalizationManager`, passing the location
-of the translation memory files and some other information:
+L10NSharp is provided as a [nuget package](https://www.nuget.org/packages/L10NSharp).
 
-      using (var lm = LocalizationManager.Create(TranslationMemory.XLiff, lang, "SampleApp",
-        "SampleApp", productVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",
-        icon, "sample@example.com", "SampleApp")
-      {
-        // existing code to run the application
-      }
+To use L10NSharp in your application, simply call the `Create` method on `LocalizationManager`, 
+passing the location of the translation memory files and some other information:
+
+```csharp
+using (var lm = LocalizationManager.Create(TranslationMemory.XLiff, lang, "SampleApp",
+    "SampleApp", productVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",
+    icon, "sample@example.com", "SampleApp")
+{
+    // existing code to run the application
+}
+```
 
 ## L10NSharpExtender
 
@@ -28,6 +32,11 @@ automatically collect all the localizable strings on your form or control and it
 
 L10NSharp provides a dialog for translating terms while running the application. The dialog can be
 launched by Alt-Shift-clicking a Windows Forms element.
+
+## Upgrading to a newer version
+
+The [migration](https://github.com/sillsdev/l10nsharp/wiki/Migration) guide describes the 
+necessary changes when upgrading to a higher major version.
 
 ## Building
 
