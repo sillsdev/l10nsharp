@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -1117,31 +1117,74 @@ namespace L10NSharp.TMXUtils
 		public IEnumerable<string> GetAvailableUILanguageTags()
 		{
 			var tags = new List<string>();
-			if (!Directory.Exists(_installedTmxFileFolder))
-				return tags;
+
 			if (LocalizationManager.UseLanguageCodeFolders)
 			{
-				foreach (var folder in Directory.GetDirectories(_installedTmxFileFolder))
+				if (Directory.Exists(_installedTmxFileFolder))
 				{
-					var tmxFile = Path.Combine(folder, $"{Id}{FileExtension}");
-					var langTag = GetLanguageTagFromFilePath(tmxFile);
-					if (langTag != null)
-						tags.Add(langTag);
+					foreach (var folder in Directory.GetDirectories(_installedTmxFileFolder))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFolderName(folder));
+				}
+
+				if (Directory.Exists(_generatedDefaultTmxFileFolder))
+				{
+					foreach (var folder in Directory.GetDirectories(_generatedDefaultTmxFileFolder))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFolderName(folder));
+				}
+
+				if (Directory.Exists(_customTmxFileFolder))
+				{
+					foreach (var folder in Directory.GetDirectories(_customTmxFileFolder))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFolderName(folder));
 				}
 			}
 			else
 			{
-				foreach (var filepath in Directory.GetFiles(_installedTmxFileFolder,
-					$"{Id}.*{FileExtension}"))
+				if (Directory.Exists(_installedTmxFileFolder))
 				{
-					var filename = Path.GetFileNameWithoutExtension(filepath);
-					var tag = filename.Substring(Id.Length + 1);
-					tags.Add(tag);
+					foreach (var filepath in Directory.GetFiles(_installedTmxFileFolder,
+						$"{Id}.*{FileExtension}"))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFileName(filepath));
+				}
+
+				if (Directory.Exists(_generatedDefaultTmxFileFolder))
+				{
+					foreach (var filepath in Directory.GetFiles(_generatedDefaultTmxFileFolder,
+						$"{Id}.*{FileExtension}"))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFileName(filepath));
+				}
+
+				if (Directory.Exists(_customTmxFileFolder))
+				{
+					foreach (var filepath in Directory.GetFiles(_customTmxFileFolder,
+						$"{Id}.*{FileExtension}"))
+						tags.AddIfUniqueAndNotNull(GetLanguageTagFromFileName(filepath));
 				}
 			}
 
 			return tags;
+		}
 
+		/// <summary>
+		/// Gets the language code from the folder name, if using language code folders
+		/// </summary>
+		/// <param name="folder"></param>
+		/// <returns></returns>
+		private string GetLanguageTagFromFolderName(string folder)
+		{
+			var tmxFile = Path.Combine(folder, $"{Id}{FileExtension}");
+			return GetLanguageTagFromFilePath(tmxFile);
+		}
+
+		/// <summary>
+		/// Gets the language code from the file name, if not using language code folders
+		/// </summary>
+		/// <param name="filePath"></param>
+		/// <returns></returns>
+		private string GetLanguageTagFromFileName(string filePath)
+		{
+			var fileName = Path.GetFileNameWithoutExtension(filePath);
+			return fileName?.Substring(Id.Length + 1);
 		}
 
 		/// <summary>

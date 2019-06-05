@@ -74,7 +74,6 @@ namespace L10NSharp.Tests
 			return new TMXTransUnitVariant { Lang = lang, Value = value };
 		}
 
-
 		protected override string GetGeneratedVersion(XElement xmlDoc)
 		{
 			var headerElt = xmlDoc.Element("header");
@@ -82,5 +81,18 @@ namespace L10NSharp.Tests
 			return verElement == null ? null : new Version(verElement.Value).ToString();
 		}
 
+		[Test]
+		public void GetCustomUILanguageTags_FindsFiveLanguages()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+				AddRandomTranslation("ii", GetUserModifiedDirectory(folder));
+				var lm = LocalizationManager.LoadedManagers.Values.First();
+				var tags = lm.GetAvailableUILanguageTags().ToArray();
+				Assert.That(tags.Length, Is.EqualTo(5));
+				Assert.That(tags.Contains("ii"), Is.True);
+			}
+		}
 	}
 }

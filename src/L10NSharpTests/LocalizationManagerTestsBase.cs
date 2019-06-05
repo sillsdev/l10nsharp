@@ -401,7 +401,7 @@ namespace L10NSharp.Tests
 			return parentDir.Combine("generated");
 		}
 
-		private static string GetUserModifiedDirectory(TempFolder parentDir)
+		protected static string GetUserModifiedDirectory(TempFolder parentDir)
 		{
 			return parentDir.Combine("userModified");
 		}
