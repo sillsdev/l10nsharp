@@ -73,6 +73,7 @@
     <Compile Include="INote.cs" />
     <Compile Include="ITransUnit.cs" />
     <Compile Include="ITransUnitVariant.cs" />
+    <Compile Include="L10NSharpListExtensions.cs" />
     <Compile Include="TMXUtils\TMXBaseWithNotesAndProps.cs" />
     <Compile Include="TMXUtils\TMXBody.cs" />
     <Compile Include="TMXUtils\TMXDocument.cs" />
