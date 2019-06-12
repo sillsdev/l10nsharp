@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using L10NSharp.TMXUtils;
@@ -82,16 +83,56 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void GetCustomUILanguageTags_FindsFiveLanguages()
+		public void GetAvailableUILanguageTags_AddRandomTranslation_FindsTmxFileInUserModifiedDirectory()
 		{
 			using (var folder = new TempFolder())
 			{
 				SetupManager(folder);
+
+				// add a custom localization in the User Modified directory
 				AddRandomTranslation("ii", GetUserModifiedDirectory(folder));
+
+				// load available localizations
 				var lm = LocalizationManager.LoadedManagers.Values.First();
 				var tags = lm.GetAvailableUILanguageTags().ToArray();
-				Assert.That(tags.Length, Is.EqualTo(5));
-				Assert.That(tags.Contains("ii"), Is.True);
+
+				// was the 'ii' tag found?
+				Assert.That(tags.Contains("ii"), Is.True,
+					"Tag 'ii' not found.");
+
+				// is the TMX file in the User Modified directory?
+				Assert.That(File.Exists(Path.Combine(GetUserModifiedDirectory(folder), "test.ii.tmx")), Is.True,
+					"File 'test.ii.tmx' not found in User Modified directory.");
+			}
+		}
+
+		[Test]
+		public void GetAvailableUILanguageTags_FindsEnglishTmxFileInGeneratedDirectory()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+
+				// remove the installed English TMX file
+				var installedEnglishFile = Path.Combine(GetInstalledDirectory(folder), "test.en.tmx");
+				Assert.That(File.Exists(installedEnglishFile), Is.True,
+					"File 'test.en.tmx' not found in Installed directory.");
+
+				File.Delete(installedEnglishFile);
+				Assert.That(File.Exists(installedEnglishFile), Is.False,
+					"File 'test.en.tmx' was not deleted.");
+
+				// load the remaining localizations
+				var lm = LocalizationManager.LoadedManagers.Values.First();
+				var tags = lm.GetAvailableUILanguageTags().ToArray();
+
+				// was the 'en' tag found?
+				Assert.That(tags.Contains("en"), Is.True,
+					"Tag 'en' not found.");
+
+				// is the TMX file in the Generated directory?
+				Assert.That(File.Exists(Path.Combine(GetGeneratedDirectory(folder), "test.en.tmx")), Is.True,
+					"File 'test.en.tmx' not found in Generated directory.");
 			}
 		}
 	}
