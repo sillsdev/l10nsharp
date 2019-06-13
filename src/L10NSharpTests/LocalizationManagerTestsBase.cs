@@ -396,12 +396,12 @@ namespace L10NSharp.Tests
 			return parentDir.Path; // no reason we can't use the root temp dir for the "installed" Translation's
 		}
 
-		private static string GetGeneratedDirectory(TempFolder parentDir)
+		protected static string GetGeneratedDirectory(TempFolder parentDir)
 		{
 			return parentDir.Combine("generated");
 		}
 
-		private static string GetUserModifiedDirectory(TempFolder parentDir)
+		protected static string GetUserModifiedDirectory(TempFolder parentDir)
 		{
 			return parentDir.Combine("userModified");
 		}
