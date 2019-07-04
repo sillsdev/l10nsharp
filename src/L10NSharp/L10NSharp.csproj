@@ -25,6 +25,8 @@
     <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />
