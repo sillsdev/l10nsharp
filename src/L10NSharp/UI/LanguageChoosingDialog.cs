@@ -27,7 +27,16 @@ namespace L10NSharp.UI
 			var translator = new BingTranslator("en", _requestedCulture.TwoLetterISOLanguageName);
 			try
 			{
-				var s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName, _requestedCulture.NativeName));
+				var s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName));
+				if (s.Contains("{1}") && s.Length > 5) // If we just get back "{1} or "({1})", we won't consider that useful.
+				{
+					// Bing will presumably have translated the English string into the native language, so now we want
+					// to display the English name in parentheses. (As a sanity check, we could look to see whether the
+					// native name is in the string, but there could be situations where it may not be an exact match.)
+					s = string.Format(s.Replace("{1}", "{0}"), _requestedCulture.EnglishName);
+				}
+				else
+					s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName, _requestedCulture.NativeName));
 				if (!string.IsNullOrEmpty(s))
 				{
 					_messageLabel.Text = s;
