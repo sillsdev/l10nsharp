@@ -123,6 +123,7 @@
     <Compile Include="UI\LanguageChoosingDialog.Designer.cs">
       <DependentUpon>LanguageChoosingDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\LanguageChoosingDialogViewModel.cs" />
     <Compile Include="UI\LanguageChoosingSimpleDialog.cs">
       <SubType>Form</SubType>
     </Compile>

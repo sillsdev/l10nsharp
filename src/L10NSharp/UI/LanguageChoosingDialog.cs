@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Globalization;
 using System.Windows.Forms;
 using L10NSharp.Translators;
 
@@ -8,40 +7,23 @@ namespace L10NSharp.UI
 {
 	public partial class LanguageChoosingDialog : Form
 	{
-		private readonly L10NCultureInfo _requestedCulture;
-		private string _originalMessageTemplate;
+		private readonly LanguageChoosingDialogViewModel _model;
 
 		public LanguageChoosingDialog(L10NCultureInfo requestedCulture, Icon icon)
 		{
-			_requestedCulture = requestedCulture;
 			InitializeComponent();
 			this.Icon = icon;
-			_originalMessageTemplate = _messageLabel.Text;
-			_messageLabel.Text = string.Format(_originalMessageTemplate, requestedCulture.EnglishName, requestedCulture.NativeName);
-			Application.Idle += new EventHandler(Application_Idle);
+			_model = new LanguageChoosingDialogViewModel(_messageLabel.Text, _OKButton.Text, Text, requestedCulture, () => { Application.Idle += Application_Idle; } );
+			_messageLabel.Text = _model.Message;
 		}
 
 		void Application_Idle(object sender, EventArgs e)
 		{
-			Application.Idle -= new EventHandler(Application_Idle);
-			var translator = new BingTranslator("en", _requestedCulture.TwoLetterISOLanguageName);
-			try
-			{
-				var s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName, _requestedCulture.NativeName));
-				if (!string.IsNullOrEmpty(s))
-				{
-					_messageLabel.Text = s;
-					// In general, we will be able to translate OK and the title bar text iff we were able to translate
-					// the message.  This assumption saves a few processor cycles and prevents disappearing text when
-					// a language has not been localized (as is likely the case when we display this dialog).
-					_OKButton.Text = translator.TranslateText("OK");
-					Text = translator.TranslateText(Text);
-				}
-			}
-			catch (Exception)
-			{
-				//swallow
-			}
+			Application.Idle -= Application_Idle;
+			_model.SetTranslator(new BingTranslator("en", _model.RequestedCultureTwoLetterISOLanguageName));
+			_messageLabel.Text = _model.Message;
+			_OKButton.Text = _model.AcceptButtonText;
+			Text = _model.WindowTitle;
 		}
 
 		public string SelectedLanguage;
