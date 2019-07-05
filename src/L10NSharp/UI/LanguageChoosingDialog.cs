@@ -9,7 +9,7 @@ namespace L10NSharp.UI
 	public partial class LanguageChoosingDialog : Form
 	{
 		private readonly L10NCultureInfo _requestedCulture;
-		private string _originalMessageTemplate;
+		private readonly string _originalMessageTemplate;
 
 		public LanguageChoosingDialog(L10NCultureInfo requestedCulture, Icon icon)
 		{
@@ -17,13 +17,19 @@ namespace L10NSharp.UI
 			InitializeComponent();
 			this.Icon = icon;
 			_originalMessageTemplate = _messageLabel.Text;
+			if (requestedCulture.EnglishName == requestedCulture.NativeName)
+			{
+				// It looks weird and stupid to display "English (English)" or any other such pair where the two strings are the same.
+				_originalMessageTemplate = _originalMessageTemplate.Replace(" ({1})", "");
+			}
 			_messageLabel.Text = string.Format(_originalMessageTemplate, requestedCulture.EnglishName, requestedCulture.NativeName);
-			Application.Idle += new EventHandler(Application_Idle);
+			if (requestedCulture.TwoLetterISOLanguageName != "en")
+				Application.Idle += Application_Idle;
 		}
 
 		void Application_Idle(object sender, EventArgs e)
 		{
-			Application.Idle -= new EventHandler(Application_Idle);
+			Application.Idle -= Application_Idle;
 			var translator = new BingTranslator("en", _requestedCulture.TwoLetterISOLanguageName);
 			try
 			{
@@ -35,7 +41,7 @@ namespace L10NSharp.UI
 					// native name is in the string, but there could be situations where it may not be an exact match.)
 					s = string.Format(s.Replace("{1}", "{0}"), _requestedCulture.EnglishName);
 				}
-				else
+				else if (_originalMessageTemplate.Contains("{1}")) // If the language names are the same, we already weeded out the extra param.
 					s = translator.TranslateText(string.Format(_originalMessageTemplate, _requestedCulture.EnglishName, _requestedCulture.NativeName));
 				if (!string.IsNullOrEmpty(s))
 				{
