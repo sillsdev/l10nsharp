@@ -16,10 +16,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Fixed
-- Don't ask Bing translator to translate language names: https://github.com/sillsdev/l10nsharp/issues/66.
-  Also don't display the name a second time in parentheses if English and native name are identical.
-
 ### Added
 
 - create symbol nuget package
@@ -27,6 +23,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Find TMX files in `Generated` and `User Modified` directories
+
+- Don't ask Bing translator to translate language names: https://github.com/sillsdev/l10nsharp/issues/66.
+  Also don't display the name a second time in parentheses if English and native name are identical.
 
 ## [4.0.0] - 2019-05-16
 
