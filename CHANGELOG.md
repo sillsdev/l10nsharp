@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [4.0.1] - 2019-07-08
+
 ### Added
 
 - create symbol nuget package
