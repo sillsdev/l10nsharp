@@ -31,7 +31,10 @@ namespace L10NSharp.UI
 		{
 			try
 			{
-				var s = translator.TranslateText(string.Format(_messageLabelFormat, _requestedCulture.EnglishName, "{0}"));
+				var sourceString = string.Format(_messageLabelFormat, _requestedCulture.EnglishName, "{0}");
+				var s = translator.TranslateText(sourceString);
+				if (s == sourceString)
+					return;
 				if (s.Contains("{0}") && s.Length > 5) // If we just get back "{0} or "({0})", we won't consider that useful.
 				{
 					// Bing will presumably have translated the English string into the native language, so now we want

@@ -158,6 +158,20 @@ namespace L10NSharp.Tests
 			Assert.IsTrue(translator.SourceStrings.SequenceEqual(new[] { "No localization for Spanish ({0})" }));
 		}
 
+		[Test]
+		public void SetTranslator_TranslatorReturnsSourceString_NoAttemptToSubstituteEnglishNameOrTranslateOtherStrings()
+		{
+			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "Okey-dokey", "Select a Language",
+				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "es"),
+				null);
+			var translator = new TestTranslatorBase(); // This translator just returns unmodified source string
+			model.SetTranslator(translator);
+			Assert.AreEqual("No localization for Spanish (español)", model.Message);
+			Assert.AreEqual("Okey-dokey", model.AcceptButtonText);
+			Assert.AreEqual("Select a Language", model.WindowTitle);
+			Assert.IsTrue(translator.SourceStrings.SequenceEqual(new[] { "No localization for Spanish ({0})" }));
+		}
+
 		private class TestTranslatorBase : TranslatorBase
 		{
 			public List<string> SourceStrings { get; }
