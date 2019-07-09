@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.2] - 2019-07-09
+
 ### Fixed
 
 - If translator returns an unmodified source string, don't substitute the English language name for the vernacular name.
