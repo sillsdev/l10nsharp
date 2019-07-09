@@ -1,16 +1,30 @@
 using System;
+using System.Diagnostics;
 using L10NSharp.Translators;
 
 namespace L10NSharp.UI
 {
-	public class LanguageChoosingDialogViewModel
+	internal class LanguageChoosingDialogViewModel
 	{
 		private readonly L10NCultureInfo _requestedCulture;
 		private readonly string _messageLabelFormat;
 		private readonly string _acceptButtonText;
 		private readonly string _windowTitle;
 
-		public LanguageChoosingDialogViewModel(string messageLabelFormat, string acceptButtonText, string windowTitle,
+		/// <summary>
+		/// Creates a new LanguageChoosingDialogViewModel object to handle (asynchronous) translation of message and other UI strings
+		/// displayed in the LanguageChoosingDialog.
+		/// </summary>
+		/// <param name="messageLabelFormat">Format string where param {0} is the native name of the requested UI language/culture and
+		/// param {1} is the English name of the requested UI language/culture</param>
+		/// <param name="acceptButtonText">The "OK" button text (not a format string)</param>
+		/// <param name="windowTitle">The dialog's title (not a format string)</param>
+		/// <param name="requestedCulture">The requested UI language/culture. Typically, this will not be English (though in some of
+		/// the tests it is)</param>
+		/// <param name="nonEnglishUiAction">An action that should be performed only if the requested culture is not English. In
+		/// production, this action will set up an action to be performed (once) on idle so that TranslateStrings can be called and
+		/// the UI can be updated to reflect the newly translated strings, if appropriate.</param>
+		internal LanguageChoosingDialogViewModel(string messageLabelFormat, string acceptButtonText, string windowTitle,
 			L10NCultureInfo requestedCulture, Action nonEnglishUiAction)
 		{
 			_messageLabelFormat = messageLabelFormat;
@@ -27,11 +41,14 @@ namespace L10NSharp.UI
 				nonEnglishUiAction?.Invoke();
 		}
 
-		public void SetTranslator(TranslatorBase translator)
+		internal void TranslateStrings(TranslatorBase translator)
 		{
 			try
 			{
-				var s = translator.TranslateText(string.Format(_messageLabelFormat, _requestedCulture.EnglishName, "{0}"));
+				var sourceString = string.Format(_messageLabelFormat, _requestedCulture.EnglishName, "{0}");
+				var s = translator.TranslateText(sourceString);
+				if (s == sourceString)
+					return;
 				if (s.Contains("{0}") && s.Length > 5) // If we just get back "{0} or "({0})", we won't consider that useful.
 				{
 					// Bing will presumably have translated the English string into the native language, so now we want
@@ -62,9 +79,9 @@ namespace L10NSharp.UI
 			}
 		}
 
-		public string RequestedCultureTwoLetterISOLanguageName => _requestedCulture.TwoLetterISOLanguageName;
-		public string Message { get; private set; }
-		public string AcceptButtonText { get; private set; }
-		public string WindowTitle { get; private set; }
+		internal string RequestedCultureTwoLetterISOLanguageName => _requestedCulture.TwoLetterISOLanguageName;
+		internal string Message { get; private set; }
+		internal string AcceptButtonText { get; private set; }
+		internal string WindowTitle { get; private set; }
 	}
 }
