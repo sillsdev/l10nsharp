@@ -20,7 +20,7 @@ namespace L10NSharp.UI
 		void Application_Idle(object sender, EventArgs e)
 		{
 			Application.Idle -= Application_Idle;
-			_model.SetTranslator(new BingTranslator("en", _model.RequestedCultureTwoLetterISOLanguageName));
+			_model.TranslateStrings(new BingTranslator("en", _model.RequestedCultureTwoLetterISOLanguageName));
 			_messageLabel.Text = _model.Message;
 			_OKButton.Text = _model.AcceptButtonText;
 			Text = _model.WindowTitle;

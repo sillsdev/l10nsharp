@@ -85,14 +85,14 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void SetTranslator_RequestedCultureEnglish_TranslationAppliedOnceToEachString()
+		public void TranslateStrings_RequestedCultureEnglish_TranslationAppliedOnceToEachString()
 		{
 			var model = new LanguageChoosingDialogViewModel("Blah {0} ({1}) yup!", "OK", "Choose a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "en"),
 				null);
 			Assert.AreEqual("Blah English yup!", model.Message);
 			var translator = new TestTranslatorBumpyFrog();
-			model.SetTranslator(translator);
+			model.TranslateStrings(translator);
 			Assert.AreEqual("Bumpy frog Blah English yup!", model.Message);
 			Assert.AreEqual("Bumpy frog OK", model.AcceptButtonText);
 			Assert.AreEqual("Bumpy frog Choose a Language", model.WindowTitle);
@@ -100,14 +100,14 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void SetTranslator_RequestedCultureGermanNormalTranslation_TranslationAppliedOnceToEachString()
+		public void TranslateStrings_RequestedCultureGermanNormalTranslation_TranslationAppliedOnceToEachString()
 		{
 			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "OK", "Choose a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "de"),
 				null);
 			Assert.AreEqual("No localization for German (Deutsch)", model.Message);
 			var translator = new TestTranslatorGerman();
-			model.SetTranslator(translator);
+			model.TranslateStrings(translator);
 			Assert.AreEqual("Ich spreche No localization for Deutsch (German)", model.Message);
 			Assert.AreEqual("Ich spreche OK", model.AcceptButtonText);
 			Assert.AreEqual("Ich spreche Choose a Language", model.WindowTitle);
@@ -115,28 +115,28 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void SetTranslator_ChangeTranslator_TranslationAppliedToOriginalString()
+		public void TranslateStrings_ChangeTranslator_TranslationAppliedToOriginalString()
 		{
 			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "OK", "Choose a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "de"),
 				null);
 			Assert.AreEqual("No localization for German (Deutsch)", model.Message);
-			model.SetTranslator(new TestTranslatorBumpyFrog());
-			model.SetTranslator(new TestTranslatorGerman());
+			model.TranslateStrings(new TestTranslatorBumpyFrog());
+			model.TranslateStrings(new TestTranslatorGerman());
 			Assert.AreEqual("Ich spreche No localization for Deutsch (German)", model.Message);
 			Assert.AreEqual("Ich spreche OK", model.AcceptButtonText);
 			Assert.AreEqual("Ich spreche Choose a Language", model.WindowTitle);
 		}
 
 		[Test]
-		public void SetTranslator_RequestedCultureSpanishChokesOnFormatParam_TranslationReappliedToStringWithoutParam()
+		public void TranslateStrings_RequestedCultureSpanishChokesOnFormatParam_TranslationReappliedToStringWithoutParam()
 		{
 			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "OK", "Choose a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "es"),
 				null);
 			Assert.AreEqual("No localization for Spanish (español)", model.Message);
 			var translator = new TestTranslatorSpanishChokesOnFormatParam();
-			model.SetTranslator(translator);
+			model.TranslateStrings(translator);
 			// Note: the test translator mimics Bing's behavior of replacing the English name of the requested language with the word "English" in the translation.
 			Assert.AreEqual("No choke No localization for English (español)", model.Message);
 			Assert.AreEqual("No choke OK", model.AcceptButtonText);
@@ -145,13 +145,13 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void SetTranslator_TranslatorThrowsException_ExceptionSwallowedAndNoAttemptToTranslateOtherStrings()
+		public void TranslateStrings_TranslatorThrowsException_ExceptionSwallowedAndNoAttemptToTranslateOtherStrings()
 		{
 			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "Okey-dokey", "Select a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "es"),
 				null);
 			var translator = new TestTranslatorThrowsException();
-			model.SetTranslator(translator);
+			model.TranslateStrings(translator);
 			Assert.AreEqual("No localization for Spanish (español)", model.Message);
 			Assert.AreEqual("Okey-dokey", model.AcceptButtonText);
 			Assert.AreEqual("Select a Language", model.WindowTitle);
@@ -159,13 +159,13 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void SetTranslator_TranslatorReturnsSourceString_NoAttemptToSubstituteEnglishNameOrTranslateOtherStrings()
+		public void TranslateStrings_TranslatorReturnsSourceString_NoAttemptToSubstituteEnglishNameOrTranslateOtherStrings()
 		{
 			var model = new LanguageChoosingDialogViewModel("No localization for {0} ({1})", "Okey-dokey", "Select a Language",
 				L10NCultureInfo.GetCultures(CultureTypes.NeutralCultures).First(c => c.TwoLetterISOLanguageName == "es"),
 				null);
 			var translator = new TestTranslatorBase(); // This translator just returns unmodified source string
-			model.SetTranslator(translator);
+			model.TranslateStrings(translator);
 			Assert.AreEqual("No localization for Spanish (español)", model.Message);
 			Assert.AreEqual("Okey-dokey", model.AcceptButtonText);
 			Assert.AreEqual("Select a Language", model.WindowTitle);
