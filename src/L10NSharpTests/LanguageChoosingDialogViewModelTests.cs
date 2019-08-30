@@ -43,11 +43,13 @@ namespace L10NSharp.Tests
 		public void Constructor_RequestedCultureWithNativeNameEqualToEnglishName_MessageOnlyLanguageNameOnceAndNonEnglishActionIsRun()
 		{
 			var nonEnglishActionGotCalled = false;
-			var culture = L10NCultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.EnglishName == c.NativeName);
+			var culture = L10NCultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.EnglishName == c.NativeName && c.TwoLetterISOLanguageName != "en");
 			Assume.That(culture, Is.Not.Null, "Didn't find culture where native name is equal to English name");
+
 			var model = new LanguageChoosingDialogViewModel("Blah {0} ({1})", "OK", "Choose a Language",
 				culture,
 				() => nonEnglishActionGotCalled = true);
+
 			Assert.That(model.Message, Is.EqualTo($"Blah {culture.EnglishName}"));
 			Assert.That(nonEnglishActionGotCalled, Is.True, "Action didn't get called");
 			// We'll go ahead and confirm that the other properties come through as expected also.
