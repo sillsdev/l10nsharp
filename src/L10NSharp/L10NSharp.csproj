@@ -21,13 +21,16 @@
     <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <AppendToReleaseNotesProperty><![CDATA[
+See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
+    </AppendToReleaseNotesProperty>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersionTask.alt" Version="4.0.2-alpha-0006">
+    <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="SIL.ReleaseTasks" Version="2.2.0">
