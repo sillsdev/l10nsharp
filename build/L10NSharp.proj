@@ -3,6 +3,7 @@
 		<RootDir Condition="'$(teamcity_version)' == '' Or '$(OS)'!='Windows_NT'">$(MSBuildProjectDirectory)\..</RootDir>
 		<RootDir Condition="'$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'">$(teamcity_build_checkoutDir)</RootDir>
 		<Solution>L10NSharp.sln</Solution>
+		<SolutionPath>$(RootDir)/$(Solution)</SolutionPath>
 		<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
 		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">true</RestartBuild>
 		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">false</RestartBuild>
@@ -25,16 +26,30 @@
 			Condition="$(RestartBuild)" />
 	</Target>
 
-	<Target Name="BuildInternal" DependsOnTargets="RestorePackages">
-		<MSBuild Projects="$(RootDir)/$(Solution)"
-			Targets="Restore;Rebuild"
-			Properties="Configuration=$(Configuration)" />
+	<Target Name="BuildInternal">
+		<CallTarget Targets="Clean"/>
+		<CallTarget Targets="Compile"/>
+		<Message Text="Build Complete"/>
 	</Target>
 
 	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
 		<Message Text="RestartBuild=$(RestartBuild)" />
 		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.2.0 -solutionDirectory "$(RootDir)"' />
+	</Target>
+
+	<ItemGroup>
+		<ExistingObjectFiles Include="$(RootDir)/output/$(Configuration)/**/*" Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*" />
+	</ItemGroup>
+
+	<Target Name="Clean">
+		<Delete Files="@(ExistingObjectFiles)" />
+		<Delete Condition="'$(OS)'=='Windows_NT' OR $(MSBuildToolsVersion) &gt;= 15" Files="$(RootDir)/**/obj/**/*" />
+		<Exec Condition="'$(OS)'!='Windows_NT' AND $(MSBuildToolsVersion) &lt; 15" Command="find . %5c( -name obj -o -name bin -o -name test-results %5c) -type d -print0 | xargs -0 rm -rf" WorkingDirectory="$(RootDir)" />
+	</Target>
+
+	<Target Name="Compile" DependsOnTargets="RestorePackages">
+		<MSBuild Projects="$(SolutionPath)" Targets="Build" Properties="Configuration=$(Configuration)" />
 	</Target>
 
 	<Target Name="Pack" DependsOnTargets="Build">
