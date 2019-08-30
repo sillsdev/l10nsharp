@@ -44,16 +44,16 @@ namespace L10NSharp.Tests
 		{
 			var nonEnglishActionGotCalled = false;
 			var culture = L10NCultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.EnglishName == c.NativeName);
-			Assume.That(culture != null);
+			Assume.That(culture, Is.Not.Null, "Didn't find culture where native name is equal to English name");
 			var model = new LanguageChoosingDialogViewModel("Blah {0} ({1})", "OK", "Choose a Language",
 				culture,
 				() => nonEnglishActionGotCalled = true);
-			Assert.AreEqual($"Blah {culture.EnglishName}", model.Message);
-			Assert.IsTrue(nonEnglishActionGotCalled);
+			Assert.That(model.Message, Is.EqualTo($"Blah {culture.EnglishName}"));
+			Assert.That(nonEnglishActionGotCalled, Is.True, "Action didn't get called");
 			// We'll go ahead and confirm that the other properties come through as expected also.
-			Assert.AreEqual(culture.TwoLetterISOLanguageName, model.RequestedCultureTwoLetterISOLanguageName);
-			Assert.AreEqual("OK", model.AcceptButtonText);
-			Assert.AreEqual("Choose a Language", model.WindowTitle);
+			Assert.That(model.RequestedCultureTwoLetterISOLanguageName, Is.EqualTo(culture.TwoLetterISOLanguageName));
+			Assert.That(model.AcceptButtonText, Is.EqualTo("OK"));
+			Assert.That(model.WindowTitle, Is.EqualTo("Choose a Language"));
 		}
 
 		[Test]
