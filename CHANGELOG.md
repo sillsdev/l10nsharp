@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.3] - 2020-01-21
+
 ### Changed
 
 - Add build number to AssemblyFileVersion
