@@ -1,7 +1,9 @@
-﻿// Copyright (c) 2017 SIL International
+// Copyright (c) 2017 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using L10NSharp;
 using L10NSharp.CodeReader;
@@ -24,15 +26,16 @@ namespace ExtractXliff
 	{
 		delegate bool ProcessOption(string[] args, ref int i);
 
-		static List<string> _namespaces = new List<string>();	// namespace beginning(s) (-n)
-		static string _xliffOutputFilename;			// new XLIFF output file (-x)
-		static string _fileDatatype;				// file element attribute value (-d)
-		static string _fileOriginal;				// file element attribute value (-o)
-		static string _fileProductVersion;			// file element attribute value (-p)
-		static string _baseXliffFilename;			// input file that provides existing data to merge (-b)
-		static bool _verbose;						// verbose console output (-v)
-		static bool _doneWithOptions;				// flag that either "--" or first assembly filename seen already
-		static List<string> _assemblyFiles = new List<string>();	// input assembly file(s)
+		static List<string> _namespaces = new List<string>();   // namespace beginning(s) (-n)
+		private static string _xliffOutputFilename;         // new XLIFF output file (-x)
+		private static string _fileDatatype;                // file element attribute value (-d)
+		private static string _fileOriginal;                // file element attribute value (-o)
+		private static string _fileProductVersion;          // file element attribute value (-p)
+		private static string _baseXliffFilename;           // input file that provides existing data to merge (-b)
+		private static bool _verbose;                       // verbose console output (-v)
+		private static bool _glob;
+		private static bool _doneWithOptions;               // flag that either "--" or first assembly filename seen already
+		private static List<string> _assemblyFiles = new List<string>();	// input assembly file(s)
 
 		const string kDefaultLangId = "en";
 		const string kDefaultNewlineReplacement = "\\n";
@@ -51,9 +54,24 @@ namespace ExtractXliff
 
 			// Load the input assemblies so that they can be scanned.
 			List<Assembly> assemblies = new List<Assembly>();
-			foreach (var file in _assemblyFiles)
+
+			List<string> assemblyPaths = new List<string>();
+			if (_glob)
 			{
-				var asm = Assembly.LoadFile(file);
+				foreach (var glob in _assemblyFiles)
+				{
+					assemblyPaths.AddRange(Directory.GetFiles(Path.GetDirectoryName(glob), Path.GetFileName(glob)));
+				}
+			}
+			else
+			{
+				assemblyPaths = _assemblyFiles;
+			}
+			foreach (var file in assemblyPaths)
+			{
+				// Using LoadFrom to make sure we pick up other assemblies in the same directory so we don't fail
+				// to load because of 'missing' dependencies
+				var asm = Assembly.LoadFrom(file);
 				if (asm != null)
 					assemblies.Add(asm);
 			}
@@ -110,6 +128,8 @@ namespace ExtractXliff
 					if (ProcessArgument(args, "-b", "--base-xliff", SetBaseXliff, ref i, ref error))
 						continue;
 					if (ProcessArgument(args, "-v", "--verbose", SetVerbose, ref i, ref error))
+						continue;
+					if (ProcessArgument(args, "-g", "--glob", SetGlob, ref i, ref error))
 						continue;
 					if (args[i] == "--")
 					{
@@ -223,6 +243,13 @@ namespace ExtractXliff
 			return true;
 		}
 
+		static bool SetGlob(string[] args, ref int i)
+		{
+			// -g  --glob = treat assembly arguments as globs instead of files [one optional]
+			_glob = true;
+			return true;
+		}
+
 		/// <summary>
 		/// Display a usage message on the console.
 		/// </summary>
@@ -234,6 +261,7 @@ namespace ExtractXliff
 			Console.WriteLine("-o  --original = file element attribute value [one required]");
 			Console.WriteLine();
 			Console.WriteLine("-d  --datatype = file element attribute value [one optional]");
+			Console.WriteLine("-g  --glob = treat assembly arguments as filename globs instead of files (directory globs are not supported) [one optional]");
 			Console.WriteLine("-p  --product-version = file element attribute value [one optional]");
 			Console.WriteLine("-b  --base-xliff = existing xliff file to serve as base for output [one optional]");
 			Console.WriteLine("-v  --verbose = produce verbose output on differences from base file [optional]");
