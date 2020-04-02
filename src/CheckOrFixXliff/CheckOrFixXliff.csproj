@@ -1,31 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <IsTool>true</IsTool>
     <TargetFramework>net461</TargetFramework>
     <RootNamespace>CheckOrFixXliff</RootNamespace>
-    <Description></Description>
+    <Description>Validate and fix XLIFF files.</Description>
     <AssemblyTitle>CheckOrFixXliff</AssemblyTitle>
     <Company>SIL</Company>
     <Product>L10NSharp</Product>
-    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <Authors>SIL International</Authors>
     <OutputPath>../../output/$(Configuration)</OutputPath>
     <PackageId>L10NSharp.CheckOrFixXliff</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/sillsdev/l10nsharp/tree/master/src/CheckOrFixXliff</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageOutputPath>../../output</PackageOutputPath>
     <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <AppendToReleaseNotesProperty><![CDATA[
+See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
+    </AppendToReleaseNotesProperty>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />

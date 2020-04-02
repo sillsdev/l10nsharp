@@ -14,6 +14,7 @@
 		<Authors>SIL International</Authors>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />

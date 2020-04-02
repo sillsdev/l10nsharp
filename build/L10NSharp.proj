@@ -56,6 +56,12 @@
 		<MSBuild Projects="$(RootDir)/src/L10NSharp/L10NSharp.csproj"
 			Targets="Pack"
 			Properties="Configuration=$(Configuration)" />
+		<MSBuild Projects="$(RootDir)/src/ExtractXliff/ExtractXliff.csproj"
+			Targets="Pack"
+			Properties="Configuration=$(Configuration)" />
+		<MSBuild Projects="$(RootDir)/src/CheckOrFixXliff/CheckOrFixXliff.csproj"
+			Targets="Pack"
+			Properties="Configuration=$(Configuration)" />
 	</Target>
 
 	<Target Name="Test" DependsOnTargets="Build">

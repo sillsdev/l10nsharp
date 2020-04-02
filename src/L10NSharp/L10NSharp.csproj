@@ -6,7 +6,7 @@
     <AssemblyTitle>L10NSharp</AssemblyTitle>
     <Company>SIL</Company>
     <Product>L10NSharp</Product>
-    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Authors>SIL International</Authors>
@@ -21,6 +21,8 @@
     <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <AppendToReleaseNotesProperty><![CDATA[
 See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
     </AppendToReleaseNotesProperty>
