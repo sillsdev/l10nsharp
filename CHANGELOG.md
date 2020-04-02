@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Add `ExtractXliff` tool as nuget package
+- Add `CheckOrFixXliff` tool as nuget package
+
 ## [4.0.3] - 2020-01-21
 
 ### Changed
