@@ -28,6 +28,7 @@
     <AppendToReleaseNotesProperty><![CDATA[
 See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
     </AppendToReleaseNotesProperty>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />
@@ -37,6 +38,7 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
     <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -44,4 +46,10 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
   <ItemGroup>
     <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />
   </ItemGroup>
+
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences" >
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
 </Project>
