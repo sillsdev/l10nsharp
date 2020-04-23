@@ -49,6 +49,16 @@ The command line build command would look something like this:
 Note that on Linux building L10NSharp requires at least version 5 of Mono, which `mono5-sil` provides.
 The Mono 5 version that the Mono project provides also works (if mono is at least version 5.16).
 
+To include the correct version number requires [GitVersion](https://gitversion.net/docs/usage/command-line), which can be installed using
+
+    choco install GitVersion.Portable
+	
+or
+
+    dotnet tool install --global GitVersion.Tool --version 5.2.4
+	
+(and then run with `dotnet gitversion` if just `gitversion` doesn't work).
+
 ## Running Unit Tests
 
 We use NUnit to run our unit tests. NUnit is downloaded via NuGet.  There may be a few tests that
