@@ -2,6 +2,7 @@
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -151,8 +152,11 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// Ensure that the generated file includes additional strings from additional localization methods.
 		/// </summary>
-		[Test]
-		public void CreateOrUpdateDefaultTranslationFileIfNecessary_Missing_IncludesStringFromCustomLocalizationMethod()
+		[TestCase("MyOwnGetString", "Localize")]
+		[TestCase("MyOwnGetString")]
+		[TestCase("Localize")]
+		[TestCase()]
+		public void CreateOrUpdateDefaultTranslationFileIfNecessary_Missing_IncludesStringsFromCustomLocalizationMethods(params string[] locMethods)
 		{
 			using(var folder = new TempFolder())
 			{
@@ -161,14 +165,72 @@ namespace L10NSharp.Tests
 					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder),
 						typeof(ProxyLocalizationManager)
 						.GetMethods(BindingFlags.Static | BindingFlags.Public)
-						.Where(m => m.Name == "MyOwnGetString"));
+						.Where(m => locMethods.Contains(m.Name))
+						.Union(typeof(ProxyLocalizationStringExtensions)
+						.GetMethods(BindingFlags.Static | BindingFlags.Public)
+						.Where(m => locMethods.Contains(m.Name)))
+					);
 
-				// verify that the generated file has includes the string from the call to MyOwnGetString (below).
+				// Verify that the generated file has includes the string from the calls to
+				// MyOwnGetString and/or Localize (below).
+				if (locMethods.Contains("MyOwnGetString"))
+				{
+					Assert.AreEqual("My Own English String",
+						manager.StringCache.GetString("en", "myOwn.English.String.Id"));
+					Assert.AreEqual("My Own English String (with comment)",
+						manager.StringCache.GetString("en", "myOwn.English.String.Id.With.Comment"));
+					Assert.AreEqual("This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction.",
+						manager.StringCache.GetComment("myOwn.English.String.Id.With.Comment"));
+					Assert.AreEqual("Click me",
+						manager.StringCache.GetString("en", "myDlg.btnClickMe.Text"));
+					Assert.AreEqual("This is the text from the third version of MyOwnGetString.",
+						manager.StringCache.GetComment("myDlg.btnClickMe.Text"));
+					Assert.AreEqual("Ctrl-T",
+						manager.StringCache.GetShortcutKeysText("en", "myDlg.btnClickMe.Text"));
+					Assert.AreEqual("Click this thingy to do stuff.",
+						manager.StringCache.GetToolTipText("en", "myDlg.btnClickMe.Text"));
+				}
+				else
+				{
+					Assert.IsFalse(manager.StringCache.DoTranslationsExist("en", "myOwn.English.String.Id"));
+					Assert.IsFalse(manager.StringCache.DoTranslationsExist("en", "myOwn.English.String.Id.With.Comment"));
+					Assert.IsFalse(manager.StringCache.DoTranslationsExist("en", "myDlg.btnClickMe.Text"));
+				}
+
+				if (locMethods.Contains("Localize"))
+				{
+					Assert.AreEqual("String to Localize",
+						manager.StringCache.GetString("en", "String to Localize"));
+					Assert.AreEqual("Another String to Localize",
+						manager.StringCache.GetString("en", "With.Id.And.Comment"));
+					Assert.AreEqual("This is used to test the case where Localize is passed as an extra method to use for extraction.",
+						manager.StringCache.GetComment("With.Id.And.Comment"));
+				}
+				else
+				{
+					Assert.IsFalse(manager.StringCache.DoTranslationsExist("en", "String to Localize"));
+					Assert.IsFalse(manager.StringCache.DoTranslationsExist("en", "With.Id.And.Comment"));
+				}
+
+				IComponent btnClickMe = new Component();
+
 				Assert.AreEqual("My Own English String",
-					manager.StringCache.GetString("en", "myOwn.English.String.Id"));
+					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String"));
 				
-				Assert.AreEqual("My Own English String", ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String",
-					"This is used to tests the case where MyOwnGetString is passed as an extra method to use for extraction."));
+				Assert.AreEqual("My Own English String (with comment)",
+					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id.With.Comment",
+					"My Own English String (with comment)",
+					"This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction."));
+				
+				Assert.AreEqual("Click me",
+					ProxyLocalizationManager.MyOwnGetString("myDlg.btnClickMe.Text", "Click me",
+					"This is the text from the third version of MyOwnGetString.",
+					"Click this thingy to do stuff.", "Ctrl-T", btnClickMe));
+				
+				Assert.AreEqual("String to Localize", "String to Localize".Localize());
+				
+				Assert.AreEqual("Another String to Localize", "Another String to Localize".Localize("With.Id.And.Comment",
+					"This is used to test the case where Localize is passed as an extra method to use for extraction."));
 			}
 		}
 

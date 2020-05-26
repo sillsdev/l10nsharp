@@ -100,12 +100,13 @@ namespace L10NSharp
 		/// <param name="applicationIcon"> </param>
 		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
 		/// additional methods that should be regarded as calls to get localizations. If the method
-		/// is named "Localize", its signature will be parsed as if it were an extension method
-		/// where the first parameter is the English string and the second parameter is the ID.
-		/// Otherwise, it will be treated like a GetString method where the first parameter is
-		/// the ID and the second parameter is the English string. In both cases, the following
-		/// additional optional parameters are permitted in this order: comment, tootip, shortcut
-		/// keys. All parameters must be of type string.</param>
+		/// is named "Localize", the extractor will attempt to parse its signature as an extension
+		/// method with the parameters (this string s, string separateId="", string comment="").
+		/// Otherwise, it will be treated like a L10nSharp GetString method if its signature
+		/// matches one of the following: (string stringId, string englishText),
+		/// (string stringId, string englishText, string comment), or
+		/// (string stringId, string englishText, string comment, string englishToolTipText,
+		/// string englishShortcutKey, IComponent component).</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
@@ -150,12 +151,13 @@ namespace L10NSharp
 		/// <param name="applicationIcon"> </param>
 		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
 		/// additional methods that should be regarded as calls to get localizations. If the method
-		/// is named "Localize", its signature will be parsed as if it were an extension method
-		/// where the first parameter is the English string and the second parameter is the ID.
-		/// Otherwise, it will be treated like a GetString method where the first parameter is
-		/// the ID and the second parameter is the English string. In both cases, the following
-		/// additional optional parameters are permitted in this order: comment, tootip, shortcut
-		/// keys. All parameters must be of type string.</param>
+		/// is named "Localize", the extractor will attempt to parse its signature as an extension
+		/// method with the parameters (this string s, string separateId="", string comment="").
+		/// Otherwise, it will be treated like a L10nSharp GetString method if its signature
+		/// matches one of the following: (string stringId, string englishText),
+		/// (string stringId, string englishText, string comment), or
+		/// (string stringId, string englishText, string comment, string englishToolTipText,
+		/// string englishShortcutKey, IComponent component).</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
