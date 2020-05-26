@@ -1,10 +1,11 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2020 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
@@ -23,6 +24,7 @@ namespace L10NSharp.Tests
 		internal abstract ILocalizationManagerInternal<T> CreateLocalizationManager(string appId,
 			string appName, string appVersion, string directoryOfInstalledTmxFiles,
 			string directoryForGeneratedDefaultTmxFile, string directoryOfUserModifiedTranslationFiles,
+			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings);
 		internal abstract ILocalizationManagerInternal<T> CreateLocalizationManager(string appId,
 			string appName, string appVersion);
@@ -97,7 +99,7 @@ namespace L10NSharp.Tests
 		/// If there is an existing Translation file of the same (or higher) version, it should not be overwritten when initializing the localizer.
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTranslationFileIfNecessary_DoesNotOverwriteUpToDateGeneratedFile()
+		public void CreateOrUpdateDefaultTranslationFileIfNecessary_UpToDate_DoesNotOverwriteUpToDateGeneratedFile()
 		{
 			using(var folder = new TempFolder())
 			{
@@ -123,9 +125,9 @@ namespace L10NSharp.Tests
 		/// (sorry, this doesn't test the contents, just the version number).
 		/// </summary>
 		[Test]
-		public void CreateOrUpdateDefaultTranslationFileIfNecessary_OverwritesOutdatedGeneratedFile()
+		public void CreateOrUpdateDefaultTranslationFileIfNecessary_Outdated_OverwritesOutdatedGeneratedFile()
 		{
-			using(var folder = new TempFolder())
+			using (var folder = new TempFolder())
 			{
 				var filename = LocalizationManager.GetTranslationFileNameForLanguage(AppId,
 					LocalizationManager.kDefaultLang);
@@ -143,6 +145,30 @@ namespace L10NSharp.Tests
 				var generatedVersion = GetGeneratedVersion(xmlDoc);
 
 				Assert.That(generatedVersion, Is.EqualTo(new Version(AppVersion).ToString()), "Generated file should have been updated to the current version");
+			}
+		}
+
+		/// <summary>
+		/// Ensure that the generated file includes additional strings from additional localization methods.
+		/// </summary>
+		[Test]
+		public void CreateOrUpdateDefaultTranslationFileIfNecessary_Missing_IncludesStringFromCustomLocalizationMethod()
+		{
+			using(var folder = new TempFolder())
+			{
+				// SUT (Down in StringExtractor.DoExtractingWork, etc.)
+				var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder),
+						typeof(ProxyLocalizationManager)
+						.GetMethods(BindingFlags.Static | BindingFlags.Public)
+						.Where(m => m.Name == "MyOwnGetString"));
+
+				// verify that the generated file has includes the string from the call to MyOwnGetString (below).
+				Assert.AreEqual("My Own English String",
+					manager.StringCache.GetString("en", "myOwn.English.String.Id"));
+				
+				Assert.AreEqual("My Own English String", ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String",
+					"This is used to tests the case where MyOwnGetString is passed as an extra method to use for extraction."));
 			}
 		}
 

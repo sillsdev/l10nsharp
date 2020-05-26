@@ -1,9 +1,8 @@
-// Copyright (c) 2017 SIL International
+// Copyright (c) 2020 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using L10NSharp;
 using L10NSharp.CodeReader;
@@ -78,7 +77,7 @@ namespace ExtractXliff
 
 			// Scan the input assemblies for localizable strings.
 			var extractor = new StringExtractor<XLiffDocument> { ExternalAssembliesToScan = assemblies.ToArray() };
-			var localizedStrings = extractor.DoExtractingWork(null, _namespaces.ToArray(), null);
+			var localizedStrings = extractor.DoExtractingWork(_namespaces.ToArray(), null);
 
 			// The arguments to this constructor don't really matter much as they're used internally by
 			// L10NSharp for reasons that may not percolate out to xliff.  We just need a LocalizationManagerInternal

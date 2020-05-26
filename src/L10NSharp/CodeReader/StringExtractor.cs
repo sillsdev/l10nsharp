@@ -1,3 +1,6 @@
+// Copyright (c) 2020 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +31,13 @@ namespace L10NSharp.CodeReader
 
 		/// ------------------------------------------------------------------------------------
 		public IEnumerable<LocalizingInfo> DoExtractingWork(
+			string[] namespaceBeginnings, BackgroundWorker worker)
+		{
+			return DoExtractingWork(null, namespaceBeginnings, worker);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		public IEnumerable<LocalizingInfo> DoExtractingWork(
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			string[] namespaceBeginnings, BackgroundWorker worker)
 		{
@@ -39,7 +49,6 @@ namespace L10NSharp.CodeReader
 				.Where(m => m.Name == "Localize"))
 				.Union(additionalLocalizationMethods ?? new MethodInfo[0])
 				.ToArray();
-
 
 			_getStringCallsInfo = new List<LocalizingInfo>();
 			_extenderInfo = new Dictionary<string, LocalizingInfo>();
