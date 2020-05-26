@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using L10NSharp.CodeReader;
 
 namespace L10NSharp.UI
@@ -12,20 +13,23 @@ namespace L10NSharp.UI
 		public IEnumerable<LocalizingInfo> ExtractedInfo { get; private set; }
 
 		/// ------------------------------------------------------------------------------------
-		public InitializationProgressDlg(string appName, params string[] namespaceBeginnings):
-			base(appName, namespaceBeginnings)
+		public InitializationProgressDlg(string appName, IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings):
+			base(appName, additionalLocalizationMethods, namespaceBeginnings)
 		{
 		}
 
 		public InitializationProgressDlg(string appName, Icon formIcon,
-			params string[] namespaceBeginnings) : base(appName, formIcon, namespaceBeginnings)
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings) :
+			base(appName, formIcon, additionalLocalizationMethods, namespaceBeginnings)
 		{
 		}
 
 		protected override void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
 			var extractor = new StringExtractor<T>();
-			e.Result = extractor.DoExtractingWork(_namespaceBeginnings, sender as BackgroundWorker);
+			e.Result = extractor.DoExtractingWork(_additionalLocalizationMethods, _namespaceBeginnings, sender as BackgroundWorker);
 		}
 
 		protected override void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

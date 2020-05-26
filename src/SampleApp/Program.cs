@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp;
 using SampleApp.Properties;
@@ -17,12 +18,12 @@ namespace SampleApp
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		static void Main(string[] args)
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			SetUpLocalization();
+			SetUpLocalization(args.Any(a => a == "-m"), args.Any(a => a == "-tmx"));
 
 			LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
 
@@ -33,11 +34,11 @@ namespace SampleApp
 			_localizationManager = null;
 		}
 
-		public static void SetUpLocalization()
+		public static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
 		{
-			//your installer should have a folder where you place the Xliff files you're shipping with the program
-			var directoryOfInstalledXliffFiles = "../../LocalizationFilesFromInstaller";
-			Directory.CreateDirectory(directoryOfInstalledXliffFiles);
+			//your installer should have a folder where you place the localization files you're shipping with the program
+			var directoryOfInstalledLocFiles = "../../LocalizationFilesFromInstaller";
+			Directory.CreateDirectory(directoryOfInstalledLocFiles);
 
 			try
 			{
@@ -53,13 +54,36 @@ namespace SampleApp
 
 				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
 
-				_localizationManager = LocalizationManager.Create(TranslationMemory.XLiff,
-					theLanguageYouRememberedFromLastTime,
-					"SampleApp", "SampleApp", Application.ProductVersion,
-						directoryOfInstalledXliffFiles,
-					"MyCompany/L10NSharpSample",
+				var translationMemoryType = useTmx ? TranslationMemory.Tmx : TranslationMemory.XLiff;
+
+				if (useAdditionalMethodInfo)
+				{
+					MessageBox.Show(MyOwnGetString("SampleApp.InformationalMessageBox.Message",
+							"The generated localization file should contain this string and the window title.", "This is a comment"),
+						MyOwnGetString("SampleApp.InformationalMessageBox.Title", "Cool Title"));
+
+					_localizationManager = LocalizationManager.Create(translationMemoryType,
+						theLanguageYouRememberedFromLastTime,
+						"SampleApp", "SampleApp", Application.ProductVersion,
+						directoryOfInstalledLocFiles,
+						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
-					"sampleappLocalizations@nowhere.com", "SampleApp");
+						"sampleappLocalizations@nowhere.com",
+						typeof(Program)
+							.GetMethods(BindingFlags.Static | BindingFlags.Public)
+							.Where(m => m.Name == "MyOwnGetString"),
+						"SampleApp");
+				}
+				else
+				{
+					_localizationManager = LocalizationManager.Create(translationMemoryType,
+						theLanguageYouRememberedFromLastTime,
+						"SampleApp", "SampleApp", Application.ProductVersion,
+						directoryOfInstalledLocFiles,
+						"MyCompany/L10NSharpSample",
+						Resources.Icon, //replace with your icon
+						"sampleappLocalizations@nowhere.com", "SampleApp");
+				}
 
 				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
 			}
@@ -83,5 +107,14 @@ namespace SampleApp
 			}
 		}
 
+		public static string MyOwnGetString(string id, string english)
+		{
+			return english;
+		}
+
+		public static string MyOwnGetString(string id, string english, string comment)
+		{
+			return english;
+		}
 	}
 }

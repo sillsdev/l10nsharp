@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Text.RegularExpressions;
@@ -84,7 +85,9 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal XLiffLocalizationManager(string appId, string appName, string appVersion,
 			string directoryOfInstalledXliffFiles, string directoryForGeneratedDefaultXliffFile,
-			string directoryOfUserModifiedXliffFiles, params string[] namespaceBeginnings)
+			string directoryOfUserModifiedXliffFiles,
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			// Test for a pathological case of bad install
 			if (!Directory.Exists(directoryOfInstalledXliffFiles))
@@ -102,7 +105,7 @@ namespace L10NSharp.XLiffUtils
 			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
-			CreateOrUpdateDefaultXliffFileIfNecessary(namespaceBeginnings);
+			CreateOrUpdateDefaultXliffFileIfNecessary(additionalLocalizationMethods, namespaceBeginnings);
 
 			_customXliffFileFolder = directoryOfUserModifiedXliffFiles;
 			if (string.IsNullOrEmpty(_customXliffFileFolder))
@@ -155,7 +158,9 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void CreateOrUpdateDefaultXliffFileIfNecessary(params string[] namespaceBeginnings)
+		private void CreateOrUpdateDefaultXliffFileIfNecessary(
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			// Make sure the folder exists.
 			var dir = Path.GetDirectoryName(DefaultStringFilePath);
@@ -202,7 +207,7 @@ namespace L10NSharp.XLiffUtils
 			var stringCache = new XLiffLocalizedStringCache(this, false);
 
 			using (var dlg = new InitializationProgressDlg<XLiffDocument>(Name, _applicationIcon,
-				namespaceBeginnings))
+				additionalLocalizationMethods, namespaceBeginnings))
 			{
 				dlg.ShowDialog();
 				if (dlg.ExtractedInfo != null)

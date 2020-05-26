@@ -27,7 +27,9 @@ namespace L10NSharp.CodeReader
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<LocalizingInfo> DoExtractingWork(string[] namespaceBeginnings, BackgroundWorker worker)
+		public IEnumerable<LocalizingInfo> DoExtractingWork(
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			string[] namespaceBeginnings, BackgroundWorker worker)
 		{
 			_getStringMethodOverloads = typeof(LocalizationManager)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -35,6 +37,7 @@ namespace L10NSharp.CodeReader
 				.Union(typeof(L10NStringExtensions)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
 				.Where(m => m.Name == "Localize"))
+				.Union(additionalLocalizationMethods ?? new MethodInfo[0])
 				.ToArray();
 
 
@@ -305,17 +308,17 @@ namespace L10NSharp.CodeReader
 		/// This is special because, as an extension method the 1st parameter in "hello".Localize("myapp.greeting") will be the string ("hello") itself,
 		/// which is backwards from the convention used in the GetString(id, theString, etc.)
 		/// </summary>
-		private LocalizingInfo GetInfoForCallToLocalizeExtension(Module module,int instrIndex, int paramsInMethodCall)
+		private LocalizingInfo GetInfoForCallToLocalizeExtension(Module module, int instrIndex, int paramsInMethodCall)
 		{
 			var parameters = GetParameters(module, instrIndex, paramsInMethodCall);
 
-			//begin part that differes from GetInfoForCallToLocalizationMethod (for now)
+			//begin part that differs from GetInfoForCallToLocalizationMethod (for now)
 
 			if (parameters[0] == null)
 				return null;
 
 			string id;
-			if(String.IsNullOrEmpty(parameters[1]))
+			if (String.IsNullOrEmpty(parameters[1]))
 			{
 				id = parameters[0];
 			}
@@ -327,7 +330,7 @@ namespace L10NSharp.CodeReader
 			var locInfo = new LocalizingInfo(id);
 			locInfo.Text = parameters[0];
 
-			//end part that differes from GetInfoForCallToLocalizationMethod
+			//end part that differs from GetInfoForCallToLocalizationMethod
 
 			if (paramsInMethodCall >= 3 && parameters[2] != null)
 				locInfo.Comment = parameters[2];

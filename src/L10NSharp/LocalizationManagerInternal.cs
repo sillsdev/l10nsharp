@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp.TMXUtils;
 using L10NSharp.UI;
@@ -97,6 +98,14 @@ namespace L10NSharp
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
 		/// <param name="applicationIcon"> </param>
+		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
+		/// additional methods that should be regarded as calls to get localizations. If the method
+		/// is named "Localize", its signature will be parsed as if it were an extension method
+		/// where the first parameter is the English string and the second parameter is the ID.
+		/// Otherwise, it will be treated like a GetString method where the first parameter is
+		/// the ID and the second parameter is the English string. In both cases, the following
+		/// additional optional parameters are permitted in this order: comment, tootip, shortcut
+		/// keys. All parameters must be of type string.</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
@@ -105,7 +114,8 @@ namespace L10NSharp
 		public static ILocalizationManager CreateTmx(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledTmxFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, params string[] namespaceBeginnings)
+			Icon applicationIcon, IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			return Create(desiredUiLangId, appId, appName,
 				relativeSettingPathForLocalizationFolder, applicationIcon,
@@ -113,6 +123,7 @@ namespace L10NSharp
 					(ILocalizationManagerInternal<T>) new TMXLocalizationManager(appId, appName,
 						appVersion, directoryOfInstalledTmxFiles,
 						directoryOfWritableTmxFiles, directoryOfWritableTmxFiles,
+						additionalLocalizationMethods,
 						namespaceBeginnings));
 		}
 
@@ -137,6 +148,14 @@ namespace L10NSharp
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
 		/// <param name="applicationIcon"> </param>
+		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
+		/// additional methods that should be regarded as calls to get localizations. If the method
+		/// is named "Localize", its signature will be parsed as if it were an extension method
+		/// where the first parameter is the English string and the second parameter is the ID.
+		/// Otherwise, it will be treated like a GetString method where the first parameter is
+		/// the ID and the second parameter is the English string. In both cases, the following
+		/// additional optional parameters are permitted in this order: comment, tootip, shortcut
+		/// keys. All parameters must be of type string.</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
@@ -145,7 +164,9 @@ namespace L10NSharp
 		public static ILocalizationManager CreateXliff(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledXliffFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, params string[] namespaceBeginnings)
+			Icon applicationIcon,
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			return Create(desiredUiLangId, appId, appName,
 				relativeSettingPathForLocalizationFolder, applicationIcon,
@@ -153,6 +174,7 @@ namespace L10NSharp
 					(ILocalizationManagerInternal<T>) new XLiffLocalizationManager(appId, appName,
 						appVersion, directoryOfInstalledXliffFiles,
 						directoryOfWritableXliffFiles, directoryOfWritableXliffFiles,
+						additionalLocalizationMethods,
 						namespaceBeginnings));
 		}
 
