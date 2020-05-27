@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Text.RegularExpressions;
@@ -83,7 +84,9 @@ namespace L10NSharp.TMXUtils
 		/// ------------------------------------------------------------------------------------
 		internal TMXLocalizationManager(string appId, string appName, string appVersion,
 			string directoryOfInstalledTmxFiles, string directoryForGeneratedDefaultTmxFile,
-			string directoryOfUserModifiedTmxFiles, params string[] namespaceBeginnings)
+			string directoryOfUserModifiedTmxFiles,
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			// Test for a pathological case of bad install
 			if (!Directory.Exists(directoryOfInstalledTmxFiles))
@@ -100,7 +103,7 @@ namespace L10NSharp.TMXUtils
 			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
-			CreateOrUpdateDefaultTmxFileIfNecessary(namespaceBeginnings);
+			CreateOrUpdateDefaultTmxFileIfNecessary(additionalLocalizationMethods, namespaceBeginnings);
 
 			_customTmxFileFolder = directoryOfUserModifiedTmxFiles;
 			if (string.IsNullOrEmpty(_customTmxFileFolder))
@@ -138,7 +141,7 @@ namespace L10NSharp.TMXUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void CreateOrUpdateDefaultTmxFileIfNecessary(params string[] namespaceBeginnings)
+		private void CreateOrUpdateDefaultTmxFileIfNecessary(IEnumerable<MethodInfo> additionalLocalizationMethods, params string[] namespaceBeginnings)
 		{
 			// Make sure the folder exists.
 			var dir = Path.GetDirectoryName(DefaultStringFilePath);
@@ -174,7 +177,7 @@ namespace L10NSharp.TMXUtils
 			tmxDoc.Header.SetPropValue(LocalizationManager.kAppVersionPropTag, AppVersion);
 			var tuUpdater = new TMXTransUnitUpdater(tmxDoc);
 
-			using (var dlg = new InitializationProgressDlg<TMXDocument>(Name, ApplicationIcon, namespaceBeginnings))
+			using (var dlg = new InitializationProgressDlg<TMXDocument>(Name, ApplicationIcon, additionalLocalizationMethods, namespaceBeginnings))
 			{
 				dlg.ShowDialog();
 				if (dlg.ExtractedInfo != null)

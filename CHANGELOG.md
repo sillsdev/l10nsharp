@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add `ExtractXliff` tool as nuget package
 - Add `CheckOrFixXliff` tool as nuget package
+- Added version of LocalizationManager.Create to allow "custom" localization methods
 
 ## [4.0.3] - 2020-01-21
 

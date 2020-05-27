@@ -1,7 +1,8 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2020 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System.Collections.Generic;
+using System.Reflection;
 using System.Xml.Linq;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
@@ -20,10 +21,11 @@ namespace L10NSharp.Tests
 		internal override ILocalizationManagerInternal<XLiffDocument> CreateLocalizationManager(
 			string          appId,                               string appName, string appVersion, string directoryOfInstalledTmxFiles,
 			string          directoryForGeneratedDefaultTmxFile, string directoryOfUserModifiedXliffFiles,
+			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings)
 		{
 			return new XLiffLocalizationManager(appId, appName, appVersion, directoryOfInstalledTmxFiles,
-				directoryForGeneratedDefaultTmxFile, directoryOfUserModifiedXliffFiles,
+				directoryForGeneratedDefaultTmxFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
 				namespaceBeginnings);
 		}
 

@@ -1,28 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
-using L10NSharp.CodeReader;
 
 namespace L10NSharp.UI
 {
 	/// ----------------------------------------------------------------------------------------
 	internal partial class InitializationProgressDlgBase : Form
 	{
+		protected readonly IEnumerable<MethodInfo> _additionalLocalizationMethods;
 		protected readonly string[] _namespaceBeginnings;
 		private readonly Icon _formIcon;
 
 		/// ------------------------------------------------------------------------------------
-		protected InitializationProgressDlgBase(string appName, params string[] namespaceBeginnings)
+		protected InitializationProgressDlgBase(string appName,
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
 		{
 			InitializeComponent();
 			Text = appName;
+			_additionalLocalizationMethods = additionalLocalizationMethods;
 			_namespaceBeginnings = namespaceBeginnings;
 		}
 
-		protected InitializationProgressDlgBase(string appName, Icon formIcon, params string[] namespaceBeginnings) : this(appName, namespaceBeginnings)
+		protected InitializationProgressDlgBase(string appName, Icon formIcon, 
+			IEnumerable<MethodInfo> additionalLocalizationMethods, params string[] namespaceBeginnings) :
+			this(appName, additionalLocalizationMethods, namespaceBeginnings)
 		{
 			_formIcon = formIcon;
 		}
