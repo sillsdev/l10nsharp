@@ -235,7 +235,15 @@ namespace ExtractXliff
 				if (args[i] == "--")
 					return false;
 
-				var match = Regex.Match(args[i], @"^(?<namespace>[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*)\.(?<class>[a-zA-Z_][a-zA-Z0-9_]*)\.(?<methodName>[a-zA-Z_][a-zA-Z0-9_]*)$");
+				const string validCSharpIdentifier = "[a-zA-Z_][a-zA-Z0-9_]*";
+				// Namespace can consist of any number of valid identifiers separated by periods.
+				// The second-to-last one will be the class name,
+				// and the last one will be the method name.
+				// Not that this does not support things like nested classes or generics (which
+				// are unlikely to be used for localized strings anyway).
+				var regexFullyQualifiedMethodName = new Regex(
+					$"^(?<namespace>{validCSharpIdentifier}(\\.{validCSharpIdentifier})*)\\.(?<class>{validCSharpIdentifier})\\.(?<methodName>{validCSharpIdentifier})$");
+				var match = regexFullyQualifiedMethodName.Match(args[i]);
 				if (match.Success)
 				{
 					_additionalLocalizationMethodNames.Add(
