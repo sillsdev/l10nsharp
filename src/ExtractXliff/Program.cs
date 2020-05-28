@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using L10NSharp;
 using L10NSharp.CodeReader;
 using L10NSharp.XLiffUtils;
@@ -12,10 +14,10 @@ namespace ExtractXliff
 {
 	/// <summary>
 	/// This program uses the L10NSharp code for extracting static strings from one or
-	/// more C# assemblies (either .dll or .exe).  It requires command line arguments
+	/// more C# assemblies (either .dll or .exe). It requires command line arguments
 	/// to set the internal XLIFF file element "original" attribute, to set the
-	/// namespace beginning(s), and to set the output XLIFF filename.  It also requires
-	/// one or more assembly files to be specified on the command line.  There are
+	/// namespace beginning(s), and to set the output XLIFF filename. It also requires
+	/// one or more assembly files to be specified on the command line. There are
 	/// also optional command line arguments for specifying the XLIFF file element
 	/// "datatype" attribute, the XLIFF file element "product-version" attribute, and
 	/// an existing XLIFF file to merge from after reading everything from the input
@@ -25,7 +27,7 @@ namespace ExtractXliff
 	{
 		delegate bool ProcessOption(string[] args, ref int i);
 
-		static List<string> _namespaces = new List<string>();   // namespace beginning(s) (-n)
+		static readonly List<string> _namespaces = new List<string>();   // namespace beginning(s) (-n)
 		private static string _xliffOutputFilename;         // new XLIFF output file (-x)
 		private static string _fileDatatype;                // file element attribute value (-d)
 		private static string _fileOriginal;                // file element attribute value (-o)
@@ -34,7 +36,10 @@ namespace ExtractXliff
 		private static bool _verbose;                       // verbose console output (-v)
 		private static bool _glob;
 		private static bool _doneWithOptions;               // flag that either "--" or first assembly filename seen already
-		private static List<string> _assemblyFiles = new List<string>();	// input assembly file(s)
+		private static readonly List<string> _assemblyFiles = new List<string>();	// input assembly file(s)
+		// Tuple holds: namespace/class/method name(s) (specified using -m option)
+		static readonly List<Tuple<string, string, string>> _additionalLocalizationMethodNames = new List<Tuple<string, string, string>>();
+		private static readonly List<MethodInfo> _additionalLocalizationMethods = new List<MethodInfo>();
 
 		const string kDefaultLangId = "en";
 		const string kDefaultNewlineReplacement = "\\n";
@@ -71,16 +76,40 @@ namespace ExtractXliff
 				// Using LoadFrom to make sure we pick up other assemblies in the same directory so we don't fail
 				// to load because of 'missing' dependencies
 				var asm = Assembly.LoadFrom(file);
-				if (asm != null)
-					assemblies.Add(asm);
+				assemblies.Add(asm);
+
+				for (var index = 0; index < _additionalLocalizationMethodNames.Count; index++)
+				{
+					var methodNameSpec = _additionalLocalizationMethodNames[index];
+					try
+					{
+						var type = asm.GetType(methodNameSpec.Item1 + "." + methodNameSpec.Item2);
+						_additionalLocalizationMethods.AddRange(type
+							.GetMethods(BindingFlags.Static | BindingFlags.Public)
+							.Where(m => m.Name == methodNameSpec.Item3));
+
+						if (_verbose)
+							Console.WriteLine($"Method {methodNameSpec.Item2}.{methodNameSpec.Item3} in {asm.GetName().FullName} will be treated as a localization method.");
+						_additionalLocalizationMethodNames.RemoveAt(index--);
+					}
+					catch
+					{
+					}
+				}
+			}
+			if (_verbose && _additionalLocalizationMethodNames.Any())
+			{
+				Console.WriteLine("Failed to find the following additional localization methods:");
+				foreach (var methodNameSpec in _additionalLocalizationMethodNames)
+					Console.WriteLine($"{methodNameSpec.Item1}.{methodNameSpec.Item2}.{methodNameSpec.Item3}");
 			}
 
 			// Scan the input assemblies for localizable strings.
 			var extractor = new StringExtractor<XLiffDocument> { ExternalAssembliesToScan = assemblies.ToArray() };
-			var localizedStrings = extractor.DoExtractingWork(_namespaces.ToArray(), null);
+			var localizedStrings = extractor.DoExtractingWork(_additionalLocalizationMethods, _namespaces.ToArray(), null);
 
 			// The arguments to this constructor don't really matter much as they're used internally by
-			// L10NSharp for reasons that may not percolate out to xliff.  We just need a LocalizationManagerInternal
+			// L10NSharp for reasons that may not percolate out to xliff. We just need a LocalizationManagerInternal
 			// to feed into the constructor the LocalizedStringCache that does some heavy lifting for us in
 			// creating the XliffDocument from the newly extracted localized strings.
 			var lm = new XLiffLocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
@@ -128,6 +157,12 @@ namespace ExtractXliff
 						continue;
 					if (ProcessArgument(args, "-v", "--verbose", SetVerbose, ref i, ref error))
 						continue;
+					// This switch allows the caller to specify the fully qualified method name
+					// (namespace.class.method) for any additional (non L10nSharp) methods that
+					// are used to get localizable strings. (See SIL.Localizer and the comment in
+					// the LocalizationManager constructor for more details.)
+					if (ProcessArgument(args, "-m", "--method", AddLocalizationMethod, ref i, ref error))
+						continue;
 					if (ProcessArgument(args, "-g", "--glob", SetGlob, ref i, ref error))
 						continue;
 					if (args[i] == "--")
@@ -149,7 +184,7 @@ namespace ExtractXliff
 
 		/// <summary>
 		/// Try to process one command line option.
-		/// The ref input "i" may be incremented if the option was matched.  The ref input "error" is set if the option
+		/// The ref input "i" may be incremented if the option was matched. The ref input "error" is set if the option
 		/// was matched but could not be fully processed.
 		/// </summary>
 		/// <returns><c>true</c>, if the option matches and was processed successfully, <c>false</c> otherwise.</returns>
@@ -187,9 +222,33 @@ namespace ExtractXliff
 			return false;
 		}
 
+		static bool AddLocalizationMethod(string[] args, ref int i)
+		{
+			// -m  --method = additional localization method [zero or more]
+			++i;
+			if (i < args.Length)
+			{
+				if (args[i] == "--")
+					return false;
+
+				var match = Regex.Match(args[i], @"^(?<namespace>[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*)\.(?<class>[a-zA-Z_][a-zA-Z0-9_]*)\.(?<methodName>[a-zA-Z_][a-zA-Z0-9_]*)$");
+				if (match.Success)
+				{
+					_additionalLocalizationMethodNames.Add(
+						new Tuple<string, string, string>(
+							match.Result("${namespace}"),
+							match.Result("${class}"),
+							match.Result("${methodName}")
+						));
+					return true;
+				}
+			}
+			return false;
+		}
+
 		/// <summary>
-		/// Process an option that can occur only once and that has a string value.  The ref input "i" is always
-		/// incremented.  An error occurs if that places it past the end of the input "args" array as an index.
+		/// Process an option that can occur only once and that has a string value. The ref input "i" is always
+		/// incremented. An error occurs if that places it past the end of the input "args" array as an index.
 		/// </summary>
 		/// <returns><c>true</c>, if the option was processed successfully, <c>false</c> otherwise.</returns>
 		static bool SetSingleValueOption(string[] args, ref int i, ref string optionValue)
@@ -264,13 +323,14 @@ namespace ExtractXliff
 			Console.WriteLine("-p  --product-version = file element attribute value [one optional]");
 			Console.WriteLine("-b  --base-xliff = existing xliff file to serve as base for output [one optional]");
 			Console.WriteLine("-v  --verbose = produce verbose output on differences from base file [optional]");
+			Console.WriteLine("-m  --method = fully-specified name (namespace.class.method) of additional localization method(s) [optional]");
 			Console.WriteLine();
-			Console.WriteLine("Every option except -v (--verbose) consumes a following argument as its value.");
+			Console.WriteLine("Every option except -v (--verbose) and -g (--glob) consumes a following argument as its value.");
 			Console.WriteLine("The option list can be terminated by \"--\" in case an assembly filename starts");
-			Console.WriteLine("with a dash (\"-\").  One or more assembly files (either .dll or .exe) are");
-			Console.WriteLine("required following all of the options.  If a base xliff file is given, then its");
+			Console.WriteLine("with a dash (\"-\"). One or more assembly files (either .dll or .exe) are ");
+			Console.WriteLine("required following all of the options. If a base xliff file is given, then its");
 			Console.WriteLine("content serves as the base for the output, with the extracted strings merged");
-			Console.WriteLine("into, and updating, the existing strings.  Statistics are then written to the");
+			Console.WriteLine("into, and updating, the existing strings. Statistics are then written to the");
 			Console.WriteLine("console for the number of new strings, changed strings, identical strings, and");
 			Console.WriteLine("number of strings in the base that were not extracted.");
 		}
