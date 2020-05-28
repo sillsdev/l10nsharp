@@ -84,6 +84,8 @@ namespace ExtractXliff
 					try
 					{
 						var type = asm.GetType(methodNameSpec.Item1 + "." + methodNameSpec.Item2);
+						if (type == null)
+							continue;
 						_additionalLocalizationMethods.AddRange(type
 							.GetMethods(BindingFlags.Static | BindingFlags.Public)
 							.Where(m => m.Name == methodNameSpec.Item3));
@@ -92,8 +94,10 @@ namespace ExtractXliff
 							Console.WriteLine($"Method {methodNameSpec.Item2}.{methodNameSpec.Item3} in {asm.GetName().FullName} will be treated as a localization method.");
 						_additionalLocalizationMethodNames.RemoveAt(index--);
 					}
-					catch
+					catch (Exception e)
 					{
+						if (_verbose)
+							Console.WriteLine("Error using reflection on {asm.GetName().FullName} to get type {methodNameSpec.Item2} or method {methodNameSpec.Item3}:" + e.Message);
 					}
 				}
 			}
