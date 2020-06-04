@@ -281,41 +281,47 @@ namespace L10NSharp.CodeReader
 			}
 			foreach (var method in methodsInType)
 			{
+#if DEBUG
+				// Set the environment variable L10NSHARPDEBUGGING to true to find out what types are being
+				// searched for string calls. This is helpful for tracking down linux sigsev problems.
+				if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
+					Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
+#endif
 				try
 				{
-#if DEBUG
-					// Set the environment variable L10NSHARPDEBUGGING to true to find out what types are being
-					// searched for string calls. This is helpful for tracking down linux sigsev problems.
-					if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
-						Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
-#endif
 					_instructions = new List<ILInstruction>(new ILReader<T>(method));
 
+					if (method.Name == "Main")
+						Console.WriteLine("Processing Main");
+					var methodCallsInMethod = GetMethodCalls(method);
 					foreach (var getStringOverload in _getStringMethodOverloads)
-						FindGetStringCalls(method, getStringOverload);
+						FindGetStringCalls(method, methodCallsInMethod, getStringOverload);
 
 					FindExtenderCalls(method);
 				}
-				catch (FileNotFoundException)
+				catch (FileNotFoundException e1)
 				{
 					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
+					Console.WriteLine(e1.Message);
 				}
-				catch (TypeLoadException)
+				catch (TypeLoadException e2)
 				{
 					// Caused by assemblies that have odd runtime loading problems (e.g. Chorus). Ignore.
+					Console.WriteLine(e2.Message);
 				}
-				catch (ArgumentException)
+				catch (ArgumentException e3)
 				{
 					// this can happen if we have a generic type (e.g. L10NSharp.dll). Ignore.
+					Console.WriteLine(e3.Message);
 				}
 			}
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void FindGetStringCalls(MethodBase caller, MethodInfo callee)
+		private List<Tuple<int, MethodBase>> GetMethodCalls(MethodBase caller)
 		{
+			var methodCalls = new List<Tuple<int, MethodBase>>();
 			var module = caller.Module;
-			var calleeParamCount = callee.GetParameters().Length;
 
 			for (var i = 1; i < _instructions.Count; i++)
 			{
@@ -328,11 +334,32 @@ namespace L10NSharp.CodeReader
 				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
 
-				if (!callee.Equals(module.ResolveMethod((int) _instructions[i].operand,
-					genericTypeArguments, genericMethodArguments)))
+				try
 				{
-					continue;
+					methodCalls.Add(new Tuple<int, MethodBase>(i,
+						module.ResolveMethod((int)_instructions[i].operand,
+						genericTypeArguments, genericMethodArguments)));
 				}
+				catch (FileNotFoundException e1)
+				{
+					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
+					Console.WriteLine(e1.Message);
+				}
+			}
+
+			return methodCalls;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private void FindGetStringCalls(MethodBase caller,
+			IEnumerable<Tuple<int, MethodBase>> methodCallsInCaller, MethodInfo callee)
+		{
+			var calleeParamCount = callee.GetParameters().Length;
+			var module = caller.Module;
+
+			foreach (var call in methodCallsInCaller.Where(c => callee.Equals(c.Item2)))
+			{
+				var i = call.Item1;
 
 				LocalizingInfo locInfo;
 				locInfo = callee.Name == "Localize" ?
@@ -341,7 +368,12 @@ namespace L10NSharp.CodeReader
 				if (locInfo != null)
 					_getStringCallsInfo.Add(locInfo);
 				else
-					Debug.Print("Call to {0} in {1} ({2}) could not be parsed", callee, caller.Name, caller.DeclaringType.Name);
+				{
+					var errorMsg = $"Call to {callee} in {caller.Name} ({caller.DeclaringType?.Name}) could not be parsed.";
+					if (OutputErrorsToConsole)
+						Console.WriteLine(errorMsg);
+					Debug.Print(errorMsg);
+				}
 			}
 		}
 
@@ -435,7 +467,7 @@ namespace L10NSharp.CodeReader
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void FindExtenderCalls(MethodBase caller)
+		private void FindExtenderCalls(MethodBase caller)
 		{
 			var module = caller.Module;
 
