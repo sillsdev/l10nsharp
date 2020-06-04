@@ -248,7 +248,7 @@ namespace L10NSharp
 		#region Methods for getting, setting and verifying UI language id
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the list of langauges (by id) used to fallback to when looking for a
+		/// Gets or sets the list of languages (by id) used to fallback to when looking for a
 		/// string in the current UI language fails. The fallback order goes from the first
 		/// item in this list to the last.
 		/// </summary>

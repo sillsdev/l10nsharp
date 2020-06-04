@@ -24,6 +24,8 @@ namespace L10NSharp.CodeReader
 		private List<ILInstruction> _instructions;
 		private readonly HashSet<string> _scannedTypes = new HashSet<string>();
 
+		public bool OutputErrorsToConsole { get; set; }
+
 		/// ------------------------------------------------------------------------------------
 		public void ExtractFromNamespaces()
 		{
@@ -98,10 +100,18 @@ namespace L10NSharp.CodeReader
 					}
 					//Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
 				}
-				catch (MissingManifestResourceException /*e*/)
+				catch (Exception e)
 				{
-					// If it doesn't find any resources, no reason to die, we're just making a best attempt.
-					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() could not load resources for {0}", type.FullName));
+					// If it doesn't find any resources or can't load a dependent DLL file, no reason to die, we're just making a best attempt.
+					if (e is MissingManifestResourceException || e is FileNotFoundException)
+					{
+						var errorMsg = $"DEBUG: StringExtractor.DoExtractingWork() could not load resources for {type.FullName}";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.WriteLine(errorMsg);
+					}
+					else
+						throw;
 				}
 			}
 
@@ -146,22 +156,44 @@ namespace L10NSharp.CodeReader
 					assembly.FullName.Contains("mscorlib") || assembly.FullName.StartsWith("System") || assembly.FullName.StartsWith("Microsoft"))
 					continue;
 
+				Type[] typesInAssembly;
 				try
 				{
-					foreach (var type in assembly.GetTypes()
-						.Where(t => !typesToScan.Contains(t))
-						.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName.StartsWith(nsb))))
-					{
-						typesToScan.Add(type);
-					}
+					typesInAssembly = assembly.GetTypes();
 				}
 				catch (ReflectionTypeLoadException ex)
 				{
-					Debug.Print("Unable to load assembly {0}:{1}", assembly.FullName, ex.Message);
+					if (ex.Types.Any())
+					{
+						var errorMsg = $"Unable to fully load assembly {assembly.FullName}:{ex.Message} (some types may be omitted).";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.Print(errorMsg);
+						typesInAssembly = ex.Types;
+					}
+					else
+					{
+						var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.Print(errorMsg);
+						continue;
+					}
 				}
 				catch (TypeLoadException ex)
 				{
-					Debug.Print("Unable to load type {0}:{1}", assembly.FullName, ex.Message);
+					var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
+					if (OutputErrorsToConsole)
+						Console.WriteLine(errorMsg);
+					Debug.Print(errorMsg);
+					continue;
+				}
+
+				foreach (var type in typesInAssembly
+					.Where(t => t != null && !typesToScan.Contains(t))
+					.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName.StartsWith(nsb))))
+				{
+					typesToScan.Add(type);
 				}
 			}
 
