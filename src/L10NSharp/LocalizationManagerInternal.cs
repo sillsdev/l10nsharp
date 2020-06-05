@@ -59,10 +59,9 @@ namespace L10NSharp
 				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 			}
 
-			var ci = L10NCultureInfo.GetCultureInfo(desiredUiLangId);
-			if (!GetUILanguages(true).Contains(ci))
+			if (!DesiredUiCultureIsAvailable(desiredUiLangId))
 			{
-				using (var dlg = new LanguageChoosingDialog(ci, applicationIcon))
+				using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), applicationIcon))
 				{
 					dlg.ShowDialog();
 					desiredUiLangId = dlg.SelectedLanguage;
@@ -76,6 +75,14 @@ namespace L10NSharp
 			return lm;
 		}
 
+		private static bool DesiredUiCultureIsAvailable(string desiredUiLangId)
+		{
+			var ci = L10NCultureInfo.GetCultureInfo(desiredUiLangId);
+			if (GetUILanguages(true).Contains(ci))
+				return true;
+			return MapToExistingLanguage.TryGetValue(desiredUiLangId, out desiredUiLangId) &&
+				DesiredUiCultureIsAvailable(desiredUiLangId);
+		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
