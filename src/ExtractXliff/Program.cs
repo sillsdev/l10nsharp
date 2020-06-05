@@ -110,6 +110,7 @@ namespace ExtractXliff
 
 			// Scan the input assemblies for localizable strings.
 			var extractor = new StringExtractor<XLiffDocument> { ExternalAssembliesToScan = assemblies.ToArray() };
+			extractor.OutputErrorsToConsole = _verbose;
 			var localizedStrings = extractor.DoExtractingWork(_additionalLocalizationMethods, _namespaces.ToArray(), null);
 
 			// The arguments to this constructor don't really matter much as they're used internally by

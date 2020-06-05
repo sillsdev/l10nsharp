@@ -24,6 +24,8 @@ namespace L10NSharp.CodeReader
 		private List<ILInstruction> _instructions;
 		private readonly HashSet<string> _scannedTypes = new HashSet<string>();
 
+		public bool OutputErrorsToConsole { get; set; }
+
 		/// ------------------------------------------------------------------------------------
 		public void ExtractFromNamespaces()
 		{
@@ -98,10 +100,18 @@ namespace L10NSharp.CodeReader
 					}
 					//Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() loaded resources for {0}", type.FullName));
 				}
-				catch (MissingManifestResourceException /*e*/)
+				catch (Exception e)
 				{
-					// If it doesn't find any resources, no reason to die, we're just making a best attempt.
-					Debug.WriteLine(String.Format("DEBUG: StringExtractor.DoExtractingWork() could not load resources for {0}", type.FullName));
+					// If it doesn't find any resources or can't load a dependent DLL file, no reason to die, we're just making a best attempt.
+					if (e is MissingManifestResourceException || e is FileNotFoundException)
+					{
+						var errorMsg = $"DEBUG: StringExtractor.DoExtractingWork() could not load resources for {type.FullName}";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.WriteLine(errorMsg);
+					}
+					else
+						throw;
 				}
 			}
 
@@ -146,22 +156,44 @@ namespace L10NSharp.CodeReader
 					assembly.FullName.Contains("mscorlib") || assembly.FullName.StartsWith("System") || assembly.FullName.StartsWith("Microsoft"))
 					continue;
 
+				Type[] typesInAssembly;
 				try
 				{
-					foreach (var type in assembly.GetTypes()
-						.Where(t => !typesToScan.Contains(t))
-						.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName.StartsWith(nsb))))
-					{
-						typesToScan.Add(type);
-					}
+					typesInAssembly = assembly.GetTypes();
 				}
 				catch (ReflectionTypeLoadException ex)
 				{
-					Debug.Print("Unable to load assembly {0}:{1}", assembly.FullName, ex.Message);
+					if (ex.Types.Any())
+					{
+						var errorMsg = $"Unable to fully load assembly {assembly.FullName}:{ex.Message} (some types may be omitted).";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.Print(errorMsg);
+						typesInAssembly = ex.Types;
+					}
+					else
+					{
+						var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.Print(errorMsg);
+						continue;
+					}
 				}
 				catch (TypeLoadException ex)
 				{
-					Debug.Print("Unable to load type {0}:{1}", assembly.FullName, ex.Message);
+					var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
+					if (OutputErrorsToConsole)
+						Console.WriteLine(errorMsg);
+					Debug.Print(errorMsg);
+					continue;
+				}
+
+				foreach (var type in typesInAssembly
+					.Where(t => t != null && !typesToScan.Contains(t))
+					.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName.StartsWith(nsb))))
+				{
+					typesToScan.Add(type);
 				}
 			}
 
@@ -249,41 +281,47 @@ namespace L10NSharp.CodeReader
 			}
 			foreach (var method in methodsInType)
 			{
+#if DEBUG
+				// Set the environment variable L10NSHARPDEBUGGING to true to find out what types are being
+				// searched for string calls. This is helpful for tracking down linux sigsev problems.
+				if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
+					Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
+#endif
 				try
 				{
-#if DEBUG
-					// Set the environment variable L10NSHARPDEBUGGING to true to find out what types are being
-					// searched for string calls. This is helpful for tracking down linux sigsev problems.
-					if((Environment.GetEnvironmentVariable("L10NSHARPDEBUGGING") ?? "false").ToLower() == "true")
-						Console.WriteLine(@"Looking for strings in {0}.{1}", type.Name, method.Name);
-#endif
 					_instructions = new List<ILInstruction>(new ILReader<T>(method));
 
+					if (method.Name == "Main")
+						Console.WriteLine("Processing Main");
+					var methodCallsInMethod = GetMethodCalls(method);
 					foreach (var getStringOverload in _getStringMethodOverloads)
-						FindGetStringCalls(method, getStringOverload);
+						FindGetStringCalls(method, methodCallsInMethod, getStringOverload);
 
 					FindExtenderCalls(method);
 				}
-				catch (FileNotFoundException)
+				catch (FileNotFoundException e1)
 				{
 					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
+					Console.WriteLine(e1.Message);
 				}
-				catch (TypeLoadException)
+				catch (TypeLoadException e2)
 				{
 					// Caused by assemblies that have odd runtime loading problems (e.g. Chorus). Ignore.
+					Console.WriteLine(e2.Message);
 				}
-				catch (ArgumentException)
+				catch (ArgumentException e3)
 				{
 					// this can happen if we have a generic type (e.g. L10NSharp.dll). Ignore.
+					Console.WriteLine(e3.Message);
 				}
 			}
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void FindGetStringCalls(MethodBase caller, MethodInfo callee)
+		private List<Tuple<int, MethodBase>> GetMethodCalls(MethodBase caller)
 		{
+			var methodCalls = new List<Tuple<int, MethodBase>>();
 			var module = caller.Module;
-			var calleeParamCount = callee.GetParameters().Length;
 
 			for (var i = 1; i < _instructions.Count; i++)
 			{
@@ -296,11 +334,32 @@ namespace L10NSharp.CodeReader
 				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
 
-				if (!callee.Equals(module.ResolveMethod((int) _instructions[i].operand,
-					genericTypeArguments, genericMethodArguments)))
+				try
 				{
-					continue;
+					methodCalls.Add(new Tuple<int, MethodBase>(i,
+						module.ResolveMethod((int)_instructions[i].operand,
+						genericTypeArguments, genericMethodArguments)));
 				}
+				catch (FileNotFoundException e1)
+				{
+					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
+					Console.WriteLine(e1.Message);
+				}
+			}
+
+			return methodCalls;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private void FindGetStringCalls(MethodBase caller,
+			IEnumerable<Tuple<int, MethodBase>> methodCallsInCaller, MethodInfo callee)
+		{
+			var calleeParamCount = callee.GetParameters().Length;
+			var module = caller.Module;
+
+			foreach (var call in methodCallsInCaller.Where(c => callee.Equals(c.Item2)))
+			{
+				var i = call.Item1;
 
 				LocalizingInfo locInfo;
 				locInfo = callee.Name == "Localize" ?
@@ -309,7 +368,12 @@ namespace L10NSharp.CodeReader
 				if (locInfo != null)
 					_getStringCallsInfo.Add(locInfo);
 				else
-					Debug.Print("Call to {0} in {1} ({2}) could not be parsed", callee, caller.Name, caller.DeclaringType.Name);
+				{
+					var errorMsg = $"Call to {callee} in {caller.Name} ({caller.DeclaringType?.Name}) could not be parsed.";
+					if (OutputErrorsToConsole)
+						Console.WriteLine(errorMsg);
+					Debug.Print(errorMsg);
+				}
 			}
 		}
 
@@ -403,7 +467,7 @@ namespace L10NSharp.CodeReader
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public void FindExtenderCalls(MethodBase caller)
+		private void FindExtenderCalls(MethodBase caller)
 		{
 			var module = caller.Module;
 
