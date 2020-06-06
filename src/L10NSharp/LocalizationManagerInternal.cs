@@ -59,7 +59,7 @@ namespace L10NSharp
 				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 			}
 
-			if (!DesiredUiCultureIsAvailable(desiredUiLangId))
+			if (!IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
 				using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), applicationIcon))
 				{
@@ -75,13 +75,16 @@ namespace L10NSharp
 			return lm;
 		}
 
-		private static bool DesiredUiCultureIsAvailable(string desiredUiLangId)
+		private static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
 		{
 			var ci = L10NCultureInfo.GetCultureInfo(desiredUiLangId);
 			if (GetUILanguages(true).Contains(ci))
 				return true;
+			// If this fallback implementation seems strange, read the really long summary
+			// comment for the unit test:
+			// Create_PreferredUiLanguageIsGenericVariant_CreatesLocalizationManagerForSpecificVariant
 			return MapToExistingLanguage.TryGetValue(desiredUiLangId, out desiredUiLangId) &&
-				DesiredUiCultureIsAvailable(desiredUiLangId);
+				IsDesiredUiCultureAvailable(desiredUiLangId);
 		}
 
 		/// ------------------------------------------------------------------------------------
