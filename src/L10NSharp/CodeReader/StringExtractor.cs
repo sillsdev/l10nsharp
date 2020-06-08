@@ -291,8 +291,6 @@ namespace L10NSharp.CodeReader
 				{
 					_instructions = new List<ILInstruction>(new ILReader<T>(method));
 
-					if (method.Name == "Main")
-						Console.WriteLine("Processing Main");
 					var methodCallsInMethod = GetMethodCalls(method);
 					foreach (var getStringOverload in _getStringMethodOverloads)
 						FindGetStringCalls(method, methodCallsInMethod, getStringOverload);
