@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:sil="http://sil.org/software/XLiff">
+<file source-language="en" product-version="1.0.0.0"  original="Nothing.dll" datatype="csharp">
+	<body>
+        <trans-unit id="SettingsProtection.CtrlShiftHint" approved="yes">
+            <source xml:lang="en">The button will show up when you hold down the Ctrl and Shift keys together.</source>
+            <note>ID: SettingsProtection.CtrlShiftHint</note>
+        </trans-unit>
+        <trans-unit id="SettingsProtection.LauncherButtonLabel">
+            <source xml:lang="en">Settings Protection...</source>
+            <note>ID: SettingsProtection.LauncherButtonLabel</note>
+        </trans-unit>
+	</body>
+</file>
+</xliff>
