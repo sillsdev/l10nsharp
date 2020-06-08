@@ -13,12 +13,12 @@ namespace L10NSharp.Tests
 	public class LocalizationManagerXliffTests
 	{
 		/// <summary>
-		/// Indirectly, this is a test of LocalizationManagerInternal<XLiffDocument>.IsDesiredUiCultureAvailable,
+		/// Indirectly, this is a test of LocalizationManagerInternal&lt;XLiffDocument&gt;.IsDesiredUiCultureAvailable,
 		/// which is called by its Create method. This test was written to ensure that a dialog is not displayed
 		/// incorrectly telling the user that the requested UI language is unavailable and asking them which UI
 		/// Language to use instead. If the implementation is incorrect, we don't want the test to hang because
 		/// of the dialog box but rather to fail. And of course, if the test is being run in an interactive
-		/// environment, we also don't the developer to interact with the dialog, which could give a false
+		/// environment, we also don't want the developer to interact with the dialog, which could give a false
 		/// success. So we set the timeout to 3 seconds, which seems to be long enough to let the test run
 		/// successfully but short enough to prevent a developer from interacting with it.
 		/// </summary>
