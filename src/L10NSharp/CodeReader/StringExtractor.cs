@@ -263,8 +263,16 @@ namespace L10NSharp.CodeReader
 
 			var methodsInType = new List<MethodBase>();
 
-			methodsInType.AddRange(type.GetConstructors(BindingFlags.Static |
-				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+			try
+			{
+				methodsInType.AddRange(type.GetConstructors(BindingFlags.Static |
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+			}
+			catch (TypeLoadException)
+			{
+				// Caused by assemblies that have odd runtime loading problems (e.g. SIL.Windows.Forms.Keyboarding). Ignore.
+				return;
+			}
 
 			try
 			{
