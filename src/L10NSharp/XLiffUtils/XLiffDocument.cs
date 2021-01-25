@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 #region // Copyright (c) 2009, SIL International. All Rights Reserved.
 // <copyright from='2009' to='2009' company='SIL International'>
 //		Copyright (c) 2009, SIL International. All Rights Reserved.
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils
@@ -116,7 +117,26 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void Save(string xliffFile)
 		{
-			XLiffXmlSerializationHelper.SerializeToFile(xliffFile, this);
+			var retry = true;
+			for(;;)
+			{
+				try
+				{
+					XLiffXmlSerializationHelper.SerializeToFile(xliffFile, this);
+					return;
+				}
+				catch (IOException)
+				{
+					if (retry)
+					{
+						// Maybe the file was locked. Wait and try again.
+						retry = false;
+						Thread.Sleep(20);
+					}
+					else
+						throw;
+				}
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
