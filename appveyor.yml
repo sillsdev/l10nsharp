@@ -1,0 +1,27 @@
+version: '{build}'
+branches:
+  only:
+  - master
+image: Visual Studio 2017
+init:
+- cmd: set GITVERSION_BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
+nuget:
+  disable_publish_on_pr: true
+  disable_publish_octopus: true
+build:
+  project: build/L10NSharp.proj
+  publish_nuget: true
+  publish_nuget_symbols: true
+  use_snupkg_format: true
+  verbosity: minimal
+artifacts:
+- path: output/*nupkg
+  name: nuget
+deploy:
+- provider: Environment
+  name: sil-lsdev nuget
+notifications:
+- provider: GitHubPullRequest
+  on_build_success: false
+  on_build_failure: false
+  on_build_status_changed: false
