@@ -320,6 +320,11 @@ namespace L10NSharp.CodeReader
 					// this can happen if we have a generic type (e.g. L10NSharp.dll). Ignore.
 					Console.WriteLine(e3.Message);
 				}
+				catch (Exception e4)
+				{
+					Console.WriteLine(e4.Message);
+					throw;
+				}
 			}
 		}
 

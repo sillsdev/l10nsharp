@@ -212,8 +212,20 @@ namespace L10NSharp.XLiffUtils
 				dlg.ShowDialog();
 				if (dlg.ExtractedInfo != null)
 				{
-					foreach (var locInfo in dlg.ExtractedInfo)
-						stringCache.UpdateLocalizedInfo(locInfo);
+					if (dlg.ExtractedInfo.Any())
+					{
+						foreach (var locInfo in dlg.ExtractedInfo)
+							stringCache.UpdateLocalizedInfo(locInfo);
+					}
+					else
+					{
+						stringCache.UpdateLocalizedInfo(new LocalizingInfo("_dummyEntryToGetValidFile")
+							{
+								LangId = "en",
+								Text =  "No strings were collected. This entry prevents an invalid, zero-length file. Delete this file to try regenerating it."
+							}
+						);
+					}
 				}
 			}
 
