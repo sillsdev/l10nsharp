@@ -575,8 +575,12 @@ namespace L10NSharp
 			{
 				if (PreviouslyLoadedManagers.Contains(appId))
 				{
-					throw new ObjectDisposedException(
-						$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
+					if (LocalizationManager.ThrowIfManagerDisposed)
+					{
+						throw new ObjectDisposedException(
+							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
+					}
+					return string.IsNullOrEmpty(englishText) ? id : englishText;
 				}
 
 				if (!string.IsNullOrEmpty(englishText) && langId == LocalizationManager.kDefaultLang)
@@ -587,8 +591,13 @@ namespace L10NSharp
 			{
 				if (PreviouslyLoadedManagers.Contains(appId))
 				{
-					throw new ObjectDisposedException(
-						$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
+					if (LocalizationManager.ThrowIfManagerDisposed)
+					{
+						throw new ObjectDisposedException(
+							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
+					}
+
+					return string.IsNullOrEmpty(englishText) ? id : englishText;
 				}
 				throw new ArgumentException(
 					$"The application id '{appId}' does not have an associated localization manager. " +
