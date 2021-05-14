@@ -820,5 +820,13 @@ namespace L10NSharp
 			}
 		}
 
+		/// <summary>
+		/// True (default) to throw if we try to get a string from a particular manager
+		/// and it has been disposed. When false, we will instead just return the English string,
+		/// or if none, the ID. This is useful in some apps (e.g., Bloom) which may
+		/// accidentally request a localized string during shutdown after disposing of
+		/// the localization managers.
+		/// </summary>
+		public static bool ThrowIfManagerDisposed = true;
 	}
 }
