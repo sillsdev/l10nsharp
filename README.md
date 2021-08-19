@@ -61,6 +61,14 @@ The tests can be run from the command line like this:
 It is also possible to run the tests from inside Visual Studio, Rider or MonoDevelop (if `mono5-sil`
 is installed and made the default Mono runtime).
 
+## Testing in client projects (as applicable):
+
+  * Set an enviroment variable `LOCAL_NUGET_REPO` with the path to a folder on your computer (or local network) to publish locally-built packages
+  * See [these instructions](https://docs.microsoft.com/en-us/nuget/hosting-packages/local-feeds) to enable local package sources
+  * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
+
+Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
+
 ## Working on UI related files
 
 The L10NSharp project uses SDK style .csproj files which don't allow the Designer to be used in
