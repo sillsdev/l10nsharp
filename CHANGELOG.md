@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - option `LocalizationManager.ThrowIfManagerDisposed` to not throw if LM disposed (BL-9904)
 
+### Changed
+
+- Added ILocalizationManager parameter to StringsLocalizedHandler
+
 ## [4.1.0] - 2021-03-04
 
 ### Changed
