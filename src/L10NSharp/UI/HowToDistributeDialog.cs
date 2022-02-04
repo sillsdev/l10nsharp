@@ -1,36 +1,67 @@
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace L10NSharp.UI
 {
 	public partial class HowToDistributeDialog : Form
 	{
+		private readonly string _emailForSubmissions;
 		private readonly string _targetTranslationFilePath;
 
 		public HowToDistributeDialog(string emailForSubmissions, string targetTranslationFilePath)
 		{
+			_emailForSubmissions = emailForSubmissions;
 			_targetTranslationFilePath = targetTranslationFilePath;
 			InitializeComponent();
 
 			if (Utils.IsMono)
 			{
 				// In Mono, Label.AutoSize=true sets Size to PreferredSize (which is always
-				// one line high) even if the Size has already been explicitly set.  In Windows,
-				// Label.AutoSize=false makes the labels disappear.  So we need to turn off
-				// AutoSize here and set the multiline labels explicitly to their largest
-				// possible sizes for this fixed-size dialog.  (That allows all the available
-				// space for localizations that may need more space.)
-				label1.AutoSize = label2.AutoSize = label4.AutoSize = false;
-				label4.Size = new System.Drawing.Size(300, 142); // top message
-				label2.Size = new System.Drawing.Size(300, 56);  // middle message
-				label1.Size = new System.Drawing.Size(300, 112); // bottom message
+				// one line high) even if the Size has already been explicitly set. In Windows,
+				// Label.AutoSize=false makes the labels disappear. So we need to turn off
+				// AutoSize here and set the multiline labels (which all have a max height set
+				// in Designer) to their largest possible heights. (That allows all the available
+				// space for localizations that may need more space.) 
+				foreach (var label in Controls.OfType<Label>().Where(l => l.MaximumSize.Height > 0))
+				{
+					int width = _table.Width - label.Margin.Horizontal;
+					label.AutoSize = false;
+					if (label.MaximumSize.Width > 0 && label.MaximumSize.Width < width)
+						width = label.MaximumSize.Width;
+					label.Size = new System.Drawing.Size(width, label.MaximumSize.Height);
+				}
 			}
 
-			_emailLabel.Text=emailForSubmissions;
+			_lblHowToDistribute.Text = string.Format(_lblHowToDistribute.Text,
+				Environment.NewLine + _targetTranslationFilePath + Environment.NewLine,
+				Environment.NewLine + _emailForSubmissions + Environment.NewLine);
+			_lblHowToDistribute.Links.Clear();
+			AddLink(_lblHowToDistribute, _targetTranslationFilePath, OnShowTranslationFile);
+			AddLink(_lblHowToDistribute, _emailForSubmissions, OpenEmail);
 		}
 
-		private void OnShowTranslationFile(object sender, LinkLabelLinkClickedEventArgs e)
+		private static void AddLink(LinkLabel label, string s, Action action)
+		{
+			if (string.IsNullOrEmpty(s))
+				throw new ArgumentException("Error: no link text specified", nameof(s));
+
+			var linkStart = label.Text.IndexOf(s, StringComparison.Ordinal);
+			if (linkStart < 0)
+				throw new ArgumentException("Error: specified text not found in link label text:" + s, nameof(s));
+
+			label.Links.Add(linkStart, s.Length, action);
+		}
+
+		private void HandleLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			e.Link.Visited = true;
+			((Action)e.Link.LinkData).Invoke();
+		}
+
+		private void OnShowTranslationFile()
 		{
 			var path = _targetTranslationFilePath;
 			if (Path.DirectorySeparatorChar != '/')
@@ -40,7 +71,7 @@ namespace L10NSharp.UI
 				MessageBox.Show("Sorry, the translation memory file hasn't been saved yet, so we can't show it to you yet.");
 				return;
 			}
-			if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+			if (Environment.OSVersion.Platform == PlatformID.Unix)
 			{
 				if (File.Exists("/usr/bin/nemo"))
 					Process.Start("/usr/bin/nemo", path);		// default file manager for Cinnamon (Wasta)
@@ -55,9 +86,9 @@ namespace L10NSharp.UI
 			}
 		}
 
-		private void _emailLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		private void OpenEmail()
 		{
-			Process.Start("mailto:" + _emailLabel.Text);
+			Process.Start("mailto:" + _emailForSubmissions);
 		}
 
 	}
