@@ -16,7 +16,7 @@ namespace L10NSharp.UI
 		public static Font DefaultDisplayFont { get; set; }
 
 		/// ------------------------------------------------------------------------------------
-		public delegate void StringsLocalizedHandler();
+		public delegate void StringsLocalizedHandler(ILocalizationManager localizationManager);
 		/// ------------------------------------------------------------------------------------
 		public delegate string SetDialogSettingsHandler(LocalizeItemDlg<T> dlg);
 		/// ------------------------------------------------------------------------------------
@@ -382,14 +382,13 @@ namespace L10NSharp.UI
 				_grid.EndEdit(DataGridViewDataErrorContexts.Commit);
 
 			if (_viewModel.Save())
-				FireStringsLocalizedEvent();
+				FireStringsLocalizedEvent(_callingManager);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static void FireStringsLocalizedEvent()
+		internal static void FireStringsLocalizedEvent(ILocalizationManager lm)
 		{
-			if (StringsLocalized != null)
-				StringsLocalized();
+			StringsLocalized?.Invoke(lm);
 		}
 
 		#endregion

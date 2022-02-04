@@ -727,7 +727,7 @@ namespace L10NSharp.XLiffUtils
 			foreach (var component in ComponentCache.Keys)
 				ApplyLocalization(component);
 
-			LocalizeItemDlg<XLiffDocument>.FireStringsLocalizedEvent();
+			LocalizeItemDlg<XLiffDocument>.FireStringsLocalizedEvent(this);
 		}
 
 		/// ------------------------------------------------------------------------------------
