@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.438
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L10NSharp", "src\L10NSharp\L10NSharp.csproj", "{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}"
 EndProject
@@ -8,9 +8,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L10NSharpTests", "src\L10NS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{58923B30-FD84-4BCC-85E0-607DCA7E7C95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractXliff", "src\ExtractXliff\ExtractXliff.csproj", "{E0666C78-B8DC-4232-952C-753940D54921}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtractXliff", "src\ExtractXliff\ExtractXliff.csproj", "{E0666C78-B8DC-4232-952C-753940D54921}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckOrFixXliff", "src\CheckOrFixXliff\CheckOrFixXliff.csproj", "{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CheckOrFixXliff", "src\CheckOrFixXliff\CheckOrFixXliff.csproj", "{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{7BE95674-0B77-4BA4-9A8A-57718D2B196C}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +39,7 @@ Global
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Debug|x86.Build.0 = Debug|Any CPU
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EE0895A-7B9D-4B49-8F73-9F1270F1E583}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU

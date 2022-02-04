@@ -28,130 +28,118 @@ namespace L10NSharp.UI
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HowToDistributeDialog));
-            this.label1 = new System.Windows.Forms.Label();
-            this._okButton = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this._showTranslationFile = new System.Windows.Forms.LinkLabel();
-            this.label3 = new System.Windows.Forms.Label();
-            this._emailLabel = new System.Windows.Forms.LinkLabel();
-            this.label4 = new System.Windows.Forms.Label();
-            this.SuspendLayout();
-            //
-            // label1
-            //
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(34, 276);
-            this.label1.MaximumSize = new System.Drawing.Size(300, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(284, 95);
-            this.label1.TabIndex = 0;
-            this.label1.Text = resources.GetString("label1.Text");
-            //
-            // _okButton
-            //
-            this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._okButton.Location = new System.Drawing.Point(243, 389);
-            this._okButton.Name = "_okButton";
-            this._okButton.Size = new System.Drawing.Size(75, 23);
-            this._okButton.TabIndex = 1;
-            this._okButton.Text = "&OK";
-            this._okButton.UseVisualStyleBackColor = true;
-            //
-            // label2
-            //
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(34, 167);
-            this.label2.MaximumSize = new System.Drawing.Size(300, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(269, 38);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "To get your translation work into the next version of this program, email";
-            //
-            // _showTranslationFile
-            //
-            this._showTranslationFile.AutoSize = true;
-            this._showTranslationFile.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this._showTranslationFile.Location = new System.Drawing.Point(34, 222);
-            this._showTranslationFile.Name = "_showTranslationFile";
-            this._showTranslationFile.Size = new System.Drawing.Size(90, 19);
-            this._showTranslationFile.TabIndex = 3;
-            this._showTranslationFile.TabStop = true;
-            this._showTranslationFile.Text = "your translation memory file";
-            this._showTranslationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnShowTranslationFile);
-            //
-            // label3
-            //
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(130, 222);
-            this.label3.MaximumSize = new System.Drawing.Size(300, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(22, 19);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "to";
-            //
-            // _emailLabel
-            //
-            this._emailLabel.AutoSize = true;
-            this._emailLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this._emailLabel.Location = new System.Drawing.Point(34, 241);
-            this._emailLabel.Name = "_emailLabel";
-            this._emailLabel.Size = new System.Drawing.Size(177, 19);
-            this._emailLabel.TabIndex = 5;
-            this._emailLabel.TabStop = true;
-            this._emailLabel.Text = "someone@somewhere.com";
-            this._emailLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._emailLabel_LinkClicked);
-            //
-            // label4
-            //
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(34, 34);
-            this.label4.MaximumSize = new System.Drawing.Size(300, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(300, 95);
-            this.label4.TabIndex = 6;
-            this.label4.Text = resources.GetString("label4.Text");
-            //
-            // HowToDistributeDialog
-            //
-            this.AcceptButton = this._okButton;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this._okButton;
-            this.ClientSize = new System.Drawing.Size(362, 424);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this._emailLabel);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this._showTranslationFile);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this._okButton);
-            this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "HowToDistributeDialog";
-            this.ShowIcon = false;
-            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "How To Distribute";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HowToDistributeDialog));
+			this._lblLocalSharing = new System.Windows.Forms.Label();
+			this._okButton = new System.Windows.Forms.Button();
+			this._lblHowToDistribute = new System.Windows.Forms.LinkLabel();
+			this._lblNoteAboutConflictingTranslations = new System.Windows.Forms.Label();
+			this._table = new System.Windows.Forms.TableLayoutPanel();
+			this._table.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// _lblLocalSharing
+			// 
+			this._lblLocalSharing.AutoSize = true;
+			this._lblLocalSharing.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._lblLocalSharing.Location = new System.Drawing.Point(3, 160);
+			this._lblLocalSharing.Margin = new System.Windows.Forms.Padding(3, 0, 3, 12);
+			this._lblLocalSharing.MaximumSize = new System.Drawing.Size(0, 180);
+			this._lblLocalSharing.Name = "_lblLocalSharing";
+			this._lblLocalSharing.Size = new System.Drawing.Size(329, 95);
+			this._lblLocalSharing.TabIndex = 0;
+			this._lblLocalSharing.Text = resources.GetString("_lblLocalSharing.Text");
+			// 
+			// _okButton
+			// 
+			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this._okButton.AutoSize = true;
+			this._okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this._okButton.Location = new System.Drawing.Point(260, 374);
+			this._okButton.Name = "_okButton";
+			this._okButton.Size = new System.Drawing.Size(75, 23);
+			this._okButton.TabIndex = 1;
+			this._okButton.Text = "&OK";
+			this._okButton.UseVisualStyleBackColor = true;
+			// 
+			// _lblHowToDistribute
+			// 
+			this._lblHowToDistribute.AutoSize = true;
+			this._lblHowToDistribute.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._lblHowToDistribute.LinkArea = new System.Windows.Forms.LinkArea(81, 84);
+			this._lblHowToDistribute.Location = new System.Drawing.Point(3, 107);
+			this._lblHowToDistribute.Margin = new System.Windows.Forms.Padding(3, 0, 3, 12);
+			this._lblHowToDistribute.MaximumSize = new System.Drawing.Size(0, 180);
+			this._lblHowToDistribute.Name = "_lblHowToDistribute";
+			this._lblHowToDistribute.Size = new System.Drawing.Size(322, 41);
+			this._lblHowToDistribute.TabIndex = 2;
+			this._lblHowToDistribute.TabStop = true;
+			this._lblHowToDistribute.Text = "To get your translation work into the next version of this program, email {0} to " +
+    "{1}";
+			this._lblHowToDistribute.UseCompatibleTextRendering = true;
+			this._lblHowToDistribute.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.HandleLinkClicked);
+			// 
+			// _lblNoteAboutConflictingTranslations
+			// 
+			this._lblNoteAboutConflictingTranslations.AutoSize = true;
+			this._lblNoteAboutConflictingTranslations.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._lblNoteAboutConflictingTranslations.Location = new System.Drawing.Point(3, 0);
+			this._lblNoteAboutConflictingTranslations.Margin = new System.Windows.Forms.Padding(3, 0, 3, 12);
+			this._lblNoteAboutConflictingTranslations.MaximumSize = new System.Drawing.Size(0, 180);
+			this._lblNoteAboutConflictingTranslations.Name = "_lblNoteAboutConflictingTranslations";
+			this._lblNoteAboutConflictingTranslations.Size = new System.Drawing.Size(332, 95);
+			this._lblNoteAboutConflictingTranslations.TabIndex = 6;
+			this._lblNoteAboutConflictingTranslations.Text = resources.GetString("_lblNoteAboutConflictingTranslations.Text");
+			// 
+			// _table
+			// 
+			this._table.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this._table.ColumnCount = 1;
+			this._table.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this._table.Controls.Add(this._lblNoteAboutConflictingTranslations, 0, 0);
+			this._table.Controls.Add(this._lblHowToDistribute, 0, 1);
+			this._table.Controls.Add(this._okButton, 0, 3);
+			this._table.Controls.Add(this._lblLocalSharing, 0, 2);
+			this._table.Location = new System.Drawing.Point(12, 12);
+			this._table.Name = "_table";
+			this._table.RowCount = 4;
+			this._table.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this._table.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this._table.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this._table.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this._table.Size = new System.Drawing.Size(338, 400);
+			this._table.TabIndex = 7;
+			// 
+			// HowToDistributeDialog
+			// 
+			this.AcceptButton = this._okButton;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.CancelButton = this._okButton;
+			this.ClientSize = new System.Drawing.Size(362, 424);
+			this.Controls.Add(this._table);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
+			this.MinimumSize = new System.Drawing.Size(378, 463);
+			this.Name = "HowToDistributeDialog";
+			this.ShowIcon = false;
+			this.ShowInTaskbar = false;
+			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			this.Text = "How To Distribute";
+			this._table.ResumeLayout(false);
+			this._table.PerformLayout();
+			this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label _lblLocalSharing;
         private System.Windows.Forms.Button _okButton;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.LinkLabel _showTranslationFile;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.LinkLabel _emailLabel;
-        private System.Windows.Forms.Label label4;
-    }
+        private System.Windows.Forms.LinkLabel _lblHowToDistribute;
+        private System.Windows.Forms.Label _lblNoteAboutConflictingTranslations;
+		private System.Windows.Forms.TableLayoutPanel _table;
+	}
 }

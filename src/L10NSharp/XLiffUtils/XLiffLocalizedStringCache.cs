@@ -7,7 +7,6 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using L10NSharp.XLiffUtils;
 using L10NSharp.UI;
 
 namespace L10NSharp.XLiffUtils
