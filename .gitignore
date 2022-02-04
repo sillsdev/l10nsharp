@@ -17,3 +17,4 @@ packages/
 /.vs/
 build/nuget.exe
 /src/ExtractXliff/Properties/launchSettings.json
+/src/*/gitversion.json
