@@ -36,7 +36,7 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.6.1">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
