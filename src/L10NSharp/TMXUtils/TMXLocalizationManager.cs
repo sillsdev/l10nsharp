@@ -674,7 +674,7 @@ namespace L10NSharp.TMXUtils
 			foreach (var component in ComponentCache.Keys)
 				ApplyLocalization(component);
 
-			LocalizeItemDlg<TMXDocument>.FireStringsLocalizedEvent();
+			LocalizeItemDlg<TMXDocument>.FireStringsLocalizedEvent(this);
 		}
 
 		/// ------------------------------------------------------------------------------------
