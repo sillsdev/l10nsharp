@@ -53,7 +53,7 @@
 	<Target Name="RestorePackages" DependsOnTargets="CheckPrerequisites">
 		<Exec Command='$(NuGetCommand) restore -Force "$(SolutionPath)"'
 			Condition="Exists('$(SolutionPath)')"/>
-		<Exec Command='$(NuGetCommand) restore -Force -SolutionDirectory "$(SolutionDir)" "%(PackageConfigs.FullPath)"'
+		<Exec Command='$(NuGetCommand) restore -Force -SolutionDirectory "$(SolutionDir)" "%(PackageConfigs.FullPath)" /p:DisableImplicitNuGetFallbackFolder=true'
 			Condition="!Exists('$(SolutionPath)')"/>
 	</Target>
 
