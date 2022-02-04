@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsTool>true</IsTool>
@@ -8,7 +8,7 @@
     <AssemblyTitle>CheckOrFixXliff</AssemblyTitle>
     <Company>SIL</Company>
     <Product>L10NSharp</Product>
-    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2022 SIL International</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Authors>SIL International</Authors>
@@ -35,7 +35,7 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.6.0">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
