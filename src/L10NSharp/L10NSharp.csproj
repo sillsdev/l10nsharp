@@ -1,31 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
     <RootNamespace>L10NSharp</RootNamespace>
     <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which needs localization when your application first runs and saves them in a XLIFF or TMX file. It can also dynamically collect strings at runtime.</Description>
     <AssemblyTitle>L10NSharp</AssemblyTitle>
-    <Company>SIL</Company>
-    <Product>L10NSharp</Product>
-    <Copyright>Copyright © 2010-2022 SIL International</Copyright>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Authors>SIL International</Authors>
-    <OutputPath>../../output/$(Configuration)</OutputPath>
     <PackageId>L10NSharp</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageOutputPath>../../output</PackageOutputPath>
-    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <AppendToReleaseNotesProperty><![CDATA[
-See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
-    </AppendToReleaseNotesProperty>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ServiceModel" />
