@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -237,9 +237,10 @@ namespace L10NSharp.CodeReader
 				return ExternalAssembliesToScan;
 
 			// If no entry assembly, just get assemblies loaded in AppDomain
-			if (Assembly.GetEntryAssembly() != null)
+			var entryAssembly = Assembly.GetEntryAssembly();
+			if (entryAssembly != null)
 			{
-				foreach (AssemblyName assemblyName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
+				foreach (AssemblyName assemblyName in entryAssembly.GetReferencedAssemblies())
 				{
 					try
 					{
@@ -305,24 +306,17 @@ namespace L10NSharp.CodeReader
 
 					FindExtenderCalls(method);
 				}
-				catch (FileNotFoundException e1)
+				catch (Exception e)
 				{
-					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
-					Console.WriteLine(e1.Message);
-				}
-				catch (TypeLoadException e2)
-				{
-					// Caused by assemblies that have odd runtime loading problems (e.g. Chorus). Ignore.
-					Console.WriteLine(e2.Message);
-				}
-				catch (ArgumentException e3)
-				{
-					// this can happen if we have a generic type (e.g. L10NSharp.dll). Ignore.
-					Console.WriteLine(e3.Message);
-				}
-				catch (Exception e4)
-				{
-					Console.WriteLine(e4.Message);
+					Console.WriteLine(e.Message);
+					// There are several types of exception we can safely ignore:
+					if (e is FileNotFoundException || // Caused by assemblies that cannot be loaded at runtime (e.g. NUnit)
+					    e is TypeLoadException || // Caused by assemblies that have odd runtime loading problems (e.g. Chorus)
+					    e is ArgumentException || // This can happen if we have a generic type (e.g. L10NSharp.dll).
+					    e is BadImageFormatException) // This can happen when loading COM interop DLLs via reflection (e.g. Interop.WIA.dll).
+					{
+						continue;
+					}
 					throw;
 				}
 			}
@@ -353,7 +347,7 @@ namespace L10NSharp.CodeReader
 				}
 				catch (FileNotFoundException e1)
 				{
-					// Caused by assemblies that cannot be loaded at runtime (e.g. nunit). Ignore.
+					// Caused by assemblies that cannot be loaded at runtime (e.g. NUnit). Ignore.
 					Console.WriteLine(e1.Message);
 				}
 			}
@@ -372,8 +366,7 @@ namespace L10NSharp.CodeReader
 			{
 				var i = call.Item1;
 
-				LocalizingInfo locInfo;
-				locInfo = callee.Name == "Localize" ?
+				var locInfo = callee.Name == "Localize" ?
 					GetInfoForCallToLocalizeExtension(module, i, calleeParamCount) :
 					GetInfoForCallToGetStringMethod(module, i, calleeParamCount);
 				if (locInfo != null)
@@ -401,18 +394,9 @@ namespace L10NSharp.CodeReader
 			if (parameters[0] == null)
 				return null;
 
-			string id;
-			if (String.IsNullOrEmpty(parameters[1]))
-			{
-				id = parameters[0];
-			}
-			else
-			{
-				id = parameters[1];
-			}
+			var id = String.IsNullOrEmpty(parameters[1]) ? parameters[0] : parameters[1];
 
-			var locInfo = new LocalizingInfo(id);
-			locInfo.Text = parameters[0];
+			var locInfo = new LocalizingInfo(id) { Text = parameters[0] };
 
 			//end part that differs from GetInfoForCallToLocalizationMethod
 
@@ -460,8 +444,7 @@ namespace L10NSharp.CodeReader
 			if (parameters[0] == null || parameters[1] == null)
 				return null;
 
-			var locInfo = new LocalizingInfo(parameters[0]);
-			locInfo.Text = parameters[1];
+			var locInfo = new LocalizingInfo(parameters[0]) { Text = parameters[1] };
 
 			if (paramsInMethodCall >= 3 && parameters[2] != null)
 				locInfo.Comment = parameters[2];
@@ -538,7 +521,7 @@ namespace L10NSharp.CodeReader
 					continue;
 				}
 
-				 text = (i > 1 && _instructions[i - 1].opCode == OpCodes.Ldstr ?
+				text = (i > 1 && _instructions[i - 1].opCode == OpCodes.Ldstr ?
 					module.ResolveString((int)_instructions[i - 1].operand) : null);
 
 				if (text == null)
