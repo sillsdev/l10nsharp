@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- remove progress dialog when initializating Xliff localization managers (BL-11157)
 - Made string retrieval operations on Xliff-based LocalizationManagers thread-safe
 - Added ILocalizationManager parameter to StringsLocalizedHandler
 - It's long been a convention that xliff file names are module.lang.xlf (e.g., Bloom.fr.xlf)
