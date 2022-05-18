@@ -382,7 +382,10 @@ namespace L10NSharp.UI
 				_grid.EndEdit(DataGridViewDataErrorContexts.Commit);
 
 			if (_viewModel.Save())
-				FireStringsLocalizedEvent(_callingManager);
+			{
+				foreach (var manager in _viewModel.GetModifiedManagers())
+					FireStringsLocalizedEvent(manager);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -885,7 +888,7 @@ namespace L10NSharp.UI
 
 		private void _howToDistribute_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			using(var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,
+			using (var dlg = new HowToDistributeDialog(LocalizationManager.EmailForSubmissions,
 				_callingManager.GetPathForLanguage(_viewModel.TgtLangId, true)))
 			{
 				dlg.ShowDialog();

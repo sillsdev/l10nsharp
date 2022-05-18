@@ -21,7 +21,8 @@ namespace L10NSharp.UI
 		public List<LocTreeNode<T>> AllLeafNodesShowingInGrid { get; private set; }
 		public List<LocTreeNode<T>> AllLeafNodes { get; private set; }
 		public List<ILocalizationManagerInternal<T>> EnabledManagers;
-		private HashSet<string> _modifiedLanguages = new HashSet<string>();
+		private readonly Dictionary<ILocalizationManagerInternal<T>, HashSet<string>> _modifiedManagersAndLanguages =
+			new Dictionary<ILocalizationManagerInternal<T>, HashSet<string>>();
 		public ITranslator BingTranslator { get; private set; }
 		public NodeComparer<T>.SortField GridSortField { get; set; }
 		public SortOrder GridSortOrder { get; set; }
@@ -215,6 +216,12 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
+		public IEnumerable<ILocalizationManagerInternal<T>> GetModifiedManagers(
+			string langId = null) =>
+			_modifiedManagersAndLanguages.Where(m => m.Value.Contains(
+				langId ?? LocalizationManager.UILanguageId)).Select(m => m.Key);
+
+		/// ------------------------------------------------------------------------------------
 		public bool Save()
 		{
 			if (_runInReadonlyMode)
@@ -234,10 +241,10 @@ namespace L10NSharp.UI
 					node.Manager.ApplyLocalization(component);
 			}
 
-			foreach (var lm in LocalizationManagerInternal<T>.LoadedManagers.Values)
+			foreach (var lm in _modifiedManagersAndLanguages.Keys)
 			{
 				lm.PrepareToCustomizeLocalizations();
-				lm.SaveIfDirty(_modifiedLanguages);
+				lm.SaveIfDirty(_modifiedManagersAndLanguages[lm]);
 
 				// If saving fails, the LocalizationManagerInternal will record the problem .
 				_runInReadonlyMode |= !lm.CanCustomizeLocalizations;
@@ -275,7 +282,12 @@ namespace L10NSharp.UI
 			}
 
 			locInfo.LangId = _tgtLangId;
-			_modifiedLanguages.Add(_tgtLangId);
+
+			if (!_modifiedManagersAndLanguages.TryGetValue(node.Manager, out var modifiedLangIds))
+			{
+				_modifiedManagersAndLanguages[node.Manager] = modifiedLangIds = new HashSet<string>();
+			}
+			modifiedLangIds.Add(_tgtLangId);
 
 			if (!node.SavedTranslationInfo.ContainsKey(_tgtLangId))
 				node.SavedTranslationInfo[_tgtLangId] = locInfo;
@@ -379,7 +391,7 @@ namespace L10NSharp.UI
 			_translationWorker = new BackgroundWorker();
 			_translationWorker.WorkerReportsProgress = true;
 			_translationWorker.WorkerSupportsCancellation = true;
-			_translationWorker.DoWork += HandleTanslateItems;
+			_translationWorker.DoWork += HandleTranslateItems;
 
 			if (progressAction != null)
 			{
@@ -391,7 +403,7 @@ namespace L10NSharp.UI
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private void HandleTanslateItems(object sender, DoWorkEventArgs e)
+		private void HandleTranslateItems(object sender, DoWorkEventArgs e)
 		{
 			var worker = sender as BackgroundWorker;
 			var nodesToTranslate = e.Argument as IDictionary<int, LocTreeNode<T>>;

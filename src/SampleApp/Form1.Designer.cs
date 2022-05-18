@@ -1,3 +1,4 @@
+using L10NSharp;
 using L10NSharp.XLiffUtils;
 
 namespace SampleApp
@@ -98,6 +99,7 @@ namespace SampleApp
 			this.uiLanguageComboBox1.IntegralHeight = false;
 			this.localizationExtender1.SetLocalizableToolTip(this.uiLanguageComboBox1, null);
 			this.localizationExtender1.SetLocalizationComment(this.uiLanguageComboBox1, null);
+			this.localizationExtender1.SetLocalizationPriority(this.uiLanguageComboBox1, LocalizationPriority.NotLocalizable);
 			this.localizationExtender1.SetLocalizingId(this.uiLanguageComboBox1, "uiLanguageComboBox1.uiLanguageComboBox1");
 			this.uiLanguageComboBox1.Location = new System.Drawing.Point(40, 41);
 			this.uiLanguageComboBox1.Name = "uiLanguageComboBox1";
