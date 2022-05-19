@@ -31,6 +31,7 @@ namespace SampleApp
 		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			LocalizationManager.ShowLocalizationDialogBox(this);
+			uiLanguageComboBox1.RefreshList();
 			UpdateDynamicLabel();
 		}
 
