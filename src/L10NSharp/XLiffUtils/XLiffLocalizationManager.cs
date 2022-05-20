@@ -25,6 +25,7 @@ namespace L10NSharp.XLiffUtils
 		private readonly string _installedXliffFileFolder;
 		private readonly string _generatedDefaultXliffFileFolder;
 		private readonly string _customXliffFileFolder;
+		private readonly string _origExeExtension;
 
 		public Dictionary<IComponent, string> ComponentCache { get; }
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
@@ -37,7 +38,8 @@ namespace L10NSharp.XLiffUtils
 		/// instead of the common/shared AppData folder, applications can use this method to
 		/// purge old Xliff files.</summary>
 		/// <param name="appId">ID of the application used for creating the Xliff files (typically
-		/// the same ID passed as the 2nd parameter to LocalizationManagerInternal.Create).</param>
+		/// the same ID passed as the 2nd parameter to LocalizationManagerInternal.Create, but
+		/// without a file extension).</param>
 		/// <param name="directoryOfWritableXliffFiles">Folder from which to delete Xliff files.
 		/// </param>
 		/// <param name="directoryOfInstalledXliffFiles">Used to limit file deletion to only
@@ -94,8 +96,13 @@ namespace L10NSharp.XLiffUtils
 				throw new DirectoryNotFoundException(string.Format(
 					"The default localizations folder {0} does not exist. This indicates a failed install for {1}. Please uninstall and reinstall {1}.",
 					directoryOfInstalledXliffFiles, appName));
-			Id = appId;
-			Name = appName;
+			if (string.IsNullOrWhiteSpace(appId))
+				throw new ArgumentNullException(nameof(appId));
+			_origExeExtension = Path.GetExtension(appId);
+			if (_origExeExtension == string.Empty)
+				_origExeExtension = ".dll";
+			Id = Path.GetFileNameWithoutExtension(appId);
+			Name = appName ?? Id;
 			AppVersion = appVersion;
 			_installedXliffFileFolder = directoryOfInstalledXliffFiles;
 			_generatedDefaultXliffFileFolder = directoryForGeneratedDefaultXliffFile;
@@ -140,12 +147,12 @@ namespace L10NSharp.XLiffUtils
 		/// Minimal constructor for a new instance of the <see cref="XLiffLocalizationManager"/> class.
 		/// </summary>
 		/// <param name="appId">
-		/// The application Id (e.g. 'Pa' for Phonology Assistant).  This should be a unique name that
+		/// The application Id (e.g. 'Pa' for Phonology Assistant). This should be a unique name that
 		/// identifies the manager for an assembly or application.
 		/// </param>
 		/// <param name="appName">
 		/// The application's name. This will appear to the user in the localization dialog box as a
-		/// parent item in the tree.  It may be the same as appId.
+		/// parent item in the tree. It may be the same as appId.
 		/// </param>
 		/// <param name="appVersion">
 		/// The application's version.
@@ -297,6 +304,17 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public string Id { get; }
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// This is what identifies a localization manager for a particular set of
+		/// localized strings. This would likely be a DLL or EXE name like 'PA' or 'SayMore'.
+		/// This will be the file name of the portion of the XLIFF file in which localized
+		/// strings are stored. This would usually be the name of the assembly that owns a
+		/// set of localized strings.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public string OriginalExecutableFile => Id + _origExeExtension;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

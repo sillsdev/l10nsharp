@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System.Collections.Generic;
@@ -20,14 +20,16 @@ namespace L10NSharp.Tests
 		}
 
 		internal override ILocalizationManagerInternal<XLiffDocument> CreateLocalizationManager(
-			string          appId,                               string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			string          directoryForGeneratedDefaultTmxFile, string directoryOfUserModifiedXliffFiles,
+			string appId, string appName, string appVersion, string directoryOfInstalledLocFiles,
+			string directoryForGeneratedDefaultFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings)
 		{
-			return new XLiffLocalizationManager(appId, appName, appVersion, directoryOfInstalledTmxFiles,
-				directoryForGeneratedDefaultTmxFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
+			var manager = new XLiffLocalizationManager(appId, appName, appVersion, directoryOfInstalledLocFiles,
+				directoryForGeneratedDefaultFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
 				namespaceBeginnings);
+			Assert.That(manager.OriginalExecutableFile, Is.EqualTo(appId + ".dll"));
+			return manager;
 		}
 
 		internal override ILocalizationManagerInternal<XLiffDocument> CreateLocalizationManager(

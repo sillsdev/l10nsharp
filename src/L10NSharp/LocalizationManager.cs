@@ -73,7 +73,10 @@ namespace L10NSharp
 		/// falls back to the default.</param>
 		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
 		/// This should be a unique name that identifies the manager for an assembly or
-		/// application.</param>
+		/// application. May include an optional file extension, which will be stripped off but
+		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
+		/// base portion must still be unique (i.e., it is not valid to create a LM for
+		/// "Blah.exe" and another for "Blah.dll").</param>
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
@@ -114,7 +117,10 @@ namespace L10NSharp
 		/// falls back to the default.</param>
 		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
 		/// This should be a unique name that identifies the manager for an assembly or
-		/// application.</param>
+		/// application. May include an optional file extension, which will be stripped off but
+		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
+		/// base portion must still be unique (i.e., it is not valid to create a LM for
+		/// "Blah.exe" and another for "Blah.dll").</param>
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
@@ -153,10 +159,9 @@ namespace L10NSharp
 			{
 				case TranslationMemory.Tmx:
 					return LocalizationManagerInternal<TMXDocument>.CreateTmx(desiredUiLangId,
-						appId, appName, appVersion, directoryOfInstalledFiles,
-						relativeSettingPathForLocalizationFolder, applicationIcon,
-						additionalLocalizationMethods,
-						namespaceBeginnings);
+						System.IO.Path.GetFileNameWithoutExtension(appId), appName, appVersion,
+						directoryOfInstalledFiles, relativeSettingPathForLocalizationFolder,
+						applicationIcon, additionalLocalizationMethods, namespaceBeginnings);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
 						appId, appName, appVersion, directoryOfInstalledFiles,
@@ -175,7 +180,8 @@ namespace L10NSharp
 		/// instead of the common/shared AppData folder, applications can use this method to
 		/// purge old Xliff/Tmx files.</summary>
 		/// <param name="appId">ID of the application used for creating the Xliff/Tmx files
-		/// (typically the same ID passed as the 2nd parameter to LocalizationManagerInternal.Create).
+		/// (typically the same ID passed as the 2nd parameter to
+		/// LocalizationManagerInternal.Create, but without a file extension).
 		/// </param>
 		/// <param name="directoryOfWritableTranslationFiles">Folder from which to delete
 		/// Xliff/Tmx files.</param>

@@ -42,7 +42,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal XLiffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
 		{
-			OwningManager = owningManager as XLiffLocalizationManager;
+			OwningManager = (XLiffLocalizationManager)owningManager;
 			if (loadAvailableXliffFiles)
 			{
 				try
@@ -59,7 +59,7 @@ namespace L10NSharp.XLiffUtils
 			else
 			{
 				DefaultXliffDocument = CreateEmptyStringFile();
-				DefaultXliffDocument.File.Original = OwningManager.Name + ".dll";
+				DefaultXliffDocument.File.Original = OwningManager.OriginalExecutableFile;
 				XliffDocuments.TryAdd(LocalizationManager.kDefaultLang, DefaultXliffDocument);
 			}
 			_tuUpdater = new XLiffTransUnitUpdater(this);
@@ -363,8 +363,7 @@ namespace L10NSharp.XLiffUtils
 			xliffOutput.File.ProductVersion = OwningManager.AppVersion;
 			xliffOutput.File.HardLineBreakReplacement = s_literalNewline;
 			xliffOutput.File.AmpersandReplacement = _ampersandReplacement;
-			if (OwningManager != null && OwningManager.Name != null)
-				xliffOutput.File.Original = OwningManager.Name + ".dll";
+			xliffOutput.File.Original = OwningManager.OriginalExecutableFile;
 
 			foreach (var tu in DefaultXliffDocument.File.Body.TransUnitsUnordered)
 			{
