@@ -35,6 +35,11 @@ With the latest changes, this is required: the language name indicated in these 
 name must match the language declared in the target-language attribute, or at least match the
 first element of the target-language (e.g., a file with target-languge es-ES may be stored in
 file like Bloom.es.xlf or .../es/Bloom.xlf).
+- Progress dialogs are no longer shown when initializing XLIFF-based LocalizationManagers.
+- Made it possible for caller to specify the file extension of the "original" executable file
+when constructing an XLIFF-based LocalizationManager.
+- Changed the way the "original" attribute is set in XLIFF files. It used to be based on the
+Name, but changed it to use Id instead.
 
 ### Removed
 
