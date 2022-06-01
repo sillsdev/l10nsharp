@@ -1,8 +1,7 @@
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -14,13 +13,13 @@ namespace L10NSharp.UI
 		private bool _showOnlyLanguagesHavingLocalizations;
 
 		/// ------------------------------------------------------------------------------------
-		public UILanguageComboBox()
+		public UILanguageComboBox(Func<string, string> getLocaleName = null)
 		{
 			DropDownHeight = 200;
 			DropDownStyle = ComboBoxStyle.DropDownList;
 			FormattingEnabled = true;
 			Font = SystemFonts.IconTitleFont;
-			DisplayMember = "NativeName";
+			DisplayMember = "DisplayName";
 			RefreshList();
 		}
 
@@ -71,7 +70,7 @@ namespace L10NSharp.UI
 		[DefaultValue(false)]
 		public bool ShowOnlyLanguagesHavingLocalizations
 		{
-			get { return _showOnlyLanguagesHavingLocalizations; }
+			get => _showOnlyLanguagesHavingLocalizations;
 			set
 			{
 				if (_showOnlyLanguagesHavingLocalizations == value)
@@ -92,16 +91,10 @@ namespace L10NSharp.UI
 			cultureList.Add(L10NCultureInfo.GetCultureInfo("en"));
 
 			Items.Clear();
-			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
+			Items.AddRange(cultureList.OrderBy(ci => ci.DisplayName).ToArray());
 			var currCulture = L10NCultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
-			if (Items.Contains(currCulture))
-			{
-				SelectedItem = currCulture;
-			}
-			else
-			{
-				SelectedItem =  L10NCultureInfo.GetCultureInfo("en");
-			}
+			SelectedItem = Items.Contains(currCulture) ? currCulture :
+				L10NCultureInfo.GetCultureInfo("en");
 		}
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -130,6 +131,60 @@ namespace L10NSharp.UI
 			catch { }
 
 			return null;
+		}
+
+		public static void InitializeWithAvailableUILocales(this ToolStripDropDownItem menu,
+			Action<string> localeSelectedAction, Func<string> getMoreMenuText, Action moreSelected,
+			ILocalizationManager lm, Dictionary<string, string> additionalNamedLocales = null,
+			ISet<string> languagesNotToSimplify = null)
+		{
+			menu.DropDownItems.Clear();
+
+			var namedLocales = new SortedDictionary<string, string>();
+			if (additionalNamedLocales != null)
+			{
+				foreach (var additionalLocale in additionalNamedLocales)
+					namedLocales[additionalLocale.Key] = additionalLocale.Value;
+			}
+
+			foreach (var lang in LocalizationManager.GetUILanguages(true))
+			{
+				string languageId = lang.IetfLanguageTag;
+				namedLocales[lang.DisplayName] = languageId;
+			}
+
+			foreach (var locale in namedLocales)
+			{
+				var item = menu.DropDownItems.Add(locale.Key);
+				var languageId = locale.Value;
+				item.Tag = languageId;
+				item.Click += (a, b) =>
+				{
+					LocalizationManager.SetUILanguage(languageId, true);
+					localeSelectedAction?.Invoke(languageId);
+					item.Select();
+					if (menu is ToolStripDropDownButton btn)
+						btn.Text = item.Text;
+				};
+				if (languageId == LocalizationManager.UILanguageId)
+				{
+					if (menu is ToolStripDropDownButton btn)
+						btn.Text = item.Text;
+				}
+			}
+
+			if (getMoreMenuText != null)
+			{
+				menu.DropDownItems.Add(new ToolStripSeparator());
+				var moreMenu = menu.DropDownItems.Add(getMoreMenuText());
+				moreMenu.Click += (a, b) =>
+				{
+					moreSelected?.Invoke();
+					lm.ShowLocalizationDialogBox(false);
+					menu.InitializeWithAvailableUILocales(localeSelectedAction, getMoreMenuText,
+						moreSelected, lm, additionalNamedLocales, languagesNotToSimplify);
+				};
+			}
 		}
 	}
 }
