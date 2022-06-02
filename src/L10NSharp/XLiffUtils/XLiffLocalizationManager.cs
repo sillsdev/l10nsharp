@@ -85,9 +85,9 @@ namespace L10NSharp.XLiffUtils
 
 		#region XLiffLocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
-		internal XLiffLocalizationManager(string appId, string appName, string appVersion,
-			string directoryOfInstalledXliffFiles, string directoryForGeneratedDefaultXliffFile,
-			string directoryOfUserModifiedXliffFiles,
+		internal XLiffLocalizationManager(string appId, string origExtension, string appName,
+			string appVersion, string directoryOfInstalledXliffFiles,
+			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
@@ -98,10 +98,8 @@ namespace L10NSharp.XLiffUtils
 					directoryOfInstalledXliffFiles, appName));
 			if (string.IsNullOrWhiteSpace(appId))
 				throw new ArgumentNullException(nameof(appId));
-			_origExeExtension = Path.GetExtension(appId);
-			if (_origExeExtension == string.Empty)
-				_origExeExtension = ".dll";
-			Id = Path.GetFileNameWithoutExtension(appId);
+			Id = appId;
+			_origExeExtension = string.IsNullOrEmpty(origExtension) ? ".dll" : origExtension;
 			Name = appName ?? Id;
 			AppVersion = appVersion;
 			_installedXliffFileFolder = directoryOfInstalledXliffFiles;

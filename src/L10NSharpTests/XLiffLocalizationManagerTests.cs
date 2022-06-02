@@ -25,7 +25,7 @@ namespace L10NSharp.Tests
 			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings)
 		{
-			var manager = new XLiffLocalizationManager(appId, appName, appVersion, directoryOfInstalledLocFiles,
+			var manager = new XLiffLocalizationManager(appId, null, appName, appVersion, directoryOfInstalledLocFiles,
 				directoryForGeneratedDefaultFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
 				namespaceBeginnings);
 			Assert.That(manager.OriginalExecutableFile, Is.EqualTo(appId + ".dll"));

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -199,10 +199,17 @@ namespace L10NSharp
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
+			if (string.IsNullOrWhiteSpace(appId))
+				throw new ArgumentNullException(nameof(appId));
+			var origExeExtension = Path.GetExtension(appId);
+			if (origExeExtension == string.Empty)
+				origExeExtension = ".dll";
+			appId = Path.GetFileNameWithoutExtension(appId);
+
 			return Create(desiredUiLangId, appId, appName,
 				relativeSettingPathForLocalizationFolder, applicationIcon,
 				directoryOfWritableXliffFiles =>
-					(ILocalizationManagerInternal<T>) new XLiffLocalizationManager(appId, appName,
+					(ILocalizationManagerInternal<T>) new XLiffLocalizationManager(appId, origExeExtension, appName,
 						appVersion, directoryOfInstalledXliffFiles,
 						directoryOfWritableXliffFiles, directoryOfWritableXliffFiles,
 						additionalLocalizationMethods,
