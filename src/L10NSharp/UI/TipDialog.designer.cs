@@ -130,7 +130,6 @@ namespace L10NSharp.UI
 			this.ShowIcon = false;
 			this.Text = "Tip";
 			this.TopMost = true;
-			this.Load += new System.EventHandler(this.TipDialog_Load);
 			this.tableLayout.ResumeLayout(false);
 			this.tableLayout.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this._icon)).EndInit();
