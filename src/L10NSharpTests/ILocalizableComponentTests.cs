@@ -19,17 +19,6 @@ namespace L10NSharp.Tests
 
 	}
 
-	[TestFixture]
-	public class ILocalizableComponentTmxTests : ILocalizableComponentTests<TMXDocument>
-	{
-		[SetUp]
-		public void TestSetup()
-		{
-			TestSetup(TranslationMemory.Tmx, "../../../src/L10NSharpTests/TestTmx");
-		}
-
-	}
-
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
 	/// These tests need to create a "real" Localization Manager, but with the capability of

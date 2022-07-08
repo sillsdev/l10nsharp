@@ -17,17 +17,6 @@ namespace L10NSharp.Tests
 		}
 	}
 
-	[TestFixture]
-	public class TMXLocalizationManagerTests_NoManagersLoaded : LocalizationManagerTests_NoManagersLoaded
-	{
-		[TestFixtureSetUp]
-		public override void Setup()
-		{
-			LocalizationManager.TranslationMemoryKind = TranslationMemory.Tmx;
-			base.Setup();
-		}
-	}
-
 	public abstract class LocalizationManagerTests_NoManagersLoaded
 	{
 		public virtual void Setup()

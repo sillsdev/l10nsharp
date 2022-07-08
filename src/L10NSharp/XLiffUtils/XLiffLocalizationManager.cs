@@ -56,15 +56,15 @@ namespace L10NSharp.XLiffUtils
 				return; // Nothing to do.
 
 			var oldDefaultXliffFilePath = Path.Combine(directoryOfWritableXliffFiles,
-				LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(appId,
-				LocalizationManager.kDefaultLang));
+				LocalizationManager.GetTranslationFileNameForLanguage(appId,
+				LocalizationManager.kDefaultLang, FileExtension));
 			if (!File.Exists(oldDefaultXliffFilePath))
 				return; // Cleanup was apparently done previously
 
 			File.Delete(oldDefaultXliffFilePath);
 
 			foreach (var oldXliffFile in Directory.GetFiles(directoryOfWritableXliffFiles,
-				LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(appId, "*")))
+				LocalizationManager.GetTranslationFileNameForLanguage(appId, "*", FileExtension)))
 			{
 				var filename = Path.GetFileName(oldXliffFile);
 				if (string.IsNullOrEmpty(directoryOfInstalledXliffFiles) || File.Exists(Path.Combine(directoryOfInstalledXliffFiles, filename)))
@@ -344,7 +344,7 @@ namespace L10NSharp.XLiffUtils
 
 		internal string DefaultInstalledStringFilePath =>
 			Path.Combine(_installedXliffFileFolder,
-				LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(Id,
+				LocalizationManager.GetTranslationFileNameForLanguage(Id,
 					LocalizationManager.kDefaultLang));
 
 		/// ------------------------------------------------------------------------------------
@@ -600,7 +600,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private string GetXliffFileNameForLanguage(string langId)
 		{
-			return LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(Id,
+			return LocalizationManager.GetTranslationFileNameForLanguage(Id,
 				langId);
 		}
 
@@ -1222,7 +1222,7 @@ namespace L10NSharp.XLiffUtils
 			outputDoc.File.Original = oldDoc.File.Original;
 			outputDoc.File.DataType = oldDoc.File.DataType;
 			var outputPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(
-				LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(appId, "en")));
+				LocalizationManager.GetTranslationFileNameForLanguage(appId, "en")));
 			outputDoc.Save(outputPath);
 		}
 

@@ -883,11 +883,7 @@ namespace L10NSharp.Tests
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
 
 				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
-				// REVIEW: currently TMX returns 'es' instead of 'es-ES'. Should this be changed?
-				var es = LocalizationManager.TranslationMemoryKind == TranslationMemory.Tmx
-					? "es"
-					: "es-ES";
-				Assert.That(langs, Is.EquivalentTo(new[] { "en", "ar", "fr", es}));
+				Assert.That(langs, Is.EquivalentTo(new[] { "en", "ar", "fr", "es-ES"}));
 
 				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es-ES"));
 				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es"));

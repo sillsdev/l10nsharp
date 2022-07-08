@@ -34,6 +34,9 @@ namespace SampleApp
 
 		public static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
 		{
+			if (useTmx)
+				throw new NotSupportedException("TMX-based localization is no longer supported.");
+
 			//your installer should have a folder where you place the localization files you're shipping with the program
 			var directoryOfInstalledLocFiles = "../../LocalizationFilesFromInstaller";
 			Directory.CreateDirectory(directoryOfInstalledLocFiles);
@@ -52,7 +55,7 @@ namespace SampleApp
 
 				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
 
-				var translationMemoryType = useTmx ? TranslationMemory.Tmx : TranslationMemory.XLiff;
+				var translationMemoryType = TranslationMemory.XLiff;
 
 				if (useAdditionalMethodInfo)
 				{
