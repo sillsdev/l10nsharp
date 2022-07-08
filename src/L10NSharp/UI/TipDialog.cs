@@ -7,25 +7,19 @@ namespace L10NSharp.UI
 {
 	public partial class TipDialog : Form
 	{
-		public string DialogTitle
-		{
-			get { return Text; }
-			set { Text = value; }
-		}
-
 		public string Message
 		{
-			get { return _message.Text; }
-			set { _message.Text = value; }
+			get => _message.Text;
+			set => _message.Text = value;
 		}
 
 		public new Image Icon
 		{
-			get { return _icon.Image; }
-			set { _icon.Image = value; }
+			get => _icon.Image;
+			set => _icon.Image = value;
 		}
 
-		public static void ShowAltShiftClickTip(IWin32Window owner = null)
+		internal static void ShowAltShiftClickTip(IWin32Window owner = null)
 		{
 			Show("If you click on an item while you hold alt and shift keys down, this tool will " +
 				"open up with that item already selected.", owner);
@@ -53,16 +47,13 @@ namespace L10NSharp.UI
 			dontShowThisAgainButton1.CloseIfShouldNotShow(Settings.Default, Message);
 		}
 
-		/// <summary>
-		/// Use this one if you need to customize the dialog, e.g. to setup an alternate button
-		/// </summary>
 		public TipDialog(string message, string dialogTitle, Image icon) : this()
 		{
 			if (icon != null)
-				_icon.Image = icon;
+				Icon = icon;
 
 			Text = dialogTitle;
-			_message.Text = message;
+			Message = message;
 		}
 
 		private void _acceptButton_Click(object sender, EventArgs e)
@@ -112,11 +103,6 @@ namespace L10NSharp.UI
 				return TextRenderer.MeasureText(g, _message.Text, _message.Font,
 					new Size(_message.ClientSize.Width, 0), flags).Height;
 			}
-		}
-
-		private void TipDialog_Load(object sender, EventArgs e)
-		{
-
 		}
 
 	}
