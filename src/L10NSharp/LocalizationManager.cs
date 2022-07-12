@@ -1,4 +1,4 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -81,7 +81,7 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original Xliff/TMX
+		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
 		/// files installed with the application.</param>
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
@@ -125,7 +125,7 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original Xliff/TMX
+		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
 		/// files installed with the application.</param>
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
@@ -213,10 +213,8 @@ namespace L10NSharp
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
 			var ci = L10NCultureInfo.GetCultureInfo(langId);
-			if (ci.RawCultureInfo != null)
-				Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo;
-			else
-				Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+			Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo ??
+				CultureInfo.InvariantCulture;
 			L10NCultureInfo.CurrentCulture = ci;
 			s_uiLangId = langId;
 
@@ -530,7 +528,7 @@ namespace L10NSharp
 		/// <summary>
 		/// Gets a string for the specified string id, in the specified language, or the
 		/// englishText if that wasn't found. Prefers the englishText passed here to one that
-		/// we might have got out of a Xliff/TMX, as is the non-obvious-but-ultimately-correct
+		/// we might have got out of a l10n file, as is the non-obvious-but-ultimately-correct
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -610,8 +608,8 @@ namespace L10NSharp
 		/// returned when a string cannot be found for the specified id and the current UI
 		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
 		/// value or not.
-		/// Special case: unless englishText is null, that is what will be returned for langId = 'en',
-		/// irrespective of what is in Xliff/TMX.
+		/// Special case: unless englishText is null, that is what will be returned for
+		/// langId = 'en', irrespective of what is in the l10n file/cache.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
@@ -712,10 +710,9 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// Merge the existing English xliff/TMX file into newly collected data and write the
+		/// Merge the existing English l10n file into newly collected data and write the
 		/// result to the temp directory.
 		/// </summary>
-		/// <remarks>Only implemented for XLiff.</remarks>
 		public static void MergeExistingEnglishTranslationFileIntoNew(
 			string installedStringFileFolder, string appId)
 		{

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using L10NSharp.TMXUtils;
 using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;

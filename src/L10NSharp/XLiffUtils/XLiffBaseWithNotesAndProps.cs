@@ -6,7 +6,7 @@ namespace L10NSharp.XLiffUtils
 	#region XLiffBaseWithNotesAndProps class
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
-	/// This class serves as the base class for XLiff elements that contain notes and props
+	/// This class serves as the base class for Xliff elements that contain notes and props
 	/// (i.e. the header, translation unit and translation unit variant elements).
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
@@ -132,12 +132,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool NotesContain(string comment)
 		{
-			for (int i = 0; i < _notes.Count; ++i)
-			{
-				if (_notes[i].Text == comment)
-					return true;
-			}
-			return false;
+			return _notes.Any(n => n.Text == comment);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -150,7 +145,7 @@ namespace L10NSharp.XLiffUtils
 		public string GetComment()
 		{
 			var commentNote = _notes.FirstOrDefault(n => !string.IsNullOrEmpty(n.Text) && !n.Text.StartsWith("ID: "));
-			return commentNote == null ? null : commentNote.Text;
+			return commentNote?.Text;
 		}
 	}
 
