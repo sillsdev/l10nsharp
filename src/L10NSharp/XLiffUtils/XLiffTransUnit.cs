@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright (c) 2009-2017, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2017' company='SIL International'>
-//		Copyright (c) 2009-2017, SIL International. All Rights Reserved.
+#region // Copyright (c) 2009-2022, SIL International. All Rights Reserved.
+// <copyright from='2009' to='2022' company='SIL International'>
+//		Copyright (c) 2009-2022, SIL International. All Rights Reserved.
 //
 //		Distributable under the terms of either the Common Public License or the
 //		GNU Lesser General Public License, as specified in the LICENSING.txt file.
@@ -9,13 +9,10 @@
 #endregion
 //
 // File: XLiffTransUnit.cs
-//
-// <remarks>
-// </remarks>
 // ---------------------------------------------------------------------------------------------
-using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using static System.String;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -84,39 +81,40 @@ namespace L10NSharp.XLiffUtils
 		[XmlElement("note")]
 		public List<XLiffNote> Notes
 		{
-			get { return _notes; }
-			set { _notes = value; }
+			get => _notes;
+			set => _notes = value;
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the priority value.  This is an enumeration which defaults to "High" (of
-		/// course): everything is HIGH PRIORITY!!!!  We treat it as a string to more gracefully
+		/// Gets or sets the priority value. This is an enumeration which defaults to "High" (of
+		/// course): everything is HIGH PRIORITY!!!! We treat it as a string to more gracefully
 		/// handle "creative" users.
 		/// See LocalizationPriority in LocalizingInfo.cs for the full list of values.
 		/// </summary>
-		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("priority", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Priority { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the group value.  This is an arbitrary string value.  The default is
+		/// Gets or sets the group value. This is an arbitrary string value.  The default is
 		/// null or the empty string.
 		/// </summary>
-		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("group", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Group { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the category value.  This is an enumeration which defaults to "DontCare".
+		/// Gets or sets the category value. This is an enumeration which defaults to
+		/// <see cref="LocalizationCategory.DontCare"/>.
 		/// We treat it as a string to more gracefully handle "creative" users.
-		/// See LocalizationCategory in LocalizingInfo.cs for the full list of values.
+		/// See <see cref="LocalizationCategory"/> for the full list of standard values.
 		/// </summary>
-		/// <remarks>This appears to not be used in the Bloom TMX files.</remarks>
+		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("category", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
 		public string Category { get; set; }
@@ -127,14 +125,8 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlIgnore]
-		public bool IsEmpty
-		{
-			get
-			{
-				return (string.IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null &&
-						Target == null);
-			}
-		}
+		public bool IsEmpty =>
+			IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null && Target == null;
 
 		#endregion
 
@@ -148,9 +140,11 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool AddOrReplaceVariant(string langId, string value)
 		{
-			var tuv = new XLiffTransUnitVariant();
-			tuv.Lang = langId;
-			tuv.Value = value;
+			var tuv = new XLiffTransUnitVariant
+			{
+				Lang = langId,
+				Value = value
+			};
 			return AddOrReplaceVariant(tuv);
 		}
 
@@ -212,8 +206,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			if (langId == kDefaultLangId)
 				return Source;
-			else
-				return Target != null && langId == Target.Lang ? Target : null;
+			return Target != null && langId == Target.Lang ? Target : null;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -223,7 +216,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{
-			return (IsEmpty ? "Empty" : Id);
+			return IsEmpty ? "Empty" : Id;
 		}
 
 		#endregion

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -33,14 +33,14 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is sent from the application that's creating the localization manager. It's
-		/// written to the Xliff/TMX file and used to determine whether or not the application
+		/// written to the l10n file and used to determine whether or not the application
 		/// needs to be rescanned for localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		string AppVersion { get; }
 
 		/// <summary>
-		/// Set this to false if you don't want users to pollute Xliff/TMX files they might send
+		/// Set this to false if you don't want users to pollute l10n files they might send
 		/// to you with strings that are unique to their documents. For example, Bloom looks for
 		/// strings in html that might have been localized; but Bloom doesn't want to ship an
 		/// ever-growing list of discovered strings for people to translate that aren't actually
@@ -60,9 +60,9 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Enumerates a Xliff/TMX file for each language. Prefer the custom localizations folder
+		/// Enumerates a l10n file for each language. Prefer the custom localizations folder
 		/// version if it exists, otherwise the installed language folder.
-		/// Exception: never return the English Xliff/TMX, which is always handled separately and
+		/// Exception: never return the English l10n file, which is always handled separately and
 		/// first. Doing this serves to insert any new dynamic strings into the cache, thus
 		/// validating them as non-obsolete if we encounter them in other languages.
 		/// Enhance JohnT: there ought to be some way NOT to load data for a language until we
@@ -70,7 +70,6 @@ namespace L10NSharp
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		IEnumerable<string> FilenamesToAddToCache { get; }
-
 
 		/// <summary>
 		/// Return the language tags for those languages that have been localized for the given

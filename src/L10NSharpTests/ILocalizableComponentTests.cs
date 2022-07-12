@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using L10NSharp.TMXUtils;
 using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
@@ -15,17 +14,6 @@ namespace L10NSharp.Tests
 		public void TestSetup()
 		{
 			TestSetup(TranslationMemory.XLiff, "../../../src/L10NSharpTests/TestXliff");
-		}
-
-	}
-
-	[TestFixture]
-	public class ILocalizableComponentTmxTests : ILocalizableComponentTests<TMXDocument>
-	{
-		[SetUp]
-		public void TestSetup()
-		{
-			TestSetup(TranslationMemory.Tmx, "../../../src/L10NSharpTests/TestTmx");
 		}
 
 	}

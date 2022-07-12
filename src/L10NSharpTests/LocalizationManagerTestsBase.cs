@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
@@ -23,8 +23,8 @@ namespace L10NSharp.Tests
 		protected const string LiteralNewline = "\\n";
 
 		internal abstract ILocalizationManagerInternal<T> CreateLocalizationManager(string appId,
-			string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			string directoryForGeneratedDefaultTmxFile, string directoryOfUserModifiedTranslationFiles,
+			string appName, string appVersion, string directoryOfInstalledLocFiles,
+			string directoryForGeneratedDefaultFile, string directoryOfUserModifiedTranslationFiles,
 			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings);
 		internal abstract ILocalizationManagerInternal<T> CreateLocalizationManager(string appId,
@@ -883,11 +883,7 @@ namespace L10NSharp.Tests
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
 
 				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
-				// REVIEW: currently TMX returns 'es' instead of 'es-ES'. Should this be changed?
-				var es = LocalizationManager.TranslationMemoryKind == TranslationMemory.Tmx
-					? "es"
-					: "es-ES";
-				Assert.That(langs, Is.EquivalentTo(new[] { "en", "ar", "fr", es}));
+				Assert.That(langs, Is.EquivalentTo(new[] { "en", "ar", "fr", "es-ES"}));
 
 				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es-ES"));
 				Assert.IsTrue(LocalizationManager.GetIsStringAvailableForLangId("theId", "es"));

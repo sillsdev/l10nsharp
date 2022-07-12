@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using L10NSharp.TMXUtils;
 using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 
@@ -51,7 +50,7 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
 				relativeSettingPathForLocalizationFolder = appName;
 			else if (Path.IsPathRooted(relativeSettingPathForLocalizationFolder))
-				throw new ArgumentException("Relative (non-rooted) path expected", "relativeSettingPathForLocalizationFolder");
+				throw new ArgumentException("Relative (non-rooted) path expected", nameof(relativeSettingPathForLocalizationFolder));
 
 			var directoryOfWritableTranslationFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 				relativeSettingPathForLocalizationFolder, "localizations");
@@ -105,58 +104,7 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Creates a new instance of a localization manager for the specifed application id.
-		/// If a localization manager has already been created for the specified id, then
-		/// that is returned.
-		/// </summary>
-		/// <param name="desiredUiLangId">The language code of the desired UI language. If
-		/// there are no translations for that ID, a message is displayed and the UI language
-		/// falls back to the default.</param>
-		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
-		/// This should be a unique name that identifies the manager for an assembly or
-		/// application.</param>
-		/// <param name="appName">The application's name. This will appear to the user
-		/// in the localization dialog box as a parent item in the tree.</param>
-		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledTmxFiles">The full folder path of the original TMX files
-		/// installed with the application.</param>
-		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
-		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
-		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
-		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
-		/// additional methods that should be regarded as calls to get localizations. If the method
-		/// is named "Localize", the extractor will attempt to parse its signature as an extension
-		/// method with the parameters (this string s, string separateId="", string comment="").
-		/// Otherwise, it will be treated like a L10nSharp GetString method if its signature
-		/// matches one of the following: (string stringId, string englishText),
-		/// (string stringId, string englishText, string comment), or
-		/// (string stringId, string englishText, string comment, string englishToolTipText,
-		/// string englishShortcutKey, IComponent component).</param>
-		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
-		/// what types to scan for localized string calls. For example, to only scan
-		/// types found in Pa.exe and assuming all types in that assembly begin with
-		/// 'Pa', then this value would only contain the string 'Pa'.</param>
-		/// ------------------------------------------------------------------------------------
-		public static ILocalizationManager CreateTmx(string desiredUiLangId, string appId,
-			string appName, string appVersion, string directoryOfInstalledTmxFiles,
-			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, IEnumerable<MethodInfo> additionalLocalizationMethods,
-			params string[] namespaceBeginnings)
-		{
-			return Create(desiredUiLangId, appId, appName,
-				relativeSettingPathForLocalizationFolder, applicationIcon,
-				directoryOfWritableTmxFiles =>
-					(ILocalizationManagerInternal<T>) new TMXLocalizationManager(appId, appName,
-						appVersion, directoryOfInstalledTmxFiles,
-						directoryOfWritableTmxFiles, directoryOfWritableTmxFiles,
-						additionalLocalizationMethods,
-						namespaceBeginnings));
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Creates a new instance of a localization manager for the specifed application id.
+		/// Creates a new instance of a localization manager for the specified application id.
 		/// If a localization manager has already been created for the specified id, then
 		/// that is returned.
 		/// </summary>
@@ -217,28 +165,6 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Now that L10NSharp creates all writable Xliff files under LocalApplicationData
-		/// instead of the common/shared AppData folder, applications can use this method to
-		/// purge old Xliff files.</summary>
-		/// <param name="appId">ID of the application used for creating the Xliff files (typically
-		/// the same ID passed as the 2nd parameter to LocalizationManagerInternal.Create, but
-		/// without a file extension).</param>
-		/// <param name="directoryOfWritableXliffFiles">Folder from which to delete Xliff files.
-		/// </param>
-		/// <param name="directoryOfInstalledXliffFiles">Used to limit file deletion to only
-		/// include copies of the installed Xliff files (plus the generated default file). If this
-		/// is <c>null</c>, then all Xliff files for the given appID will be deleted from
-		/// <paramref name="directoryOfWritableXliffFiles"/></param>
-		/// ------------------------------------------------------------------------------------
-		public static void DeleteOldXliffFiles(string appId, string directoryOfWritableXliffFiles,
-			string directoryOfInstalledXliffFiles)
-		{
-			XLiffLocalizationManager.DeleteOldXliffFiles(appId, directoryOfWritableXliffFiles,
-			 directoryOfInstalledXliffFiles);
-		}
-
-		/// ------------------------------------------------------------------------------------
 		internal static Dictionary<string, ILocalizationManagerInternal<T>> LoadedManagers => s_loadedManagers;
 
 		private static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
@@ -295,7 +221,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static IEnumerable<string> FallbackLanguageIds
 		{
-			get { return s_fallbackLanguageIds; }
+			get => s_fallbackLanguageIds;
 			set
 			{
 				if (s_fallbackLanguageIds != null && s_fallbackLanguageIds.Count > 0)
@@ -354,10 +280,10 @@ namespace L10NSharp
 		/// </summary>
 		public static List<string> GetAvailableLocalizedLanguages()
 		{
-			var langsHavinglocalizations = (LoadedManagers == null ? new List<string>() :
+			var langsHavingLocalizations = (LoadedManagers == null ? new List<string>() :
 				LoadedManagers.Values.SelectMany(lm => lm.GetAvailableUILanguageTags())
 					.Distinct().ToList());
-			return langsHavinglocalizations;
+			return langsHavingLocalizations;
 		}
 
 		public static bool IsLocalizationAvailable(string langId)
@@ -373,7 +299,7 @@ namespace L10NSharp
 		/// those cases just the first culture is returned. There are several reasons for multiple
 		/// cultures per language, the predominant one being there is more than one writing system
 		/// for the language. An example of this is Chinese which has a Traditional and a Simplified
-		/// writing system. Other languages have a Latin and a Cyrilic writing system.
+		/// writing system. Other languages have a Latin and a Cyrillic writing system.
 		///
 		/// Due to changes made in how this procedure determines what languages to return, it is
 		/// possible that there may be an existing localization tied to a culture that is no longer
@@ -556,8 +482,7 @@ namespace L10NSharp
 
 			if (lm != null)
 			{
-				string id;
-				if (lm.ComponentCache.TryGetValue(component, out id))
+				if (lm.ComponentCache.TryGetValue(component, out var id))
 					return lm.GetLocalizedString(id, englishText);
 			}
 
@@ -599,8 +524,8 @@ namespace L10NSharp
 		/// returned when a string cannot be found for the specified id and the current UI
 		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
 		/// value or not.
-		/// Special case: unless englishText is null, that is what will be returned for langId = 'en',
-		/// irrespective of what is in TMX/Xliff.
+		/// Special case: unless englishText is null, that is what will be returned for
+		/// langId = 'en', irrespective of what is in l10n file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
@@ -641,10 +566,11 @@ namespace L10NSharp
 					$"Initialized LMs are {string.Join(", ", LoadedManagers.Keys)}");
 			}
 
-			// If they asked for English, we are going to use the supplied englishText, regardless of what may be in
-			// some TMX/Xliff, following the rule that the current c# code always wins. In case we really need to
-			// recover the TMX/Xliff version, we will retrieve that if no default is provided.
-			// Otherwise, let's look up this string, maybe it has been translated and put into a TMX/Xliff
+			// If they asked for English, we are going to use the supplied englishText, regardless
+			// of what may be cached, following the rule that the current c# code always wins. In
+			// case we really need to recover the cached version, we will retrieve that only if no
+			// default is provided.
+			// Otherwise, let's look up this string, maybe it has been translated and cached.
 			if (langId != "en" || englishText == null)
 			{
 				var text = lm.GetStringFromStringCache(langId, id);
@@ -735,23 +661,18 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal static string GetStringFromAnyLocalizationManager(string stringId)
 		{
-			// Note: this is odd semantics to me (JH); looks to be part of the rule that we prefer the
-			// English from the program source to the English from the TMX/Xliff.
-
 			// This will enforce that the text to localize is just returned to the caller
 			// when the default language id is the same as the current UI language id.
 			if (LocalizationManager.UILanguageId == LocalizationManager.kDefaultLang)
 				return null;
 
-			string languageIdUsed;
-
 			var langSeq = new List<string>(new[] {LocalizationManager.UILanguageId});
 			langSeq.AddRange(FallbackLanguageIds);
-			// don't ever want a value from the "en" LM, even if that is the UI language and the
-			// only thing in the sequence; want to use the program default. (This method will return null,
-			// and clients, which are passed an English default value, will use it.)
+			// We don't ever want a value from the "en" LM, even if that is the UI language and the
+			// only thing in the sequence; want to use the program default. (This method will
+			// return null, and clients, which are passed an English default value, will use it.)
 			langSeq.Remove("en");
-			return GetStringFromAnyLocalizationManager(stringId, langSeq, out languageIdUsed);
+			return GetStringFromAnyLocalizationManager(stringId, langSeq, out _);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -844,21 +765,23 @@ namespace L10NSharp
 		/// <summary>
 		/// Gets a string for the specified string id, in the specified language, or the
 		/// englishText if that wasn't found. Prefers the englishText passed here to one that
-		/// we might have got out of a TMX/Xliff, as is the non-obvious-but-ultimately-correct
+		/// we might have got out of a file, as is the non-obvious-but-ultimately-correct
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment, IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		public static string GetString(string stringId, string englishText, string comment,
+			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
 			if (preferredLanguageIds.Count() == 0)
 				throw new ArgumentException("preferredLanguageIds was empty");
 
 			if (string.IsNullOrEmpty(englishText))
-				throw new ArgumentException("englishText may not be empty (because common... that can't be what you meant to do...");
+				throw new ArgumentException($"{nameof(englishText)} may not be empty (because common... that can't be what you meant to do...");
 
 			var stringFromAnyLocalizationManager = GetStringFromAnyLocalizationManager(stringId, preferredLanguageIds, out languageIdUsed);
 
-			//even if found in English TMX/Xliff, we prefer to use the version that came from the code
+			// Even if found in the English l10n file, we prefer to use the version that came from
+			// the code.
 			if (languageIdUsed == "en" || string.IsNullOrEmpty(stringFromAnyLocalizationManager))
 			{
 				languageIdUsed = "en";
@@ -868,26 +791,15 @@ namespace L10NSharp
 			return stringFromAnyLocalizationManager;
 		}
 
-		public static string GetTranslationFileNameForLanguage(string appId, string langId)
-		{
-			var fileExtension =
-				LocalizationManager.TranslationMemoryKind == TranslationMemory.XLiff
-					? XLiffLocalizationManager.FileExtension
-					: TMXLocalizationManager.FileExtension;
-			return LocalizationManager.UseLanguageCodeFolders
-				? Path.Combine(langId, $"{appId}{fileExtension}")
-				: $"{appId}.{langId}{fileExtension}";
-		}
-
 		/// ------------------------------------------------------------------------------------
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{
 			var lm = GetLocalizationManagerForComponent(ctrl);
-			var topctrl = GetRealTopLevelControl(ctrl);
-			if (topctrl == null || lm == null)
+			var topCtrl = GetRealTopLevelControl(ctrl);
+			if (topCtrl == null || lm == null)
 				return null;
 
-			return lm.ToolTipCtrls.TryGetValue(topctrl, out var ttctrl) ? ttctrl.GetToolTip(ctrl)
+			return lm.ToolTipCtrls.TryGetValue(topCtrl, out var ttctrl) ? ttctrl.GetToolTip(ctrl)
 			 : null;
 		}
 
@@ -910,14 +822,15 @@ namespace L10NSharp
 		/// Merge the existing English translation file into newly collected data and write the result to the temp
 		/// directory.
 		/// </summary>
-		public static void MergeExistingEnglishTranslationFileIntoNew(string installedStringFileFolder, string appId)
+		public static void MergeExistingEnglishTranslationFileIntoNew(string installedStringFileFolder,
+			string appId)
 		{
 			if (!LoadedManagers.TryGetValue(appId, out var lm))
 				return;
 			if (!lm.StringCache.TryGetDocument("en", out var newDoc))
 				return;
 			var oldDocPath = Path.Combine(installedStringFileFolder,
-				GetTranslationFileNameForLanguage(appId, "en"));
+				LocalizationManager.GetTranslationFileNameForLanguage(appId, "en"));
 
 			lm.MergeTranslationDocuments(appId, newDoc, oldDocPath);
 		}

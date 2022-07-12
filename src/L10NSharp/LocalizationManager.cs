@@ -1,4 +1,4 @@
-// Copyright (c) 2019 SIL International
+// Copyright (c) 2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -41,7 +42,7 @@ namespace L10NSharp
 		public static bool UseLanguageCodeFolders;
 
 		/// <summary>
-		/// Ignore any existing English xliff/TMX files, creating the working (English) file only
+		/// Ignore any existing English xliff files, creating the working (English) file only
 		/// from what is gathered by static analysis or dynamic harvesting of requests.
 		/// </summary>
 		public static bool IgnoreExistingEnglishTranslationFiles;
@@ -80,7 +81,7 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original Xliff/TMX
+		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
 		/// files installed with the application.</param>
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
@@ -124,7 +125,7 @@ namespace L10NSharp
 		/// <param name="appName">The application's name. This will appear to the user
 		/// in the localization dialog box as a parent item in the tree.</param>
 		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original Xliff/TMX
+		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
 		/// files installed with the application.</param>
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
@@ -157,11 +158,6 @@ namespace L10NSharp
 			EmailForSubmissions = emailForSubmissions;
 			switch (kind)
 			{
-				case TranslationMemory.Tmx:
-					return LocalizationManagerInternal<TMXDocument>.CreateTmx(desiredUiLangId,
-						System.IO.Path.GetFileNameWithoutExtension(appId), appName, appVersion,
-						directoryOfInstalledFiles, relativeSettingPathForLocalizationFolder,
-						applicationIcon, additionalLocalizationMethods, namespaceBeginnings);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
 						appId, appName, appVersion, directoryOfInstalledFiles,
@@ -169,42 +165,44 @@ namespace L10NSharp
 						additionalLocalizationMethods,
 						namespaceBeginnings);
 				default:
-					throw new ArgumentException($"Unknown translation memory kind {kind}",
+					throw new ArgumentException($"Unknown translation memory kind {TranslationMemoryKind}",
 						nameof(kind));
 			}
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Now that L10NSharp creates all writable Xliff/Tmx files under LocalApplicationData
+		/// Now that L10NSharp creates all writable l10n files under LocalApplicationData
 		/// instead of the common/shared AppData folder, applications can use this method to
-		/// purge old Xliff/Tmx files.</summary>
-		/// <param name="appId">ID of the application used for creating the Xliff/Tmx files
+		/// purge old files (including old TMX files, if specified).</summary>
+		/// <param name="appId">ID of the application used for creating the l10n files
 		/// (typically the same ID passed as the 2nd parameter to
 		/// LocalizationManagerInternal.Create, but without a file extension).
 		/// </param>
 		/// <param name="directoryOfWritableTranslationFiles">Folder from which to delete
-		/// Xliff/Tmx files.</param>
+		/// l10n files.</param>
 		/// <param name="directoryOfInstalledTranslationFiles">Used to limit file deletion to only
-		/// include copies of the installed Xliff/Tmx files (plus the generated default file). If
-		/// this is <c>null</c>, then all Xliff/Tmx files for the given appID will be deleted from
+		/// include copies of the installed l10n files (plus the generated default file). If
+		/// this is <c>null</c>, then all l10n files for the given appID will be deleted from
 		/// <paramref name="directoryOfWritableTranslationFiles"/></param>
+		/// <param name="cleanUpTmx">Although TMX files are no longer supported, calling this
+		/// method with this flag set will clean up TMX files (instead of XLIFF files)</param>
 		/// ------------------------------------------------------------------------------------
 		public static void DeleteOldTranslationFiles(string appId,
-			string directoryOfWritableTranslationFiles, string directoryOfInstalledTranslationFiles)
+			string directoryOfWritableTranslationFiles, string directoryOfInstalledTranslationFiles,
+			bool cleanUpTmx = false)
 		{
-			switch (TranslationMemoryKind)
+			if (cleanUpTmx)
 			{
-				case TranslationMemory.XLiff:
-					XLiffLocalizationManager.DeleteOldXliffFiles(appId,
-						directoryOfWritableTranslationFiles,
-						directoryOfInstalledTranslationFiles);
-					break;
-				default:
-					TMXLocalizationManager.DeleteOldTmxFiles(appId,
-						directoryOfWritableTranslationFiles,
-						directoryOfInstalledTranslationFiles);
-					break;
+				TMXLocalizationManager.DeleteOldTmxFiles(appId,
+					directoryOfWritableTranslationFiles,
+					directoryOfInstalledTranslationFiles);
+			}
+			else
+			{
+				XLiffLocalizationManager.DeleteOldXliffFiles(appId,
+					directoryOfWritableTranslationFiles,
+					directoryOfInstalledTranslationFiles);
 			}
 		}
 
@@ -215,18 +213,13 @@ namespace L10NSharp
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
 			var ci = L10NCultureInfo.GetCultureInfo(langId);
-			if (ci.RawCultureInfo != null)
-				Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo;
-			else
-				Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+			Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo ??
+				CultureInfo.InvariantCulture;
 			L10NCultureInfo.CurrentCulture = ci;
 			s_uiLangId = langId;
 
 			switch (TranslationMemoryKind)
 			{
-				default:
-					LocalizationManagerInternal<TMXDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 					break;
@@ -262,9 +255,6 @@ namespace L10NSharp
 
 					switch (TranslationMemoryKind)
 					{
-						default:
-							LocalizationManagerInternal<TMXDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
-							break;
 						case TranslationMemory.XLiff:
 							LocalizationManagerInternal<XLiffDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 							break;
@@ -285,7 +275,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetAvailableLocalizedLanguages();
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetAvailableLocalizedLanguages();
 			}
@@ -298,7 +287,7 @@ namespace L10NSharp
 		/// reasons for multiple cultures per language, the predominant one being there is more
 		/// than one writing system for the language. An example of this is Chinese which has a
 		/// Traditional and a Simplified writing system. Other languages have a Latin and a
-		/// Cyrilic writing system.
+		/// Cyrillic writing system.
 		///
 		/// Due to changes made in how this procedure determines what languages to return, it is
 		/// possible that there may be an existing localization tied to a culture that is no longer
@@ -318,8 +307,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetUILanguages(
-						returnOnlyLanguagesHavingLocalizations);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetUILanguages(
 						returnOnlyLanguagesHavingLocalizations);
@@ -335,7 +322,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.NumberApproved(lang);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.NumberApproved(lang);
 			}
@@ -350,7 +336,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.FractionApproved(lang);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.FractionApproved(lang);
 			}
@@ -366,7 +351,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.NumberTranslated(lang);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.NumberTranslated(lang);
 			}
@@ -381,7 +365,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.FractionTranslated(lang);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.FractionTranslated(lang);
 			}
@@ -396,7 +379,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.StringCount(lang);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.StringCount(lang);
 			}
@@ -407,8 +389,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.ShowLocalizationDialogBox(component);
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(component);
 					break;
@@ -420,8 +400,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.ShowLocalizationDialogBox(id);
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(id);
 					break;
@@ -442,7 +420,6 @@ namespace L10NSharp
 				switch (TranslationMemoryKind)
 				{
 					default:
-						return LocalizationManagerInternal<TMXDocument>.FallbackLanguageIds;
 					case TranslationMemory.XLiff:
 						return LocalizationManagerInternal<XLiffDocument>.FallbackLanguageIds;
 				}
@@ -452,8 +429,6 @@ namespace L10NSharp
 				switch (TranslationMemoryKind)
 				{
 					default:
-						LocalizationManagerInternal<TMXDocument>.FallbackLanguageIds = value;
-						break;
 					case TranslationMemory.XLiff:
 						LocalizationManagerInternal<XLiffDocument>.FallbackLanguageIds = value;
 						break;
@@ -472,8 +447,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetStringForObject(component,
-						englishText);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetStringForObject(component,
 						englishText);
@@ -493,7 +466,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetString(stringId, englishText);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetString(stringId, englishText);
 			}
@@ -510,8 +482,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetString(stringId, englishText,
-						comment);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetString(stringId, englishText,
 						comment);
@@ -530,8 +500,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetString(stringId, englishText,
-						comment, component);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetString(stringId, englishText,
 						comment, component);
@@ -550,8 +518,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetString(stringId, englishText,
-						comment, englishToolTipText, englishShortcutKey, component);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetString(stringId, englishText,
 						comment, englishToolTipText, englishShortcutKey, component);
@@ -562,7 +528,7 @@ namespace L10NSharp
 		/// <summary>
 		/// Gets a string for the specified string id, in the specified language, or the
 		/// englishText if that wasn't found. Prefers the englishText passed here to one that
-		/// we might have got out of a Xliff/TMX, as is the non-obvious-but-ultimately-correct
+		/// we might have got out of a l10n file, as is the non-obvious-but-ultimately-correct
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -572,8 +538,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetString(stringId, englishText,
-						comment, preferredLanguageIds, out languageIdUsed);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetString(stringId, englishText,
 						comment, preferredLanguageIds, out languageIdUsed);
@@ -593,8 +557,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetDynamicString(appId, id,
-						englishText);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetDynamicString(appId, id,
 						englishText);
@@ -615,8 +577,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetDynamicString(appId, id,
-						englishText);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetDynamicString(appId, id,
 						englishText);
@@ -634,8 +594,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.ForgetDisposedManagers();
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ForgetDisposedManagers();
 					break;
@@ -650,8 +608,8 @@ namespace L10NSharp
 		/// returned when a string cannot be found for the specified id and the current UI
 		/// language. Use GetIsStringAvailableForLangId if you need to know if we have the
 		/// value or not.
-		/// Special case: unless englishText is null, that is what will be returned for langId = 'en',
-		/// irrespective of what is in Xliff/TMX.
+		/// Special case: unless englishText is null, that is what will be returned for
+		/// langId = 'en', irrespective of what is in the l10n file/cache.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
@@ -660,8 +618,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetDynamicStringOrEnglish(appId, id,
-						englishText, comment, langId);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetDynamicStringOrEnglish(appId, id,
 						englishText, comment, langId);
@@ -673,8 +629,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetIsStringAvailableForLangId(id,
-						langId);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetIsStringAvailableForLangId(id,
 						langId);
@@ -691,17 +645,24 @@ namespace L10NSharp
 			return i < 0 ? text : text.Substring(i + 1);
 		}
 
-		public static string GetTranslationFileNameForLanguage(string appId, string langId)
+		internal static string GetTranslationFileNameForLanguage(string appId, string langId)
 		{
+			string fileExtension;
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetTranslationFileNameForLanguage(
-						appId, langId);
 				case TranslationMemory.XLiff:
-					return LocalizationManagerInternal<XLiffDocument>.GetTranslationFileNameForLanguage(
-						appId, langId);
+					fileExtension = XLiffLocalizationManager.FileExtension;
+					break;
 			}
+			return GetTranslationFileNameForLanguage(appId, langId, fileExtension);
+		}
+
+		internal static string GetTranslationFileNameForLanguage(string appId, string langId, string fileExtension)
+		{
+			return UseLanguageCodeFolders
+				? Path.Combine(langId, $"{appId}{fileExtension}")
+				: $"{appId}.{langId}{fileExtension}";
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -715,8 +676,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.ReapplyLocalizationsToAllObjectsInAllManagers();
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjectsInAllManagers();
 					break;
@@ -734,8 +693,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
 					break;
@@ -747,26 +704,21 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					return LocalizationManagerInternal<TMXDocument>.GetLocalizedToolTipForControl(ctrl);
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.GetLocalizedToolTipForControl(ctrl);
 			}
 		}
 
 		/// <summary>
-		/// Merge the existing English xliff/TMX file into newly collected data and write the
+		/// Merge the existing English l10n file into newly collected data and write the
 		/// result to the temp directory.
 		/// </summary>
-		/// <remarks>Only implemented for XLiff.</remarks>
 		public static void MergeExistingEnglishTranslationFileIntoNew(
 			string installedStringFileFolder, string appId)
 		{
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.MergeExistingEnglishTranslationFileIntoNew(
-						installedStringFileFolder, appId);
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.MergeExistingEnglishTranslationFileIntoNew(
 						installedStringFileFolder, appId);
@@ -792,15 +744,6 @@ namespace L10NSharp
 				switch (TranslationMemoryKind)
 				{
 					default:
-					{
-						var loadedManagers = new Dictionary<string, ILocalizationManagerInternal>();
-						foreach (var keyValuePair in LocalizationManagerInternal<TMXDocument>.LoadedManagers)
-						{
-							loadedManagers.Add(keyValuePair.Key, keyValuePair.Value);
-						}
-
-						return loadedManagers;
-					}
 					case TranslationMemory.XLiff:
 					{
 						var loadedManagers = new Dictionary<string, ILocalizationManagerInternal>();
@@ -820,8 +763,6 @@ namespace L10NSharp
 			switch (TranslationMemoryKind)
 			{
 				default:
-					LocalizationManagerInternal<TMXDocument>.LoadedManagers.Clear();
-					break;
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.LoadedManagers.Clear();
 					break;
