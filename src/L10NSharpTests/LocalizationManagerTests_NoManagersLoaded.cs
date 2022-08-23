@@ -9,7 +9,7 @@ namespace L10NSharp.Tests
 	[TestFixture]
 	public class XLiffLocalizationManagerTests_NoManagersLoaded : LocalizationManagerTests_NoManagersLoaded
 	{
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public override void Setup()
 		{
 			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
