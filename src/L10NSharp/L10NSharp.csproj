@@ -14,5 +14,6 @@
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="all" />
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
   </ItemGroup>
 </Project>
