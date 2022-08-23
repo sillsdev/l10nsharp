@@ -21,3 +21,4 @@
 *.yml -whitespace
 changelog -whitespace
 *.md -whitespace
+*.props -whitespace

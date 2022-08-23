@@ -9,11 +9,11 @@
     <WarningLevel>4</WarningLevel>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
-    <OutputPath>../../output/$(Configuration)</OutputPath>
-    <PackageOutputPath>../../output</PackageOutputPath>
+    <ChangelogFile>$(MSBuildThisFileDirectory)/CHANGELOG.md</ChangelogFile>
+    <OutputPath>$(MSBuildThisFileDirectory)/output/$(Configuration)</OutputPath>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)/output</PackageOutputPath>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)/L10NSharp.snk</AssemblyOriginatorKeyFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -22,11 +22,12 @@
     <AppendToReleaseNotesProperty><![CDATA[
 See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELOG.md]]>
     </AppendToReleaseNotesProperty>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <ItemGroup>
     <!-- Without this line some projects fail to build on TC with "error : SourceRoot items
     must include at least one top-level (not nested) item when DeterministicSourcePaths is
     true". See https://github.com/dotnet/roslyn/issues/37379#issuecomment-513371985 -->
-    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/src/"/>
   </ItemGroup>
 </Project>

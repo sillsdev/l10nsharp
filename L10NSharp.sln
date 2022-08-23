@@ -22,8 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L10NSharp-Designer", "src\L10NSharp\L10NSharp-Designer.csproj", "{91806E96-1F40-46DF-AEC9-0095D695E5EE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,12 +87,6 @@ Global
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|x86.ActiveCfg = Release|Any CPU
 		{E4BB984D-DFB8-42EF-860D-5A038FF85B1C}.Release|x86.Build.0 = Release|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{91806E96-1F40-46DF-AEC9-0095D695E5EE}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
