@@ -43,12 +43,6 @@ namespace SampleApp
 
 			try
 			{
-				// By using "null" for the following two things, we get AppData/Product.
-				// Note: non-admin-rights users can't write to that folder.
-				string directoryOfDefaultXliffFile = null;
-				// When a user does some translation, their work goes in this directory.
-				string directoryOfUserModifiedXliffFiles = null;
-
 				//if this is your first time running the app, the library will query the OS for the
 				//the default language. If it doesn't have that, it puts up a dialog listing what
 				//it does have to offer.
