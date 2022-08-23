@@ -1,25 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net461</TargetFramework>
-		<Configurations>Debug;Release</Configurations>
 		<Description>Unit tests for L10NSharp</Description>
 		<RootNamespace>L10NSharp.Tests</RootNamespace>
 		<AssemblyTitle>L10NSharp.Tests</AssemblyTitle>
-		<Company>SIL</Company>
-		<Product>L10NSharp</Product>
-		<Copyright>Copyright © 2010-2019 SIL International</Copyright>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<OutputPath>../../output/$(Configuration)</OutputPath>
-		<Authors>SIL International</Authors>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>../../L10NSharp.snk</AssemblyOriginatorKeyFile>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
 	  <PackageReference Include="NUnit" Version="3.13.3" />
 	  <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
 	</ItemGroup>
