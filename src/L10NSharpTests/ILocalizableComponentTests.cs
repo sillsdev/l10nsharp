@@ -7,26 +7,16 @@ using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	[TestFixture]
-	public class ILocalizableComponentXLiffTests : ILocalizableComponentTests<XLiffDocument>
-	{
-		[SetUp]
-		public void TestSetup()
-		{
-			TestSetup(TranslationMemory.XLiff, "../../../src/L10NSharpTests/TestXliff");
-		}
-
-	}
-
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
 	/// These tests need to create a "real" Localization Manager, but with the capability of
 	/// removing all trace of it after the tests.
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
-	public abstract class ILocalizableComponentTests<T>
+	[TestFixture]
+	public class ILocalizableComponentXLiffTests
 	{
-		private ILocalizationManagerInternal<T> m_manager;
+		private ILocalizationManagerInternal<XLiffDocument> m_manager;
 		private L10NSharpExtender m_extender;
 		private string m_translationPath;
 
@@ -41,9 +31,15 @@ namespace L10NSharp.Tests
 			m_manager = LocalizationManager.Create(kind, "en", "Test", "Test", "1.0",
 					Path.Combine(dir, installedTranslationDir),
 					"", null, "")
-				as ILocalizationManagerInternal<T>;
+				as ILocalizationManagerInternal<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };
+		}
+
+		[SetUp]
+		public void TestSetup()
+		{
+			TestSetup(TranslationMemory.XLiff, "../../../src/L10NSharpTests/TestXliff");
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -66,6 +62,7 @@ namespace L10NSharp.Tests
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Test]
+		[Category("RequiresDisplay")]
 		public void TestLocalizingALocalizableComponent()
 		{
 			// Setup test

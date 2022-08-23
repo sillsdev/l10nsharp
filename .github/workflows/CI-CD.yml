@@ -34,11 +34,16 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Build
+    - name: Build and Pack
       run: dotnet build --configuration Release
 
-    - name: Test
+    - name: Test (Ubuntu)
+      run: dotnet test --configuration Release --no-build --filter TestCategory!=RequiresDisplay -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Test (Windows)
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
+      if: matrix.os != 'ubuntu-latest'
 
     - name: Upload Test Results
       if: always()
@@ -46,9 +51,6 @@ jobs:
       with:
         name: Test Results (${{matrix.os}})
         path: "**/TestResults/*.xml"
-
-    - name: Pack
-      run: dotnet pack --configuration Release --no-build --include-symbols
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0

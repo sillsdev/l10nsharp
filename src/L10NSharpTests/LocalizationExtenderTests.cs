@@ -30,6 +30,7 @@ namespace L10NSharp.Tests
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Test]
+		[Category("RequiresDisplay")]
 		public void GetSetTests()
 		{
 			Assert.AreEqual(0, m_extCtrls.Count);
@@ -50,7 +51,8 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// designers will have null if the developer didn't type anything in
 		/// </summary>
-		[Test, Ignore("by hand only because has UI")]
+		[Test]
+		[Ignore("by hand only because has UI")]
 		public void SetId_Null_DoesNotCrash()
 		{
 			new L10NSharpExtender().LocalizationManagerId = null;
@@ -62,6 +64,7 @@ namespace L10NSharp.Tests
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[Test]
+		[Category("RequiresDisplay")]
 		public void GetLocalizedObjectInfoTest()
 		{
 			Assert.AreEqual(0, m_extCtrls.Count);
@@ -100,7 +103,8 @@ namespace L10NSharp.Tests
 		/// Tests the FinalizationForListViewColumnHeaders method.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[Test, Ignore("I don't see code around that would make this work(e.g. insert a 'Col'), maybe David left it as a todo?")]
+		[Test]
+		[Ignore("I don't see code around that would make this work (e.g. insert a 'Col'), maybe David left it as a todo?")]
 		public void PrepareListViewColumnHeadersTests()
 		{
 			Form frm = new Form();
@@ -142,7 +146,8 @@ namespace L10NSharp.Tests
 		/// Tests the FinalizationForDataGridViewColumns method.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[Test, Ignore("I don't see code around that would make this work(e.g. insert a 'Col'), maybe David left it as a todo?")]
+		[Test]
+		[Ignore("I don't see code around that would make this work (e.g. insert a 'Col'), maybe David left it as a todo?")]
 		public void PrepareDataGridViewColumnsTests()
 		{
 			Form frm = new Form();
@@ -185,7 +190,8 @@ namespace L10NSharp.Tests
 		/// group for each.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[Test, Ignore("The test body was commented out before I got here, why run it?")]
+		[Test]
+		[Ignore("The test body was commented out before I got here, why run it?")]
 		public void GroupAssignmentTest()
 		{
 			//LocalizationManagerInternal.StringFilesFolder = Path.GetPathRoot(Path.GetTempPath());

@@ -1,16 +1,15 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 using L10NSharp.XLiffUtils;
-using System.Reflection;
-using System.IO;
-using System.Collections.Generic;
 
 namespace L10NSharp.Tests
 {
 	[TestFixture]
 	public class XLiffUtilsTests
 	{
-		string _testFolder;
+		private readonly string _testFolder;
 
 		public XLiffUtilsTests()
 		{

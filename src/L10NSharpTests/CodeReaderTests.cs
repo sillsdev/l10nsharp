@@ -9,16 +9,12 @@ using NUnit.Framework;
 namespace L10NSharp.Tests
 {
 	[TestFixture]
-	public class CodeReaderTestsXliff : CodeReaderTests<XLiffDocument>
-	{
-	}
-
-	public abstract class CodeReaderTests<T>
+	public class CodeReaderTestsXliff
 	{
 		[Test]
 		public void FindLocalizedStringsInType_RequestNamespaceForSubclass_DoNotExtractStringsForSuperclassWithDifferentNamespace()
 		{
-			var stringExtractor = new StringExtractor<T>();
+			var stringExtractor = new StringExtractor<XLiffDocument>();
 			var localizedStrings = stringExtractor.DoExtractingWork(new[] { "L10NSharp.TestsWithDifferentNamespace" }, new BackgroundWorker { WorkerReportsProgress = true });
 			Assert.AreEqual(0, localizedStrings.Count());
 		}
@@ -33,20 +29,20 @@ namespace L10NSharp.Tests
 			var skipOnAll = testPlatformType.GetMethod("SkipOnAll");
 			var skipOnNone = testPlatformType.GetMethod("SkipOnNone");
 			// Test that the attribute behaves properly on all currently tested platforms
-			Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnAll), Is.False, "NoLocalizableStrings without argument is not working");
-			Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnNone), Is.True, "A method without NoLocalizableStrings should be localized");
+			Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnAll), Is.False, "NoLocalizableStrings without argument is not working");
+			Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnNone), Is.True, "A method without NoLocalizableStrings should be localized");
 
 			switch (Environment.OSVersion.Platform)
 			{
 				case PlatformID.Unix:
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnWindows), Is.True, "NoLocalizableStrings for Windows should localize on linux");
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on linux");
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnLinux), Is.False, "Should not be localized on linux");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnWindows), Is.True, "NoLocalizableStrings for Windows should localize on linux");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on linux");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnLinux), Is.False, "Should not be localized on linux");
 					break;
 				case PlatformID.Win32NT:
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnWindows), Is.False, "Should not be localized on Windows");
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on Windows");
-					Assert.That(StringExtractor<T>.MethodNeedsLocalization(skipOnLinux), Is.True, "NoLocalizableStrings for Linux should localize on Windows");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnWindows), Is.False, "Should not be localized on Windows");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnWindowsAndLinux), Is.False, "Should not be localized on Windows");
+					Assert.That(StringExtractor<XLiffDocument>.MethodNeedsLocalization(skipOnLinux), Is.True, "NoLocalizableStrings for Linux should localize on Windows");
 					break;
 			}
 		}
