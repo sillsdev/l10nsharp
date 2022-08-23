@@ -1,26 +1,17 @@
 // Copyright (c) 2019 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
-using L10NSharp.XLiffUtils;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
 	[TestFixture]
-	public class XLiffLocalizationManagerTests_NoManagersLoaded : LocalizationManagerTests_NoManagersLoaded
+	public class XLiffLocalizationManagerTests_NoManagersLoaded
 	{
 		[OneTimeSetUp]
-		public override void Setup()
+		public void Setup()
 		{
 			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
-			base.Setup();
-		}
-	}
-
-	public abstract class LocalizationManagerTests_NoManagersLoaded
-	{
-		public virtual void Setup()
-		{
 			LocalizationManager.ClearLoadedManagers();
 		}
 
@@ -53,4 +44,5 @@ namespace L10NSharp.Tests
 				LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", "data", "no comment", "es"),
 				Is.EqualTo("prefix.data"));
 		}
-	}}
+	}
+}

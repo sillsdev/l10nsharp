@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using L10NSharp.XLiffUtils;
-using L10NSharp.UI;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests

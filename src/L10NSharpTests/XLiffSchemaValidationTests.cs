@@ -4,11 +4,10 @@
 using System;
 using System.IO;
 using System.Reflection;
-using NUnit.Framework;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
-using L10NSharp.XLiffUtils;
+using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
