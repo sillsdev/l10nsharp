@@ -98,7 +98,7 @@ namespace ExtractXliff
 					catch (Exception e)
 					{
 						if (_verbose)
-							Console.WriteLine($@"Error using reflection on {asm.GetName().FullName} to get type {methodNameSpec.Item2} or method {methodNameSpec.Item3}:" + e.Message);
+							Console.WriteLine($@"Error using reflection on {asm.GetName().FullName} to get type {methodNameSpec.Item2} or method {methodNameSpec.Item3}: {e.Message}");
 					}
 				}
 			}
