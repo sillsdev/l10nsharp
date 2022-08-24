@@ -183,35 +183,5 @@ namespace L10NSharp.Tests
 			Assert.AreEqual("TestDlg.colorsColorange", loi.Id);
 			Assert.AreEqual("orangetext", loi.Text);
 		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Tests that the EndInit method goes through the extended controls and sets the
-		/// group for each.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		[Test]
-		[Ignore("The test body was commented out before I got here, why run it?")]
-		public void GroupAssignmentTest()
-		{
-			//LocalizationManagerInternal.StringFilesFolder = Path.GetPathRoot(Path.GetTempPath());
-			//LocalizationManagerInternal.Enabled = true;
-
-			//Assert.AreEqual(0, m_extCtrls.Count);
-
-			//m_extCtrls[0] = new LocalizingInfo("GrpName.trout");
-			//m_extCtrls[1] = new LocalizingInfo("GrpName.pike");
-			//m_extCtrls[2] = new LocalizingInfo("GrpName.catfish");
-
-			//Assert.AreNotEqual("GrpName", m_extCtrls[0].Group);
-			//Assert.AreNotEqual("GrpName", m_extCtrls[1].Group);
-			//Assert.AreNotEqual("GrpName", m_extCtrls[2].Group);
-
-			//m_extender.EndInit();
-
-			//Assert.AreEqual("GrpName", m_extCtrls[0].Group);
-			//Assert.AreEqual("GrpName", m_extCtrls[1].Group);
-			//Assert.AreEqual("GrpName", m_extCtrls[2].Group);
-		}
 	}
 }
