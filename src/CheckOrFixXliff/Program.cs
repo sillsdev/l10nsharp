@@ -9,6 +9,7 @@ using System.Xml.Schema;
 using System.Xml.XPath;
 using L10NSharp;
 using L10NSharp.XLiffUtils;
+// ReSharper disable InconsistentNaming
 
 namespace CheckOrFixXliff
 {
@@ -26,9 +27,9 @@ namespace CheckOrFixXliff
 	/// program can optionally try to repair the strings using some common patterns that have been observed ("--fix"
 	/// flag).
 	/// </summary>
-	class Program
+	internal static class Program
 	{
-		enum ErrorState
+		private enum ErrorState
 		{
 			Okay = 0,
 			Warning,
@@ -37,10 +38,10 @@ namespace CheckOrFixXliff
 		/// <summary>
 		/// List of trans-unit id values whose target value contains a malformed substitution marker.
 		/// </summary>
-		private static List<string> _mangledTargets = new List<string>();
-		private static bool _quiet = false;
+		private static readonly List<string> _mangledTargets = new List<string>();
+		private static bool _quiet;
 
-		static int Main(string[] args)
+		private static int Main(string[] args)
 		{
 			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
 
@@ -52,33 +53,33 @@ namespace CheckOrFixXliff
 			bool mismatchedFormatMarker = false;
 			bool invalidFormatMarker = false;
 
-			for (int i = 0; i < args.Length; ++i)
+			foreach (var arg in args)
 			{
-				if (args[i] == "--validate")
+				if (arg == "--validate")
 				{
 					validate = true;
 				}
-				else if (args[i] == "--fix")
+				else if (arg == "--fix")
 				{
 					fix = true;
 				}
-				else if (args[i] == "--quiet")
+				else if (arg == "--quiet")
 				{
 					_quiet = true;
 				}
 				else
 				{
-					string filename = args[i];
+					string filename = arg;
 					if (!File.Exists(filename))
 					{
-						Console.WriteLine("{0} does not exist!", filename);
+						Console.WriteLine(@"{0} does not exist!", filename);
 						missingFile = true;
 						continue;
 					}
 					if (!CheckForWellFormedXml(filename))
 					{
 						invalidXml = true;
-						continue;	// all other checks depend on loading XML
+						continue; // all other checks depend on loading XML
 					}
 					if (validate && !ValidateXliffAgainstSchema(filename))
 						invalidXliff = true;
@@ -115,7 +116,7 @@ namespace CheckOrFixXliff
 			namespaceManager.AddNamespace("x", "urn:oasis:names:tc:xliff:document:1.2");
 			foreach (var id in _mangledTargets)
 			{
-				var xpath = string.Format("//x:trans-unit[@id='{0}']", id);
+				var xpath = $"//x:trans-unit[@id='{id}']";
 				var tu = document.XPathSelectElement(xpath, namespaceManager);
 				if (tu != null)
 					FixBrokenTransUnit(tu, namespaceManager);
@@ -130,7 +131,7 @@ namespace CheckOrFixXliff
 			var target = tu.XPathSelectElement("x:target", namespaceManager);
 			if (source.HasElements || target.HasElements)
 			{
-				Console.WriteLine("Cannot fix {0} because the translated material contains XML elements", tuid);
+				Console.WriteLine(@"Cannot fix {0} because the translated material contains XML elements", tuid);
 				return;
 			}
 			var targetValue = target.Value;
@@ -158,7 +159,7 @@ namespace CheckOrFixXliff
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("{0} is invalid XML: {1}", filename, e.Message);
+				Console.WriteLine(@"{0} is invalid XML: {1}", filename, e.Message);
 				return false;
 			}
 		}
@@ -184,7 +185,7 @@ namespace CheckOrFixXliff
 				var document = XDocument.Load(filename, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
 				document.Validate(schemas, (sender, args) => {
 					if (!_quiet)
-						Console.WriteLine("{0} did not validate against schema on line {1}: {2}", filename, args.Exception.LineNumber, args.Message);
+						Console.WriteLine(@"{0} did not validate against schema on line {1}: {2}", filename, args.Exception.LineNumber, args.Message);
 					valid = false;
 				});
 			}
