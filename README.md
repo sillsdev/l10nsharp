@@ -4,14 +4,17 @@ L10NSharp is a .NET localization library for Windows Forms applications. It coll
 need localization when your application first runs and saves them in a translation memory file. It
 can also dynamically collect strings at runtime.
 
-L10NSharp works with either TMX or XLIFF files as translation memory. Which one gets used can be
-selected when creating a `LocalizationManager`.
+L10NSharp works with XLIFF files as translation memory.
+
+[![Build, Test and Pack](https://github.com/sillsdev/l10nsharp/actions/workflows/CI-CD.yml/badge.svg)](https://github.com/sillsdev/l10nsharp/actions/workflows/CI-CD.yml)
 
 ## How to use
 
+[![NuGet version (L10NSharp)](https://img.shields.io/nuget/v/L10NSharp.svg?style=flat-square)](https://www.nuget.org/packages/L10NSharp/)
+
 L10NSharp is provided as a [nuget package](https://www.nuget.org/packages/L10NSharp).
 
-To use L10NSharp in your application, simply call the `Create` method on `LocalizationManager`, 
+To use L10NSharp in your application, simply call the `Create` method on `LocalizationManager`,
 passing the location of the translation memory files and some other information:
 
 ```csharp
@@ -25,20 +28,19 @@ using (var lm = LocalizationManager.Create(TranslationMemory.XLiff, lang, "Sampl
 
 One of two conventions must be used to name xlf files (only the ones for requested languages
 are loaded into memory, so we need the file names to tell us which ones to load).
-By default, directoryOfInstalledFiles contains files named Whatever.lang.xlf; if
-LocalizationManager.UseLanguageCodeFolders is true, then they are in folders whose names
+By default, `directoryOfInstalledFiles` contains files named `Whatever.lang.xlf`; if
+`LocalizationManager.UseLanguageCodeFolders` is true, then they are in folders whose names
 are the language tags. These names must match the target-language declared in the XLF
-for lazy loading to work properly. If the target-language is a multi-part tag (like es-ES),
-the lang component in the file path may be either the full tag (Whatever.es-ES.xlf or
-es-ES/Whatever.xlf) or its first component, the actual language tag (Whatever.es.xlf
-or es/Whatever.xlf).
+for lazy loading to work properly. If the target-language is a multi-part tag (like `es-ES`),
+the lang component in the file path may be either the full tag (`Whatever.es-ES.xlf` or
+`es-ES/Whatever.xlf`) or its first component, the actual language tag (`Whatever.es.xlf`
+or `es/Whatever.xlf`).
 
 ## Thread safety
 
 In general, L10NSharp is not written with thread safety in mind; callers should ensure
 that only one thread at a time enters L10NSharp methods. There is one exception: we have
-attempted to make the various varieties of GetString thread-safe, but currently only
-when the xliff translation memory file approach is used.
+attempted to make the various varieties of `GetString` thread-safe,.
 
 ## L10NSharpExtender
 
@@ -52,7 +54,7 @@ launched by Alt-Shift-clicking a Windows Forms element.
 
 ## Upgrading to a newer version
 
-The [migration](https://github.com/sillsdev/l10nsharp/wiki/Migration) guide describes the 
+The [migration](https://github.com/sillsdev/l10nsharp/wiki/Migration) guide describes the
 necessary changes when upgrading to a higher major version.
 
 ## Building
@@ -61,10 +63,9 @@ Just download the repository and build the solution (`L10NSharp.sln`).
 
 The command line build command would look something like this:
 
-    msbuild /t:Build /p:Configuration=Debug build/L10NSharp.proj
-
-Note that on Linux building L10NSharp requires at least version 5 of Mono, which `mono5-sil` provides.
-The Mono 5 version that the Mono project provides also works (if mono is at least version 5.16).
+```bash
+dotnet build
+```
 
 ## Running Unit Tests
 
@@ -73,10 +74,11 @@ do not run, but all tests that run should pass.
 
 The tests can be run from the command line like this:
 
-    msbuild /t:Test build/L10NSharp.proj
+```bash
+dotnet test
+```
 
-It is also possible to run the tests from inside Visual Studio, Rider or MonoDevelop (if `mono5-sil`
-is installed and made the default Mono runtime).
+It is also possible to run the tests from inside Visual Studio or Rider.
 
 ## Testing in client projects (as applicable):
 
@@ -85,10 +87,3 @@ is installed and made the default Mono runtime).
   * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
 
 Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
-
-## Working on UI related files
-
-The L10NSharp project uses SDK style .csproj files which don't allow the Designer to be used in
-Visual Studio 2017+. There is a `src\L10NSharp\L10NSharp-Designer.csproj` file which uses the old
-.csproj style and thus allows the programmer to edit the files with the Designer in Visual
-Studio 2017.
