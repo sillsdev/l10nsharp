@@ -232,6 +232,8 @@ namespace L10NSharp.XLiffUtils
 			stringCache.SaveIfDirty();
 		}
 
+		public static List<string> ExtractionExceptions = new List<string>();
+
 		public static IEnumerable<LocalizingInfo> ExtractStringsFromCode(String name, IEnumerable<MethodInfo> additionalLocalizationMethods, String[] namespaceBeginnings)
 		{
 			try
@@ -240,7 +242,8 @@ namespace L10NSharp.XLiffUtils
 				var extractor = new L10NSharp.CodeReader.StringExtractor<XLiffDocument>();
 				extractor.OutputErrorsToConsole = true;
 				var result = extractor.DoExtractingWork(additionalLocalizationMethods, namespaceBeginnings, null);
-				Console.WriteLine("Extracted {0} localization strings for {1}", result.Count(), name);
+				Console.WriteLine("Extracted {0} localization strings for {1} with {2} exceptions ignored", result.Count(), name, extractor.ExtractionExceptions.Count);
+				ExtractionExceptions.AddRange(extractor.ExtractionExceptions);
 				return result;
 			}
 			catch (Exception e)

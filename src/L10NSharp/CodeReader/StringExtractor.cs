@@ -24,6 +24,8 @@ namespace L10NSharp.CodeReader
 		private List<ILInstruction> _instructions;
 		private readonly HashSet<string> _scannedTypes = new HashSet<string>();
 
+		public List<string> ExtractionExceptions = new List<string>();
+
 		public bool OutputErrorsToConsole { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -111,7 +113,15 @@ namespace L10NSharp.CodeReader
 						Debug.WriteLine(errorMsg);
 					}
 					else
-						throw;
+					{
+						// Rethrowing the exception just ends up crashing the calling program, which is way overkill.
+						// Provide the exception details in case they may be useful, but continue on.
+						var errorMsg = $"WARNING: unexpected exception in StringExtractor.DoExtractingWork() for {type.FullName}:{Environment.NewLine}{e}";
+						ExtractionExceptions.Add(errorMsg);
+						if (OutputErrorsToConsole)
+							Console.WriteLine(errorMsg);
+						Debug.WriteLine(errorMsg);
+					}
 				}
 			}
 
