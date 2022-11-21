@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [6.0.0] - 2022-11-21
+
 ### Changed
 
 - Added cleanUpTmx parameter to LocalizationManager.DeleteOldTranslationFiles to allow for cleanup of old TMX files.
