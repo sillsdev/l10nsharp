@@ -25,10 +25,10 @@ namespace L10NSharp.Tests
 		/// Setup for each test.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		protected void TestSetup(TranslationMemory kind, string installedTranslationDir)
+		protected void TestSetup(string installedTranslationDir)
 		{
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			m_manager = LocalizationManager.Create(kind, "en", "Test", "Test", "1.0",
+			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0",
 					Path.Combine(dir, installedTranslationDir),
 					"", null, "")
 				as ILocalizationManagerInternal<XLiffDocument>;
@@ -39,7 +39,7 @@ namespace L10NSharp.Tests
 		[SetUp]
 		public void TestSetup()
 		{
-			TestSetup(TranslationMemory.XLiff, "../../../src/L10NSharpTests/TestXliff");
+			TestSetup("../../../src/L10NSharpTests/TestXliff");
 		}
 
 		/// ------------------------------------------------------------------------------------

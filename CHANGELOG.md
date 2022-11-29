@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `LocalizationManager.Create` methods without `TranslationMemory kind` parameter
+
+### Deprecated
+
+- `LocalizationManager.Create` methods with `TranslationMemory kind` parameter
+
 ## [6.0.0] - 2022-11-21
 
 ### Changed
