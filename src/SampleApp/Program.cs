@@ -61,10 +61,10 @@ namespace SampleApp
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
 						"sampleappLocalizations@nowhere.com",
+						new[] { "SampleApp" },
 						typeof(Program)
 							.GetMethods(BindingFlags.Static | BindingFlags.Public)
-							.Where(m => m.Name == "MyOwnGetString"),
-						"SampleApp");
+							.Where(m => m.Name == "MyOwnGetString"));
 				}
 				else
 				{
@@ -73,7 +73,8 @@ namespace SampleApp
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
-						"sampleappLocalizations@nowhere.com", "SampleApp");
+						"sampleappLocalizations@nowhere.com",
+						new[] { "SampleApp" });
 				}
 
 				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
