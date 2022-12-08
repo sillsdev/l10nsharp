@@ -30,7 +30,7 @@ namespace L10NSharp.Tests
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0",
 					Path.Combine(dir, installedTranslationDir),
-					"", null, "")
+					"", null, "", new string[] {  })
 				as ILocalizationManagerInternal<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };
