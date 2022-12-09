@@ -34,7 +34,7 @@ jobs:
     - name: Install .NET Core
       uses: actions/setup-dotnet@c0d4ad69d8bd405d234f1c9166d383b7a4f69ed8 # v2.1.0
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
 
     - name: Build and Pack
       run: dotnet build --configuration Release
@@ -44,7 +44,8 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test (Windows)
-      run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
+      # specify path to test assembly as workaround for https://github.com/nunit/nunit3-vs-adapter/issues/1040
+      run: dotnet test --configuration Release --no-build output\Release\net461\*Tests.dll -- NUnit.TestOutputXml=TestResults
       if: matrix.os != 'ubuntu-latest'
 
     - name: Upload Test Results

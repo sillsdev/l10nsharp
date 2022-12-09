@@ -49,35 +49,32 @@ namespace SampleApp
 
 				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
 
-				var translationMemoryType = TranslationMemory.XLiff;
-
 				if (useAdditionalMethodInfo)
 				{
 					MessageBox.Show(MyOwnGetString("SampleApp.InformationalMessageBox.Message",
 							"The generated localization file should contain this string and the window title.", "This is a comment"),
 						MyOwnGetString("SampleApp.InformationalMessageBox.Title", "Cool Title"));
 
-					_localizationManager = LocalizationManager.Create(translationMemoryType,
-						theLanguageYouRememberedFromLastTime,
+					_localizationManager = LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
 						"sampleappLocalizations@nowhere.com",
+						new[] { "SampleApp" },
 						typeof(Program)
 							.GetMethods(BindingFlags.Static | BindingFlags.Public)
-							.Where(m => m.Name == "MyOwnGetString"),
-						"SampleApp");
+							.Where(m => m.Name == "MyOwnGetString"));
 				}
 				else
 				{
-					_localizationManager = LocalizationManager.Create(translationMemoryType,
-						theLanguageYouRememberedFromLastTime,
+					_localizationManager = LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
-						"sampleappLocalizations@nowhere.com", "SampleApp");
+						"sampleappLocalizations@nowhere.com",
+						new[] { "SampleApp" });
 				}
 
 				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
