@@ -101,7 +101,14 @@ namespace L10NSharp
 			string relativeSettingPathForLocalizationFolder,
 			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
 		{
-			return Create(kind, desiredUiLangId,
+			if (kind != TranslationMemory.XLiff)
+			{
+				throw new ArgumentException($@"Unknown translation memory kind {kind}. Only XLiff
+				 is supported.",
+					nameof(kind));
+			}
+
+			return Create(desiredUiLangId,
 				appId, appName, appVersion, directoryOfInstalledFiles,
 				relativeSettingPathForLocalizationFolder,
 				applicationIcon, emailForSubmissions,
