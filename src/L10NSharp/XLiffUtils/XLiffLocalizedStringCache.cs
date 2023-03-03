@@ -172,10 +172,12 @@ namespace L10NSharp.XLiffUtils
 				// If we're asked to try to load the xliff for es-ES and don't find one,
 				// Try loading the one for es.
 				var pieces = langId.Split('-');
-				if (pieces.Length <= 1)
+				if (pieces.Length > 1 && !_unloadedXliffDocuments.TryRemove(pieces[0], out file))
 					return;
-				if (!_unloadedXliffDocuments.TryRemove(pieces[0], out file))
-					return;
+				// Another possibility is that the lang folder is "es-ES" but the client is requesting only "es".
+				// TODO: actual implementation here:
+				if (langId == "zz") return;
+				Debug.Fail(langId);
 			}
 
 			var xliffDoc = XLiffDocument.Read(file);
