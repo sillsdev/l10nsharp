@@ -1,4 +1,4 @@
-﻿using L10NSharp.XLiffUtils;
+using L10NSharp.XLiffUtils;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests
@@ -28,7 +28,7 @@ namespace L10NSharp.Tests
 		[TestCase(1, "\u0632\u0020\"{\u200E\"{0\u200F.", false, TestName="CheckSubstitutionMarkers_17")]
 
 		[TestCase(3, "{\u09E6} \u09A7\u09B0\u09A3\u09BE '{1}' \u09AC\u09B9\u09BE\u09B0 {\u09E8}pt.", false, TestName="CheckSubstitutionMarkers_18")]
-		public void CheckStringsForValidSubstitionMarkers(int markerCount, string formatting, bool isValid)
+		public void CheckStringsForValidSubstitutionMarkers(int markerCount, string formatting, bool isValid)
 		{
 			Assert.That(XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(markerCount,
 				formatting, "a.b"), Is.EqualTo(isValid));
@@ -60,7 +60,7 @@ namespace L10NSharp.Tests
 			Assert.That(XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(3, result, "a.b"), Is.EqualTo(true));
 		}
 
-		// This checks for a wider range of substition marker numbers.
+		// This checks for a wider range of substitution marker numbers.
 		[Test]
 		[TestCase("\u0645 '{\u200E'{10 \u0627",           "\u0645 \u200E'{10}'\u200F \u0627",      TestName = "FixBrokenSubstitution_Works_1")]
 		[TestCase("\u0647 '{\u200E'{11\u0646\u0627",      "\u0647 \u200E'{11}'\u200F\u0646\u0627", TestName = "FixBrokenSubstitution_Works_2")]
@@ -78,6 +78,12 @@ namespace L10NSharp.Tests
 		{
 			var result = XLiffLocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
+		}
+
+		[Test]
+		public void TryGetDocument()
+		{
+			//var sut = new XLiffLocalizedStringCache();
 		}
 	}
 }
