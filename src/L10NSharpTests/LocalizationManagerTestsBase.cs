@@ -326,17 +326,22 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		//NOTE: the TestName parameter is only here to work around an NUnit bug in which
-		//NUnit doesn't run all the test cases when some differ only by the values in an array parameter
-		//cases where we expect to get back the english in the code
-		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_1")]
-		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_2")]
-		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_3")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
-		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_4")]
-		//cases where we expect to get back the French
-		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_5")]
-		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_6")]
-		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_Works_7")] // our arabic doesn't have a translation of 'blah', so fall to French
+		/// <summary>
+		/// Tests that GetString returns the first language in order of preference with an available string
+		/// </summary>
+		/// <remarks>
+		/// NOTE: the TestName parameter is only here to work around an NUnit bug in which
+		/// NUnit doesn't run all the test cases when some differ only by the values in an array parameter.
+		/// </remarks>
+		//cases where we expect to get back the english in the code:
+		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "en; finds en")]
+		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "en,fr; finds en")]
+		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "ar,en; finds en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "zz,en,fr; finds en")]
+		//cases where we expect to get back the French:
+		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "fr; finds fr")]
+		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "fr,en; finds fr")]
+		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "ar,fr,en; finds fr")] // our arabic doesn't have a translation of 'blah', so fall to French
 		public void GetString_OverloadThatTakesListOfLanguages_Works(IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
 		{
 			using(var folder = new TempFolder())
@@ -420,17 +425,22 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		//NOTE: the TestName parameter is only here to work around an NUnit bug in which
-		//NUnit doesn't run all the test cases when some differ only by the values in an array parameter
-		//cases where we expect to get back the english in the code
-		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_1")]
-		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_2")]
-		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_3")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
-		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_4")]
-		//cases where we expect to get back the French
-		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_5")]
-		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_6")]
-		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "GetString_OverloadThatTakesListOfLanguages_WorksWithFolders_7")] // our arabic doesn't have a translation of 'blah', so fall to French
+		/// <summary>
+		/// Tests that GetString returns the first language in order of preference with an available string
+		/// </summary>
+		/// <remarks>
+		/// NOTE: the TestName parameter is only here to work around an NUnit bug in which
+		/// NUnit doesn't run all the test cases when some differ only by the values in an array parameter.
+		/// </remarks>
+		//cases where we expect to get back the english in the code:
+		[TestCase(new[] { "en" }, "blahInEnglishCode", "en", TestName = "en; finds en")]
+		[TestCase(new[] { "en", "fr" }, "blahInEnglishCode", "en", TestName = "en,fr; finds en")]
+		[TestCase(new[] { "ar", "en" }, "blahInEnglishCode", "en", TestName = "ar,en; finds en")] // our arabic doesn't have a translation of 'blah', so fall to the code's English
+		[TestCase(new[] { "zz", "en", "fr" }, "blahInEnglishCode", "en", TestName = "zz,en,fr; finds en")]
+		//cases where we expect to get back the French:
+		[TestCase(new[] { "fr" }, "blahInFrench", "fr", TestName = "fr; finds fr")]
+		[TestCase(new[] { "fr", "en" }, "blahInFrench", "fr", TestName = "fr,en; finds fr")]
+		[TestCase(new[] { "ar", "fr", "en" }, "blahInFrench", "fr", TestName = "ar,fr,en; finds fr")] // our arabic doesn't have a translation of 'blah', so fall to French
 		public void GetString_OverloadThatTakesListOfLanguages_WorksWithFolders(IEnumerable<string> preferredLangIds,  string expectedResult, string expectedLanguage)
 		{
 			LocalizationManager.UseLanguageCodeFolders = true;
@@ -566,6 +576,29 @@ namespace L10NSharp.Tests
 				CreateTransUnitVariant("es", "bleah"));
 			spanishDoc.AddTransUnit(tu3);
 			spanishDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "es")));
+		}
+
+		private void AddChineseChineseTranslation(string folderPath)
+		{
+			var chineseDoc = CreateNewDocument(null, "en", "zh-CN");
+			// first unit
+			var tu = CreateTransUnit("theId", false,
+				CreateTransUnitVariant("en", "from English Translation"),
+				CreateTransUnitVariant("zh-CN", "from Chinese (China) Translation"),
+				"Tzh-CNt", TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu);
+			// second unit
+			var tu2 = CreateTransUnit("notUsedId", false,
+				CreateTransUnitVariant("en", "no longer used English text"),
+				CreateTransUnitVariant("zh-CN", "no longer used Chinese (China) text"),
+				null, TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu2);
+			// third unit
+			var tu3 = CreateTransUnit("blahId", false,
+				CreateTransUnitVariant("en", "blah"),
+				CreateTransUnitVariant("zh-CN", "中文"));
+			chineseDoc.AddTransUnit(tu3);
+			chineseDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "zh-CN")));
 		}
 
 		protected void AddRandomTranslation(string langId, string folderPath)
@@ -927,6 +960,34 @@ namespace L10NSharp.Tests
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es-MX", "en-GB", "fr-FR" }, out languageIdUsed);
 				Assert.AreEqual("from Spanish Translation", str);
 				Assert.AreEqual("es-ES", languageIdUsed);
+			}
+		}
+
+		[Test]
+		public void TestMappingLanguageCodesToAvailable_FindsSpecificGivenGeneric()
+		{
+			LocalizationManager.SetUILanguage("en", true);
+			LocalizationManagerInternal<T>.LoadedManagers.Clear();
+			using (var folder = new TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				AddEnglishTranslation(installedFolder, null);
+				AddChineseChineseTranslation(installedFolder);
+				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
+					$"Temp/{Path.GetFileName(folder.Path)}/user", null, null, new string[] { });
+				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
+
+				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
+				Assert.That(langs, Is.EquivalentTo(new[] { "en", "zh-CN" }));
+
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find zh-CN");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "en"), Is.True, "en should find en");
+
+				// Check asking for a specific form of the language when we have only a different specific form.
+				var str = LocalizationManager.GetString("theId", ".", "", new []{ "zh" }, out var languageIdUsed);
+				Assert.AreEqual("from Chinese (China) Translation", str);
+				Assert.AreEqual("zh-CN", languageIdUsed);
 			}
 		}
 	}
