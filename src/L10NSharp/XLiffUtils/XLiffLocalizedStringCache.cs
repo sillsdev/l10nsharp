@@ -169,14 +169,18 @@ namespace L10NSharp.XLiffUtils
 			{
 				// Often an xliff in a plain lang folder (like "es") contains
 				// a target-language that is more specific (like "es-ES").
-				// If we're asked to try to load the xliff for es-ES and don't find one,
-				// Try loading the one for es.
+				// Another possibility is that the lang folder is "es-ES" but the client is requesting only "es". In either case, try to find a
+				// sensible match automatically before prompting the user. If, however, there is more than one match and no clear best,
+				// allow the user to choose.
 				var pieces = langId.Split('-');
+				// If we're asked to try to load the xliff for es-ES and don't find one, try loading the one for es.
 				if (pieces.Length == 1 || !_unloadedXliffDocuments.TryRemove(pieces[0], out file))
 				{
+					// Either we were already trying to find 'es' or we could find neither 'es-ES' nor 'es'. Look for 'es-*'.
 					return;
-					// Another possibility is that the lang folder is "es-ES" but the client is requesting only "es".
 					// TODO: actual implementation here:
+					// - If exactly one match, load and map it (REVIEW: really? what difference does it make?)
+					// - If multiple matches, load each separately and return
 				}
 			}
 

@@ -997,7 +997,7 @@ namespace L10NSharp.Tests
 				AddEnglishTranslation(installedFolder, null);
 				AddChineseOfChinaTranslation(installedFolder);
 				LocalizationManagerInternal<T>.ChooseFallbackLanguage = (langTag, icon) =>
-					throw new NotImplementedException($"Expected to find a match for {langTag}");
+					throw new NotImplementedException($"{langTag} shouldn't have stumped us");
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
 					$"Temp/{Path.GetFileName(folder.Path)}/user", null, null, new string[] { });
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
