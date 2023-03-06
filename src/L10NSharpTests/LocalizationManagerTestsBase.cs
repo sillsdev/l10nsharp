@@ -997,7 +997,7 @@ namespace L10NSharp.Tests
 				AddEnglishTranslation(installedFolder, null);
 				AddChineseOfChinaTranslation(installedFolder);
 				LocalizationManagerInternal<T>.ChooseFallbackLanguage = (langTag, icon) =>
-					throw new NotImplementedException($"Expected to find a match for {langTag}");
+					throw new NotImplementedException($"{langTag} shouldn't have stumped us");
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
 					$"Temp/{Path.GetFileName(folder.Path)}/user", null, null, new string[] { });
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
@@ -1036,21 +1036,17 @@ namespace L10NSharp.Tests
 				};
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
 					$"Temp/{Path.GetFileName(folder.Path)}/user", null, null, new string[] { });
+				Assert.That(userPromptCount, Is.EqualTo(1));
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
 
 				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
 				Assert.That(langs, Is.EquivalentTo(new[] { "en", "zh-CN", "zh-TW" }));
+				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo(choice));
 
-				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find the chosen language");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.False, "zh is ambiguous");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-TW");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "en"), Is.True, "en should find en");
-
-				// Check asking for a specific form of the language when we have only a different specific form.
-				var str = LocalizationManager.GetString("theId", ".", "", new []{ "zh" }, out var languageIdUsed);
-				Assert.That(str, Is.EqualTo("from Chinese (China) Translation"));
-				Assert.That(languageIdUsed, Is.EqualTo(choice));
-				Assert.That(userPromptCount, Is.EqualTo(1));
 			}
 		}
 	}
