@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - `LocalizationManager.Create` methods without `TranslationMemory kind` parameter
 
+### Fixed
+
+- `LocalizationManager.Create("es"` loads `es-ES` if it is the best match
+
 ### Deprecated
 
 - `LocalizationManager.Create` methods with `TranslationMemory kind` parameter
