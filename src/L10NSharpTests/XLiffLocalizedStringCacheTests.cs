@@ -79,11 +79,5 @@ namespace L10NSharp.Tests
 			var result = XLiffLocalizedStringCache.FixBrokenFormattingString(badFormat);
 			Assert.That(result, Is.EqualTo(goodFormat));
 		}
-
-		[Test]
-		public void TryGetDocument()
-		{
-			//var sut = new XLiffLocalizedStringCache();
-		}
 	}
 }
