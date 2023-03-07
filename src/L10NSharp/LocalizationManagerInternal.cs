@@ -620,6 +620,9 @@ namespace L10NSharp
 		/// not yet contain data about this language. In that case, get the lock for
 		/// loading xliff docs, load any relevant ones, and try again.
 		/// </summary>
+		/// <remarks>
+		/// <see cref="XLiffLocalizedStringCache.LoadXliffAndUpdateExistingLanguageMap"/> must load "es-ES" before "es" will map to "es-ES".
+		/// </remarks>
 		internal static string MapToExistingLanguageIfPossible(string langId)
 		{
 			if (string.IsNullOrEmpty(langId))

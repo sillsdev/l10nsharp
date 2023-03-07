@@ -39,7 +39,7 @@ or `es/Whatever.xlf`).
 ### Selecting a Language
 
 If an exact match for the requested language is not available, L10NSharp will try to find the best available language. For example, if the client
-requests `es` but only `Whatever.es-ES.xlf` is available, `Whatever.es-ES.xlf` will be loaded automatically, and vise versa. However, if the client
+requests `es` but only `Whatever.es-ES.xlf` is available, `Whatever.es-ES.xlf` will be loaded automatically, and vice versa. However, if the client
 requests `es` and both `Whatever.es-ES.xlf` and `Whatever.es-MX.xlf` are available, or if no `Whatever.es[-details].xlf` is available, a dialog will
 inform the user that the selected language is not available and prompt the user to select from the available languages.
 

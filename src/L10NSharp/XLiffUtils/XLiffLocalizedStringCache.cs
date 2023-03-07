@@ -162,6 +162,7 @@ namespace L10NSharp.XLiffUtils
 		/// (or its primary language, if different) and update MapToExistingLanguage according
 		/// to what we find. 
 		/// Use only from TryGetDocument. Should hold LazyLoadLock.
+		/// Tries to find partial matches, similar to <seealso cref="LocalizationManagerInternal&lt;T&gt;.MapToExistingLanguageIfPossible"/>
 		/// </summary>
 		private void LoadXliffAndUpdateExistingLanguageMap(string langId)
 		{
@@ -171,7 +172,7 @@ namespace L10NSharp.XLiffUtils
 				// a target-language that is more specific (like "es-ES").
 				// Another possibility is that the lang folder is "es-ES" but the client is requesting only "es". In either case, try to find a
 				// sensible match automatically before prompting the user. If, however, there is more than one match and no clear best,
-				// allow the user to choose.
+				// allow the user to choose. (https://github.com/sillsdev/l10nsharp/issues/109)
 				var pieces = langId.Split('-');
 				// If we're asked to try to load the xliff for es-ES and don't find one, try loading the one for es.
 				if (pieces.Length == 1 || !_unloadedXliffDocuments.TryRemove(pieces[0], out file))
@@ -184,6 +185,8 @@ namespace L10NSharp.XLiffUtils
 					}
 					else
 					{
+						// Loading more than one partial match at this point would arbitrarily map the bare language ID to the first available,
+						// which might not be correct
 						return;
 					}
 				}
