@@ -245,7 +245,7 @@ namespace L10NSharp.Tests
 		{
 			using(var folder = new TempFolder())
 			{
-				SetupManager(folder, "en");
+				SetupManager(folder);
 				//This was the original assertion, and it worked:
 				//   Assert.AreEqual("from English Translation", LocalizationManager.GetDynamicString(AppId, "theId", "some default"));
 				//However, later I decided, I don't care what is in the English Translation, either. If the c# code just gave a new
@@ -267,7 +267,7 @@ namespace L10NSharp.Tests
 		{
 			using(var folder = new TempFolder())
 			{
-				SetupManager(folder, "en");
+				SetupManager(folder);
 				Assert.AreEqual("from c# code", LocalizationManager.GetDynamicString(AppId, "theId", "from c# code"));
 			}
 		}
@@ -287,7 +287,7 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder())
 			{
-				SetupManager(folder, "en");
+				SetupManager(folder);
 				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
 			}
 		}
@@ -297,7 +297,7 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder())
 			{
-				SetupManager(folder, "en");
+				SetupManager(folder);
 				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
 				using (var extra = CreateLocalizationManager("nonsense", "more nonsense", "1.0"))
 				{
@@ -402,11 +402,6 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		int compareCultureTags(CultureInfo first, CultureInfo second)
-		{
-			return first.IetfLanguageTag.CompareTo(second.IetfLanguageTag);
-		}
-
 		[Test]
 		public void GetDynamicStringInEnglish_NoDefault_FindsEnglishWithFolders()
 		{
@@ -471,7 +466,7 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// - "Installs" English, Arabic, and French
 		/// - Sets the UI language
-		/// - Constructs a LocalizationManager and adds it to LocalizationManagerInternal<T>.LoadedManagers[AppId]
+		/// - Constructs a LocalizationManager and adds it to LocalizationManagerInternal&lt;T&gt;.LoadedManagers[AppId]
 		/// </summary>
 		public void SetupManager(TempFolder folder, string uiLanguageId = LocalizationManager.kDefaultLang)
 		{
@@ -737,7 +732,7 @@ namespace L10NSharp.Tests
 		{
 			using (var folder = new TempFolder())
 			{
-				SetupManager(folder, "en");
+				SetupManager(folder);
 				var lm = LocalizationManagerInternal<T>.LoadedManagers.Values.First();
 				var tags = lm.GetAvailableUILanguageTags().ToArray();
 				Assert.That(tags.Length, Is.EqualTo(4));
@@ -951,38 +946,38 @@ namespace L10NSharp.Tests
 
 				// Check that we return the provided string for English.
 				var str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new[]{ "en", "fr", "ar" }, out var languageIdUsed);
-				Assert.AreEqual("This is a test!", str);
-				Assert.AreEqual("en", languageIdUsed);
+				Assert.That(str, Is.EqualTo("This is a test!"), "seeking en");
+				Assert.That(languageIdUsed, Is.EqualTo("en"), "seeking en");
 
 				// Check that asking for a specific form of English still returns the provided string.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "en-US", "es-ES", "fr-FR" }, out languageIdUsed);
-				Assert.AreEqual("This is a test!", str);
-				Assert.AreEqual("en", languageIdUsed);
+				Assert.That(str, Is.EqualTo("This is a test!"), "seeking en-US");
+				Assert.That(languageIdUsed, Is.EqualTo("en"), "seeking en-US");
 
 				// Check that we return the string from the second language when the first language doesn't have the string.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new[]{ "fr", "ar", "es" }, out languageIdUsed);
-				Assert.AreEqual("inArabic", str);
-				Assert.AreEqual("ar", languageIdUsed);
+				Assert.That(str, Is.EqualTo("inArabic"), "seeking fr, ar, es");
+				Assert.That(languageIdUsed, Is.EqualTo("ar"), "seeking fr, ar, es");
 
 				// Check that we return the string from the first language when it exists.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es-ES", "en", "fr" }, out languageIdUsed);
-				Assert.AreEqual("from Spanish Translation", str);
-				Assert.AreEqual("es-ES", languageIdUsed);
+				Assert.That(str, Is.EqualTo("from Spanish Translation"), "seeking es-ES");
+				Assert.That(languageIdUsed, Is.EqualTo("es-ES"), "seeking es-ES");
 
 				// Check asking for the general form of the language when we have only a specific form.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es", "en", "fr" }, out languageIdUsed);
-				Assert.AreEqual("from Spanish Translation", str);
-				Assert.AreEqual("es-ES", languageIdUsed);
+				Assert.That(str, Is.EqualTo("from Spanish Translation"), "seeking es");
+				Assert.That(languageIdUsed, Is.EqualTo("es-ES"), "seeking es");
 
 				// Check asking for a specific form of the language when we have only the general form.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "ar-AR", "en", "fr" }, out languageIdUsed);
-				Assert.AreEqual("inArabic", str);
-				Assert.AreEqual("ar", languageIdUsed);
+				Assert.That(str, Is.EqualTo("inArabic"), "seeking ar-AR");
+				Assert.That(languageIdUsed, Is.EqualTo("ar"), "seeking ar-AR");
 
 				// Check asking for a specific form of the language when we have only a different specific form.
 				str = LocalizationManager.GetString("theId", "This is a test!", "This is only a test?", new []{ "es-MX", "en-GB", "fr-FR" }, out languageIdUsed);
-				Assert.AreEqual("from Spanish Translation", str);
-				Assert.AreEqual("es-ES", languageIdUsed);
+				Assert.That(str, Is.EqualTo("from Spanish Translation"), "seeking es-MX");
+				Assert.That(languageIdUsed, Is.EqualTo("es-ES"), "seeking es-MX");
 			}
 		}
 
@@ -1007,6 +1002,7 @@ namespace L10NSharp.Tests
 
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find zh-CN");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-CN");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "en"), Is.True, "en should find en");
 
 				// Check asking for a specific form of the language when we have only a different specific form.
@@ -1024,6 +1020,9 @@ namespace L10NSharp.Tests
 			using (var folder = new TempFolder())
 			{
 				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
 				AddEnglishTranslation(installedFolder, null);
 				AddChineseOfChinaTranslation(installedFolder);
 				AddChineseOfTaiwanTranslation(installedFolder);
@@ -1035,7 +1034,7 @@ namespace L10NSharp.Tests
 					return choice;
 				};
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
-					$"Temp/{Path.GetFileName(folder.Path)}/user", null, null, new string[] { });
+					userRelativeFolder, null, null, new string[] { });
 				Assert.That(userPromptCount, Is.EqualTo(1));
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
 
