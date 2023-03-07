@@ -308,10 +308,7 @@ namespace L10NSharp
 						// The current version of Mono does not define a CultureInfo for "zh", so
 						// it tends to throw exceptions when we try to use just plain "zh".
 						if (s_uiLangId == "zh-CN")
-						{
-							Debug.Fail("hooray; it's tested!");
 							return s_uiLangId;
-						}
 					}
 					// Otherwise, we want the culture.neutral version.
 					int i = s_uiLangId.IndexOf('-');
