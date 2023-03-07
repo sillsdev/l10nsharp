@@ -83,7 +83,7 @@ namespace L10NSharp.XLiffUtils
 			get
 			{
 				var result = TransUnitsUnordered.ToList();
-				result.Sort(XliffLocalizedStringCache.TuComparer);
+				result.Sort(XLiffLocalizedStringCache.TuComparer);
 				return new ListWrapper(result, this);
 			}
 		}
@@ -119,10 +119,10 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		internal XLiffTransUnit GetTransUnitForOrphan(XLiffTransUnit orphan, XLiffBody source)
 		{
-			var terminalIdToMatch = XliffLocalizedStringCache.GetTerminalIdPart(orphan.Id);
+			var terminalIdToMatch = XLiffLocalizedStringCache.GetTerminalIdPart(orphan.Id);
 			var defaultTextToMatch = GetDefaultVariantValue(orphan);
 			return TransUnitsUnordered.FirstOrDefault(tu =>
-				XliffLocalizedStringCache.GetTerminalIdPart(tu.Id) ==
+				XLiffLocalizedStringCache.GetTerminalIdPart(tu.Id) ==
 				terminalIdToMatch // require last part of ID to match
 				&& GetDefaultVariantValue(tu) == defaultTextToMatch // require text to match
 				&& source?.GetTransUnitForId(tu.Id) == null); // and translation does not already have an element for this

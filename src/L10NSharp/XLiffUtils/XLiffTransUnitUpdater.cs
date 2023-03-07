@@ -19,13 +19,13 @@ namespace L10NSharp.XLiffUtils
 		// with the value of kOSNewline.
 		internal string _literalNewline = "\\n";
 
-		private readonly XliffLocalizedStringCache _stringCache;
+		private readonly XLiffLocalizedStringCache _stringCache;
 		private readonly string                    _defaultLang;
 		private          bool                      _updated;
 
 
 		/// ------------------------------------------------------------------------------------
-		internal XLiffTransUnitUpdater(XliffLocalizedStringCache cache)
+		internal XLiffTransUnitUpdater(XLiffLocalizedStringCache cache)
 		{
 			_stringCache = cache;
 			_defaultLang = LocalizationManager.kDefaultLang;

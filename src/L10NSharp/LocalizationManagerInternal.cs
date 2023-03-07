@@ -621,7 +621,7 @@ namespace L10NSharp
 		/// loading xliff docs, load any relevant ones, and try again.
 		/// </summary>
 		/// <remarks>
-		/// <see cref="XliffLocalizedStringCache.LoadXliffAndUpdateExistingLanguageMap"/> must load "es-ES" before "es" will map to "es-ES".
+		/// <see cref="XLiffLocalizedStringCache.LoadXliffAndUpdateExistingLanguageMap"/> must load "es-ES" before "es" will map to "es-ES".
 		/// </remarks>
 		internal static string MapToExistingLanguageIfPossible(string langId)
 		{

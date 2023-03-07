@@ -137,7 +137,7 @@ namespace CheckOrFixXliff
 			var targetValue = target.Value;
 			if (!string.IsNullOrWhiteSpace(targetValue))
 			{
-				var targetFixed = XliffLocalizedStringCache.FixBrokenFormattingString(targetValue);
+				var targetFixed = XLiffLocalizedStringCache.FixBrokenFormattingString(targetValue);
 				if (targetFixed != target.Value)
 					target.SetValue(targetFixed);
 			}
@@ -219,7 +219,7 @@ namespace CheckOrFixXliff
 				var okay = CheckForExactlyMatchingSubstitutionMarkers(tu.Id, dictSourceMarkers, dictTargetMarkers);
 				if (!okay && retval == ErrorState.Okay)
 					retval = ErrorState.Warning;
-				if (!XliffLocalizedStringCache.CheckForValidSubstitutionMarkers(dictSourceMarkers.Count, tu.Target.Value, tu.Id, _quiet))
+				if (!XLiffLocalizedStringCache.CheckForValidSubstitutionMarkers(dictSourceMarkers.Count, tu.Target.Value, tu.Id, _quiet))
 				{
 					_mangledTargets.Add(tu.Id);
 					retval = ErrorState.Error;
