@@ -13,7 +13,7 @@ using L10NSharp.UI;
 namespace L10NSharp.XLiffUtils
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class XLiffLocalizedStringCache : LocalizedStringCache, ILocalizedStringCache<XLiffDocument>
+	internal class XliffLocalizedStringCache : LocalizedStringCache, ILocalizedStringCache<XLiffDocument>
 	{
 		private readonly XLiffTransUnitUpdater _tuUpdater;
 
@@ -40,7 +40,7 @@ namespace L10NSharp.XLiffUtils
 		/// Loads the string cache from all the specified Xliff files
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal XLiffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
+		internal XliffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
 		{
 			OwningManager = (XLiffLocalizationManager)owningManager;
 			if (loadAvailableXliffFiles)
