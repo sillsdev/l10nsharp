@@ -136,7 +136,7 @@ namespace L10NSharp.XLiffUtils
 
 			ComponentCache = new Dictionary<IComponent, string>();
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
-			StringCache = new XLiffLocalizedStringCache(this);
+			StringCache = new XliffLocalizedStringCache(this);
 			LocalizableComponents = new Dictionary<ILocalizableComponent,
 				Dictionary<string, LocalizingInfo>>();
 		}
@@ -209,7 +209,7 @@ namespace L10NSharp.XLiffUtils
 			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 			fileStream.Close();
 
-			var stringCache = new XLiffLocalizedStringCache(this, false);
+			var stringCache = new XliffLocalizedStringCache(this, false);
 
 			var extractedInfo = ExtractStringsFromCode(Name, additionalLocalizationMethods, namespaceBeginnings);
 			if (extractedInfo != null)
@@ -578,7 +578,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			try
 			{
-				((XLiffLocalizedStringCache)StringCache).SaveIfDirty(langIdsToForceCreate);
+				((XliffLocalizedStringCache)StringCache).SaveIfDirty(langIdsToForceCreate);
 			}
 			catch (IOException e)
 			{
