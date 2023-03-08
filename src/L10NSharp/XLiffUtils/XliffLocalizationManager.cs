@@ -16,7 +16,7 @@ using L10NSharp.UI;
 namespace L10NSharp.XLiffUtils
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class XLiffLocalizationManager : ILocalizationManagerInternal<XLiffDocument>
+	internal class XliffLocalizationManager : ILocalizationManagerInternal<XLiffDocument>
 	{
 		/// ------------------------------------------------------------------------------------
 		public const string FileExtension = ".xlf";
@@ -83,9 +83,9 @@ namespace L10NSharp.XLiffUtils
 
 		#endregion
 
-		#region XLiffLocalizationManager construction/disposal
+		#region XliffLocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
-		internal XLiffLocalizationManager(string appId, string origExtension, string appName,
+		internal XliffLocalizationManager(string appId, string origExtension, string appName,
 			string appVersion, string directoryOfInstalledXliffFiles,
 			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
@@ -142,7 +142,7 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// <summary>
-		/// Minimal constructor for a new instance of the <see cref="XLiffLocalizationManager"/> class.
+		/// Minimal constructor for a new instance of the <see cref="XliffLocalizationManager"/> class.
 		/// </summary>
 		/// <param name="appId">
 		/// The application Id (e.g. 'Pa' for Phonology Assistant). This should be a unique name that
@@ -155,7 +155,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="appVersion">
 		/// The application's version.
 		/// </param>
-		internal XLiffLocalizationManager(string appId, string appName, string appVersion)
+		internal XliffLocalizationManager(string appId, string appName, string appVersion)
 		{
 			Id = appId;
 			Name = appName;

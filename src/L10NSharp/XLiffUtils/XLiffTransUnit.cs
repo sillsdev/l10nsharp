@@ -53,7 +53,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets whether the unit is "dynamic" (discovered dynamically while the program is running).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("dynamic", Namespace = XLiffXmlSerializationHelper.kSilNamespace),
+		[XmlAttribute("dynamic", Namespace = XliffXmlSerializationHelper.kSilNamespace),
 		System.ComponentModel.DefaultValue(false)]
 		public bool Dynamic { get; set; }
 
@@ -94,7 +94,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("priority", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("priority", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
 		public string Priority { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("group", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("group", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
 		public string Group { get; set; }
 
 		/// ------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
-		[XmlAttribute("category", Namespace = XLiffXmlSerializationHelper.kSilNamespace)]
+		[XmlAttribute("category", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
 		public string Category { get; set; }
 
 		/// ------------------------------------------------------------------------------------

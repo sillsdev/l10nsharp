@@ -168,7 +168,7 @@ namespace L10NSharp
 			return Create(desiredUiLangId, appId, appName,
 				relativeSettingPathForLocalizationFolder, applicationIcon,
 				directoryOfWritableXliffFiles =>
-					(ILocalizationManagerInternal<T>) new XLiffLocalizationManager(appId, origExeExtension, appName,
+					(ILocalizationManagerInternal<T>) new XliffLocalizationManager(appId, origExeExtension, appName,
 						appVersion, directoryOfInstalledXliffFiles,
 						directoryOfWritableXliffFiles, directoryOfWritableXliffFiles,
 						additionalLocalizationMethods,

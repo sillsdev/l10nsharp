@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace L10NSharp.XLiffUtils
 {
-	internal static class XLiffXmlSerializationHelper
+	internal static class XliffXmlSerializationHelper
 	{
 		#region XLiffXmlReader class
 

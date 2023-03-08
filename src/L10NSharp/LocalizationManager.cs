@@ -262,7 +262,7 @@ namespace L10NSharp
 			}
 			else
 			{
-				XLiffLocalizationManager.DeleteOldXliffFiles(appId,
+				XliffLocalizationManager.DeleteOldXliffFiles(appId,
 					directoryOfWritableTranslationFiles,
 					directoryOfInstalledTranslationFiles);
 			}
@@ -714,7 +714,7 @@ namespace L10NSharp
 			{
 				default:
 				case TranslationMemory.XLiff:
-					fileExtension = XLiffLocalizationManager.FileExtension;
+					fileExtension = XliffLocalizationManager.FileExtension;
 					break;
 			}
 			return GetTranslationFileNameForLanguage(appId, langId, fileExtension);

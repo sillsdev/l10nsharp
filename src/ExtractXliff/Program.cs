@@ -120,7 +120,7 @@ namespace ExtractXliff
 			// L10NSharp for reasons that may not percolate out to xliff. We just need a LocalizationManagerInternal
 			// to feed into the constructor the LocalizedStringCache that does some heavy lifting for us in
 			// creating the XliffDocument from the newly extracted localized strings.
-			var lm = new XLiffLocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
+			var lm = new XliffLocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
 			var stringCache = new XliffLocalizedStringCache(lm, false);
 			foreach (var locInfo in localizedStrings)
 				stringCache.UpdateLocalizedInfo(locInfo);
@@ -130,7 +130,7 @@ namespace ExtractXliff
 			var baseDoc = LoadBaselineAndCompare(newDoc);
 
 			// Save the results to the output file, merging in data from the baseline XLIFF if one was specified.
-			var xliffOutput = XLiffLocalizationManager.MergeXliffDocuments(newDoc, baseDoc, _verbose);
+			var xliffOutput = XliffLocalizationManager.MergeXliffDocuments(newDoc, baseDoc, _verbose);
 			xliffOutput.File.SourceLang = kDefaultLangId;
 			xliffOutput.File.ProductVersion = !string.IsNullOrEmpty(_fileProductVersion) ? _fileProductVersion : newDoc.File.ProductVersion;
 			xliffOutput.File.HardLineBreakReplacement = kDefaultNewlineReplacement;

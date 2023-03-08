@@ -122,7 +122,7 @@ namespace L10NSharp.XLiffUtils
 			{
 				try
 				{
-					XLiffXmlSerializationHelper.SerializeToFile(xliffFile, this);
+					XliffXmlSerializationHelper.SerializeToFile(xliffFile, this);
 					return;
 				}
 				catch (IOException)
@@ -153,7 +153,7 @@ namespace L10NSharp.XLiffUtils
 
 			Exception e;
 			var xLiffDoc =
-				XLiffXmlSerializationHelper.DeserializeFromFile<XLiffDocument>(xLiffFile, out e);
+				XliffXmlSerializationHelper.DeserializeFromFile<XLiffDocument>(xLiffFile, out e);
 
 			if (e != null)
 				throw e;

@@ -15,10 +15,10 @@ namespace L10NSharp.XLiffUtils
 	/// ----------------------------------------------------------------------------------------
 	internal class XliffLocalizedStringCache : LocalizedStringCache, ILocalizedStringCache<XLiffDocument>
 	{
-		private readonly XLiffTransUnitUpdater _tuUpdater;
+		private readonly XliffTransUnitUpdater _tuUpdater;
 
 		public List<LocTreeNode<XLiffDocument>> LeafNodeList { get; private set; }
-		internal XLiffLocalizationManager OwningManager { get; private set; }
+		internal XliffLocalizationManager OwningManager { get; private set; }
 		private XLiffDocument DefaultXliffDocument { get; set; } // matches LanguageManager.kDefaultLanguage
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal XliffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
 		{
-			OwningManager = (XLiffLocalizationManager)owningManager;
+			OwningManager = (XliffLocalizationManager)owningManager;
 			if (loadAvailableXliffFiles)
 			{
 				try
@@ -62,7 +62,7 @@ namespace L10NSharp.XLiffUtils
 				DefaultXliffDocument.File.Original = OwningManager.OriginalExecutableFile;
 				XliffDocuments.TryAdd(LocalizationManager.kDefaultLang, DefaultXliffDocument);
 			}
-			_tuUpdater = new XLiffTransUnitUpdater(this);
+			_tuUpdater = new XliffTransUnitUpdater(this);
 
 			var replacement = DefaultXliffDocument.File.AmpersandReplacement;
 			if (replacement != null)
@@ -134,7 +134,7 @@ namespace L10NSharp.XLiffUtils
 			// (b) any newly obsolete IDs are noted.
 			if (File.Exists(OwningManager.DefaultInstalledStringFilePath))
 			{
-				if (!XLiffLocalizationManager.ScanningForCurrentStrings)
+				if (!XliffLocalizationManager.ScanningForCurrentStrings)
 				{
 					var defaultInstalledXliffDoc = XLiffDocument.Read(OwningManager.DefaultInstalledStringFilePath);
 					foreach (var tu in defaultInstalledXliffDoc.File.Body.TransUnitsUnordered)
@@ -150,7 +150,7 @@ namespace L10NSharp.XLiffUtils
 
 			foreach (var file in xliffFiles)
 			{
-				var langId = XLiffLocalizationManager.GetLangIdFromXliffFileName(file);
+				var langId = XliffLocalizationManager.GetLangIdFromXliffFileName(file);
 				Debug.Assert(!string.IsNullOrEmpty(langId));
 				Debug.Assert(langId != LocalizationManager.kDefaultLang);
 				_unloadedXliffDocuments[langId] = file;
