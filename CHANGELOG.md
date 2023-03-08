@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- `LocalizationManager.Create("es"` loads `es-ES` if it is the best match
+- `LocalizationManager.Create("es"` loads `es-ES` if it is the best match (previously, this resulted in a dialog making the user choose)
 
 ### Deprecated
 
