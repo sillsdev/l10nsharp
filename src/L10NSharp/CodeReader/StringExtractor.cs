@@ -178,7 +178,7 @@ namespace L10NSharp.CodeReader
 						var errorMsg = $"Unable to fully load assembly {assembly.FullName}:{ex.Message} (some types may be omitted).";
 						if (OutputErrorsToConsole)
 							Console.WriteLine(errorMsg);
-						Debug.Print(errorMsg);
+						Trace.WriteLine(errorMsg);
 						typesInAssembly = ex.Types;
 					}
 					else
@@ -186,7 +186,7 @@ namespace L10NSharp.CodeReader
 						var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
 						if (OutputErrorsToConsole)
 							Console.WriteLine(errorMsg);
-						Debug.Print(errorMsg);
+						Trace.WriteLine(errorMsg);
 						continue;
 					}
 				}
@@ -195,7 +195,7 @@ namespace L10NSharp.CodeReader
 					var errorMsg = $"Unable to load assembly {assembly.FullName}: {ex.Message}";
 					if (OutputErrorsToConsole)
 						Console.WriteLine(errorMsg);
-					Debug.Print(errorMsg);
+					Trace.WriteLine(errorMsg);
 					continue;
 				}
 
@@ -318,9 +318,10 @@ namespace L10NSharp.CodeReader
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine(e.Message);
+					Trace.WriteLine(e.Message);
 					// There are several types of exception we can safely ignore:
 					if (e is FileNotFoundException || // Caused by assemblies that cannot be loaded at runtime (e.g. NUnit)
+					    e is FileLoadException || // Installed version is different from the one referenced.
 					    e is TypeLoadException || // Caused by assemblies that have odd runtime loading problems (e.g. Chorus)
 					    e is ArgumentException || // This can happen if we have a generic type (e.g. L10NSharp.dll).
 					    e is BadImageFormatException) // This can happen when loading COM interop DLLs via reflection (e.g. Interop.WIA.dll).

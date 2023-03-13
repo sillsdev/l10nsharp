@@ -239,16 +239,16 @@ namespace L10NSharp.XLiffUtils
 			try
 			{
 				Console.WriteLine("Starting to extract localization strings for {0}", name);
-				var extractor = new L10NSharp.CodeReader.StringExtractor<XLiffDocument>();
+				var extractor = new CodeReader.StringExtractor<XLiffDocument>();
 				extractor.OutputErrorsToConsole = true;
 				var result = extractor.DoExtractingWork(additionalLocalizationMethods, namespaceBeginnings, null);
-				Console.WriteLine("Extracted {0} localization strings for {1} with {2} exceptions ignored", result.Count(), name, extractor.ExtractionExceptions.Count);
+				Trace.WriteLine($"Extracted {result.Count()} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
 				ExtractionExceptions.AddRange(extractor.ExtractionExceptions);
 				return result;
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("ERROR: extracting localization strings for {0} caught an exception: {1}", name, e);
+				Trace.WriteLine($"ERROR: extracting localization strings for {name} caught an exception: {e}");
 				return null;
 			}
 		}
