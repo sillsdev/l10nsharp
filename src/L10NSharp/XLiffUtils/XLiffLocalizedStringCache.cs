@@ -13,7 +13,7 @@ using L10NSharp.UI;
 namespace L10NSharp.XLiffUtils
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class XLiffLocalizedStringCache : LocalizedStringCache, ILocalizedStringCache<XLiffDocument>
+	internal class XliffLocalizedStringCache : LocalizedStringCache, ILocalizedStringCache<XLiffDocument>
 	{
 		private readonly XLiffTransUnitUpdater _tuUpdater;
 
@@ -40,7 +40,7 @@ namespace L10NSharp.XLiffUtils
 		/// Loads the string cache from all the specified Xliff files
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal XLiffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
+		internal XliffLocalizedStringCache(ILocalizationManager owningManager, bool loadAvailableXliffFiles = true)
 		{
 			OwningManager = (XLiffLocalizationManager)owningManager;
 			if (loadAvailableXliffFiles)
@@ -162,6 +162,7 @@ namespace L10NSharp.XLiffUtils
 		/// (or its primary language, if different) and update MapToExistingLanguage according
 		/// to what we find. 
 		/// Use only from TryGetDocument. Should hold LazyLoadLock.
+		/// Tries to find partial matches, similar to <seealso cref="LocalizationManagerInternal&lt;T&gt;.MapToExistingLanguageIfPossible"/>
 		/// </summary>
 		private void LoadXliffAndUpdateExistingLanguageMap(string langId)
 		{
@@ -169,13 +170,26 @@ namespace L10NSharp.XLiffUtils
 			{
 				// Often an xliff in a plain lang folder (like "es") contains
 				// a target-language that is more specific (like "es-ES").
-				// If we're asked to try to load the xliff for es-ES and don't find one,
-				// Try loading the one for es.
+				// Another possibility is that the lang folder is "es-ES" but the client is requesting only "es". In either case, try to find a
+				// sensible match automatically before prompting the user. If, however, there is more than one match and no clear best,
+				// allow the user to choose. (https://github.com/sillsdev/l10nsharp/issues/109)
 				var pieces = langId.Split('-');
-				if (pieces.Length <= 1)
-					return;
-				if (!_unloadedXliffDocuments.TryRemove(pieces[0], out file))
-					return;
+				// If we're asked to try to load the xliff for es-ES and don't find one, try loading the one for es.
+				if (pieces.Length == 1 || !_unloadedXliffDocuments.TryRemove(pieces[0], out file))
+				{
+					// Either we were already trying to find 'es' or we could find neither 'es-ES' nor 'es'. Look for 'es-*'.
+					var available = _unloadedXliffDocuments.Keys.Where(key => key.Split('-')[0] == pieces[0]).ToList();
+					if (available.Count == 1)
+					{
+						_unloadedXliffDocuments.TryRemove(available[0], out file);
+					}
+					else
+					{
+						// Loading more than one partial match at this point would arbitrarily map the bare language ID to the first available,
+						// which might not be correct
+						return;
+					}
+				}
 			}
 
 			var xliffDoc = XLiffDocument.Read(file);
@@ -208,6 +222,11 @@ namespace L10NSharp.XLiffUtils
 				}
 			}
 
+			if (langId == LocalizationManager.kDefaultLang)
+			{
+				return;
+			}
+
 			XliffDocuments.TryAdd(targetLang, xliffDoc);
 			var defunctUnits = new List<XLiffTransUnit>();
 			foreach (var tu in xliffDoc.File.Body.TransUnitsUnordered.ToList()) // need a list here because we may modify it while enumerating
@@ -216,8 +235,7 @@ namespace L10NSharp.XLiffUtils
 				// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
 				// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
 				// was regarded as an obsolete id for PublishTab.Upload.Title
-				if (langId != LocalizationManager.kDefaultLang &&
-				    DefaultXliffDocument.GetTransUnitForId(tu.Id) == null &&
+				if (DefaultXliffDocument.GetTransUnitForId(tu.Id) == null &&
 				    !tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 				{
 					//if we couldn't find it, maybe the id just changed and then if so re-id it.

@@ -18,7 +18,7 @@ To use L10NSharp in your application, simply call the `Create` method on `Locali
 passing the location of the translation memory files and some other information:
 
 ```csharp
-using (var lm = LocalizationManager.Create(TranslationMemory.XLiff, lang, "SampleApp",
+using (var lm = LocalizationManager.Create(lang, "SampleApp",
     "SampleApp", productVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",
     icon, "sample@example.com", "SampleApp")
 {
@@ -33,8 +33,15 @@ By default, `directoryOfInstalledFiles` contains files named `Whatever.lang.xlf`
 are the language tags. These names must match the target-language declared in the XLF
 for lazy loading to work properly. If the target-language is a multi-part tag (like `es-ES`),
 the lang component in the file path may be either the full tag (`Whatever.es-ES.xlf` or
-`es-ES/Whatever.xlf`) or its first component, the actual language tag (`Whatever.es.xlf`
+`es-ES/Whatever.xlf`) or its first component, the bare language tag (`Whatever.es.xlf`
 or `es/Whatever.xlf`).
+
+### Selecting a Language
+
+If an exact match for the requested language is not available, L10NSharp will try to find the best available language. For example, if the client
+requests `es` but only `Whatever.es-ES.xlf` is available, `Whatever.es-ES.xlf` will be loaded automatically, and vice versa. However, if the client
+requests `es` and both `Whatever.es-ES.xlf` and `Whatever.es-MX.xlf` are available, or if no `Whatever.es[-details].xlf` is available, a dialog will
+inform the user that the selected language is not available and prompt the user to select from the available languages.
 
 ## Thread safety
 

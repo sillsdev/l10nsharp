@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
+// ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
 namespace L10NSharp
 {
@@ -35,9 +36,23 @@ namespace L10NSharp
 		/// </summary>
 		internal static ConcurrentDictionary<string, string> MapToExistingLanguage = new ConcurrentDictionary<string, string>();
 
-		// If documents are loaded lazily, this lock must be held while loading one, or while using MapToExistingLanguage
-		// in a way that might cause loading.
+		/// <remarks>
+		/// If documents are loaded lazily, this lock must be held while loading one, or while using MapToExistingLanguage
+		/// in a way that might cause loading.
+		/// </remarks>
 		internal static object LazyLoadLock = new object();
+
+		/// <summary>
+		/// Function to choose a fallback language during construction. Overridable by unit tests.
+		/// </summary>
+		internal static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
+		{
+			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
+			{
+				dlg.ShowDialog();
+				return dlg.SelectedLanguage;
+			}
+		};
 
 		private static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
 			new Dictionary<string, ILocalizationManagerInternal<T>>();
@@ -50,7 +65,7 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
 				relativeSettingPathForLocalizationFolder = appName;
 			else if (Path.IsPathRooted(relativeSettingPathForLocalizationFolder))
-				throw new ArgumentException("Relative (non-rooted) path expected", nameof(relativeSettingPathForLocalizationFolder));
+				throw new ArgumentException(@"Relative (non-rooted) path expected", nameof(relativeSettingPathForLocalizationFolder));
 
 			var directoryOfWritableTranslationFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 				relativeSettingPathForLocalizationFolder, "localizations");
@@ -72,11 +87,7 @@ namespace L10NSharp
 
 			if (!IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
-				using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), applicationIcon))
-				{
-					dlg.ShowDialog();
-					desiredUiLangId = dlg.SelectedLanguage;
-				}
+				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
 			}
 
 			LocalizationManager.SetUILanguage(desiredUiLangId, false);
@@ -609,6 +620,9 @@ namespace L10NSharp
 		/// not yet contain data about this language. In that case, get the lock for
 		/// loading xliff docs, load any relevant ones, and try again.
 		/// </summary>
+		/// <remarks>
+		/// <see cref="XliffLocalizedStringCache.LoadXliffAndUpdateExistingLanguageMap"/> must load "es-ES" before "es" will map to "es-ES".
+		/// </remarks>
 		internal static string MapToExistingLanguageIfPossible(string langId)
 		{
 			if (string.IsNullOrEmpty(langId))

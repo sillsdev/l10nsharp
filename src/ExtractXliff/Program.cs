@@ -121,7 +121,7 @@ namespace ExtractXliff
 			// to feed into the constructor the LocalizedStringCache that does some heavy lifting for us in
 			// creating the XliffDocument from the newly extracted localized strings.
 			var lm = new XLiffLocalizationManager(_fileOriginal, _fileOriginal, _fileProductVersion);
-			var stringCache = new XLiffLocalizedStringCache(lm, false);
+			var stringCache = new XliffLocalizedStringCache(lm, false);
 			foreach (var locInfo in localizedStrings)
 				stringCache.UpdateLocalizedInfo(locInfo);
 
