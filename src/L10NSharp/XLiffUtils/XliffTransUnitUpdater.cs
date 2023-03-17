@@ -5,7 +5,7 @@ using L10NSharp.XLiffUtils;
 
 namespace L10NSharp.XLiffUtils
 {
-	internal class XLiffTransUnitUpdater
+	internal class XliffTransUnitUpdater
 	{
 		internal const string kToolTipSuffix  = "_ToolTip_";
 		internal const string kShortcutSuffix = "_ShortcutKeys_";
@@ -25,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 
 
 		/// ------------------------------------------------------------------------------------
-		internal XLiffTransUnitUpdater(XliffLocalizedStringCache cache)
+		internal XliffTransUnitUpdater(XliffLocalizedStringCache cache)
 		{
 			_stringCache = cache;
 			_defaultLang = LocalizationManager.kDefaultLang;

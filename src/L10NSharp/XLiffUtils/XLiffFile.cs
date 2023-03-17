@@ -113,7 +113,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("hard-linebreak-replacement", Namespace =
-			XLiffXmlSerializationHelper.kSilNamespace),
+			XliffXmlSerializationHelper.kSilNamespace),
 		DefaultValue(LocalizedStringCache.kDefaultNewlineReplacement)]
 		public string HardLineBreakReplacement { get; set; }
 
@@ -125,7 +125,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("ampersand-replacement", Namespace =
-			XLiffXmlSerializationHelper.kSilNamespace),
+			XliffXmlSerializationHelper.kSilNamespace),
 		DefaultValue(LocalizedStringCache.kDefaultAmpersandReplacement)]
 		public string AmpersandReplacement { get; set; }
 

@@ -115,7 +115,7 @@ namespace L10NSharp.XLiffUtils
 
 				if (!string.IsNullOrEmpty(_deserializedFromElement))
 				{
-					// See the extended comment in  XLiffXmlSerializationHelper.deserializer_UnknownElement()
+					// See the extended comment in  XliffXmlSerializationHelper.deserializer_UnknownElement()
 					// to explain better why this code is needed.
 					if (_value == null)
 						_value =

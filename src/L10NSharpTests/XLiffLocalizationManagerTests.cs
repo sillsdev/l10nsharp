@@ -25,7 +25,7 @@ namespace L10NSharp.Tests
 			IEnumerable<MethodInfo> additionalGetStringMethodInfo = null,
 			params string[] namespaceBeginnings)
 		{
-			var manager = new XLiffLocalizationManager(appId, null, appName, appVersion, directoryOfInstalledLocFiles,
+			var manager = new XliffLocalizationManager(appId, null, appName, appVersion, directoryOfInstalledLocFiles,
 				directoryForGeneratedDefaultFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
 				namespaceBeginnings);
 			Assert.That(manager.OriginalExecutableFile, Is.EqualTo(appId + ".dll"));
@@ -35,7 +35,7 @@ namespace L10NSharp.Tests
 		internal override ILocalizationManagerInternal<XLiffDocument> CreateLocalizationManager(
 			string appId, string appName, string appVersion)
 		{
-			return new XLiffLocalizationManager(appId, appName, appVersion);
+			return new XliffLocalizationManager(appId, appName, appVersion);
 		}
 
 		protected override XLiffDocument CreateNewDocument(string productVersion,    string sourceLang,
@@ -186,7 +186,7 @@ namespace L10NSharp.Tests
 			var newDoc = CreateTestDocument();
 			AdjustDocumentForTestingMerge(newDoc);
 
-			var mergedDoc = XLiffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
+			var mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
 			Assert.IsNotNull(mergedDoc);
 			Assert.That(5, Is.EqualTo(oldDoc.File.Body.TransUnitsUnordered.Count()));
 			Assert.That(6, Is.EqualTo(newDoc.File.Body.TransUnitsUnordered.Count()));
