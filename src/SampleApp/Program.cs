@@ -21,6 +21,13 @@ namespace SampleApp
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
+			MessageBox.Show(string.Format(LocalizationManager.GetString("accessed.before.setting.up.lm",
+				"Localization is not yet set up, so this will always be in English. " +
+				"It should not cause anything bad to happen even if the current culture is some other" +
+				"variant of a localized language (e.g., es-MX). By the way, the current " +
+				"locale is {0}"), System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag),
+				"FYI");
+
 			SetUpLocalization(args.Any(a => a == "-m"), args.Any(a => a == "-tmx"));
 
 			LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
@@ -32,12 +39,12 @@ namespace SampleApp
 			_localizationManager = null;
 		}
 
-		public static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
+		private static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
 		{
 			if (useTmx)
 				throw new NotSupportedException("TMX-based localization is no longer supported.");
 
-			//your installer should have a folder where you place the localization files you're shipping with the program
+			// Your installer should have a folder where you place the localization files you're shipping with the program
 			var directoryOfInstalledLocFiles = "../../LocalizationFilesFromInstaller";
 			Directory.CreateDirectory(directoryOfInstalledLocFiles);
 

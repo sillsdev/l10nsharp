@@ -4,6 +4,7 @@
     <RootNamespace>SampleApp</RootNamespace>
     <AssemblyTitle>SampleApp</AssemblyTitle>
     <IsPackable>false</IsPackable>
+	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
