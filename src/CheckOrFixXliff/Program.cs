@@ -176,7 +176,7 @@ namespace CheckOrFixXliff
 		private static bool ValidateXliffAgainstSchema(string filename)
 		{
 			bool valid = true;
-			var installedXliffDir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			var installedXliffDir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().Location).LocalPath);
 			var schemaLocation = Path.Combine(installedXliffDir, "xliff-core-1.2-transitional.xsd");
 			var schemas = new XmlSchemaSet();
 			using (var reader = XmlReader.Create(schemaLocation))
