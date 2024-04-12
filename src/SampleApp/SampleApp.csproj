@@ -5,7 +5,7 @@
     <AssemblyTitle>SampleApp</AssemblyTitle>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net481' ">
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
