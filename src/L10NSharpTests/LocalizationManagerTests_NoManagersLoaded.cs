@@ -2,6 +2,8 @@
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using NUnit.Framework;
+using System;
+using System.Threading;
 
 namespace L10NSharp.Tests
 {
@@ -24,25 +26,106 @@ namespace L10NSharp.Tests
 		[Test]
 		public void GetDynamicString_NoManagerLoaded_EnglishNotNull_ReturnsEnglishString()
 		{
-			Assert.That(
-				LocalizationManager.GetDynamicString("Glom", "prefix.data", "data"),
-				Is.EqualTo("data"));
+			try
+			{
+				LocalizationManager.UILanguageId = "en";
+				Assert.That(
+					LocalizationManager.GetDynamicString("Glom", "prefix.data", "data"),
+					Is.EqualTo("data"));
+			}
+			finally
+			{
+				// reset
+				LocalizationManager.UILanguageId = null;
+			}
 		}
 
-		[Test]
-		public void GetDynamicString_NoManagerLoaded_EnglishNull_ReturnsId()
+		[TestCase(null)]
+		[TestCase("en")]
+		[TestCase("es")]
+		public void GetDynamicString_NoManagerLoaded_EnglishNull_ReturnsId(string uiLanguageId)
 		{
-			Assert.That(
-				LocalizationManager.GetDynamicString("Glom", "prefix.data", null),
-				Is.EqualTo("prefix.data"));
+			try
+			{
+				LocalizationManager.UILanguageId = uiLanguageId;
+				Assert.That(
+					LocalizationManager.GetDynamicString("Glom", "prefix.data", null),
+					Is.EqualTo("prefix.data"));
+			}
+			finally
+			{
+				// reset
+				LocalizationManager.UILanguageId = null;
+			}
 		}
 
-		[Test]
-		public void GetDynamicStringOrEnglish_NoManagerLoaded_NonEnglish_ReturnsId()
+		[TestCase(null)]
+		[TestCase("en")]
+		[TestCase("es")]
+		public void GetDynamicStringOrEnglish_NoManagerLoaded_NonEnglish_ReturnsId(string uiLanguageId)
 		{
-			Assert.That(
-				LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", "data", "no comment", "es"),
-				Is.EqualTo("prefix.data"));
+			try
+			{
+				LocalizationManager.UILanguageId = uiLanguageId;
+				Assert.That(
+					LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", "data", "no comment", "es"),
+					Is.EqualTo("prefix.data"));
+			}
+			finally
+			{
+				// reset
+				LocalizationManager.UILanguageId = null;
+			}
+		}
+
+		[TestCase("en")]
+		[TestCase("en-US")]
+		[TestCase("es")]
+		[TestCase("es-ES")]
+		[TestCase("es-MX")]
+		public void GetString_NoManagerLoaded_StrictInitializationModeTrue_Throws(string cultureName)
+		{
+			System.Globalization.CultureInfo previousCurrentCulture = null;
+			try
+			{
+				previousCurrentCulture = Thread.CurrentThread.CurrentUICulture;
+
+				Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(cultureName);
+				//LocalizationManager.UILanguageId = cultureName;
+
+				// default is true
+				Assert.Throws<InvalidOperationException>(() => LocalizationManager.GetString("prefix.id", "data"));
+
+			}
+			finally
+			{
+				Thread.CurrentThread.CurrentUICulture = previousCurrentCulture;
+				LocalizationManager.UILanguageId = null;
+			}
+		}
+
+		[TestCase("en")]
+		[TestCase("en-US")]
+		[TestCase("es")]
+		[TestCase("es-ES")]
+		[TestCase("es-MX")]
+		public void GetString_NoManagerLoaded_StrictInitializationModeFalse_DoesNotThrow(string cultureName)
+		{
+			System.Globalization.CultureInfo previousCurrentCulture = null;
+			try
+			{
+				previousCurrentCulture = Thread.CurrentThread.CurrentUICulture;
+
+				LocalizationManager.StrictInitializationMode = false;
+				Assert.DoesNotThrow(() => LocalizationManager.GetString("prefix.id", "data"));
+			}
+			finally
+			{
+				Thread.CurrentThread.CurrentUICulture = previousCurrentCulture;
+				LocalizationManager.UILanguageId = null;
+
+				LocalizationManager.StrictInitializationMode = true;
+			}
 		}
 	}
 }
