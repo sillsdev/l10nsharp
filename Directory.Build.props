@@ -25,6 +25,7 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
   <ItemGroup>
     <!-- Without this line some projects fail to build on TC with "error : SourceRoot items
