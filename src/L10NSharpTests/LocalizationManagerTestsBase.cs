@@ -372,10 +372,8 @@ namespace L10NSharp.Tests
 				SetupManager(folder);
 				var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
 				Assert.AreEqual(4, cultures.Count);
-				Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
-				Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
-				Assert.AreEqual("fr", cultures[2].IetfLanguageTag);		// French
-				Assert.AreEqual("es", cultures[3].IetfLanguageTag);		// Spanish
+				CollectionAssert.AreEquivalent(new[] { "ar", "en", "fr", "es" }, cultures.Select(c => c.IetfLanguageTag).ToArray());
+				Assert.That(cultures, Is.Ordered.By("DisplayName"));
 			}
 		}
 
@@ -390,10 +388,8 @@ namespace L10NSharp.Tests
 					SetupManager(folder);
 					var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
 					Assert.AreEqual(4, cultures.Count);
-					Assert.AreEqual("ar", cultures[0].IetfLanguageTag);		// Arabic
-					Assert.AreEqual("en", cultures[1].IetfLanguageTag);		// English
-					Assert.AreEqual("fr", cultures[2].IetfLanguageTag);		// French
-					Assert.AreEqual("es", cultures[3].IetfLanguageTag);		// Spanish
+					CollectionAssert.AreEquivalent(new[] { "ar", "en", "fr", "es" }, cultures.Select(c => c.IetfLanguageTag).ToArray());
+					Assert.That(cultures, Is.Ordered.By("DisplayName"));
 				}
 			}
 			finally

@@ -665,6 +665,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static bool GetIsStringAvailableForLangId(string id, string langId)
 		{
+			if (LocalizationManager.StrictInitializationMode)
+			{
+				if (LoadedManagers.Count == 0)
+					throw new InvalidOperationException("You must create at least one LocalizationManager before trying to localize any strings.");
+			}
+
 			if (string.IsNullOrEmpty(langId) || string.IsNullOrEmpty(id))
 				return false;
 
@@ -675,6 +681,12 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal static string GetStringFromAnyLocalizationManager(string stringId)
 		{
+			if (LocalizationManager.StrictInitializationMode)
+			{
+				if (LoadedManagers.Count == 0)
+					throw new InvalidOperationException("You must create at least one LocalizationManager before trying to localize any strings.");
+			}
+
 			// This will enforce that the text to localize is just returned to the caller
 			// when the default language id is the same as the current UI language id.
 			if (LocalizationManager.UILanguageId == LocalizationManager.kDefaultLang)
