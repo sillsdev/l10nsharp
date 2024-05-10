@@ -249,7 +249,7 @@ namespace L10NSharp.Tests
 		public TempFolder(string testName)
 		{
 			testName = System.IO.Path.GetInvalidPathChars().Aggregate(testName,
-				(current, c) => current.Replace(c, '_')).Replace('`', '_');
+				(current, c) => current.Replace(c, '_')).Replace('`', '_').Replace('"', '_');
 			_path = System.IO.Path.Combine(BasePath, testName);
 			if(Directory.Exists(_path))
 			{
