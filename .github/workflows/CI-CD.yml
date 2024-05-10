@@ -44,7 +44,6 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test (Windows)
-      # specify path to test assembly as workaround for https://github.com/nunit/nunit3-vs-adapter/issues/1040
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
       if: matrix.os != 'ubuntu-latest'
 
