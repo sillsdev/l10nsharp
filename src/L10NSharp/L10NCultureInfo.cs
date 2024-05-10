@@ -34,7 +34,13 @@ namespace L10NSharp
 			{
 				RawCultureInfo = null;
 			}
-			if (RawCultureInfo == null || RawCultureInfo.EnglishName.StartsWith("Unknown Language"))
+
+			// Starting with Windows 10, unknown cultures no longer return a RawCultureInfo containing an "Unknown Language" indication.
+			// The proper way to detect fully unknown cultures, for Windows 10 and prior, is to:
+			//    1. Check for the custom culture flag
+			//    2. Check if the three-letter language name is set to default
+			var isFullyUnknown = RawCultureInfo.CultureTypes.HasFlag(CultureTypes.UserCustomCulture) && RawCultureInfo.ThreeLetterWindowsLanguageName == "ZZZ";
+			if (RawCultureInfo == null || isFullyUnknown)
 			{
 				Name = name;
 				IsNeutralCulture = !Name.Contains("-");
