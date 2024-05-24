@@ -36,7 +36,7 @@ namespace L10NSharp
 			}
 
 			// Windows 10 changed the behavior of CultureInfo, in that unknown cultures no longer return a RawCultureInfo containing an "Unknown Language" indication.
-			// The proper way to detect fully unknown cultures (for Windows 10 and prior) is to:
+			// The proper way to detect fully unknown cultures (for Windows 11 and prior) is to:
 			//    1. Check for the custom culture flag
 			//    2. Check if the three-letter language name is set to default
 			// Source: https://stackoverflow.com/a/71388328/1964319
