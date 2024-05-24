@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net461;net481;net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net461;net48;net8.0-windows</TargetFrameworks>
     <Company>SIL</Company>
     <Authors>SIL International</Authors>
     <Product>L10NSharp</Product>

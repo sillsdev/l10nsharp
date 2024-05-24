@@ -6,7 +6,7 @@
     <PackageId>L10NSharp</PackageId>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net481' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net48' ">
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
