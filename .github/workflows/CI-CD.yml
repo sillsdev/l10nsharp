@@ -39,10 +39,6 @@ jobs:
     - name: Build and Pack
       run: dotnet build --configuration Release
 
-    - name: Test (Ubuntu)
-      run: dotnet test --configuration Release --no-build output/Release/net461/*Tests.dll --filter TestCategory!=RequiresDisplay -- NUnit.TestOutputXml=TestResults
-      if: matrix.os == 'ubuntu-latest'
-
     - name: Test (Windows)
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
       if: matrix.os != 'ubuntu-latest'
