@@ -20,7 +20,10 @@ jobs:
 
   build-and-test:
     name: "Build and Test"
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout
@@ -36,8 +39,13 @@ jobs:
     - name: Build and Pack
       run: dotnet build --configuration Release
 
+    - name: Test (Ubuntu)
+      run: dotnet test --configuration Release --no-build --filter TestCategory!=RequiresDisplay -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-latest'
+
     - name: Test (Windows)
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
+      if: matrix.os != 'ubuntu-latest'
 
     - name: Upload Test Results
       if: always()
@@ -53,6 +61,7 @@ jobs:
         path: |
           output/*.nupkg
           output/*.snupkg
+      if: matrix.os == 'ubuntu-latest'
 
   publish-nuget:
     name: "Publish NuGet package"
