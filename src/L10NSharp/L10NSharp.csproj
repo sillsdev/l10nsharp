@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>L10NSharp</RootNamespace>
     <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which need localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
@@ -6,9 +6,13 @@
     <PackageId>L10NSharp</PackageId>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net48' ">
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0-windows' ">
+    <PackageReference Include="System.ServiceModel.Http" Version="6.2.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />

@@ -41,7 +41,8 @@ namespace L10NSharp.Tests
 			else if (pbuci.RawCultureInfo != null)
 			{
 				Assert.AreEqual("pbu", pbuci.RawCultureInfo.Name);
-				Assert.AreEqual("Unknown Language (pbu)", pbuci.RawCultureInfo.EnglishName);
+				Assert.IsTrue(pbuci.RawCultureInfo.CultureTypes.HasFlag(CultureTypes.UserCustomCulture));
+				Assert.AreEqual("ZZZ", pbuci.RawCultureInfo.ThreeLetterWindowsLanguageName);
 			}
 		}
 
