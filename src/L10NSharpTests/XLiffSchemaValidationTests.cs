@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 SIL International
+// Copyright (c) 2017 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -42,6 +42,7 @@ namespace L10NSharp.Tests
 				Directory.CreateDirectory(folder.Path);
 				new XLiffLocalizationManagerTests().SetupManager(folder);
 
+				AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
 				var schemas = new XmlSchemaSet();
 				using (var reader = XmlReader.Create(SchemaLocation))
 				{
@@ -88,6 +89,7 @@ namespace L10NSharp.Tests
 				Directory.CreateDirectory(folder.Path);
 				new XLiffLocalizationManagerTests().SetupManager(folder);
 
+				AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
 				var schemas = new XmlSchemaSet();
 				using (var reader = XmlReader.Create(SchemaLocation))
 				{

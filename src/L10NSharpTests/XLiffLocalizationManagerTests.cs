@@ -29,6 +29,7 @@ namespace L10NSharp.Tests
 				directoryForGeneratedDefaultFile, directoryOfUserModifiedXliffFiles, additionalGetStringMethodInfo,
 				namespaceBeginnings);
 			Assert.That(manager.OriginalExecutableFile, Is.EqualTo(appId + ".dll"));
+			LocalizationManagerInternal<XLiffDocument>.LoadedManagers.Add("myAppId", manager);
 			return manager;
 		}
 

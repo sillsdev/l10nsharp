@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net48' ">
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
