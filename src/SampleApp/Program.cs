@@ -2,10 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp;
 using SampleApp.Properties;
+using static System.String;
 
 namespace SampleApp
 {
@@ -21,6 +23,31 @@ namespace SampleApp
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
+			if (args.Any(a => a == "-i:permissive"))
+				LocalizationManager.StrictInitializationMode = false;
+
+			try
+			{
+				// If StrictInitializationMode (the default), this should now throw an
+				// InvalidOperationException, which we will catch and (for the purposes
+				// of this sample app) ignore.
+				MessageBox.Show(Format(
+						LocalizationManager.GetString("accessed.before.setting.up.lm",
+						"Localization is not yet set up, so this will always be in English. " +
+						"It should not cause anything bad to happen even if the current culture " +
+						"is some other variant of a localized language (e.g., es-MX). By the " +
+						"way, the current locale is {0}"),
+						System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag),
+					"FYI");
+			}
+			catch (InvalidOperationException ex)
+			{
+				if (LocalizationManager.StrictInitializationMode)
+					Trace.WriteLine($"Got expected {ex.GetType().FullName} exception: {ex.Message}");
+				else
+					throw;
+			}
+
 			SetUpLocalization(args.Any(a => a == "-m"), args.Any(a => a == "-tmx"));
 
 			LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
@@ -32,20 +59,20 @@ namespace SampleApp
 			_localizationManager = null;
 		}
 
-		public static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
+		private static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
 		{
 			if (useTmx)
 				throw new NotSupportedException("TMX-based localization is no longer supported.");
 
-			//your installer should have a folder where you place the localization files you're shipping with the program
+			// Your installer should have a folder where you place the localization files you're shipping with the program
 			var directoryOfInstalledLocFiles = "../../LocalizationFilesFromInstaller";
 			Directory.CreateDirectory(directoryOfInstalledLocFiles);
 
 			try
 			{
-				//if this is your first time running the app, the library will query the OS for the
-				//the default language. If it doesn't have that, it puts up a dialog listing what
-				//it does have to offer.
+				// If this is your first time running the app, the library will query the OS for the
+				// default language. If it doesn't have that, it puts up a dialog listing what
+				// it does have to offer.
 
 				var theLanguageYouRememberedFromLastTime = Settings.Default.UserInterfaceLanguage;
 

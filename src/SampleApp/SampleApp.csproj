@@ -4,6 +4,7 @@
     <RootNamespace>SampleApp</RootNamespace>
     <AssemblyTitle>SampleApp</AssemblyTitle>
     <IsPackable>false</IsPackable>
+	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net48' ">
     <Reference Include="System.Windows.Forms" />
