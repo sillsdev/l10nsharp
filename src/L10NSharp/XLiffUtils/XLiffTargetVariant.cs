@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------------------------
 #region
-// Copyright (c) 2017 SIL International
+// Copyright © 2017-2025 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 #endregion
 //

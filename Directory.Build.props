@@ -2,9 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>net461;net48;net8.0-windows</TargetFrameworks>
     <Company>SIL</Company>
-    <Authors>SIL International</Authors>
+    <Authors>SIL Global</Authors>
     <Product>L10NSharp</Product>
-    <Copyright>Copyright © 2010-2022 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2025 SIL Global</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
