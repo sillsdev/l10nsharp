@@ -26,7 +26,7 @@ namespace L10NSharp.XLiffUtils
 		private readonly string _generatedDefaultXliffFileFolder;
 		private readonly string _customXliffFileFolder;
 		private readonly string _origExeExtension;
-		private Version _appVersion;
+		private readonly Version _appVersion;
 
 		public Dictionary<IComponent, string> ComponentCache { get; }
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
@@ -90,19 +90,14 @@ namespace L10NSharp.XLiffUtils
 			string appVersion, string directoryOfInstalledXliffFiles,
 			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
-			params string[] namespaceBeginnings)
+			params string[] namespaceBeginnings) : this(appId, appName ?? appId, appVersion)
 		{
 			// Test for a pathological case of bad install
 			if (!Directory.Exists(directoryOfInstalledXliffFiles))
 				throw new DirectoryNotFoundException(string.Format(
 					"The default localizations folder {0} does not exist. This indicates a failed install for {1}. Please uninstall and reinstall {1}.",
 					directoryOfInstalledXliffFiles, appName));
-			if (string.IsNullOrWhiteSpace(appId))
-				throw new ArgumentNullException(nameof(appId));
-			Id = appId;
 			_origExeExtension = string.IsNullOrEmpty(origExtension) ? ".dll" : origExtension;
-			Name = appName ?? Id;
-			AppVersion = appVersion;
 			_installedXliffFileFolder = directoryOfInstalledXliffFiles;
 			_generatedDefaultXliffFileFolder = directoryForGeneratedDefaultXliffFile;
 			DefaultStringFilePath = GetPathForLanguage(LocalizationManager.kDefaultLang,
@@ -160,9 +155,20 @@ namespace L10NSharp.XLiffUtils
 		/// </param>
 		internal XliffLocalizationManager(string appId, string appName, string appVersion)
 		{
+			if (string.IsNullOrWhiteSpace(appId))
+				throw new ArgumentNullException(nameof(appId));
 			Id = appId;
 			Name = appName;
-			AppVersion = appVersion;
+			try
+			{
+				_appVersion = new Version(appVersion ?? "0.0.1");
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException(
+					"The application version is not a valid version number string.",
+					nameof(appVersion), e);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -241,7 +247,8 @@ namespace L10NSharp.XLiffUtils
 
 		public static List<string> ExtractionExceptions = new List<string>();
 
-		public static IEnumerable<LocalizingInfo> ExtractStringsFromCode(String name, IEnumerable<MethodInfo> additionalLocalizationMethods, String[] namespaceBeginnings)
+		public static IReadOnlyList<LocalizingInfo> ExtractStringsFromCode(string name,
+			IEnumerable<MethodInfo> additionalLocalizationMethods, string[] namespaceBeginnings)
 		{
 			try
 			{
@@ -249,7 +256,7 @@ namespace L10NSharp.XLiffUtils
 				var extractor = new CodeReader.StringExtractor<XLiffDocument>();
 				extractor.OutputErrorsToConsole = true;
 				var result = extractor.DoExtractingWork(additionalLocalizationMethods, namespaceBeginnings, null);
-				Trace.WriteLine($"Extracted {result.Count()} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
+				Trace.WriteLine($"Extracted {result.Count} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
 				ExtractionExceptions.AddRange(extractor.ExtractionExceptions);
 				return result;
 			}
@@ -343,25 +350,7 @@ namespace L10NSharp.XLiffUtils
 		/// to be rescanned for localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string AppVersion
-		{
-			get => _appVersion.ToString();
-			set
-			{
-				Debug.Assert(_appVersion == null,
-					"AppVersion is effectively read-only and should be set only in the context of the constructor.");
-				try
-				{
-					_appVersion = new Version(value ?? "0.0.1");
-				}
-				catch (Exception e)
-				{
-					throw new ArgumentException(
-						"The application version is not a valid version number string.",
-						nameof(value), e);
-				}
-			}
-		}
+		public string AppVersion => _appVersion.ToString();
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

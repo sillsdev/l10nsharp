@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SIL International
+// Copyright (c) 2025 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -29,19 +29,14 @@ namespace L10NSharp.CodeReader
 		public bool OutputErrorsToConsole { get; set; }
 
 		/// ------------------------------------------------------------------------------------
-		public void ExtractFromNamespaces()
-		{
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public IEnumerable<LocalizingInfo> DoExtractingWork(
+		public IReadOnlyList<LocalizingInfo> DoExtractingWork(
 			string[] namespaceBeginnings, BackgroundWorker worker)
 		{
 			return DoExtractingWork(null, namespaceBeginnings, worker);
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public IEnumerable<LocalizingInfo> DoExtractingWork(
+		public IReadOnlyList<LocalizingInfo> DoExtractingWork(
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			string[] namespaceBeginnings, BackgroundWorker worker)
 		{
@@ -505,7 +500,7 @@ namespace L10NSharp.CodeReader
 				Type[] genericMethodArguments = null;
 				var genericTypeArguments = caller.DeclaringType.GetGenericArguments();
 
-				if ((!caller.IsConstructor) && (!caller.Name.Equals(".cctor")))
+				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
 
 				string fldName = null;
