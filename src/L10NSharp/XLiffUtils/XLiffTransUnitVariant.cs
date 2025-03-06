@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright (c) 2009-2017, SIL International. All Rights Reserved.
-// <copyright from='2009' to='2017' company='SIL International'>
-//		Copyright (c) 2009-2017, SIL International. All Rights Reserved.
+#region // Copyright © 2009-2025 SIL Global
+// <copyright from='2009' to='2025' company='SIL Global'>
+//		Copyright © 2009-2025 SIL Global
 //
 //		Distributable under the terms of either the Common Public License or the
 //		GNU Lesser General Public License, as specified in the LICENSING.txt file.
