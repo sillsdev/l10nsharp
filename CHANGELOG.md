@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [8.0.0] - 2025-03-07
+
 ### Changed
 
 -   BREAKING CHANGE: If no `LocalizationManager`s have been created, but the client asks for a string to be localized, an `InvalidOperationException` is thrown. This is to prevent an invalid state where language IDs get mapped incorrectly at the beginning and then never get updated which can cause us to fail to return properly localized strings when requested (see BL-13245). This is a breaking change because it may cause existing code to throw an exception. The fix is to ensure that a LocalizationManager is created before calling any localization methods. Or, to maintain existing behavior, set `LocalizationManager.StrictInitializationMode` to false.
