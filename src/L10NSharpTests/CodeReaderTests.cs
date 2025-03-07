@@ -15,8 +15,9 @@ namespace L10NSharp.Tests
 		public void FindLocalizedStringsInType_RequestNamespaceForSubclass_DoNotExtractStringsForSuperclassWithDifferentNamespace()
 		{
 			var stringExtractor = new StringExtractor<XLiffDocument>();
-			var localizedStrings = stringExtractor.DoExtractingWork(new[] { "L10NSharp.TestsWithDifferentNamespace" }, new BackgroundWorker { WorkerReportsProgress = true });
-			Assert.AreEqual(0, localizedStrings.Count());
+			var localizedStrings = stringExtractor.DoExtractingWork(new [] {"L10NSharp.TestsWithDifferentNamespace"},
+				new BackgroundWorker { WorkerReportsProgress = true });
+			Assert.AreEqual(0, localizedStrings.Count);
 		}
 
 		[Test]
