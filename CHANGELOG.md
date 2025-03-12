@@ -16,9 +16,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [8.0.0] - 2025-03-07
+
 ### Changed
 
 -   BREAKING CHANGE: If no `LocalizationManager`s have been created, but the client asks for a string to be localized, an `InvalidOperationException` is thrown. This is to prevent an invalid state where language IDs get mapped incorrectly at the beginning and then never get updated which can cause us to fail to return properly localized strings when requested (see BL-13245). This is a breaking change because it may cause existing code to throw an exception. The fix is to ensure that a LocalizationManager is created before calling any localization methods. Or, to maintain existing behavior, set `LocalizationManager.StrictInitializationMode` to false.
+-   BREAKING CHANGE: Changed the signature of StringExtractor.DoExtractingWork to return an IReadOnlyList instead of an IEnumerable. It is doubtful that anything outside L10nSharp is actually using this, but it is a breaking change because it may cause existing code to fail to compile. The fix is to change the type of the variable that receives the return value to IReadOnlyList.
+  - Reduced the number of different types of exceptions likely to be thrown as a result of passing an invalid appVersion to the XLiffLocalizationManager constructor. Now, if the appVersion is invalid, an ArgumentException is thrown and the original exception from the call to Version.Parse is the internal exception. This is a technically a breaking change because if any existing code was catching the more specific exception types, the logic would need to be changed to catch only the ArgumentException and then do more specific processing based on the type of the inner exception. But since the details of the typesof exceptions was never explicitly documented and since applications would not be likely to be able to recover from such exceptions, it's probably very unlikely that any code was actually handling these exceptions in this way.
 
 ## [7.0.0] - 2023-11-03
 

@@ -26,6 +26,7 @@ namespace L10NSharp.XLiffUtils
 		private readonly string _generatedDefaultXliffFileFolder;
 		private readonly string _customXliffFileFolder;
 		private readonly string _origExeExtension;
+		private readonly Version _appVersion;
 
 		public Dictionary<IComponent, string> ComponentCache { get; }
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
@@ -89,19 +90,14 @@ namespace L10NSharp.XLiffUtils
 			string appVersion, string directoryOfInstalledXliffFiles,
 			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
-			params string[] namespaceBeginnings)
+			params string[] namespaceBeginnings) : this(appId, appName ?? appId, appVersion)
 		{
 			// Test for a pathological case of bad install
 			if (!Directory.Exists(directoryOfInstalledXliffFiles))
 				throw new DirectoryNotFoundException(string.Format(
 					"The default localizations folder {0} does not exist. This indicates a failed install for {1}. Please uninstall and reinstall {1}.",
 					directoryOfInstalledXliffFiles, appName));
-			if (string.IsNullOrWhiteSpace(appId))
-				throw new ArgumentNullException(nameof(appId));
-			Id = appId;
 			_origExeExtension = string.IsNullOrEmpty(origExtension) ? ".dll" : origExtension;
-			Name = appName ?? Id;
-			AppVersion = appVersion;
 			_installedXliffFileFolder = directoryOfInstalledXliffFiles;
 			_generatedDefaultXliffFileFolder = directoryForGeneratedDefaultXliffFile;
 			DefaultStringFilePath = GetPathForLanguage(LocalizationManager.kDefaultLang,
@@ -145,7 +141,7 @@ namespace L10NSharp.XLiffUtils
 		/// Minimal constructor for a new instance of the <see cref="XliffLocalizationManager"/> class.
 		/// </summary>
 		/// <param name="appId">
-		/// The application Id (e.g. 'Pa' for Phonology Assistant). This should be a unique name that
+		/// The application ID (e.g. 'Pa' for Phonology Assistant). This should be a unique name that
 		/// identifies the manager for an assembly or application.
 		/// </param>
 		/// <param name="appName">
@@ -153,13 +149,26 @@ namespace L10NSharp.XLiffUtils
 		/// parent item in the tree. It may be the same as appId.
 		/// </param>
 		/// <param name="appVersion">
-		/// The application's version.
+		/// The application's version. If null (probably not usually a good idea), it will be
+		/// interpreted as "0.0.1". Otherwise, it must be a valid version string (that can be passed to
+		/// the constructor of <see cref="Version(string)"/>).
 		/// </param>
 		internal XliffLocalizationManager(string appId, string appName, string appVersion)
 		{
+			if (string.IsNullOrWhiteSpace(appId))
+				throw new ArgumentNullException(nameof(appId));
 			Id = appId;
 			Name = appName;
-			AppVersion = appVersion;
+			try
+			{
+				_appVersion = new Version(appVersion ?? "0.0.1");
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException(
+					"The application version is not a valid version number string.",
+					nameof(appVersion), e);
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -201,8 +210,12 @@ namespace L10NSharp.XLiffUtils
 					File.Delete(DefaultStringFilePath);
 					Console.WriteLine("WARNING - L10NSharp Update deleted corrupted {0}", DefaultStringFilePath);
 				}
-				if (verAttribute != null && new Version(verAttribute.Value) >= new Version(AppVersion ?? "0.0.1"))
+				if (verAttribute != null &&
+				    Version.TryParse(verAttribute.Value, out var existingVer) &&
+				    existingVer >= _appVersion)
+				{
 					return;
+				}
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
@@ -234,7 +247,8 @@ namespace L10NSharp.XLiffUtils
 
 		public static List<string> ExtractionExceptions = new List<string>();
 
-		public static IEnumerable<LocalizingInfo> ExtractStringsFromCode(String name, IEnumerable<MethodInfo> additionalLocalizationMethods, String[] namespaceBeginnings)
+		public static IReadOnlyList<LocalizingInfo> ExtractStringsFromCode(string name,
+			IEnumerable<MethodInfo> additionalLocalizationMethods, string[] namespaceBeginnings)
 		{
 			try
 			{
@@ -242,7 +256,7 @@ namespace L10NSharp.XLiffUtils
 				var extractor = new CodeReader.StringExtractor<XLiffDocument>();
 				extractor.OutputErrorsToConsole = true;
 				var result = extractor.DoExtractingWork(additionalLocalizationMethods, namespaceBeginnings, null);
-				Trace.WriteLine($"Extracted {result.Count()} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
+				Trace.WriteLine($"Extracted {result.Count} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
 				ExtractionExceptions.AddRange(extractor.ExtractionExceptions);
 				return result;
 			}
@@ -323,7 +337,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is the presentable name for the set of localized strings. For example, the
-		/// Id might be 'PA' but the LocalizationSetName might be 'Phonology Assistant'.
+		/// ID might be 'PA' but the LocalizationSetName might be 'Phonology Assistant'.
 		/// This should be a name presentable to the user.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -332,11 +346,11 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is sent from the application that's creating the localization manager. It's
-		/// written to the Xliff file and used to determine whether or not the application needs
+		/// written to the Xliff file and used to determine whether the application needs
 		/// to be rescanned for localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string AppVersion { get; }
+		public string AppVersion => _appVersion.ToString();
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -355,7 +369,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a value indicating whether or not user has authority to change localized strings.
+		/// Gets a value indicating whether user has authority to change localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public bool CanCustomizeLocalizations { get; private set; }
@@ -739,10 +753,8 @@ namespace L10NSharp.XLiffUtils
 		#region Methods that apply localizations to an object.
 		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
 		{
-			Dictionary<string, LocalizingInfo> idToLocInfo; // out variable
-
-			var locComponent = locInfo.Component as ILocalizableComponent;
-			if (locComponent != null && LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+			if (locInfo.Component is ILocalizableComponent locComponent &&
+			    LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
 			{
 				ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
 				return;
@@ -782,15 +794,15 @@ namespace L10NSharp.XLiffUtils
 
 			ToolTipCtrls.Clear();
 
-			// This used to be a for-each, but on rare occassions, a "Collection was
+			// This used to be a for-each, but on rare occasions, a "Collection was
 			// modified; enumeration operation may not execute" exception would be
 			// thrown. This should solve the problem.
 			var controls = ComponentCache.Where(x => x.Key is Control).ToArray();
-			for (int i = 0; i < controls.Length; i++)
+			foreach (var ctrl in controls)
 			{
-				var toolTipText = GetTooltipFromStringCache(UILanguageId, controls[i].Value);
+				var toolTipText = GetTooltipFromStringCache(UILanguageId, ctrl.Value);
 				if (!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
-					ApplyLocalizedToolTipToControl((Control)controls[i].Key, toolTipText);
+					ApplyLocalizedToolTipToControl((Control)ctrl.Key, toolTipText);
 			}
 		}
 
@@ -804,15 +816,12 @@ namespace L10NSharp.XLiffUtils
 			if (component == null)
 				return;
 
-			string id;
-			if (!ComponentCache.TryGetValue(component, out id))
+			if (!ComponentCache.TryGetValue(component, out var id))
 				return;
 
-			var locComponent = component as ILocalizableComponent;
-			if (locComponent != null)
+			if (component is ILocalizableComponent locComponent)
 			{
-				Dictionary<string, LocalizingInfo> idToLocInfo;
-				if (LocalizableComponents.TryGetValue(locComponent, out idToLocInfo))
+				if (LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
 				{
 					ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
 					return;
@@ -873,32 +882,31 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private void ApplyLocalizedToolTipToControl(Control ctrl, string toolTipText)
 		{
-			var topctrl = LocalizationManagerInternal<XLiffDocument>.GetRealTopLevelControl(ctrl);
-			if (topctrl == null)
+			var topCtrl = LocalizationManagerInternal<XLiffDocument>.GetRealTopLevelControl(ctrl);
+			if (topCtrl == null)
 				return;
 
 			// Check if the control's top level control has a reference to a tooltip. If
 			// it does, then use that tooltip for assigning tooltip text to the control.
 			// Otherwise, create a new tooltip and reference it using the control's top
 			// level control.
-			ToolTip ttctrl;
-			if (!ToolTipCtrls.TryGetValue(topctrl, out ttctrl))
+			if (!ToolTipCtrls.TryGetValue(topCtrl, out var ttCtrl))
 			{
 				if (string.IsNullOrEmpty(toolTipText))
 					return;
 
-				ttctrl = new ToolTip();
-				ToolTipCtrls[topctrl] = ttctrl;
-				topctrl.ParentChanged += HandleToolTipRefChanged;
-				topctrl.HandleDestroyed += HandleToolTipRefDestroyed;
+				ttCtrl = new ToolTip();
+				ToolTipCtrls[topCtrl] = ttCtrl;
+				topCtrl.ParentChanged += HandleToolTipRefChanged;
+				topCtrl.HandleDestroyed += HandleToolTipRefDestroyed;
 			}
 
-			ttctrl.SetToolTip(ctrl, toolTipText);
+			ttCtrl.SetToolTip(ctrl, toolTipText);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Handles the case when a tooltip instance was created and assinged to a top level
+		/// Handles the case when a tooltip instance was created and assigned to a top level
 		/// control that has now been added to another control, thus making the other control
 		/// top level instead. Therefore, we need to make sure the tooltip is reassigned to
 		/// the new top level control.
@@ -906,13 +914,13 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private void HandleToolTipRefChanged(object sender, EventArgs e)
 		{
-			var oldtopctrl = sender as Control;
-			var newtopctrl = LocalizationManagerInternal<XLiffDocument>.GetRealTopLevelControl(oldtopctrl);
-			if (oldtopctrl == null || newtopctrl == null)
+			var oldTopCtrl = sender as Control;
+			var newTopCtrl = LocalizationManagerInternal<XLiffDocument>.GetRealTopLevelControl(oldTopCtrl);
+			if (oldTopCtrl == null || newTopCtrl == null)
 				return;
 
-			oldtopctrl.ParentChanged -= HandleToolTipRefChanged;
-			newtopctrl.ParentChanged += HandleToolTipRefChanged;
+			oldTopCtrl.ParentChanged -= HandleToolTipRefChanged;
+			newTopCtrl.ParentChanged += HandleToolTipRefChanged;
 			RefreshToolTips();
 		}
 
@@ -925,18 +933,16 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private void HandleToolTipRefDestroyed(object sender, EventArgs e)
 		{
-			var topctrl = sender as Control;
-			if (topctrl == null)
+			if (!(sender is Control topCtrl))
 				return;
 
-			topctrl.ParentChanged -= HandleToolTipRefChanged;
-			topctrl.HandleDestroyed -= HandleToolTipRefDestroyed;
+			topCtrl.ParentChanged -= HandleToolTipRefChanged;
+			topCtrl.HandleDestroyed -= HandleToolTipRefDestroyed;
 
-			ToolTip ttctrl;
-			if (ToolTipCtrls.TryGetValue(topctrl, out ttctrl))
-				ttctrl.Dispose();
+			if (ToolTipCtrls.TryGetValue(topCtrl, out var ttCtrl))
+				ttCtrl.Dispose();
 
-			ToolTipCtrls.Remove(topctrl);
+			ToolTipCtrls.Remove(topCtrl);
 		}
 
 		private static string UILanguageId => LocalizationManager.UILanguageId;
@@ -953,8 +959,8 @@ namespace L10NSharp.XLiffUtils
 			item.ToolTipText = toolTipText ?? LocalizationManager.StripOffLocalizationInfoFromText(item.ToolTipText);
 
 			var shortcutKeys = GetShortCutKeyFromStringCache(UILanguageId, id);
-			if (item is ToolStripMenuItem && shortcutKeys != Keys.None)
-				((ToolStripMenuItem)item).ShortcutKeys = shortcutKeys;
+			if (item is ToolStripMenuItem menuItem && shortcutKeys != Keys.None)
+				menuItem.ShortcutKeys = shortcutKeys;
 
 			return true;
 		}
@@ -997,30 +1003,28 @@ namespace L10NSharp.XLiffUtils
 
 			// Make sure all drop-downs are closed that are in the
 			// chain of menu items for this item.
-			var tsddi = sender as ToolStripDropDownItem;
-			var owningForm = tsddi?.Owner?.FindForm();
-			while (tsddi != null)
+			Form owningForm = null;
+			if (sender is ToolStripDropDownItem tsddi)
 			{
-				tsddi.DropDown.Close();
+				owningForm = tsddi.Owner?.FindForm();
+				while (tsddi != null)
+				{
+					tsddi.DropDown.Close();
 
-				if (tsddi.Owner is ContextMenuStrip)
-					((ContextMenuStrip)tsddi.Owner).Close();
+					if (tsddi.Owner is ContextMenuStrip menuStrip)
+						menuStrip.Close();
 
-				tsddi = tsddi.OwnerItem as ToolStripDropDownItem;
+					tsddi = tsddi.OwnerItem as ToolStripDropDownItem;
+				}
 			}
 
 			LocalizeItemDlg<XLiffDocument>.ShowDialog(this, (IComponent)sender, false,
 				owningForm);
 		}
 
-		private static bool DoHandleMouseDown
-		{
-			get
-			{
-				return LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog &&
-					Control.ModifierKeys == (Keys.Alt | Keys.Shift);
-			}
-		}
+		private static bool DoHandleMouseDown =>
+			LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog &&
+			Control.ModifierKeys == (Keys.Alt | Keys.Shift);
 
 		public Icon ApplicationIcon
 		{
@@ -1035,8 +1039,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private void HandleToolStripItemDisposed(object sender, EventArgs e)
 		{
-			var item = sender as ToolStripItem;
-			if (item != null)
+			if (sender is ToolStripItem item)
 			{
 				item.MouseDown -= HandleToolStripItemMouseDown;
 				item.Disposed -= HandleToolStripItemDisposed;
@@ -1057,14 +1060,13 @@ namespace L10NSharp.XLiffUtils
 
 			var ctrl = sender as Control;
 
-			if (ctrl is TabControl)
+			if (ctrl is TabControl tabControl)
 			{
-				var tabctrl = ctrl as TabControl;
-				for (int i = 0; i < tabctrl.TabPages.Count; i++)
+				for (int i = 0; i < tabControl.TabPages.Count; i++)
 				{
-					if (tabctrl.GetTabRect(i).Contains(e.Location))
+					if (tabControl.GetTabRect(i).Contains(e.Location))
 					{
-						ctrl = tabctrl.TabPages[i];
+						ctrl = tabControl.TabPages[i];
 						break;
 					}
 				}
@@ -1079,7 +1081,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// When controls get destroyed, do a little clean up.
+		/// When controls get destroyed, do a little clean-up.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal void HandleControlDisposed(object sender, EventArgs e)
@@ -1101,8 +1103,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal void HandleTabPageDisposed(object sender, EventArgs e)
 		{
-			var tabPage = sender as TabPage;
-			if (tabPage == null)
+			if (!(sender is TabPage tabPage))
 				return;
 
 			tabPage.Disposed -= HandleTabPageDisposed;
@@ -1111,13 +1112,12 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// When DataGridView controls get disposed, do a little clean up.
+		/// When DataGridView controls get disposed, do a little clean-up.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal void HandleDataGridViewDisposed(object sender, EventArgs e)
 		{
-			var grid = sender as DataGridView;
-			if (grid == null)
+			if (!(sender is DataGridView grid))
 				return;
 
 			grid.Disposed -= HandleControlDisposed;
@@ -1146,13 +1146,12 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// When ListView controls get disposed, do a little clean up.
+		/// When ListView controls get disposed, do a little clean-up.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal void HandleListViewDisposed(object sender, EventArgs e)
 		{
-			var lv = sender as ListView;
-			if (lv == null)
+			if (!(sender is ListView lv))
 				return;
 
 			lv.Disposed -= HandleListViewDisposed;
@@ -1167,8 +1166,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal void HandleListViewColumnDisposed(object sender, EventArgs e)
 		{
-			var column = sender as ColumnHeader;
-			if (column == null)
+			if (!(sender is ColumnHeader column))
 				return;
 
 			column.Disposed -= HandleListViewColumnDisposed;
@@ -1197,8 +1195,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal void HandleColumnDisposed(object sender, EventArgs e)
 		{
-			var column = sender as DataGridViewColumn;
-			if (column == null)
+			if (!(sender is DataGridViewColumn column))
 				return;
 
 			column.Disposed -= HandleColumnDisposed;
@@ -1275,9 +1272,9 @@ namespace L10NSharp.XLiffUtils
 						foreach (var note in tuOld.Notes)
 						{
 							bool haveAlready = false;
-							foreach (var newnote in tu.Notes)
+							foreach (var newNote in tu.Notes)
 							{
-								if (newnote.Text == note.Text)
+								if (newNote.Text == note.Text)
 								{
 									haveAlready = true;
 									break;
@@ -1295,13 +1292,13 @@ namespace L10NSharp.XLiffUtils
 						{
 							++changedStringCount;
 							changedStringIds.Add(tu.Id);
-							tu.AddNote("en", string.Format("OLD TEXT (before {0}): {1}", xliffNew.File.ProductVersion, tuOld.Source.Value));
+							tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source.Value}");
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{
 							++wrongDynamicFlagCount;
 							wrongDynamicStringIds.Add(tu.Id);
-							tu.AddNote("en", string.Format("Not dynamic: found in static scan of compiled code (version {0})", xliffNew.File.ProductVersion));
+							tu.AddNote("en", $"Not dynamic: found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
 				}
@@ -1322,13 +1319,13 @@ namespace L10NSharp.XLiffUtils
 							++missingDynamicStringCount;
 							missingDynamicStringIds.Add(tu.Id);
 							if (newDynamicCount > 0)	// note only if attempt made to collect dynamic strings
-								tu.AddNote("en", string.Format("Not found when running compiled program (version {0})", xliffNew.File.ProductVersion));
+								tu.AddNote("en", $"Not found when running compiled program (version {xliffNew.File.ProductVersion})");
 						}
 						else
 						{
 							++missingStringCount;
 							missingStringIds.Add(tu.Id);
-							tu.AddNote("en", string.Format("Not found in static scan of compiled code (version {0})", xliffNew.File.ProductVersion));
+							tu.AddNote("en", $"Not found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
 				}
@@ -1400,7 +1397,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// <summary>
 		/// If the given file exists, return its parent folder name as a language tag if it
-		/// appears to be valid (2 or 3 letters long or "zh-CN").  Otherwise return null.
+		/// appears to be valid (2 or 3 letters long or "zh-CN"). Otherwise, return <c>null</c>.
 		/// </summary>
 		private static string GetLanguageTagFromFilePath(string xliffFile)
 		{
@@ -1409,7 +1406,7 @@ namespace L10NSharp.XLiffUtils
 				return null;
 
 			var langId = Path.GetFileName(Path.GetDirectoryName(xliffFile));
-			if (Regex.IsMatch(langId, "[a-z]{2,3}") || langId == "zh-CN")
+			if (langId != null && Regex.IsMatch(langId, "[a-z]{2,3}") || langId == "zh-CN")
 				return langId;
 			return null;
 		}
