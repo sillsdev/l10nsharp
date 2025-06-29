@@ -40,7 +40,7 @@ namespace L10NSharp.Tests
 			LocalizationManager.ClearLoadedManagers();
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			var lm = LocalizationManager.Create(genericLocaleId, "Test", "Test", "1.0",
-				Path.Combine(dir, "../../../src/L10NSharpTests/TestXliff2"), "", null, "",
+				Path.Combine(dir, "../../../src/L10NSharpTests/TestXliff2"), "", "",
 				new string[] {});
 			Assert.AreEqual($"Protección de configuraciones ({genericLocaleId})...",
 				lm.GetLocalizedString("SettingsProtection.LauncherButtonLabel", "don't use this"));

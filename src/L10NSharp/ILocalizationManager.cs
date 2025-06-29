@@ -91,7 +91,6 @@ namespace L10NSharp
 		void RefreshToolTips();
 
 		void PrepareToCustomizeLocalizations();
-		void ShowLocalizationDialogBox(bool runInReadonlyMode, IWin32Window owner = null);
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

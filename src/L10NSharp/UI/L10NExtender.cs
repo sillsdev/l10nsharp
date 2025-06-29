@@ -21,6 +21,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
+using L10NSharp.WindowsForms;
 
 namespace L10NSharp.UI
 {
@@ -38,7 +39,7 @@ namespace L10NSharp.UI
 		private Container components = null;
 		#pragma warning restore CS0414
 		private Dictionary<object, LocalizingInfo> m_extendedCtrls;
-		private ILocalizationManagerInternal _manager;
+		private ILocalizationManagerInternalWinforms _manager;
 		private string _locManagerId;
 		//private string _idPrefixForThisForm="";
 		private bool _okayToLocalizeControls = false;
@@ -88,7 +89,7 @@ namespace L10NSharp.UI
 				_locManagerId = value;
 				if (value != null && !DesignMode && LocalizationManager.LoadedManagers.ContainsKey(_locManagerId))
 				{
-					_manager = LocalizationManager.LoadedManagers[_locManagerId];
+					_manager = LocalizationManagerWinforms.LoadedManagers[_locManagerId];
 					LocalizeControls();
 				}
 			}

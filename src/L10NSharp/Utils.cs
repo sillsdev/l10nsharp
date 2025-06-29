@@ -1,9 +1,8 @@
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
-namespace L10NSharp.UI
+namespace L10NSharp
 {
 	/// ----------------------------------------------------------------------------------------
 	internal static class Utils
@@ -33,42 +32,6 @@ namespace L10NSharp.UI
 			else
 			{
 				SendMessageWindows(hWnd, msg, wParam, lParam);
-			}
-		}
-
-
-		private const int WM_SETREDRAW = 0xB;
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Turns window redrawing on or off. After turning on, the window will be invalidated.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void SetWindowRedraw(Control ctrl, bool turnOn)
-		{
-			SetWindowRedraw(ctrl, turnOn, true);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public static void SetWindowRedraw(Control ctrl, bool turnOn,
-			bool invalidateAfterTurningOn)
-		{
-			if (ctrl != null && !ctrl.IsDisposed && ctrl.IsHandleCreated)
-			{
-				if (IsMono)
-				{
-					if (turnOn)
-						ctrl.ResumeLayout(invalidateAfterTurningOn);
-					else
-						ctrl.SuspendLayout();
-				}
-				else
-				{
-					SendMessage(ctrl.Handle, WM_SETREDRAW, (turnOn ? 1 : 0), 0);
-				}
-
-				if (turnOn && invalidateAfterTurningOn)
-					ctrl.Invalidate(true);
 			}
 		}
 

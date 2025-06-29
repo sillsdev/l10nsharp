@@ -4,6 +4,7 @@ using System.Reflection;
 using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
+//using L10NSharp.WindowsForms;
 
 namespace L10NSharp.Tests
 {
@@ -30,7 +31,7 @@ namespace L10NSharp.Tests
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0",
 					Path.Combine(dir, installedTranslationDir),
-					"", null, "", new string[] {  })
+					"", "", new string[] {  })
 				as ILocalizationManagerInternal<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };

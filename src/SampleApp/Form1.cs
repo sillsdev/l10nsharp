@@ -28,13 +28,6 @@ namespace SampleApp
 			UpdateDynamicLabel();
 		}
 
-		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			LocalizationManager.ShowLocalizationDialogBox(this);
-			uiLanguageComboBox1.RefreshList();
-			UpdateDynamicLabel();
-		}
-
 		//This demonstrates how to handle strings that aren't hard-coded, so can't be discovered
 		//by the runtime code scanner. Instead, we ue this GetDynamicString.
 		//Note that L10NSharp.LocalizationManager.CollectUpNewStringsDiscoveredDynamically = false

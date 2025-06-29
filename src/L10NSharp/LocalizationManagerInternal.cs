@@ -6,12 +6,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+
+//using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
@@ -43,16 +43,25 @@ namespace L10NSharp
 		internal static object LazyLoadLock = new object();
 
 		/// <summary>
-		/// Function to choose a fallback language during construction. Overridable by unit tests.
+		/// Function to choose a fallback language. Uses LocalizationManager's default. Overridable by unit tests.
 		/// </summary>
-		internal static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
+		internal static string ChooseFallbackLanguage()
+		{
+			return LocalizationManager.kDefaultLang;
+		}
+
+		/*internal static Func<string> ChooseFallbackLanguage = () =>
+		{
+			return LocalizationManager.kDefaultLang;
+		};*/
+		/*internal static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
 		{
 			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
 			{
 				dlg.ShowDialog();
 				return dlg.SelectedLanguage;
 			}
-		};
+		};*/
 
 		private static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
 			new Dictionary<string, ILocalizationManagerInternal<T>>();
@@ -60,7 +69,7 @@ namespace L10NSharp
 		#region Static methods for creating a LocalizationManagerInternal
 		private static ILocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, Func<string, ILocalizationManagerInternal<T>> createMethod)
+			Func<string, ILocalizationManagerInternal<T>> createMethod)
 		{
 			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
 				relativeSettingPathForLocalizationFolder = appName;
@@ -78,7 +87,7 @@ namespace L10NSharp
 				PreviouslyLoadedManagers.Remove(appId);
 			}
 
-			lm.ApplicationIcon = applicationIcon;
+			//lm.ApplicationIcon = applicationIcon;
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
@@ -87,7 +96,7 @@ namespace L10NSharp
 
 			if (!IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
-				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
+				desiredUiLangId = ChooseFallbackLanguage();
 			}
 
 			LocalizationManager.SetUILanguage(desiredUiLangId, false);
@@ -97,7 +106,7 @@ namespace L10NSharp
 			return lm;
 		}
 
-		private static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
+		public static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
 		{
 			if (IsLocalizationAvailable(desiredUiLangId))
 				return true;
@@ -154,7 +163,6 @@ namespace L10NSharp
 		public static ILocalizationManager CreateXliff(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledXliffFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
@@ -166,7 +174,7 @@ namespace L10NSharp
 			appId = Path.GetFileNameWithoutExtension(appId);
 
 			return Create(desiredUiLangId, appId, appName,
-				relativeSettingPathForLocalizationFolder, applicationIcon,
+				relativeSettingPathForLocalizationFolder,
 				directoryOfWritableXliffFiles =>
 					(ILocalizationManagerInternal<T>) new XliffLocalizationManager(appId, origExeExtension, appName,
 						appVersion, directoryOfInstalledXliffFiles,
@@ -187,23 +195,6 @@ namespace L10NSharp
 				LoadedManagers.Remove(id);
 				PreviouslyLoadedManagers.Add(id);
 			}
-		}
-
-		internal static void ShowLocalizationDialogBox(IComponent component,
-			IWin32Window owner = null)
-		{
-			if (owner == null)
-				owner = (component as Control)?.FindForm();
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<T>.ShowDialog(GetLocalizationManagerForComponent(component),
-				component, false, owner);
-		}
-
-		public static void ShowLocalizationDialogBox(string id, IWin32Window owner = null)
-		{
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<T>.ShowDialog(GetLocalizationManagerForString(id),
-				id, false, owner);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -769,7 +760,7 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
-			if (component != null)
+			/*if (component != null)
 			{
 				var lm = GetLocalizationManagerForComponent(component) ??
 						GetLocalizationManagerForString(stringId);
@@ -781,7 +772,7 @@ namespace L10NSharp
 
 					return lm.GetLocalizedString(stringId, englishText);
 				}
-			}
+			}*/
 
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
@@ -817,7 +808,7 @@ namespace L10NSharp
 			return stringFromAnyLocalizationManager;
 		}
 
-		/// ------------------------------------------------------------------------------------
+		/*/// ------------------------------------------------------------------------------------
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{
 			var lm = GetLocalizationManagerForComponent(ctrl);
@@ -842,7 +833,7 @@ namespace L10NSharp
 				parentControl = parentControl.Parent;
 
 			return parentControl;
-		}
+		}*/
 
 		/// <summary>
 		/// Merge the existing English translation file into newly collected data and write the result to the temp

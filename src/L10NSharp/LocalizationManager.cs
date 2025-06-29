@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using L10NSharp.TMXUtils;
-using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
@@ -99,7 +96,7 @@ namespace L10NSharp
 		public static ILocalizationManager Create(TranslationMemory kind, string desiredUiLangId,
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
+			string emailForSubmissions, params string[] namespaceBeginnings)
 		{
 			if (kind != TranslationMemory.XLiff)
 			{
@@ -111,7 +108,7 @@ namespace L10NSharp
 			return Create(desiredUiLangId,
 				appId, appName, appVersion, directoryOfInstalledFiles,
 				relativeSettingPathForLocalizationFolder,
-				applicationIcon, emailForSubmissions,
+				emailForSubmissions,
 				namespaceBeginnings);
 		}
 
@@ -160,7 +157,7 @@ namespace L10NSharp
 		public static ILocalizationManager Create(TranslationMemory kind, string desiredUiLangId,
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions,
+			string emailForSubmissions,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
@@ -172,7 +169,7 @@ namespace L10NSharp
 			}
 
 			return Create(desiredUiLangId, appId, appName, appVersion, directoryOfInstalledFiles,
-				relativeSettingPathForLocalizationFolder, applicationIcon, emailForSubmissions,
+				relativeSettingPathForLocalizationFolder, emailForSubmissions,
 				namespaceBeginnings, additionalLocalizationMethods);
 		}
 
@@ -219,7 +216,7 @@ namespace L10NSharp
 		public static ILocalizationManager Create(string desiredUiLangId,
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions,
+			string emailForSubmissions,
 			string[] namespaceBeginnings,
 			IEnumerable<MethodInfo> additionalLocalizationMethods = null)
 		{
@@ -227,7 +224,7 @@ namespace L10NSharp
 			EmailForSubmissions = emailForSubmissions;
 			return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
 				appId, appName, appVersion, directoryOfInstalledFiles,
-				relativeSettingPathForLocalizationFolder, applicationIcon,
+				relativeSettingPathForLocalizationFolder,
 				additionalLocalizationMethods,
 				namespaceBeginnings);
 		}
@@ -443,28 +440,6 @@ namespace L10NSharp
 				default:
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.StringCount(lang);
-			}
-		}
-
-		public static void ShowLocalizationDialogBox(IComponent component)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(component);
-					break;
-			}
-		}
-
-		public static void ShowLocalizationDialogBox(string id)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(id);
-					break;
 			}
 		}
 
@@ -758,16 +733,6 @@ namespace L10NSharp
 				case TranslationMemory.XLiff:
 					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
 					break;
-			}
-		}
-
-		public static string GetLocalizedToolTipForControl(Control ctrl)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					return LocalizationManagerInternal<XLiffDocument>.GetLocalizedToolTipForControl(ctrl);
 			}
 		}
 

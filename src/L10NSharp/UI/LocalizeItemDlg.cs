@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using L10NSharp.Properties;
+using L10NSharp.WindowsForms;
 
 namespace L10NSharp.UI
 {
@@ -258,13 +259,13 @@ namespace L10NSharp.UI
 		/// ------------------------------------------------------------------------------------
 		private void UpdateSingleItemView()
 		{
-			Utils.SetWindowRedraw(this, false, false);
+			UtilsWinforms.SetWindowRedraw(this, false, false);
 
 			ResetSingleItemView();
 
 			if (_viewModel.CurrentNode == null || _viewModel.CurrentNode.Id == null)
 			{
-				Utils.SetWindowRedraw(this, true, true);
+				UtilsWinforms.SetWindowRedraw(this, true, true);
 				return;
 			}
 
@@ -306,7 +307,7 @@ namespace L10NSharp.UI
 			_colSourceText.DefaultCellStyle.Font = fnt;
 			_colTargetText.DefaultCellStyle.Font = fnt;
 
-			Utils.SetWindowRedraw(this, true, true);
+			UtilsWinforms.SetWindowRedraw(this, true, true);
 		}
 
 		/// ------------------------------------------------------------------------------------
