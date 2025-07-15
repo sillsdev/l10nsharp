@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using L10NSharp.UI;
+using L10NSharp.WindowsForms.UI;
+using L10NSharp.WindowsForms;
 
 namespace L10NSharp.Tests
 {

@@ -20,4 +20,60 @@
     <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="all" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="WindowsForms\UI\CustomDropDownComboBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\DontShowThisAgainButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\EditSourceBeforeTranslatingDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\FallbackLanguagesDlg.cs" />
+    <Compile Update="WindowsForms\UI\FallbackLanguagesDlgBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\Grid\LmGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\HowToDistributeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\InitializationProgressDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\InitializationProgressDlgBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\L10NExtender.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\LanguageChoosingDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\LanguageChoosingSimpleDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\LocalizeItemDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\PopupControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\ShortcutKeysDropDown.cs" />
+    <Compile Update="WindowsForms\UI\ShortcutKeysEditor.cs" />
+    <Compile Update="WindowsForms\UI\TipDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\UILanguageComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\UILanguageListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="WindowsForms\UI\XButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using L10NSharp.UI;
+using L10NSharp.WindowsForms.UI;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp.WindowsForms.XLiffUtils
@@ -22,6 +22,7 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private static Icon _applicationIcon;
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
+		public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
 
 		#region XliffLocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
@@ -32,6 +33,9 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 			params string[] namespaceBeginnings) : base(appId, appName ?? appId, appVersion)
 		{
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
+			StringCache = new XliffLocalizedStringCacheWinforms(this);
+			LocalizableComponents = new Dictionary<ILocalizableComponent,
+				Dictionary<string, LocalizingInfo>>();
 		}
 
 		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
@@ -48,6 +52,12 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 
 		#endregion
 
+		#region Public Properties
+		/// ------------------------------------------------------------------------------------
+		new public ILocalizedStringCacheWinforms<XLiffDocument> StringCache { get; }
+
+		#endregion
+
 		#region Methods for caching and localizing objects.
 		/// <summary>
 		/// Adds the specified component to the localization manager's cache of objects to be
@@ -57,7 +67,7 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 		public void RegisterComponentForLocalizing(IComponent component, string id, string
 		defaultText, string defaultTooltip, string defaultShortcutKeys, string comment)
 		{
-			RegisterComponentForLocalizing(new LocalizingInfo(component, id)
+			RegisterComponentForLocalizing(new LocalizingInfoWinforms(component, id)
 			{
 				Text = defaultText,
 				ToolTipText = defaultTooltip,
@@ -66,8 +76,8 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 			}, null);
 		}
 
-		public void RegisterComponentForLocalizing(LocalizingInfo info,
-			Action<ILocalizationManagerInternalWinforms, LocalizingInfo> successAction)
+		public void RegisterComponentForLocalizing(LocalizingInfoWinforms info,
+			Action<ILocalizationManagerInternalWinforms, LocalizingInfoWinforms> successAction)
 		{
 			var component = info.Component;
 			var id = info.Id;
@@ -220,6 +230,34 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 		#endregion
 
 		#region Methods that apply localizations to an object.
+		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
+		{
+			if (locInfo.Component is ILocalizableComponent locComponent &&
+			    LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
+			{
+				ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
+				return;
+			}
+#if DEBUG
+			var msg =
+				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
+			throw new ApplicationException(string.Format(msg, locInfo.Id));
+#endif
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reapplies the localizations to all components in the localization manager's cache of
+		/// localized components.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public new void ReapplyLocalizationsToAllComponents()
+		{
+			foreach (var component in ComponentCache.Keys)
+				ApplyLocalization(component);
+
+			LocalizeItemDlg<XLiffDocument>.FireStringsLocalizedEvent(this);
+		}
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Recreates the tooltip control and updates the tooltip text for each object having
@@ -278,6 +316,25 @@ namespace L10NSharp.WindowsForms.XLiffUtils
 				return;
 
 			ApplyLocalizationsToDataGridViewColumn(component as DataGridViewColumn, id);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Initializes the specified ILocalizableComponent.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		internal void ApplyLocalizationsToLocalizableComponent(
+			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfo> idToLocInfo)
+		{
+			if (locComponent == null)
+				return;
+
+			foreach (var kvp in idToLocInfo)
+			{
+				var id = kvp.Key;
+				var locInfo = kvp.Value;
+				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------

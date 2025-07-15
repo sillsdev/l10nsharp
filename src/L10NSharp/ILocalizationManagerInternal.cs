@@ -10,8 +10,6 @@ namespace L10NSharp
 	internal interface ILocalizationManagerInternal: ILocalizationManager
 	{
 		Dictionary<IComponent, string> ComponentCache { get; }
-		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
-		//Icon ApplicationIcon { get; set; }
 
 		void ApplyLocalization(IComponent component);
 		void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using L10NSharp.Translators;
-using L10NSharp.UI;
+using L10NSharp.WindowsForms.UI;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests

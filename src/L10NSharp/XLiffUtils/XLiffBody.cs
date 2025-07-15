@@ -20,7 +20,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Xml.Serialization;
-using L10NSharp.XLiffUtils;
 
 namespace L10NSharp.XLiffUtils
 {

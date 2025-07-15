@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-//using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +9,6 @@ using System.Security;
 using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using L10NSharp.UI;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -27,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 
 		public Dictionary<IComponent, string> ComponentCache { get; }
 		//public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
-		public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
+		//public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
 
 		#region Static methods
 		/// ------------------------------------------------------------------------------------
@@ -128,10 +126,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			ComponentCache = new Dictionary<IComponent, string>();
-			//ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new XliffLocalizedStringCache(this);
-			LocalizableComponents = new Dictionary<ILocalizableComponent,
-				Dictionary<string, LocalizingInfo>>();
 		}
 
 		/// <summary>
@@ -590,17 +585,7 @@ namespace L10NSharp.XLiffUtils
 		#region Methods that apply localizations to an object.
 		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
 		{
-			if (locInfo.Component is ILocalizableComponent locComponent &&
-			    LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
-			{
-				ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
-				return;
-			}
-#if DEBUG
-			var msg =
-				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
-			throw new ApplicationException(string.Format(msg, locInfo.Id));
-#endif
+			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -611,10 +596,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void ReapplyLocalizationsToAllComponents()
 		{
-			foreach (var component in ComponentCache.Keys)
-				ApplyLocalization(component);
-
-			LocalizeItemDlg<XLiffDocument>.FireStringsLocalizedEvent(this);
+			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -636,23 +618,10 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void ApplyLocalization(IComponent component)
 		{
-			if (component == null)
-				return;
-
-			if (!ComponentCache.TryGetValue(component, out var id))
-				return;
-
-			if (component is ILocalizableComponent locComponent)
-			{
-				if (LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
-				{
-					ApplyLocalizationsToLocalizableComponent(locComponent, idToLocInfo);
-					return;
-				}
-			}
+			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
 		}
 
-		/// ------------------------------------------------------------------------------------
+		/*/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Initializes the specified ILocalizableComponent.
 		/// </summary>
@@ -669,7 +638,7 @@ namespace L10NSharp.XLiffUtils
 				var locInfo = kvp.Value;
 				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
 			}
-		}
+		}*/
 
 		protected static string UILanguageId => LocalizationManager.UILanguageId;
 

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
-using L10NSharp.UI;
+using L10NSharp.WindowsForms.UI;
 using NUnit.Framework;
 
 namespace L10NSharp.Tests

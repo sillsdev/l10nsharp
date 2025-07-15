@@ -32,11 +32,11 @@ namespace SampleApp
         private void InitializeComponent()
         {
 			this.components = new System.ComponentModel.Container();
-			this.localizationExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.localizationExtender1 = new L10NSharp.WindowsForms.UI.L10NSharpExtender(this.components);
 			this._getDynamicStringButton = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
-			this.uiLanguageComboBox1 = new L10NSharp.UI.UILanguageComboBox();
+			this.uiLanguageComboBox1 = new L10NSharp.WindowsForms.UI.UILanguageComboBox();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -191,11 +191,11 @@ namespace SampleApp
 
         #endregion
 
-        private L10NSharp.UI.L10NSharpExtender localizationExtender1;
+        private L10NSharp.WindowsForms.UI.L10NSharpExtender localizationExtender1;
         private System.Windows.Forms.Button _getDynamicStringButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private L10NSharp.UI.UILanguageComboBox uiLanguageComboBox1;
+        private L10NSharp.WindowsForms.UI.UILanguageComboBox uiLanguageComboBox1;
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;

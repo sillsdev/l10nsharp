@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using L10NSharp.UI;
+using L10NSharp.WindowsForms.UI;
 using L10NSharp.XLiffUtils;
 using NUnit.Framework;
 //using L10NSharp.WindowsForms;

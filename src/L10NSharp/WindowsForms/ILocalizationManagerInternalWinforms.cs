@@ -12,17 +12,18 @@ namespace L10NSharp.WindowsForms
 	internal interface ILocalizationManagerInternalWinforms: ILocalizationManagerInternal
 	{
 		Dictionary<Control, ToolTip> ToolTipCtrls { get; }
+		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
 		Icon ApplicationIcon { get; set; }
 
 		void RegisterComponentForLocalizing(IComponent component, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment);
-		void RegisterComponentForLocalizing(LocalizingInfo info,
-			Action<ILocalizationManagerInternalWinforms, LocalizingInfo> successAction);
+		void RegisterComponentForLocalizing(LocalizingInfoWinforms info,
+			Action<ILocalizationManagerInternalWinforms, LocalizingInfoWinforms> successAction);
 
 	}
 
 	internal interface ILocalizationManagerInternalWinforms<T> : ILocalizationManagerInternalWinforms, ILocalizationManagerInternal<T>
 	{
-		
+		new ILocalizedStringCacheWinforms<T> StringCache { get; }
 	}
 }

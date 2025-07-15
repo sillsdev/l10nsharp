@@ -7,8 +7,6 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using L10NSharp.UI;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -17,7 +15,6 @@ namespace L10NSharp.XLiffUtils
 	{
 		private readonly XliffTransUnitUpdater _tuUpdater;
 
-		public List<LocTreeNode<XLiffDocument>> LeafNodeList { get; private set; }
 		internal XliffLocalizationManager OwningManager { get; private set; }
 		private XLiffDocument DefaultXliffDocument { get; set; } // matches LanguageManager.kDefaultLanguage
 
@@ -51,8 +48,8 @@ namespace L10NSharp.XLiffUtils
 				}
 				catch (Exception e)
 				{
-					MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
-						Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					//MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
+					//	Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
 				}
 			}
@@ -72,7 +69,6 @@ namespace L10NSharp.XLiffUtils
 			if (replacement != null)
 				s_literalNewline = replacement;
 
-			LeafNodeList = new List<LocTreeNode<XLiffDocument>>();
 			IsDirty = false;
 		}
 
@@ -498,17 +494,6 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the localized tooltip text for the specified id and suffix.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public Keys GetShortcutKeys(string langId, string id)
-		{
-			string keys = GetValueForLangAndIdWithFallback(langId, id + kShortcutSuffix);
-			return ShortcutKeysEditor.KeysFromString(keys);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the localized tooltip text for the specified id and suffix.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
 		public string GetShortcutKeysText(string langId, string id)
 		{
 			return GetValueForExactLangAndId(langId, id + kShortcutSuffix, false);
@@ -521,7 +506,7 @@ namespace L10NSharp.XLiffUtils
 		/// fails, then the default (i.e. "en") is used.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private string GetValueForLangAndIdWithFallback(string langId, string id)
+		protected string GetValueForLangAndIdWithFallback(string langId, string id)
 		{
 			var value = GetValueForExactLangAndId(langId, id, true);
 			if (value != null)
@@ -688,52 +673,11 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Loads the specified tree node collection with all the string groups and their
-		/// localizable string ids.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void LoadGroupNodes(TreeNodeCollection topCollection)
-		{
-			LeafNodeList.Clear();
-
-			foreach (var tu in GetTranslationUnitsForTree())
-			{
-				string id = GetBaseId(tu.Id);
-				var groupChain = ParseGroupAndId(GetGroup(tu.Id), id);
-				var nodeKey = string.Empty;
-				var nodeCollection = topCollection;
-				LocTreeNode<XLiffDocument> newNode;
-
-				for (int i = groupChain.Count - 1; i > 0; i--)
-				{
-					nodeKey = (nodeKey + "." + groupChain[i]).TrimStart('.');
-
-					var nodes = nodeCollection.Find(nodeKey, true);
-					if (nodes.Length > 0)
-						nodeCollection = nodes[0].Nodes;
-					else
-					{
-						newNode = new LocTreeNode<XLiffDocument>(OwningManager, groupChain[i], null,
-						nodeKey);
-						nodeCollection.Add(newNode);
-						nodeCollection = newNode.Nodes;
-					}
-				}
-
-				nodeKey = nodeKey + ("." + groupChain[0]).TrimStart('.');
-				newNode = new LocTreeNode<XLiffDocument>(OwningManager, groupChain[0], id, nodeKey);
-				nodeCollection.Add(newNode);
-				LeafNodeList.Add(newNode);
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
 		/// Gets a list of only those translation units that should show up in the localizing
 		/// dialog's tree control.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private IEnumerable<XLiffTransUnit> GetTranslationUnitsForTree()
+		protected IEnumerable<XLiffTransUnit> GetTranslationUnitsForTree()
 		{
 			foreach (var tu in DefaultXliffDocument.File.Body.TransUnitsUnordered)
 			{
@@ -769,7 +713,7 @@ namespace L10NSharp.XLiffUtils
 		/// Parses the group and id and returns all the pieces between periods.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private static List<string> ParseGroupAndId(string group, string id)
+		protected static List<string> ParseGroupAndId(string group, string id)
 		{
 			var allPieces = new List<string>();
 			string[] pieces;

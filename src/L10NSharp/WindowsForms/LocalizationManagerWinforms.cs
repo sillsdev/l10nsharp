@@ -1,18 +1,8 @@
 // Copyright © 2022-2025 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
-using L10NSharp.TMXUtils;
-using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp.WindowsForms
