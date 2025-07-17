@@ -47,19 +47,6 @@ namespace L10NSharp
 			return LocalizationManager.kDefaultLang;
 		}
 
-		/*internal static Func<string> ChooseFallbackLanguage = () =>
-		{
-			return LocalizationManager.kDefaultLang;
-		};*/
-		/*internal static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
-		{
-			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
-			{
-				dlg.ShowDialog();
-				return dlg.SelectedLanguage;
-			}
-		};*/
-
 		private static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
 			new Dictionary<string, ILocalizationManagerInternal<T>>();
 
