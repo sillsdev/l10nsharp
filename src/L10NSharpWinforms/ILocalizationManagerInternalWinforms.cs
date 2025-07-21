@@ -13,7 +13,7 @@ namespace L10NSharpWinforms
 	internal interface ILocalizationManagerInternalWinforms: ILocalizationManagerInternal
 	{
 		Dictionary<Control, ToolTip> ToolTipCtrls { get; }
-		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
+		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfoWinforms>> LocalizableComponents { get; }
 		Icon ApplicationIcon { get; set; }
 
 		void RegisterComponentForLocalizing(IComponent component, string id, string defaultText,

@@ -101,12 +101,12 @@ namespace L10NSharp
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfo
 	{
-		private IComponent _component;
-		private string _id;
-		private string _text;
-		private string _shortcutKeys;
-		private string _comment;
-		private LocalizationCategory _category = LocalizationCategory.Unspecified;
+		protected IComponent _component;
+		protected string _id;
+		protected string _text;
+		protected string _shortcutKeys;
+		protected string _comment;
+		protected LocalizationCategory _category = LocalizationCategory.Unspecified;
 
 		#region Constructors
 		/// ------------------------------------------------------------------------------------

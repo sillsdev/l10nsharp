@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using L10NSharp;
 using L10NSharpWinforms.UI;
 using NUnit.Framework;
+using L10NSharpWinforms;
 
 namespace L10NSharpWinformsTests
 {
@@ -10,7 +11,7 @@ namespace L10NSharpWinformsTests
 	public class LocalizationExtenderTests
 	{
 		private L10NSharpExtender m_extender;
-		private Dictionary<object, LocalizingInfo> m_extCtrls;
+		private Dictionary<object, LocalizingInfoWinforms> m_extCtrls;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -22,7 +23,7 @@ namespace L10NSharpWinformsTests
 		{
 			m_extender = new L10NSharpExtender();
 			m_extCtrls = ReflectionHelper.GetField(m_extender, "m_extendedCtrls") as
-				Dictionary<object, LocalizingInfo>;
+				Dictionary<object, LocalizingInfoWinforms>;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -73,28 +74,28 @@ namespace L10NSharpWinformsTests
 			var lbl1 = new Label();
 			lbl1.Text = "bananas";
 
-			// Make sure calling GetLocalizedObjectInfo creates a LocalizingInfo object when
+			// Make sure calling GetLocalizedObjectInfo creates a LocalizingInfoWinforms object when
 			// one doesn't exist for the label.
-			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] {lbl1, true}) as LocalizingInfo;
+			var loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] {lbl1, true}) as LocalizingInfoWinforms;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
-			// Make sure calling GetLocalizedObjectInfo does not create a LocalizingInfo object when
+			// Make sure calling GetLocalizedObjectInfo does not create a LocalizingInfoWinforms object when
 			// one already exists for the label.
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl1, true }) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl1, true }) as LocalizingInfoWinforms;
 			Assert.AreEqual(1, m_extCtrls.Count);
 			Assert.AreEqual("bananas", loi.Text);
 
-			// Create a new LocalizingInfo object for a different label, then poke it into the
+			// Create a new LocalizingInfoWinforms object for a different label, then poke it into the
 			// extender's internal collection and make sure calling GetLocalizedObjectInfo returns
-			// that LocalizingInfo for the object.
+			// that LocalizingInfoWinforms for the object.
 			var lbl2 = new Label();
 			lbl2.Text = "apples";
-			loi = new LocalizingInfo(lbl2, true);
+			loi = new LocalizingInfoWinforms(lbl2, true);
 			m_extCtrls[lbl2] = loi;
 			Assert.AreEqual(2, m_extCtrls.Count);
 
-			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl2, true }) as LocalizingInfo;
+			loi = ReflectionHelper.GetResult(m_extender, "GetLocalizedComponentInfo", new object[] { lbl2, true }) as LocalizingInfoWinforms;
 			Assert.AreEqual(2, m_extCtrls.Count);
 			Assert.AreEqual("apples", loi.Text);
 		}

@@ -11,7 +11,7 @@ namespace L10NSharpWinforms.UI
 {
 	internal class InitializationProgressDlg<T>: InitializationProgressDlgBase
 	{
-		public IEnumerable<LocalizingInfo> ExtractedInfo { get; private set; }
+		public IEnumerable<LocalizingInfoWinforms> ExtractedInfo { get; private set; }
 
 		/// ------------------------------------------------------------------------------------
 		public InitializationProgressDlg(string appName, IEnumerable<MethodInfo> additionalLocalizationMethods,
@@ -46,14 +46,14 @@ namespace L10NSharpWinforms.UI
 			{
 				try
 				{
-					if (e.Result is IEnumerable<LocalizingInfo> info)
+					if (e.Result is IEnumerable<LocalizingInfoWinforms> info)
 					{
 						ExtractedInfo = info;
 					}
 					else
 					{
 						var got = e.Result == null ? "null" : $"{e.Result.GetType()}: {e.Result}";
-						ReportError($"Expected IEnumerable<LocalizingInfo> but got {got}");
+						ReportError($"Expected IEnumerable<LocalizingInfoWinforms> but got {got}");
 					}
 				}
 				catch (Exception ex)
@@ -74,7 +74,7 @@ namespace L10NSharpWinforms.UI
 			// 2. It provides a way for the developer to see the actual error which caused extraction to fail.
 			ExtractedInfo = new[]
 			{
-				new LocalizingInfo("StringExtractor_Error")
+				new LocalizingInfoWinforms("StringExtractor_Error")
 				{
 					LangId = "en",
 					Text = "An error occurred while collecting strings or there were no strings to collect. " +

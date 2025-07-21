@@ -17,17 +17,16 @@ namespace L10NSharpWinforms
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfoWinforms : LocalizingInfo
 	{
-		private IComponent _component;
-		private string _id;
-		private string _text;
-		private string _shortcutKeys;
-		private string _comment;
-		private LocalizationCategory _category = LocalizationCategory.Unspecified;
+		//private string _id;
+		//private string _text;
+		//private string _shortcutKeys;
+		//private string _comment;
+		//private LocalizationCategory _category = LocalizationCategory.Unspecified;
 
 		#region Constructors
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
+		/// Initializes a new instance of the <see cref="LocalizingInfoWinforms"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public LocalizingInfoWinforms(IComponent component, bool initTextFromObj) : base(component, initTextFromObj)
@@ -41,12 +40,12 @@ namespace L10NSharpWinforms
 		{
 			Text = LocalizationManager.StripOffLocalizationInfoFromText(_component is DataGridViewColumn
 				? ((DataGridViewColumn) _component).HeaderText
-				: Utils.GetProperty(_component, "Text") as string);
+				: UtilsWinforms.GetProperty(_component, "Text") as string);
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
+		/// Initializes a new instance of the <see cref="LocalizingInfoWinforms"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public LocalizingInfoWinforms(IComponent component, string id) : this(component, true)
@@ -56,7 +55,7 @@ namespace L10NSharpWinforms
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
+		/// Initializes a new instance of the <see cref="LocalizingInfoWinforms"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public LocalizingInfoWinforms(string id) : base(id)
@@ -329,7 +328,7 @@ namespace L10NSharpWinforms
 			{
 				if (_shortcutKeys == null && _component != null)
 				{
-					object keysobj = Utils.GetProperty(_component, "ShortcutKeys");
+					object keysobj = UtilsWinforms.GetProperty(_component, "ShortcutKeys");
 					if (keysobj != null && keysobj.GetType() == typeof(Keys))
 					{
 						Keys keys = (Keys)keysobj;

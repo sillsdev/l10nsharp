@@ -1,6 +1,7 @@
 using System.Windows.Forms;
 using NUnit.Framework;
 using L10NSharp;
+using L10NSharpWinforms;
 
 namespace L10NSharpWinformsTests
 {
@@ -17,7 +18,7 @@ namespace L10NSharpWinformsTests
 		public void MakeIdTest_ForForm()
 		{
 			Form frm = new Form { Name = "hamster" };
-			var loi = new LocalizingInfo(frm, true);
+			var loi = new LocalizingInfoWinforms(frm, true);
 			Assert.AreEqual("hamster.WindowTitle", loi.Id);
 		}
 
@@ -34,7 +35,7 @@ namespace L10NSharpWinformsTests
 			var btn = new Button { Name = "fox" };
 			frm.Controls.Add(btn);
 
-			var loi = new LocalizingInfo(btn, true);
+			var loi = new LocalizingInfoWinforms(btn, true);
 			Assert.AreEqual("racoon.fox", loi.Id);
 
 			var lbl = new Label { Name = "opossum" };
@@ -43,7 +44,7 @@ namespace L10NSharpWinformsTests
 			pnl1.Controls.Add(pnl2);
 			pnl2.Controls.Add(lbl);
 			frm.Controls.Add(pnl1);
-			loi = new LocalizingInfo(lbl, true);
+			loi = new LocalizingInfoWinforms(lbl, true);
 			Assert.AreEqual("racoon.opossum", loi.Id);
 		}
 
@@ -61,12 +62,12 @@ namespace L10NSharpWinformsTests
 			var hdr = new ColumnHeader { Name = "monkey" };
 			lv.Columns.Add(hdr);
 
-			var loi = new LocalizingInfo(hdr, true);
+			var loi = new LocalizingInfoWinforms(hdr, true);
 			Assert.AreEqual("fish.Colmonkey", loi.Id);
 
 			var frm = new Form { Name = "wolf" };
 			frm.Controls.Add(lv);
-			loi = new LocalizingInfo(hdr, true);
+			loi = new LocalizingInfoWinforms(hdr, true);
 			Assert.AreEqual("wolf.fishColmonkey", loi.Id);
 		}
 
@@ -84,13 +85,13 @@ namespace L10NSharpWinformsTests
 			var col = new DataGridViewTextBoxColumn { Name = "cheetah" };
 			grid.Columns.Add(col);
 
-			var loi = new LocalizingInfo(col, true);
+			var loi = new LocalizingInfoWinforms(col, true);
 			Assert.AreEqual("hippo.Colcheetah", loi.Id);
 
 			var frm = new Form { Name = "jackal" };
 			frm.Controls.Add(grid);
 
-			loi = new LocalizingInfo(col, true);
+			loi = new LocalizingInfoWinforms(col, true);
 			Assert.AreEqual("jackal.hippoColcheetah", loi.Id);
 		}
 	}

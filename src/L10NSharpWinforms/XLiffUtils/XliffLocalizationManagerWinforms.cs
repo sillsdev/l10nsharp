@@ -18,7 +18,7 @@ namespace L10NSharpWinforms.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private static Icon _applicationIcon;
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
-		public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
+		public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfoWinforms>> LocalizableComponents { get; }
 
 		#region XliffLocalizationManager construction/disposal
 		/// ------------------------------------------------------------------------------------
@@ -26,12 +26,15 @@ namespace L10NSharpWinforms.XLiffUtils
 			string appVersion, string directoryOfInstalledXliffFiles,
 			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
-			params string[] namespaceBeginnings) : base(appId, appName ?? appId, appVersion)
+			params string[] namespaceBeginnings) :
+			base(appId, origExtension, appName, appVersion, directoryOfInstalledXliffFiles,
+				directoryForGeneratedDefaultXliffFile, directoryOfUserModifiedXliffFiles,
+				additionalLocalizationMethods, namespaceBeginnings)//base(appId, appName ?? appId, appVersion)
 		{
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new XliffLocalizedStringCacheWinforms(this);
 			LocalizableComponents = new Dictionary<ILocalizableComponent,
-				Dictionary<string, LocalizingInfo>>();
+				Dictionary<string, LocalizingInfoWinforms>>();
 		}
 
 		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
@@ -226,7 +229,7 @@ namespace L10NSharpWinforms.XLiffUtils
 		#endregion
 
 		#region Methods that apply localizations to an object.
-		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
+		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfoWinforms locInfo)
 		{
 			if (locInfo.Component is ILocalizableComponent locComponent &&
 			    LocalizableComponents.TryGetValue(locComponent, out var idToLocInfo))
@@ -320,7 +323,7 @@ namespace L10NSharpWinforms.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		internal void ApplyLocalizationsToLocalizableComponent(
-			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfo> idToLocInfo)
+			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfoWinforms> idToLocInfo)
 		{
 			if (locComponent == null)
 				return;

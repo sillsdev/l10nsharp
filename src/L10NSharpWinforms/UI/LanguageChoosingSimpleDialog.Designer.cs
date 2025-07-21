@@ -28,7 +28,7 @@ namespace L10NSharpWinforms.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this._uiLanguageListBox = new L10NSharp.WindowsForms.UI.UILanguageListBox();
+			this._uiLanguageListBox = new L10NSharpWinforms.UI.UILanguageListBox();
 			this._btnOk = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			//
@@ -77,7 +77,7 @@ namespace L10NSharpWinforms.UI
 
 		#endregion
 
-		private L10NSharp.WindowsForms.UI.UILanguageListBox _uiLanguageListBox;
+		private L10NSharpWinforms.UI.UILanguageListBox _uiLanguageListBox;
 		private System.Windows.Forms.Button _btnOk;
 	}
 }

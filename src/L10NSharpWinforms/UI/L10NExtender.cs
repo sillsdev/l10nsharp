@@ -79,7 +79,7 @@ namespace L10NSharpWinforms.UI
 			get { return _locManagerId; }
 			set
 			{
-				if (LocalizationManager.LoadedManagers == null)
+				if (LocalizationManagerWinforms.LoadedManagers == null)
 				{
 					return;
 				}
@@ -421,13 +421,13 @@ namespace L10NSharpWinforms.UI
 			if (m_extendedCtrls == null) // no can do! (can happen during view setup)
 				return;
 			var lios = locComponent.GetAllLocalizingInfoObjects(this);
-			var idToLocInfo = new Dictionary<string, LocalizingInfo>();
-			foreach (var localizingInfo in lios)
+			var idToLocInfo = new Dictionary<string, LocalizingInfoWinforms>();
+			foreach (var localizingInfoWinforms in lios)
 			{
-				if (string.IsNullOrEmpty(localizingInfo.Id))
+				if (string.IsNullOrEmpty(localizingInfoWinforms.Id))
 					continue;
-				_manager.AddString(localizingInfo.Id, localizingInfo.Text, null, null, null);
-				idToLocInfo.Add(localizingInfo.Id, localizingInfo);
+				_manager.AddString(localizingInfoWinforms.Id, localizingInfoWinforms.Text, null, null, null);
+				idToLocInfo.Add(localizingInfoWinforms.Id, localizingInfoWinforms);
 			}
 			_manager.LocalizableComponents.Add(locComponent, idToLocInfo);
 		}

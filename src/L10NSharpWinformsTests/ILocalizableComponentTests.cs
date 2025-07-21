@@ -18,7 +18,7 @@ namespace L10NSharpWinformsTests
 	[TestFixture]
 	public class ILocalizableComponentXLiffTests
 	{
-		private ILocalizationManagerInternalWinforms<XLiffDocument> m_manager;
+		private ILocalizationManagerInternal<XLiffDocument> m_manager;
 		private L10NSharpExtender m_extender;
 		private string m_translationPath;
 
@@ -30,9 +30,9 @@ namespace L10NSharpWinformsTests
 		protected void TestSetup(string installedTranslationDir)
 		{
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			m_manager = LocalizationManager.Create("en", "Test", "Test", "1.0",
+			m_manager = LocalizationManagerWinforms.Create("en", "Test", "Test", "1.0",
 					Path.Combine(dir, installedTranslationDir),
-					"", "", new string[] {  })
+					"", null, "", new string[] {  })
 				as ILocalizationManagerInternalWinforms<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };

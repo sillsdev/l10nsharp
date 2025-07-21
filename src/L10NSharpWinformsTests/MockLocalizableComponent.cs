@@ -50,7 +50,7 @@ namespace L10NSharpWinformsTests
 		/// Allows the MockLocalizableComponent to give L10NSharp the information it needs to put strings
 		/// into the localization UI to be localized.
 		/// </summary>
-		/// <returns>A list of LocalizingInfo objects</returns>
+		/// <returns>A list of LocalizingInfoWinforms objects</returns>
 		public IEnumerable<LocalizingInfoWinforms> GetAllLocalizingInfoObjects(L10NSharpExtender extender)
 		{
 			var result = new List<LocalizingInfoWinforms>();
@@ -67,7 +67,7 @@ namespace L10NSharpWinformsTests
 		/// L10NSharp will call this for each localized string so that the component can set
 		/// the correct value in the control.
 		/// </summary>
-		/// <param name="control">The control that was returned via the LocalizingInfo in
+		/// <param name="control">The control that was returned via the LocalizingInfoWinforms in
 		/// GetAllLocalizingInfoObjects(). Will be null if that value was null.</param>
 		/// <param name="id">a key into the ILocalizableComponent allowing it to know what
 		/// string to localize</param>
