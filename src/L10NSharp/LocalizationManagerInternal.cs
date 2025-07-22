@@ -71,8 +71,6 @@ namespace L10NSharp
 				PreviouslyLoadedManagers.Remove(appId);
 			}
 
-			//lm.ApplicationIcon = applicationIcon;
-
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
 				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -744,20 +742,6 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
-			/*if (component != null)
-			{
-				var lm = GetLocalizationManagerForComponent(component) ??
-						GetLocalizationManagerForString(stringId);
-
-				if (lm != null)
-				{
-					lm.RegisterComponentForLocalizing(component, stringId, englishText,
-						englishToolTipText, englishShortcutKey, comment);
-
-					return lm.GetLocalizedString(stringId, englishText);
-				}
-			}*/
-
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
