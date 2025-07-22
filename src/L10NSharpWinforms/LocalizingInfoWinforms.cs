@@ -40,7 +40,7 @@ namespace L10NSharpWinforms
 		{
 			Text = LocalizationManager.StripOffLocalizationInfoFromText(_component is DataGridViewColumn
 				? ((DataGridViewColumn) _component).HeaderText
-				: UtilsWinforms.GetProperty(_component, "Text") as string);
+				: Utils.GetProperty(_component, "Text") as string);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -48,9 +48,8 @@ namespace L10NSharpWinforms
 		/// Initializes a new instance of the <see cref="LocalizingInfoWinforms"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfoWinforms(IComponent component, string id) : this(component, true)
+		public LocalizingInfoWinforms(IComponent component, string id) : base(component, id)
 		{
-			Id = id;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -261,7 +260,7 @@ namespace L10NSharpWinforms
 
 		#region Properties
 		/// ------------------------------------------------------------------------------------
-		public bool IsEmpty
+		public new bool IsEmpty
 		{
 			get
 			{
@@ -328,7 +327,7 @@ namespace L10NSharpWinforms
 			{
 				if (_shortcutKeys == null && _component != null)
 				{
-					object keysobj = UtilsWinforms.GetProperty(_component, "ShortcutKeys");
+					object keysobj = Utils.GetProperty(_component, "ShortcutKeys");
 					if (keysobj != null && keysobj.GetType() == typeof(Keys))
 					{
 						Keys keys = (Keys)keysobj;

@@ -10,10 +10,9 @@ namespace L10NSharpWinforms.XLiffUtils
 	/// ----------------------------------------------------------------------------------------
 	internal class XliffLocalizedStringCacheWinforms : XliffLocalizedStringCache, ILocalizedStringCacheWinforms<XLiffDocument>
 	{
-		private readonly XliffTransUnitUpdater _tuUpdater;
 
 		public List<LocTreeNode<XLiffDocument>> LeafNodeList { get; private set; }
-		internal XliffLocalizationManagerWinforms OwningManager { get; private set; }
+		//internal XliffLocalizationManagerWinforms OwningManager { get; private set; }
 		private XLiffDocument DefaultXliffDocument { get; set; } // matches LanguageManager.kDefaultLanguage
 
 		/// <summary>
@@ -92,7 +91,7 @@ namespace L10NSharpWinforms.XLiffUtils
 						nodeCollection = nodes[0].Nodes;
 					else
 					{
-						newNode = new LocTreeNode<XLiffDocument>(OwningManager, groupChain[i], null,
+						newNode = new LocTreeNode<XLiffDocument>((XliffLocalizationManagerWinforms)OwningManager, groupChain[i], null,
 						nodeKey);
 						nodeCollection.Add(newNode);
 						nodeCollection = newNode.Nodes;
@@ -100,7 +99,7 @@ namespace L10NSharpWinforms.XLiffUtils
 				}
 
 				nodeKey = nodeKey + ("." + groupChain[0]).TrimStart('.');
-				newNode = new LocTreeNode<XLiffDocument>(OwningManager, groupChain[0], id, nodeKey);
+				newNode = new LocTreeNode<XLiffDocument>((XliffLocalizationManagerWinforms)OwningManager, groupChain[0], id, nodeKey);
 				nodeCollection.Add(newNode);
 				LeafNodeList.Add(newNode);
 			}

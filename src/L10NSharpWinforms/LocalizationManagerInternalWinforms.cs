@@ -17,14 +17,9 @@ using L10NSharpWinforms.XLiffUtils;
 
 namespace L10NSharpWinforms
 {
-	internal static class LocalizationManagerInternalWinforms<T>
+	internal class LocalizationManagerInternalWinforms<T> : LocalizationManagerInternal<T>
 	{
-		private static readonly Dictionary<string, ILocalizationManagerInternalWinforms<T>> s_loadedManagers =
-			new Dictionary<string, ILocalizationManagerInternalWinforms<T>>();
-		internal static Dictionary<string, ILocalizationManagerInternalWinforms<T>> LoadedManagers => s_loadedManagers;
-
-		private static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
-		internal static void RemoveManager(string id)
+		internal new static void RemoveManager(string id)
 		{
 			if (LoadedManagers.ContainsKey(id))
 			{
@@ -54,7 +49,7 @@ namespace L10NSharpWinforms
 				PreviouslyLoadedManagers.Remove(appId);
 			}
 
-			lm.ApplicationIcon = applicationIcon;
+			((ILocalizationManagerInternalWinforms<T>)lm).ApplicationIcon = applicationIcon;
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
@@ -135,16 +130,16 @@ namespace L10NSharpWinforms
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForComponent(
+		internal new static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForComponent(
 			IComponent component)
 		{
-			return LoadedManagers.Values.FirstOrDefault(lm => lm.ComponentCache.ContainsKey(component));
+			return (ILocalizationManagerInternalWinforms<T>)LoadedManagers.Values.FirstOrDefault(lm => lm.ComponentCache.ContainsKey(component));
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForString(string id)
+		internal new static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForString(string id)
 		{
-			return LoadedManagers.Values.FirstOrDefault(
+			return (ILocalizationManagerInternalWinforms<T>)LoadedManagers.Values.FirstOrDefault(
 				lm => lm.StringCache.GetString(LocalizationManager.UILanguageId, id) != null);
 		}
 
@@ -176,7 +171,7 @@ namespace L10NSharpWinforms
 			return parentControl;
 		}
 
-		/// <summary>
+		/*/// <summary>
 		/// Merge the existing English translation file into newly collected data and write the result to the temp
 		/// directory.
 		/// </summary>
@@ -212,7 +207,7 @@ namespace L10NSharpWinforms
 
 			return LocalizationManagerInternal<T>.GetStringFromAnyLocalizationManager(stringId) ??
 			       LocalizationManager.StripOffLocalizationInfoFromText(englishText);
-		}
+		}*/
 
 	}
 }

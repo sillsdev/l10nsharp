@@ -14,9 +14,9 @@ using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
-	internal static class LocalizationManagerInternal<T>
+	internal class LocalizationManagerInternal<T>
 	{
-		private static List<string> s_fallbackLanguageIds =
+		protected static List<string> s_fallbackLanguageIds =
 			new List<string>(new[] { LocalizationManager.kDefaultLang });
 
 		/// <summary>
@@ -47,11 +47,11 @@ namespace L10NSharp
 			return LocalizationManager.kDefaultLang;
 		}
 
-		private static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
+		protected static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
 			new Dictionary<string, ILocalizationManagerInternal<T>>();
 
 		#region Static methods for creating a LocalizationManagerInternal
-		private static ILocalizationManager Create(string desiredUiLangId, string appId,
+		protected static ILocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string relativeSettingPathForLocalizationFolder,
 			Func<string, ILocalizationManagerInternal<T>> createMethod)
 		{
@@ -170,7 +170,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal static Dictionary<string, ILocalizationManagerInternal<T>> LoadedManagers => s_loadedManagers;
 
-		private static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
+		protected static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
 
 		internal static void RemoveManager(string id)
 		{
@@ -690,7 +690,7 @@ namespace L10NSharp
 			return null;
 		}
 
-		private static string MapToExistingLanguageOrAddMapping(string stringId, string langId,
+		protected static string MapToExistingLanguageOrAddMapping(string stringId, string langId,
 			out string languageIdUsed)
 		{
 			var realLangId = MapToExistingLanguageIfPossible(langId);

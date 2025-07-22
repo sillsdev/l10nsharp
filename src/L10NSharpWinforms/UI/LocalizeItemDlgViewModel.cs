@@ -170,8 +170,8 @@ namespace L10NSharpWinforms.UI
 		{
 			AllLeafNodes = new List<LocTreeNode<T>>();
 
-			EnabledManagers = LocalizationManagerInternalWinforms<T>.LoadedManagers.Values
-				.OrderBy(lm => lm.Name).ToList();
+			EnabledManagers = LocalizationManagerInternal<T>.LoadedManagers.Values
+				.OrderBy(lm => lm.Name).Cast<ILocalizationManagerInternalWinforms<T>>().ToList();
 
 			foreach (var lm in EnabledManagers)
 			{

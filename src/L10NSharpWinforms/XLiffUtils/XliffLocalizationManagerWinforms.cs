@@ -29,7 +29,7 @@ namespace L10NSharpWinforms.XLiffUtils
 			params string[] namespaceBeginnings) :
 			base(appId, origExtension, appName, appVersion, directoryOfInstalledXliffFiles,
 				directoryForGeneratedDefaultXliffFile, directoryOfUserModifiedXliffFiles,
-				additionalLocalizationMethods, namespaceBeginnings)//base(appId, appName ?? appId, appVersion)
+				additionalLocalizationMethods, namespaceBeginnings)
 		{
 			ToolTipCtrls = new Dictionary<Control, ToolTip>();
 			StringCache = new XliffLocalizedStringCacheWinforms(this);
@@ -42,12 +42,6 @@ namespace L10NSharpWinforms.XLiffUtils
 		{
 			return File.Exists(DefaultStringFilePath) && !string.IsNullOrWhiteSpace(File.ReadAllText(DefaultStringFilePath));
 		}
-
-		/// ------------------------------------------------------------------------------------
-		/*public void Dispose()
-		{
-			LocalizationManagerInternal<XLiffDocument>.RemoveManager(Id);
-		}*/
 
 		#endregion
 

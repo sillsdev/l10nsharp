@@ -13,7 +13,7 @@ using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
-	public static class LocalizationManager
+	public class LocalizationManager
 	{
 		public const string kDefaultLang = "en";
 		internal const string kL10NPrefix = "_L10N_:";

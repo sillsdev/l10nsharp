@@ -24,8 +24,6 @@ namespace L10NSharp.XLiffUtils
 		private readonly Version _appVersion;
 
 		public Dictionary<IComponent, string> ComponentCache { get; }
-		//public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
-		//public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfo>> LocalizableComponents { get; }
 
 		#region Static methods
 		/// ------------------------------------------------------------------------------------
