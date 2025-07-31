@@ -13,12 +13,25 @@ using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp;
 using L10NSharpWinforms.XLiffUtils;
+using L10NSharpWinforms.UI;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
 namespace L10NSharpWinforms
 {
 	internal class LocalizationManagerInternalWinforms<T> : LocalizationManagerInternal<T>
 	{
+
+		/// <summary>
+		/// Function to choose a fallback language during construction. Overridable by unit tests.
+		/// </summary>
+		internal new static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
+		{
+			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
+			{
+				dlg.ShowDialog();
+				return dlg.SelectedLanguage;
+			}
+		};
 		internal new static void RemoveManager(string id)
 		{
 			if (LoadedManagers.ContainsKey(id))
@@ -58,7 +71,7 @@ namespace L10NSharpWinforms
 
 			if (!LocalizationManagerInternal<T>.IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
-				desiredUiLangId = LocalizationManagerInternal<T>.ChooseFallbackLanguage();
+				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
 			}
 
 			L10NSharp.LocalizationManager.SetUILanguage(desiredUiLangId, false);
@@ -170,44 +183,5 @@ namespace L10NSharpWinforms
 
 			return parentControl;
 		}
-
-		/*/// <summary>
-		/// Merge the existing English translation file into newly collected data and write the result to the temp
-		/// directory.
-		/// </summary>
-		public static void MergeExistingEnglishTranslationFileIntoNew(string installedStringFileFolder,
-			string appId)
-		{
-			if (!LoadedManagers.TryGetValue(appId, out var lm))
-				return;
-			if (!lm.StringCache.TryGetDocument("en", out var newDoc))
-				return;
-			var oldDocPath = Path.Combine(installedStringFileFolder,
-				LocalizationManager.GetTranslationFileNameForLanguage(appId, "en"));
-
-			lm.MergeTranslationDocuments(appId, newDoc, oldDocPath);
-		}
-
-		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
-			string englishShortcutKey, IComponent component)
-		{
-			if (component != null)
-			{
-				var lm = GetLocalizationManagerForComponent(component) ??
-						GetLocalizationManagerForString(stringId);
-
-				if (lm != null)
-				{
-					lm.RegisterComponentForLocalizing(component, stringId, englishText,
-						englishToolTipText, englishShortcutKey, comment);
-
-					return lm.GetLocalizedString(stringId, englishText);
-				}
-			}
-
-			return LocalizationManagerInternal<T>.GetStringFromAnyLocalizationManager(stringId) ??
-			       LocalizationManager.StripOffLocalizationInfoFromText(englishText);
-		}*/
-
 	}
 }

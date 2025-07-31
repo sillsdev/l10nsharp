@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>L10NSharp</RootNamespace>
-    <Description>L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which need localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
+    <Description>L10NSharp is a .NET localization library. It collects strings which need localization when your application first runs and saves them in a XLIFF file.</Description>
     <AssemblyTitle>L10NSharp</AssemblyTitle>
     <PackageId>L10NSharp</PackageId>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>

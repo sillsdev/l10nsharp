@@ -87,7 +87,7 @@ namespace L10NSharpWinforms.UI
 				Debug.Assert(ReallyDesignMode || value != null, "You need to enter the manager/package id for this L10NExtender");
 
 				_locManagerId = value;
-				if (value != null && !DesignMode && LocalizationManager.LoadedManagers.ContainsKey(_locManagerId))
+				if (value != null && !DesignMode && LocalizationManagerWinforms.LoadedManagers.ContainsKey(_locManagerId))
 				{
 					_manager = LocalizationManagerWinforms.LoadedManagers[_locManagerId];
 					LocalizeControls();

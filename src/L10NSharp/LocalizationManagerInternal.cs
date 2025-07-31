@@ -776,33 +776,6 @@ namespace L10NSharp
 			return stringFromAnyLocalizationManager;
 		}
 
-		/*/// ------------------------------------------------------------------------------------
-		public static string GetLocalizedToolTipForControl(Control ctrl)
-		{
-			var lm = GetLocalizationManagerForComponent(ctrl);
-			var topCtrl = GetRealTopLevelControl(ctrl);
-			if (topCtrl == null || lm == null)
-				return null;
-
-			return lm.ToolTipCtrls.TryGetValue(topCtrl, out var ttctrl) ? ttctrl.GetToolTip(ctrl)
-			 : null;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the real top level control (using the control's TopLevelControl property
-		/// seems to return null until the control is on a form).
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal static Control GetRealTopLevelControl(Control ctrl)
-		{
-			var parentControl = ctrl;
-			while (parentControl.Parent != null)
-				parentControl = parentControl.Parent;
-
-			return parentControl;
-		}*/
-
 		/// <summary>
 		/// Merge the existing English translation file into newly collected data and write the result to the temp
 		/// directory.
