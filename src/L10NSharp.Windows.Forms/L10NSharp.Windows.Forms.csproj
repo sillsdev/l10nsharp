@@ -1,0 +1,88 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>L10NSharp.Windows.Forms</RootNamespace>
+    <Description>L10NSharp.Windows.Forms is a .NET localization library for Windows Forms applications. It collects strings which need localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
+    <AssemblyTitle>L10NSharp.Windows.Forms</AssemblyTitle>
+    <PackageId>L10NSharp.Windows.Forms</PackageId>
+    <SignAssembly>True</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'net48' ">
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0-windows' ">
+    <PackageReference Include="System.ServiceModel.Http" Version="6.2.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="6.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="all" />
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="UI\CustomDropDownComboBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\DontShowThisAgainButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\EditSourceBeforeTranslatingDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\FallbackLanguagesDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\FallbackLanguagesDlgBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\Grid\LmGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\HowToDistributeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\InitializationProgressDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\InitializationProgressDlgBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\L10NExtender.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\LanguageChoosingDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\LanguageChoosingSimpleDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\LocalizeItemDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\PopupControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\ShortcutKeysDropDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\ShortcutKeysEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\TipDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\UILanguageComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\UILanguageListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\XButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
