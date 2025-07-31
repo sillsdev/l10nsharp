@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using L10NSharp.Properties;
+using L10NSharp.Windows.Forms.Properties;
 
 namespace L10NSharp.Windows.Forms.UI
 {
