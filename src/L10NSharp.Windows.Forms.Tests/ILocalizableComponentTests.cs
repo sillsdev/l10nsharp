@@ -1,10 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using L10NSharp;
 using L10NSharp.XLiffUtils;
-using L10NSharp.Windows.Forms;
-using L10NSharp.Windows.Forms.UIComponents;
 using NUnit.Framework;
 
 namespace L10NSharp.Windows.Forms.Tests
@@ -30,18 +27,18 @@ namespace L10NSharp.Windows.Forms.Tests
 		protected void TestSetup(string installedTranslationDir)
 		{
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			m_manager = LocalizationManagerWinforms.Create("en", "Test", "Test", "1.0",
+			m_manager = LocalizationManagerWinforms.Create("en", "LocalizableComponentTest", "LocalizableComponentTest", "1.0",
 					Path.Combine(dir, installedTranslationDir),
 					"", null, "", new string[] {  })
 				as ILocalizationManagerInternalWinforms<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
-			m_extender = new L10NSharpExtender { LocalizationManagerId = "Test" };
+			m_extender = new L10NSharpExtender { LocalizationManagerId = "LocalizableComponentTest" };
 		}
 
 		[SetUp]
 		public void TestSetup()
 		{
-			TestSetup("../../../src/L10NSharp.Tests/TestXliff");
+			TestSetup("../../../src/L10NSharp.Windows.Forms.Tests/TestXliff");
 		}
 
 		/// ------------------------------------------------------------------------------------
