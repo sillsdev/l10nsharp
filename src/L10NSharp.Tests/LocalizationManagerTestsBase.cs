@@ -1006,42 +1006,5 @@ namespace L10NSharp.Tests
 				Assert.That(languageIdUsed, Is.EqualTo("zh-CN"));
 			}
 		}
-
-		/*[Test]
-		public void TestMappingLanguageCodesToAvailable_AmbiguousOptions_PromptsUser([Values("zh-CN", "zh-TW")] string choice)
-		{
-			LocalizationManager.SetUILanguage("en", true);
-			LocalizationManagerInternal<T>.LoadedManagers.Clear();
-			using (var folder = new TempFolder())
-			{
-				var installedFolder = Path.Combine(folder.Path, "installed");
-				// ReSharper disable once AssignNullToNotNullAttribute
-				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
-					Path.GetFileName(folder.Path), "user");
-				AddEnglishTranslation(installedFolder, null);
-				AddChineseOfChinaTranslation(installedFolder);
-				AddChineseOfTaiwanTranslation(installedFolder);
-				var userPromptCount = 0;
-				LocalizationManagerInternal<T>.ChooseFallbackLanguage = (langTag, icon) =>
-				{
-					userPromptCount++;
-					Assert.That(langTag, Is.EqualTo("zh"));
-					return choice;
-				};
-				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
-					userRelativeFolder, null, null, new string[] { });
-				Assert.That(userPromptCount, Is.EqualTo(1));
-				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
-
-				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
-				Assert.That(langs, Is.EquivalentTo(new[] { "en", "zh-CN", "zh-TW" }));
-				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo(choice));
-
-				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.False, "zh is ambiguous");
-				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
-				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-TW");
-				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "en"), Is.True, "en should find en");
-			}
-		}*/
 	}
 }

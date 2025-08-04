@@ -37,6 +37,10 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 				Dictionary<string, LocalizingInfoWinforms>>();
 		}
 
+		internal XliffLocalizationManagerWinforms(string appId, string appName, string appVersion) : base(appId, appName, appVersion)
+		{
+		}
+
 		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
 		private bool DefaultStringFileExistsAndHasContents()
 		{
