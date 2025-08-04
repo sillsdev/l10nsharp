@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using L10NSharp.Windows.Forms.UI;
+using L10NSharp.Windows.Forms.UIComponents;
 using L10NSharp.XLiffUtils;
 using L10NSharp;
 

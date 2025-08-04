@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using L10NSharp;
-using L10NSharp.Windows.Forms.UI;
+using L10NSharp.Windows.Forms.UIComponents;
 using NUnit.Framework;
 using L10NSharp.Windows.Forms;
 

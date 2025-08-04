@@ -24,69 +24,69 @@
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="L10NExtender.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Update="UI\CustomDropDownComboBox.cs">
+    <Compile Update="UIComponents\CustomDropDownComboBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\DontShowThisAgainButton.cs">
+    <Compile Update="UIComponents\DontShowThisAgainButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="UI\EditSourceBeforeTranslatingDlg.cs">
+    <Compile Update="UIComponents\EditSourceBeforeTranslatingDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\FallbackLanguagesDlg.cs">
+    <Compile Update="UIComponents\FallbackLanguagesDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\FallbackLanguagesDlgBase.cs">
+    <Compile Update="UIComponents\FallbackLanguagesDlgBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\Grid\LmGrid.cs">
+    <Compile Update="UIComponents\Grid\LmGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="UI\HowToDistributeDialog.cs">
+    <Compile Update="UIComponents\HowToDistributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\InitializationProgressDlg.cs">
+    <Compile Update="UIComponents\InitializationProgressDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\InitializationProgressDlgBase.cs">
+    <Compile Update="UIComponents\InitializationProgressDlgBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\L10NExtender.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="UI\LanguageChoosingDialog.cs">
+    <Compile Update="UIComponents\LanguageChoosingDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\LanguageChoosingSimpleDialog.cs">
+    <Compile Update="UIComponents\LanguageChoosingSimpleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\LocalizeItemDlg.cs">
+    <Compile Update="UIComponents\LocalizeItemDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\PopupControl.cs">
+    <Compile Update="UIComponents\PopupControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\ShortcutKeysDropDown.cs">
+    <Compile Update="UIComponents\ShortcutKeysDropDown.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\ShortcutKeysEditor.cs">
+    <Compile Update="UIComponents\ShortcutKeysEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\TipDialog.cs">
+    <Compile Update="UIComponents\TipDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UI\UILanguageComboBox.cs">
+    <Compile Update="UIComponents\UILanguageComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="UI\UILanguageListBox.cs">
+    <Compile Update="UIComponents\UILanguageListBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="UI\XButton.cs">
+    <Compile Update="UIComponents\XButton.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>

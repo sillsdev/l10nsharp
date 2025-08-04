@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using L10NSharp;
 using L10NSharp.Windows.Forms;
-using L10NSharp.Windows.Forms.UI;
+using L10NSharp.Windows.Forms.UIComponents;
 
 namespace L10NSharp.Windows.Forms.Tests
 {

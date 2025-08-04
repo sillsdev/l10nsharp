@@ -2,7 +2,6 @@
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,9 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using L10NSharp;
 using L10NSharp.Windows.Forms.XLiffUtils;
-using L10NSharp.Windows.Forms.UI;
+using L10NSharp.Windows.Forms.UIComponents;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
 namespace L10NSharp.Windows.Forms
@@ -62,14 +60,15 @@ namespace L10NSharp.Windows.Forms
 				PreviouslyLoadedManagers.Remove(appId);
 			}
 
-			((ILocalizationManagerInternalWinforms<T>)lm).ApplicationIcon = applicationIcon;
+			if (lm is ILocalizationManagerInternalWinforms<T>)
+				((ILocalizationManagerInternalWinforms<T>)lm).ApplicationIcon = applicationIcon;
 
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
 				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 			}
 
-			if (!LocalizationManagerInternal<T>.IsDesiredUiCultureAvailable(desiredUiLangId))
+			if (!LocalizationManagerInternalWinforms<T>.IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
 				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
 			}

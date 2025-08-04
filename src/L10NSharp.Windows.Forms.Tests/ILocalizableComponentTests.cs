@@ -4,7 +4,7 @@ using System.Reflection;
 using L10NSharp;
 using L10NSharp.XLiffUtils;
 using L10NSharp.Windows.Forms;
-using L10NSharp.Windows.Forms.UI;
+using L10NSharp.Windows.Forms.UIComponents;
 using NUnit.Framework;
 
 namespace L10NSharp.Windows.Forms.Tests

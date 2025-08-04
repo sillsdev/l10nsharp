@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using L10NSharp.Windows.Forms.UI;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms
 {
