@@ -21,20 +21,6 @@ namespace L10NSharp
 			}
 		}
 
-
-		[DllImport("user32.dll", CharSet = CharSet.Auto, EntryPoint = "SendMessage")]
-		private static extern void SendMessageWindows(IntPtr hWnd, int msg, int wParam, int lParam);
-
-		public static void SendMessage(IntPtr hWnd, int msg, int wParam, int lParam)
-		{
-			if (IsMono)
-				Console.WriteLine("Warning--using unimplemented method SendMessage"); // FIXME Linux
-			else
-			{
-				SendMessageWindows(hWnd, msg, wParam, lParam);
-			}
-		}
-
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Asks whether the specified property on the specified binding exists.
