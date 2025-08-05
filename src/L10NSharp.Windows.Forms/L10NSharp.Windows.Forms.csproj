@@ -65,9 +65,6 @@
     <Compile Update="UIComponents\LanguageChoosingSimpleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UIComponents\LocalizeItemDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="UIComponents\PopupControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

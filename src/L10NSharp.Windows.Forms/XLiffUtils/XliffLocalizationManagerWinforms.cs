@@ -6,9 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using L10NSharp.Windows.Forms.UIComponents;
 using L10NSharp.XLiffUtils;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.XLiffUtils
 {
@@ -104,9 +102,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 						ComponentCache.Add(component, id);
 					else
 					{
-						// If this is the first time this object has passed this way, then
-						// prepare it to be available for end-user localization.
-						PrepareComponentForRuntimeLocalization(component);
 						ComponentCache.Add(component, id);
 						// Make it available for the config dialog to localize.
 						StringCache.UpdateLocalizedInfo(info);
@@ -122,98 +117,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 #endif
 			}
 		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Prepares the specified component for runtime localization by subscribing to a
-		/// mouse down event that will monitor whether or not to show the localization
-		/// dialog box.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		private void PrepareComponentForRuntimeLocalization(IComponent component)
-		{
-			var toolStripItem = component as ToolStripItem;
-			if (toolStripItem != null)
-			{
-				toolStripItem.MouseDown += HandleToolStripItemMouseDown;
-				toolStripItem.Disposed += HandleToolStripItemDisposed;
-				return;
-			}
-
-			// For component that are part of an owning parent control that needs to
-			// do some special handling when the user wants to localize, we need
-			// the parent to subscribe to the mouse event, but we don't want to
-			// subscribe once per column/page, so we first unsubscribe and then
-			// subscribe. It's a little ugly, but there doesn't seem to be a better way:
-			// http://stackoverflow.com/questions/399648/preventing-same-event-handler-assignment-multiple-times
-
-			var ctrl = component as Control;
-			if (ctrl != null)
-			{
-				ctrl.Disposed += HandleControlDisposed;
-
-				TabPage tpg = ctrl as TabPage;
-				if (tpg != null && tpg.Parent is TabControl)
-				{
-					tpg.Parent.MouseDown -= HandleControlMouseDown;
-					tpg.Parent.MouseDown += HandleControlMouseDown;
-					tpg.Parent.Disposed -= HandleControlDisposed;
-					tpg.Parent.Disposed += HandleControlDisposed;
-					tpg.Disposed += HandleTabPageDisposed;
-					return;
-				}
-
-				ctrl.MouseDown += HandleControlMouseDown;
-				return;
-			}
-
-			var columnHeader = component as ColumnHeader;
-			if (columnHeader != null && columnHeader.ListView != null)
-			{
-				columnHeader.ListView.Disposed -= HandleListViewDisposed;
-				columnHeader.ListView.Disposed += HandleListViewDisposed;
-				columnHeader.ListView.ColumnClick -= HandleListViewColumnHeaderClicked;
-				columnHeader.ListView.ColumnClick += HandleListViewColumnHeaderClicked;
-				columnHeader.Disposed += HandleListViewColumnDisposed;
-			}
-
-			var dataGridViewColumn = component as DataGridViewColumn;
-			if (dataGridViewColumn != null && dataGridViewColumn.DataGridView != null)
-			{
-				dataGridViewColumn.DataGridView.CellMouseDown -= HandleDataGridViewCellMouseDown;
-				dataGridViewColumn.DataGridView.CellMouseDown += HandleDataGridViewCellMouseDown;
-				dataGridViewColumn.DataGridView.Disposed -= HandleDataGridViewDisposed;
-				dataGridViewColumn.DataGridView.Disposed += HandleDataGridViewDisposed;
-				dataGridViewColumn.Disposed += HandleColumnDisposed;
-			}
-		}
-		#endregion
-
-		#region Methods for showing localization dialog box
-		/// ------------------------------------------------------------------------------------
-		public void ShowLocalizationDialogBox(bool runInReadonlyMode, IWin32Window owner = null)
-		{
-			LocalizeItemDlg<XLiffDocument>.ShowDialog(this, "", runInReadonlyMode, owner);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public static void ShowLocalizationDialogBox(IComponent component,
-			IWin32Window owner = null)
-		{
-			if (owner == null)
-				owner = (component as Control)?.FindForm();
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<XLiffDocument>.ShowDialog(LocalizationManagerInternal<XLiffDocument>.GetLocalizationManagerForComponent(component),
-				component, false, owner);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public static void ShowLocalizationDialogBox(string id, IWin32Window owner = null)
-		{
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<XLiffDocument>.ShowDialog(LocalizationManagerInternal<XLiffDocument>.GetLocalizationManagerForString(id), id, false, owner);
-		}
-
 		#endregion
 
 		#region Non static methods for getting localized strings
@@ -252,8 +155,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		{
 			foreach (var component in ComponentCache.Keys)
 				ApplyLocalization(component);
-
-			LocalizeItemDlg<XLiffDocument>.FireStringsLocalizedEvent(this);
 		}
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -463,217 +364,10 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 		#endregion
 
-		#region Mouse down, handle destroyed, and dispose handlers
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Handles Ctrl-Shift-Click on ToolStripItems;
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleToolStripItemMouseDown(object sender, MouseEventArgs e)
-		{
-			if (!DoHandleMouseDown)
-				return;
-
-			// Make sure all drop-downs are closed that are in the
-			// chain of menu items for this item.
-			Form owningForm = null;
-			if (sender is ToolStripDropDownItem tsddi)
-			{
-				owningForm = tsddi.Owner?.FindForm();
-				while (tsddi != null)
-				{
-					tsddi.DropDown.Close();
-
-					if (tsddi.Owner is ContextMenuStrip menuStrip)
-						menuStrip.Close();
-
-					tsddi = tsddi.OwnerItem as ToolStripDropDownItem;
-				}
-			}
-
-			LocalizeItemDlg<XLiffDocument>.ShowDialog(this, (IComponent)sender, false,
-				owningForm);
-		}
-
-		private static bool DoHandleMouseDown =>
-			LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog &&
-			Control.ModifierKeys == (Keys.Alt | Keys.Shift);
-
 		public Icon ApplicationIcon
 		{
 			get => _applicationIcon;
 			set => _applicationIcon = value;
 		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Handles the tool strip item disposed.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		private void HandleToolStripItemDisposed(object sender, EventArgs e)
-		{
-			if (sender is ToolStripItem item)
-			{
-				item.MouseDown -= HandleToolStripItemMouseDown;
-				item.Disposed -= HandleToolStripItemDisposed;
-
-				ComponentCache.Remove(item);
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Handles Alt-Shift-Click on controls.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleControlMouseDown(object sender, MouseEventArgs e)
-		{
-			if (!DoHandleMouseDown)
-				return;
-
-			var ctrl = sender as Control;
-
-			if (ctrl is TabControl tabControl)
-			{
-				for (int i = 0; i < tabControl.TabPages.Count; i++)
-				{
-					if (tabControl.GetTabRect(i).Contains(e.Location))
-					{
-						ctrl = tabControl.TabPages[i];
-						break;
-					}
-				}
-			}
-
-			var lm = LocalizationManagerInternal<XLiffDocument>.GetLocalizationManagerForComponent(ctrl);
-
-			LocalizationManager.OnLaunchingLocalizationDialog(lm);
-			LocalizeItemDlg<XLiffDocument>.ShowDialog(lm, ctrl, false, ctrl?.FindForm());
-			LocalizationManager.OnClosingLocalizationDialog(lm);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When controls get destroyed, do a little clean-up.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleControlDisposed(object sender, EventArgs e)
-		{
-			var ctrl = sender as Control;
-			if (ctrl == null)
-				return;
-
-			ctrl.Disposed -= HandleControlDisposed;
-			ctrl.MouseDown -= HandleControlMouseDown;
-
-			ComponentCache.Remove(ctrl);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When a TabPage gets disposed, remove reference to it from the object cache.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleTabPageDisposed(object sender, EventArgs e)
-		{
-			if (!(sender is TabPage tabPage))
-				return;
-
-			tabPage.Disposed -= HandleTabPageDisposed;
-			ComponentCache.Remove(tabPage);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When DataGridView controls get disposed, do a little clean-up.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleDataGridViewDisposed(object sender, EventArgs e)
-		{
-			if (!(sender is DataGridView grid))
-				return;
-
-			grid.Disposed -= HandleControlDisposed;
-			grid.CellMouseDown -= HandleDataGridViewCellMouseDown;
-
-			ComponentCache.Remove(grid);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Handles ListView column header clicks. Unfortunately, even if the localization
-		/// dialog box is shown, this click on the header will not get eaten (like it does
-		/// for other controls). Therefore, if clicking on the column header sorts the column,
-		/// that sorting will take place after the dialog box is closed.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleListViewColumnHeaderClicked(object sender, ColumnClickEventArgs e)
-		{
-			if (!DoHandleMouseDown)
-				return;
-
-			if (sender is ListView lv && ComponentCache.ContainsKey(lv.Columns[e.Column]))
-				LocalizeItemDlg<XLiffDocument>.ShowDialog(this, lv.Columns[e.Column], false,
-					lv.FindForm());
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When ListView controls get disposed, do a little clean-up.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleListViewDisposed(object sender, EventArgs e)
-		{
-			if (!(sender is ListView lv))
-				return;
-
-			lv.Disposed -= HandleListViewDisposed;
-			lv.ColumnClick -= HandleListViewColumnHeaderClicked;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When ListView ColumnHeader controls get disposed, remove the reference to it from the
-		/// object cache.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleListViewColumnDisposed(object sender, EventArgs e)
-		{
-			if (!(sender is ColumnHeader column))
-				return;
-
-			column.Disposed -= HandleListViewColumnDisposed;
-			ComponentCache.Remove(column);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		internal void HandleDataGridViewCellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-		{
-			if (!DoHandleMouseDown)
-				return;
-
-			if (sender is DataGridView grid && e.RowIndex < 0 &&
-			    ComponentCache.ContainsKey(grid.Columns[e.ColumnIndex]))
-			{
-				LocalizeItemDlg<XLiffDocument>.ShowDialog(this, grid.Columns[e.ColumnIndex], false,
-					grid.FindForm());
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// When DataGridViewColumn controls get disposed, remove the reference to it from the
-		/// object cache.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void HandleColumnDisposed(object sender, EventArgs e)
-		{
-			if (!(sender is DataGridViewColumn column))
-				return;
-
-			column.Disposed -= HandleColumnDisposed;
-			ComponentCache.Remove(column);
-		}
-		#endregion
 	}
 }

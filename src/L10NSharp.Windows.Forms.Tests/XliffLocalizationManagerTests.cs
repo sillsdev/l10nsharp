@@ -162,7 +162,7 @@ namespace L10NSharp.Windows.Forms.Tests
 		{
 			LocalizationManager.SetUILanguage("en", true);
 			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
-			using (var folder = new TempFolder())
+			using (var folder = new L10NSharp.Tests.TempFolder())
 			{
 				var installedFolder = Path.Combine(folder.Path, "installed");
 				// ReSharper disable once AssignNullToNotNullAttribute

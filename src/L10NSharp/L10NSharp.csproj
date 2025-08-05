@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>L10NSharp</RootNamespace>
     <Description>L10NSharp is a .NET localization library. It collects strings which need localization when your application first runs and saves them in a XLIFF file.</Description>

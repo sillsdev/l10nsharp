@@ -7,6 +7,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />
+    <ProjectReference Include="..\L10NSharp.Tests\L10NSharp.Tests.csproj" />
     <ProjectReference Include="..\L10NSharp.Windows.Forms\L10NSharp.Windows.Forms.csproj" />
 	</ItemGroup>
 	<ItemGroup>
