@@ -83,7 +83,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
@@ -135,7 +134,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
 		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
@@ -195,7 +193,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %localappdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating

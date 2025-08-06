@@ -87,6 +87,7 @@ namespace SampleApp
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
+						Resources.Icon, //replace with your icon
 						"sampleappLocalizations@nowhere.com",
 						new[] { "SampleApp" },
 						typeof(Program)
@@ -99,6 +100,7 @@ namespace SampleApp
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
+						Resources.Icon, //replace with your icon
 						"sampleappLocalizations@nowhere.com",
 						new[] { "SampleApp" });
 				}
