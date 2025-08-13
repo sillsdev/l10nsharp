@@ -1,8 +1,9 @@
 ## Overview
 
-L10NSharp is a .NET localization library for Windows Forms applications. It collects strings which
-need localization when your application first runs and saves them in a translation memory file. It
-can also dynamically collect strings at runtime.
+L10NSharp is a .NET localization library. It collects strings which need localization when your
+application first runs and saves them in a translation memory file. 
+
+L10NSharp.Windows.Forms builds on L10NSharp and should be used for localization of Windows Forms applications.
 
 L10NSharp works with XLIFF files as translation memory.
 
@@ -12,10 +13,24 @@ L10NSharp works with XLIFF files as translation memory.
 
 [![NuGet version (L10NSharp)](https://img.shields.io/nuget/v/L10NSharp.svg?style=flat-square)](https://www.nuget.org/packages/L10NSharp/)
 
-L10NSharp is provided as a [nuget package](https://www.nuget.org/packages/L10NSharp).
+L10NSharp and L10NSharp.Windows.Forms are provided as [nuget packages](https://www.nuget.org/packages/L10NSharp).
 
-To use L10NSharp in your application, simply call the `Create` method on `LocalizationManager`,
-passing the location of the translation memory files and some other information:
+To use L10NSharp in your application, call the `Create` method on `LocalizationManager`,
+passing the location of the translation memory XLIFF files and some other information:
+
+```csharp
+using (var lm = LocalizationManager.Create(lang, "SampleApp",
+    "SampleApp", productVersion, directoryOfInstalledXliffFiles, "MyCompany/L10NSharpSample",
+    "sample@example.com", "SampleApp")
+{
+    // existing code to run the application
+}
+```
+
+To use L10NSharp.Windows.Forms in your Windows forms application, you can call the `Create` method
+on `LocalizationManagerWinforms` instead, passing the location of the translation memory XLIFF
+files and the other information as above. Note that the `Create` for Windows forms applications can 
+optionally include an additional icon argument:
 
 ```csharp
 using (var lm = LocalizationManager.Create(lang, "SampleApp",
@@ -39,8 +54,10 @@ or `es/Whatever.xlf`).
 ### Selecting a Language
 
 If an exact match for the requested language is not available, L10NSharp will try to find the best available language. For example, if the client
-requests `es` but only `Whatever.es-ES.xlf` is available, `Whatever.es-ES.xlf` will be loaded automatically, and vice versa. However, if the client
-requests `es` and both `Whatever.es-ES.xlf` and `Whatever.es-MX.xlf` are available, or if no `Whatever.es[-details].xlf` is available, a dialog will
+requests `es` but only `Whatever.es-ES.xlf` is available, `Whatever.es-ES.xlf` will be loaded automatically, and vice versa. 
+
+In L10NSharp.Windows.Forms, if the client
+requests `es` and both `Whatever.es-ES.xlf` and `Whatever.es-MX.xlf` are available, or if no `Whatever.es[-details].xlf` is available, a Windows forms dialog will
 inform the user that the selected language is not available and prompt the user to select from the available languages.
 
 ## Thread safety
@@ -51,13 +68,8 @@ attempted to make the various varieties of `GetString` thread-safe,.
 
 ## L10NSharpExtender
 
-To localize a Windows Forms form or control, simply add the `L10NSharpExtender`. It will
+To localize a Windows Forms form or control, simply add the `L10NSharpExtender` from L10NSharp.Windows.Forms. It will
 automatically collect all the localizable strings on your form or control and its children.
-
-## Localizing Within the Application
-
-L10NSharp provides a dialog for translating terms while running the application. The dialog can be
-launched by Alt-Shift-clicking a Windows Forms element.
 
 ## Upgrading to a newer version
 
