@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms
 {

@@ -30,14 +30,6 @@ namespace L10NSharp.Windows.Forms
 				return dlg.SelectedLanguage;
 			}
 		};
-		internal new static void RemoveManager(string id)
-		{
-			if (LoadedManagers.ContainsKey(id))
-			{
-				LoadedManagers.Remove(id);
-				PreviouslyLoadedManagers.Add(id);
-			}
-		}
 
 		#region Static methods for creating a LocalizationManagerInternal
 		private static ILocalizationManager Create(string desiredUiLangId, string appId,

@@ -12,20 +12,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 	{
 
 		public List<LocTreeNode<XLiffDocument>> LeafNodeList { get; private set; }
-		//internal XliffLocalizationManagerWinforms OwningManager { get; private set; }
-		private XLiffDocument DefaultXliffDocument { get; set; } // matches LanguageManager.kDefaultLanguage
-
-		/// <summary>
-		/// Record the xliff document loaded for each language. Use this with care...XLiff documents are only
-		/// loaded as needed, so unless _unloadedXliffDocuments is empty, XliffDocuments won't necessarily
-		/// contain the one you want or have a complete list of keys. This class has its own GetDocument,
-		/// TryGetDocument, and AvailableLangKeys which should usually be used instead. To help enforce this,
-		/// XliffDocuments should be kept private, and any access to it should go through methods that
-		/// take lazy loading of Xliff documents into account.
-		/// </summary>
-		private readonly ConcurrentDictionary<string, XLiffDocument> XliffDocuments = new ConcurrentDictionary<string, XLiffDocument>();
-
-		private readonly ConcurrentDictionary<string, string> _unloadedXliffDocuments = new ConcurrentDictionary<string, string>();
 
 		#region Loading methods
 
@@ -49,16 +35,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 			string keys = GetValueForLangAndIdWithFallback(langId, id + kShortcutSuffix);
 			return ShortcutKeysEditor.KeysFromString(keys);
 		}
-
-		/*/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the localized tooltip text for the specified id and suffix.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public string GetShortcutKeysText(string langId, string id)
-		{
-			return GetValueForExactLangAndId(langId, id + kShortcutSuffix, false);
-		}*/
 
 		#endregion
 

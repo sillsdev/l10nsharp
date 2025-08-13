@@ -88,7 +88,7 @@ namespace L10NSharp
 			return lm;
 		}
 
-		public static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
+		protected static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
 		{
 			if (IsLocalizationAvailable(desiredUiLangId))
 				return true;

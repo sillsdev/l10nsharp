@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
   - Split ILocalizationManagerInternal into ILocalizationManagerInternal and ILocalizationManagerInternalWinforms.
 
+    CHANGED: ILocalizationManagerInternalWinforms\<T> declares a new StringCache object of type ILocalizedStringCacheWinforms\<T>, while ILocalizationManagerInternal\<T> has a StringCache object of type ILocalizedStringCache\<T>.
+
     MOVED: The properties ToolTipCtrls, LocalizableComponents, and ApplicationIcon; and the method RegisterComponentForLocalizing are moved to ILocalizationManagerInternalWinforms.
 
   - Split ILocalizedStringCache into ILocalizedStringCache and ILocalizedStringCacheWinforms.
