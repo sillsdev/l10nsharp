@@ -16,6 +16,72 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed 
+
+- BREAKING CHANGE: Move code that depends on Windows.Forms or System.Drawing into an 		L10NSharp.Windows.Forms namespace. Rename L10NSharp.UI as L10NSharp.Windows.Forms.UIComponents. Move L10NExtender out of UI subfolder into L10NSharp.Windows.Forms. Move Winforms related tests to L10NSharp.Windows.Forms.Tests. Change the folder for L10NSharp tests to match its namespace L10NSharp.Tests.
+
+   Classes that contain some properties or methods that depend on Windows.Forms are split into Winforms-dependent and Winforms-independent classes. The Winforms-dependent classes subclass the Winforms-independent ones and can be found in the L10NSharp.Windows.Forms namespace. (e.g. LocalizationManagerWinforms in the L10NSharp.Windows.Forms namespace is a subclass of LocalizationManager in the L10NSharp namespace.)
+
+   To handle Windows forms related objects, call the Winforms versions of these classes and methods (e.g. LocalizationManagerWinforms.Create() instead of LocalizationManager.Create()). Each affected interface or class and its affected properties and methods are listed below.
+
+  - Split ILocalizationManagerInternal into ILocalizationManagerInternal and ILocalizationManagerInternalWinforms.
+
+    MOVED: The properties ToolTipCtrls, LocalizableComponents, and ApplicationIcon; and the method RegisterComponentForLocalizing are moved to ILocalizationManagerInternalWinforms.
+
+  - Split ILocalizedStringCache into ILocalizedStringCache and ILocalizedStringCacheWinforms.
+
+    MOVED: The property LeafNodeList, and the methods GetShortcutKeys and LoadGroupNodes are moved to ILocalizedStringCacheWinforms.
+
+  - Split LocalizationManager into LocalizationManager and LocalizationManagerWinforms.
+
+    CHANGED: Remove static designation from LocalizationManager class in order for LocalizationManagerWinforms to subclass it and share its properties.
+
+    MOVED: The method GetLocalisedToolTipForControl as well as the non-obsolete Create methods that contain an Icon argument are moved to LocalizationManagerWinforms. (The two obsolete Create methods, which included a TranslationMemory argument are removed.)
+
+  - Split LocalizationManagerInternal into LocalizationManagerInternal and LocalizationManagerInternalWinforms.
+
+    CHANGED: Remove static designation from LocalizationManagerInternal class in order for LocalizationManagerInternalWinforms to subclass it and share its s_loadedManagers property.
+
+    CHANGED: Use different handling for ChooseFallbackLanguage in LocalizationManagerInternal that omits use of a Windows forms dialog for choosing the fallback. Retain original Winforms-dependent handling for ChooseFallbackLanguage in LocalizationManagerInternalWinforms.
+
+    CHANGED: Use different handling for GetString in LocalizationManagerInternal that omits handling of Winforms objects and methods. Retain original Winforms-dependent handling of GetString in LocalizationManagerInternalWinforms.
+
+    MOVED: The methods GetLocalizationManagerForComponent, GetLocalizationManagerForString, GetLocalizedToolTipForControl, GetRealTopLevelControl, and the non-deprecated Create methods with an Icon argument are moved to LocalizationManagerInternalWinforms. Deprecated Create methods are retained in LocalizationManagerWinforms with the Icon argument removed.
+
+  - Split LocalizingInfo into LocalizingInfo and LocalizingInfoWinforms.
+
+    CHANGED: Make private properties protected. LocalizingInfo returns null for Id while LocalizingInfoWinforms retains method to make an Id from a winforms component.
+
+    MOVED: The get methods for ShortcutKeys and Id properties are moved to LocalizingInfoWinforms, since they involve winforms components; LocalizingInfo will return null for ShortcutKeys and Id. The methods UpdateTextFromObject, CreateIdIfMissing, MakeId, MakeIdForCtrl, MakeIdForColumnHeader, MakeIdForDataGridViewColumn, GetIdPrefix, OwningFormName and GetCategory are moved to LocalizingInfoWinforms
+
+  - Split Utils into Utils and UtilsWinforms.
+
+    MOVED: The methods SendMessage, SendMessageWindows and SetWindowRedraw are moved to UtilsWinforms.
+
+  - Split XliffLocalizationManager into XliffLocalizationManager and XliffLocalizationManagerWinforms.
+ 
+    MOVED: The following are moved to XliffLocalizationManagerWinforms:
+
+    - The properties ApplicationIcon, ToolTipCtrls, LocalizableComponents and StringCache.
+    - The methods RegisterComponentForLocalizing, GetShortcutKeyFromStringCache, ApplyLocalizationToIlocalizableComponent, ReapplyLocalizationsToAllComponents, RefreshTooltips, ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ApplyLocalizationsToControl, ApplyLocalizedToolTipToControl, HandleToolTipRefChanged, HandleToolTipRefDestroyed, ApplyLocalizationsToToolStripItem, ApplyLocalizationToListViewColumnHeader, and ApplyLocalizationToDataGridViewColumn.
+
+  - Split XliffLocalizedStringCache into XliffLocalizedStringCacheWinforms and XliffLocalizedStringCache.
+
+    MOVED: The LeafNodeList property and the methods LoadGroupNodes and GetShortcutKeys are moved to XliffLocalizedStringCacheWinforms.
+   
+### Removed
+
+- BREAKING CHANGE: Remove code related to doing one's own localization at runtime. Also remove obsolete create methods from LocalizationManager.
+
+    In particular:
+
+    - Remove the LocalizeItemDlg designer, cs, resx, and viewmodel. 
+    - Remove ShowLocalizationDialogBox from LocalizationManager and LocalizationManagerInternal. 
+    - Remove the following runtime-localization related methods from XliffLocalizationManager:
+    PrepareComponentForRuntimeLocalization, HandleToolStripItemMouseDown, DoHandleMouseDown, HandeToolStripItemDisposed, HandleControlMouseDouwn, HandleControlDisposed, HandleTabPageDisposed, HandleDataGridViewDisposed, HandleListViewColumnHeaderClicked, HandleListViewDisposed, HandleListViewColumnDisposed, HandleDataGridViewCellMouseDown, HandleColumnDisposed, and ShowLocalizationDialogBox.
+    - Remove obsolete Create methods from LocalizationManager. These are the two Create methods that included a TranslationMemory argument.
+
+
 ## [8.0.0] - 2025-03-12
 
 ### Changed
