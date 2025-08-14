@@ -172,7 +172,7 @@ namespace L10NSharp.Windows.Forms.Tests
 				AddChineseOfChinaTranslation(installedFolder);
 				AddChineseOfTaiwanTranslation(installedFolder);
 				var userPromptCount = 0;
-				LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguage = (langTag, icon) =>
+				LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguageWinforms = (langTag, icon) =>
 				{
 					userPromptCount++;
 					Assert.That(langTag, Is.EqualTo("zh"));

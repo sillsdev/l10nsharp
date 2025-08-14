@@ -22,7 +22,7 @@ namespace L10NSharp.Windows.Forms
 		/// <summary>
 		/// Function to choose a fallback language during construction. Overridable by unit tests.
 		/// </summary>
-		internal new static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
+		internal static Func<string, Icon, string> ChooseFallbackLanguageWinforms = (desiredUiLangId, icon) =>
 		{
 			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
 			{
@@ -62,7 +62,7 @@ namespace L10NSharp.Windows.Forms
 
 			if (!LocalizationManagerInternalWinforms<T>.IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
-				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
+				desiredUiLangId = ChooseFallbackLanguageWinforms(desiredUiLangId, applicationIcon);
 			}
 
 			L10NSharp.LocalizationManager.SetUILanguage(desiredUiLangId, false);
@@ -195,14 +195,14 @@ namespace L10NSharp.Windows.Forms
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal new static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForComponent(
+		internal static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForComponentWinforms(
 			IComponent component)
 		{
 			return (ILocalizationManagerInternalWinforms<T>)LoadedManagers.Values.FirstOrDefault(lm => lm.ComponentCache.ContainsKey(component));
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal new static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForString(string id)
+		internal static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForStringWinforms(string id)
 		{
 			return (ILocalizationManagerInternalWinforms<T>)LoadedManagers.Values.FirstOrDefault(
 				lm => lm.StringCache.GetString(LocalizationManager.UILanguageId, id) != null);
@@ -212,7 +212,7 @@ namespace L10NSharp.Windows.Forms
 		/// ------------------------------------------------------------------------------------
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{
-			var lm = LocalizationManagerInternalWinforms<T>.GetLocalizationManagerForComponent(ctrl);
+			var lm = LocalizationManagerInternalWinforms<T>.GetLocalizationManagerForComponentWinforms(ctrl);
 			var topCtrl = GetRealTopLevelControl(ctrl);
 			if (topCtrl == null || lm == null)
 				return null;
