@@ -36,9 +36,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
   - Split LocalizationManager into LocalizationManager and LocalizationManagerWinforms.
 
-    CHANGED: Remove static designation from LocalizationManager class in order for LocalizationManagerWinforms to subclass it and share its properties.
+    CHANGED: Remove static designation from the LocalizationManager class in order for LocalizationManagerWinforms to subclass it and share its properties.
 
-    MOVED: The method GetLocalisedToolTipForControl as well as the non-obsolete Create methods that contain an Icon argument are moved to LocalizationManagerWinforms. (The two obsolete Create methods, which included a TranslationMemory argument are removed.)
+    CHANGED: The Icon argument is removed from the Create methods in LocalizationManager. Create methods for LocalizationManagerWinforms are available with and without the Icon argument. (The two obsolete create methods in LocalizationManager, which included a TranslationMemory argument, are removed.)
+
+    MOVED: The method GetLocalisedToolTipForControl is moved to LocalizationManagerWinforms.
 
   - Split LocalizationManagerInternal into LocalizationManagerInternal and LocalizationManagerInternalWinforms.
 
@@ -48,7 +50,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     CHANGED: Use different handling for GetString in LocalizationManagerInternal that omits handling of Winforms objects and methods. Retain original Winforms-dependent handling of GetString in LocalizationManagerInternalWinforms.
 
-    MOVED: The methods GetLocalizationManagerForComponent, GetLocalizationManagerForString, GetLocalizedToolTipForControl, GetRealTopLevelControl, and the non-deprecated Create methods with an Icon argument are moved to LocalizationManagerInternalWinforms. Deprecated Create methods are retained in LocalizationManagerWinforms with the Icon argument removed.
+    CHANGED: Remove Icon argument from the CreateXliff method in LocalizationManagerInternal. CreateXliff methods in LocalizationManagerInternalWinforms are available with and without the Icon argument.
+
+    CHANGED: In LocalizationManagerInternalWinforms, GetLocalizationManagerForComponent and GetLocalizationManagerForString, return type ILocalizationManagerInternalWinforms\<T> instead of ILocalizationManagerInternal\<T>.
+
+    MOVED: The methods GetLocalizedToolTipForControl, and GetRealTopLevelControl are moved to LocalizationManagerInternalWinforms. 
 
   - Split LocalizingInfo into LocalizingInfo and LocalizingInfoWinforms.
 

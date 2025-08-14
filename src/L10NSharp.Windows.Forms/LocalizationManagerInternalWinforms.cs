@@ -134,6 +134,67 @@ namespace L10NSharp.Windows.Forms
 		}
 
 		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Creates a new instance of a localization manager for the specified application id.
+		/// If a localization manager has already been created for the specified id, then
+		/// that is returned.
+		/// </summary>
+		/// <param name="desiredUiLangId">The language code of the desired UI language. If
+		/// there are no translations for that ID, a message is displayed and the UI language
+		/// falls back to the default.</param>
+		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
+		/// This should be a unique name that identifies the manager for an assembly or
+		/// application. May include an optional file extension, which will be stripped off but
+		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
+		/// base portion must still be unique (i.e., it is not valid to create a LM for
+		/// "Blah.exe" and another for "Blah.dll").</param>
+		/// <param name="appName">The application's name. This will appear to the user
+		/// in the localization dialog box as a parent item in the tree.</param>
+		/// <param name="appVersion"></param>
+		/// <param name="directoryOfInstalledXliffFiles">The full folder path of the original Xliff files
+		/// installed with the application.</param>
+		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
+		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
+		/// A folder named "localizations" will be created there.</param>
+		/// <param name="applicationIcon"> </param>
+		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
+		/// additional methods that should be regarded as calls to get localizations. If the method
+		/// is named "Localize", the extractor will attempt to parse its signature as an extension
+		/// method with the parameters (this string s, string separateId="", string comment="").
+		/// Otherwise, it will be treated like a L10nSharp GetString method if its signature
+		/// matches one of the following: (string stringId, string englishText),
+		/// (string stringId, string englishText, string comment), or
+		/// (string stringId, string englishText, string comment, string englishToolTipText,
+		/// string englishShortcutKey, IComponent component).</param>
+		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
+		/// what types to scan for localized string calls. For example, to only scan
+		/// types found in Pa.exe and assuming all types in that assembly begin with
+		/// 'Pa', then this value would only contain the string 'Pa'.</param>
+		/// ------------------------------------------------------------------------------------
+		public static ILocalizationManager CreateXliff(string desiredUiLangId, string appId,
+			string appName, string appVersion, string directoryOfInstalledXliffFiles,
+			string relativeSettingPathForLocalizationFolder,
+			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			params string[] namespaceBeginnings)
+		{
+			if (string.IsNullOrWhiteSpace(appId))
+				throw new ArgumentNullException(nameof(appId));
+			var origExeExtension = Path.GetExtension(appId);
+			if (origExeExtension == string.Empty)
+				origExeExtension = ".dll";
+			appId = Path.GetFileNameWithoutExtension(appId);
+
+			return Create(desiredUiLangId, appId, appName,
+				relativeSettingPathForLocalizationFolder, 
+				directoryOfWritableXliffFiles =>
+					(ILocalizationManagerInternalWinforms<T>)new XliffLocalizationManagerWinforms(appId, origExeExtension, appName,
+						appVersion, directoryOfInstalledXliffFiles,
+						directoryOfWritableXliffFiles, directoryOfWritableXliffFiles,
+						additionalLocalizationMethods,
+						namespaceBeginnings));
+		}
+
+		/// ------------------------------------------------------------------------------------
 		internal new static ILocalizationManagerInternalWinforms<T> GetLocalizationManagerForComponent(
 			IComponent component)
 		{
