@@ -92,7 +92,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 					ComponentCache[component] = id;  //somehow, we sometimes see "Msg: Index was outside the bounds of the array."
 				else
 				{
-					var lm = LocalizationManagerInternalWinforms<XLiffDocument>.GetLocalizationManagerForString(id);
+					var lm = LocalizationManagerInternalWinforms<XLiffDocument>.GetLocalizationManagerForStringWinforms(id);
 					if (lm != null && lm != this)
 					{
 						lm.RegisterComponentForLocalizing(info, successAction);
