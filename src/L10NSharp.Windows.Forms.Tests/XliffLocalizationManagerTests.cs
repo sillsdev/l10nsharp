@@ -87,7 +87,7 @@ namespace L10NSharp.Windows.Forms.Tests
 			LocalizationManager.UseLanguageCodeFolders = false;
 			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
 			LocalizationManagerInternalWinforms<XLiffDocument>.MapToExistingLanguage.Clear();
-			LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+			LocalizationManagerWinforms.SetUILanguage(LocalizationManager.kDefaultLang, false);
 		}
 
 		private void AddEnglishTranslation(string folderPath, string appVersion)
@@ -160,7 +160,7 @@ namespace L10NSharp.Windows.Forms.Tests
 		[Test]
 		public void TestMappingLanguageCodesToAvailable_AmbiguousOptions_PromptsUser([Values("zh-CN", "zh-TW")] string choice)
 		{
-			LocalizationManager.SetUILanguage("en", true);
+			LocalizationManagerWinforms.SetUILanguage("en", true);
 			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
 			using (var folder = new L10NSharp.Tests.TempFolder())
 			{

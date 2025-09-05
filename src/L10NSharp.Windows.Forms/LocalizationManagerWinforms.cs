@@ -121,6 +121,48 @@ namespace L10NSharp.Windows.Forms
 				additionalLocalizationMethods,
 				namespaceBeginnings);
 		}
+		public static void SetUILanguage(string langId,
+			bool reapplyLocalizationsToAllObjectsInAllManagers)
+		{
+			SetUILanguage(langId);
+
+			if (reapplyLocalizationsToAllObjectsInAllManagers)
+				ReapplyLocalizationsToAllObjectsInAllManagers();
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reapplies the localizations to all objects in the localization manager's cache of
+		/// localized objects.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
+		{
+			switch (TranslationMemoryKind)
+			{
+				default:
+				case TranslationMemory.XLiff:
+					LocalizationManagerInternalWinforms<XLiffDocument>.ReapplyLocalizationsToAllObjectsInAllManagers();
+					break;
+			}
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reapplies the localizations to all objects in the localization manager's cache of
+		/// localized objects.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
+		{
+			switch (TranslationMemoryKind)
+			{
+				default:
+				case TranslationMemory.XLiff:
+					LocalizationManagerInternalWinforms<XLiffDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
+					break;
+			}
+		}
 
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{

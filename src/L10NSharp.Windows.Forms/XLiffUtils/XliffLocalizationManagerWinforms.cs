@@ -151,11 +151,12 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// localized components.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public new void ReapplyLocalizationsToAllComponents()
+		public void ReapplyLocalizationsToAllComponents()
 		{
 			foreach (var component in ComponentCache.Keys)
 				ApplyLocalization(component);
 		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Recreates the tooltip control and updates the tooltip text for each object having
@@ -163,7 +164,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// during runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public new void RefreshToolTips()
+		public void RefreshToolTips()
 		{
 			foreach (var toolTipCtrl in ToolTipCtrls.Values)
 				toolTipCtrl.Dispose();
@@ -187,7 +188,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// Initializes the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public new void ApplyLocalization(IComponent component)
+		public void ApplyLocalization(IComponent component)
 		{
 			if (component == null)
 				return;

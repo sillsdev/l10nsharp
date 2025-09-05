@@ -92,11 +92,9 @@ namespace L10NSharp
 
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
-	/// This class is used to keep track of all the localization information (i.e. extended
-	/// properties of the LocalizationExtender) for a single object extended by the
-	/// LocalizationExtender. The type of object is either a Control or ToolStripItem and
-	/// the information kept track of is the text, tooltip, shortcut keys, localization
-	/// priority, comment and localization category.
+	/// This class is used to keep track, for a single object, of localization information that can
+	/// be determined without knowledge of Windows forms object types. It tracks text,
+	/// tooltip text, shortcut keys, localization priority, comment, and localization category.
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfo

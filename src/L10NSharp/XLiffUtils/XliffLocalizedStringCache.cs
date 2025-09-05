@@ -48,9 +48,9 @@ namespace L10NSharp.XLiffUtils
 				}
 				catch (Exception e)
 				{
-					//MessageBox.Show("Error occurred reading localization file:" + Environment.NewLine + e.Message,
-					//	Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-					LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+					Console.WriteLine("Error occurred reading localization file:");
+					Console.WriteLine(e.Message);
+					LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang);
 				}
 			}
 			else

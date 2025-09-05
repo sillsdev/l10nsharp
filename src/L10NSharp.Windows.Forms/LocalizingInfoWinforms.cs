@@ -6,21 +6,14 @@ namespace L10NSharp.Windows.Forms
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
-	/// This class is used to keep track of all the localization information (i.e. extended
-	/// properties of the LocalizationExtender) for a single object extended by the
-	/// LocalizationExtender. The type of object is either a Control or ToolStripItem and
-	/// the information kept track of is the text, tooltip, shortcut keys, localization
-	/// priority, comment and localization category.
+	/// This class extends LocalizingInfo and is used to determine and track localization information
+	/// (i.e. extended properties of the LocalizationExtender) that depends on the specific type of
+	/// Windows forms object being extended. It is used to get a component's ID, localization category,
+	/// or shortcut keys.
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfoWinforms : LocalizingInfo
 	{
-		//private string _id;
-		//private string _text;
-		//private string _shortcutKeys;
-		//private string _comment;
-		//private LocalizationCategory _category = LocalizationCategory.Unspecified;
-
 		#region Constructors
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -152,18 +145,6 @@ namespace L10NSharp.Windows.Forms
 			return (col == null || !col.HeaderText.StartsWith(LocalizationManager.kL10NPrefix) ?
 				null : GetIdFromText(col.HeaderText));
 		}
-
-		/*/// ------------------------------------------------------------------------------------
-		public static string GetIdFromText(string text)
-		{
-			if (text.StartsWith(LocalizationManager.kL10NPrefix))
-				text = text.Substring(LocalizationManager.kL10NPrefix.Length);
-
-			int i = text.IndexOf("!", StringComparison.Ordinal);
-			//review: this is what David had, but I don't understand it (and the unit test fails with it)
-					//return (i < 0 ? string.Empty : text.Substring(0, i));
-			return (i < 0 ? text : text.Substring(0, i));
-		}*/
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

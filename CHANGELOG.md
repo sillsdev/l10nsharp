@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     CHANGED: ILocalizationManagerInternalWinforms\<T> declares a new StringCache object of type ILocalizedStringCacheWinforms\<T>, while ILocalizationManagerInternal\<T> has a StringCache object of type ILocalizedStringCache\<T>.
 
-    MOVED: The properties ToolTipCtrls, LocalizableComponents, and ApplicationIcon; and the method RegisterComponentForLocalizing are moved to ILocalizationManagerInternalWinforms.
+    MOVED: The properties ToolTipCtrls, LocalizableComponents, and ApplicationIcon; and the methods ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ReapplyLocalizationsToAllComponents, and RegisterComponentForLocalizing are moved to ILocalizationManagerInternalWinforms.
 
   - Split ILocalizedStringCache into ILocalizedStringCache and ILocalizedStringCacheWinforms.
 
@@ -39,8 +39,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     CHANGED: Remove static designation from the LocalizationManager class in order for LocalizationManagerWinforms to subclass it and share its properties.
 
     CHANGED: The Icon argument is removed from the Create methods in LocalizationManager. Create methods for LocalizationManagerWinforms are available with and without the Icon argument. (The two obsolete create methods in LocalizationManager, which included a TranslationMemory argument, are removed.)
+	
+	CHANGED: SetUILanguage in LocalizationManager no longer reapplies localizations based on a reapplyLocalizationsToAllObjectsInAllManagers argument, since reapplying localizations is a Winforms method. SetUILanguage in LocalizationManagerWinforms retains this argument and reapplies localizations depending on its value.
 
-    MOVED: The method GetLocalisedToolTipForControl is moved to LocalizationManagerWinforms.
+    MOVED: The methods ReapplyLocalizationsToAllObjectsInAllManagers, ReapplyLocalizationsToAllObjects, and GetLocalisedToolTipForControl are moved to LocalizationManagerWinforms.
 
   - Split LocalizationManagerInternal into LocalizationManagerInternal and LocalizationManagerInternalWinforms.
 
@@ -54,7 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     CHANGED: In LocalizationManagerInternalWinforms, GetLocalizationManagerForComponent and GetLocalizationManagerForString, return type ILocalizationManagerInternalWinforms\<T> instead of ILocalizationManagerInternal\<T>.
 
-    MOVED: The methods GetLocalizedToolTipForControl, and GetRealTopLevelControl are moved to LocalizationManagerInternalWinforms. 
+    MOVED: The methods ReapplyLocalizationsToAllObjectsInAllManagers, ReapplyLocalizationsToAllObjects, GetLocalizedToolTipForControl, and GetRealTopLevelControl are moved to LocalizationManagerInternalWinforms. 
 
   - Split LocalizingInfo into LocalizingInfo and LocalizingInfoWinforms.
 
@@ -71,7 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     MOVED: The following are moved to XliffLocalizationManagerWinforms:
 
     - The properties ApplicationIcon, ToolTipCtrls, LocalizableComponents and StringCache.
-    - The methods RegisterComponentForLocalizing, GetShortcutKeyFromStringCache, ApplyLocalizationToIlocalizableComponent, ReapplyLocalizationsToAllComponents, RefreshTooltips, ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ApplyLocalizationsToControl, ApplyLocalizedToolTipToControl, HandleToolTipRefChanged, HandleToolTipRefDestroyed, ApplyLocalizationsToToolStripItem, ApplyLocalizationToListViewColumnHeader, and ApplyLocalizationToDataGridViewColumn.
+    - The methods RegisterComponentForLocalizing, GetShortcutKeyFromStringCache, ApplyLocalizationToIlocalizableComponent, ReapplyLocalizationsToAllComponents, RefreshToolips, ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ApplyLocalizationsToControl, ApplyLocalizedToolTipToControl, HandleToolTipRefChanged, HandleToolTipRefDestroyed, ApplyLocalizationsToToolStripItem, ApplyLocalizationToListViewColumnHeader, and ApplyLocalizationToDataGridViewColumn.
 
   - Split XliffLocalizedStringCache into XliffLocalizedStringCacheWinforms and XliffLocalizedStringCache.
 
@@ -83,12 +85,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     In particular:
 
-    - Remove the LocalizeItemDlg designer, cs, resx, and viewmodel. 
+	- Remove the LocalizeItemDlg designer, cs, resx, and viewmodel. 
     - Remove ShowLocalizationDialogBox from LocalizationManager and LocalizationManagerInternal. 
     - Remove the following runtime-localization related methods from XliffLocalizationManager:
     PrepareComponentForRuntimeLocalization, HandleToolStripItemMouseDown, DoHandleMouseDown, HandeToolStripItemDisposed, HandleControlMouseDouwn, HandleControlDisposed, HandleTabPageDisposed, HandleDataGridViewDisposed, HandleListViewColumnHeaderClicked, HandleListViewDisposed, HandleListViewColumnDisposed, HandleDataGridViewCellMouseDown, HandleColumnDisposed, and ShowLocalizationDialogBox.
     - Remove obsolete Create methods from LocalizationManager. These are the two Create methods that included a TranslationMemory argument.
 
+	Also, remove RefreshToolTips from ILocalizationManager. All references were already to specific implementations of the method, and RefreshToolTips is not needed in the Winforms-free side of L10NSharp.
 
 ## [8.0.0] - 2025-03-12
 

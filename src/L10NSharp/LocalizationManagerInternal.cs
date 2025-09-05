@@ -81,7 +81,7 @@ namespace L10NSharp
 				desiredUiLangId = ChooseFallbackLanguage();
 			}
 
-			LocalizationManager.SetUILanguage(desiredUiLangId, false);
+			LocalizationManager.SetUILanguage(desiredUiLangId);
 
 			LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog = true;
 
@@ -423,36 +423,6 @@ namespace L10NSharp
 		}
 
 		#endregion
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
-		{
-			if (LoadedManagers == null)
-				return;
-
-			foreach (var lm in LoadedManagers.Values)
-				lm.ReapplyLocalizationsToAllComponents();
-		}
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
-		{
-			if (LoadedManagers == null)
-				return;
-
-			if (LoadedManagers.TryGetValue(localizationManagerId, out var lm))
-				lm.ReapplyLocalizationsToAllComponents();
-		}
-
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

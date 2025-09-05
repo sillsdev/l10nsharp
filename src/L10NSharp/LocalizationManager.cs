@@ -151,8 +151,7 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static void SetUILanguage(string langId,
-			bool reapplyLocalizationsToAllObjectsInAllManagers)
+		public static void SetUILanguage(string langId)
 		{
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
@@ -168,9 +167,6 @@ namespace L10NSharp
 					LocalizationManagerInternal<XLiffDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 					break;
 			}
-
-			if (reapplyLocalizationsToAllObjectsInAllManagers)
-				ReapplyLocalizationsToAllObjectsInAllManagers();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -585,40 +581,6 @@ namespace L10NSharp
 			return UseLanguageCodeFolders
 				? Path.Combine(langId, $"{appId}{fileExtension}")
 				: $"{appId}.{langId}{fileExtension}";
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjectsInAllManagers();
-					break;
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
-					break;
-			}
 		}
 
 		/// <summary>

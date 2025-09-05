@@ -44,7 +44,7 @@ namespace L10NSharp.Tests
 			LocalizationManager.UseLanguageCodeFolders = false;
 			LocalizationManagerInternal<T>.LoadedManagers.Clear();
 			LocalizationManagerInternal<T>.MapToExistingLanguage.Clear();
-			LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang, false);
+			LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang);
 		}
 
 		/// <summary>
@@ -321,7 +321,7 @@ namespace L10NSharp.Tests
 			using(var folder = new TempFolder())
 			{
 				SetupManager(folder, "ar");
-				LocalizationManager.SetUILanguage(uiLangId, true);
+				LocalizationManager.SetUILanguage(uiLangId);
 				return LocalizationManager.GetDynamicStringOrEnglish(AppId, "blahId", "blahInEnglishInCode", "comment", langId);
 			}
 		}
@@ -472,7 +472,7 @@ namespace L10NSharp.Tests
 			AddFrenchTranslation(GetInstalledDirectory(folder));
 			AddSpanishTranslation(GetInstalledDirectory(folder));
 
-			LocalizationManager.SetUILanguage(uiLanguageId, true);
+			LocalizationManager.SetUILanguage(uiLanguageId);
 			var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
 				GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
 
@@ -664,7 +664,7 @@ namespace L10NSharp.Tests
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
-				LocalizationManager.SetUILanguage("ar", false);
+				LocalizationManager.SetUILanguage("ar");
 
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
@@ -686,7 +686,7 @@ namespace L10NSharp.Tests
 					GetInstalledDirectory(folder), GetUserModifiedDirectory(folder), GetUserModifiedDirectory(folder));
 
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
-				LocalizationManager.SetUILanguage("ar", false);
+				LocalizationManager.SetUILanguage("ar");
 
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "SuperClassMethod.TestId", null, null, "en"), Is.EqualTo("Title"));
 				Assert.That(LocalizationManager.GetDynamicStringOrEnglish(AppId, "AnotherContext.AnotherDialog.TestId", null, null, "en"), Is.EqualTo("Title"));
@@ -779,7 +779,7 @@ namespace L10NSharp.Tests
 				doc.AddTransUnit(tuF);
 				doc.Save(Path.Combine(folder.Path, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "fr")));
 
-				LocalizationManager.SetUILanguage("fr", true);
+				LocalizationManager.SetUILanguage("fr");
 				var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
@@ -804,7 +804,7 @@ namespace L10NSharp.Tests
 			// unchanged UI language.  Calling the method to set the fallback languages will
 			// possibly change the UI language to something less (or more) specific, and
 			// possibly have a longer fallback list.
-			LocalizationManager.SetUILanguage("es", true);
+			LocalizationManager.SetUILanguage("es");
 			Assert.AreEqual("es", LocalizationManager.UILanguageId);
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
@@ -814,7 +814,7 @@ namespace L10NSharp.Tests
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
 
-			LocalizationManager.SetUILanguage("fr-FR", true);
+			LocalizationManager.SetUILanguage("fr-FR");
 			Assert.AreEqual("fr-FR", LocalizationManager.UILanguageId);
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
@@ -823,7 +823,7 @@ namespace L10NSharp.Tests
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
 
-			LocalizationManager.SetUILanguage("en-GB", true);
+			LocalizationManager.SetUILanguage("en-GB");
 			Assert.AreEqual("en-GB", LocalizationManager.UILanguageId);
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
@@ -838,7 +838,7 @@ namespace L10NSharp.Tests
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
 
-			LocalizationManager.SetUILanguage("en-GB", true);
+			LocalizationManager.SetUILanguage("en-GB");
 			Assert.AreEqual("en-GB", LocalizationManager.UILanguageId);
 			Assert.AreEqual(1, LocalizationManager.FallbackLanguageIds.Count());
 			Assert.AreEqual("en", LocalizationManager.FallbackLanguageIds.First());
@@ -868,7 +868,7 @@ namespace L10NSharp.Tests
 				AddFrenchTranslation(GetInstalledDirectory(folder));
 				AddSpanishTranslation(GetInstalledDirectory(folder));
 
-				LocalizationManager.SetUILanguage("ha", true);
+				LocalizationManager.SetUILanguage("ha");
 				var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
 					GetInstalledDirectory(folder), GetGeneratedDirectory(folder), GetUserModifiedDirectory(folder));
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
@@ -917,7 +917,7 @@ namespace L10NSharp.Tests
 		[Test]
 		public void TestMappingLanguageCodesToAvailable()
 		{
-			LocalizationManager.SetUILanguage("en", true);
+			LocalizationManager.SetUILanguage("en");
 			LocalizationManagerInternal<T>.LoadedManagers.Clear();
 			using (var folder = new TempFolder())
 			{
@@ -980,7 +980,7 @@ namespace L10NSharp.Tests
 		[Test]
 		public void TestMappingLanguageCodesToAvailable_FindsSpecificGivenGeneric()
 		{
-			LocalizationManager.SetUILanguage("en", true);
+			LocalizationManager.SetUILanguage("en");
 			LocalizationManagerInternal<T>.LoadedManagers.Clear();
 			using (var folder = new TempFolder())
 			{

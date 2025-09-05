@@ -65,7 +65,7 @@ namespace L10NSharp.Windows.Forms
 				desiredUiLangId = ChooseFallbackLanguageWinforms(desiredUiLangId, applicationIcon);
 			}
 
-			L10NSharp.LocalizationManager.SetUILanguage(desiredUiLangId, false);
+			LocalizationManagerWinforms.SetUILanguage(desiredUiLangId, false);
 
 			L10NSharp.LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog = true;
 
@@ -209,6 +209,43 @@ namespace L10NSharp.Windows.Forms
 		}
 
 		#endregion
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reapplies the localizations to all objects in the localization manager's cache of
+		/// localized objects.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
+		{
+			if (LoadedManagers == null)
+				return;
+
+			foreach (var lm in LoadedManagers.Values)
+				// ReapplyLocalizationsToAllComponents() is a no-op outside of Winforms.
+				// We only have something to do if lm is Winforms.
+				if(lm is ILocalizationManagerInternalWinforms<T>)
+					((ILocalizationManagerInternalWinforms<T>)lm).ReapplyLocalizationsToAllComponents();
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Reapplies the localizations to all objects in the localization manager's cache of
+		/// localized objects.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
+		{
+			if (LoadedManagers == null)
+				return;
+
+			if (LoadedManagers.TryGetValue(localizationManagerId, out var lm))
+				// ReapplyLocalizationsToAllComponents() is a no-op outside of Winforms.
+				// We only have something to do if lm is Winforms.
+				if (lm is ILocalizationManagerInternalWinforms<T>)
+					((ILocalizationManagerInternalWinforms<T>)lm).ReapplyLocalizationsToAllComponents();
+		}
+
 		/// ------------------------------------------------------------------------------------
 		public static string GetLocalizedToolTipForControl(Control ctrl)
 		{

@@ -10,11 +10,6 @@ namespace L10NSharp
 	{
 		Dictionary<IComponent, string> ComponentCache { get; }
 
-		void ApplyLocalization(IComponent component);
-		void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo);
-
-		void ReapplyLocalizationsToAllComponents();
-
 		string GetStringFromStringCache(string uiLangId, string id);
 
 		void SaveIfDirty(ICollection<string> langIdsToForceCreate);

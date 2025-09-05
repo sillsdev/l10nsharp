@@ -581,63 +581,6 @@ namespace L10NSharp.XLiffUtils
 		#endregion
 
 		#region Methods that apply localizations to an object.
-		public void ApplyLocalizationsToILocalizableComponent(LocalizingInfo locInfo)
-		{
-			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all components in the localization manager's cache of
-		/// localized components.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void ReapplyLocalizationsToAllComponents()
-		{
-			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Recreates the tooltip control and updates the tooltip text for each object having
-		/// a tooltip. This is necessary sometimes when controls get moved from form to form
-		/// during runtime.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void RefreshToolTips()
-		{
-			// Do nothing because we know we won't be dealing with tooltips outside of Winforms.
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Initializes the specified component.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public void ApplyLocalization(IComponent component)
-		{
-			// Do nothing because we won't be dealing with an ILocalizableComponent outside of Winforms.
-		}
-
-		/*/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Initializes the specified ILocalizableComponent.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalizationsToLocalizableComponent(
-			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfo> idToLocInfo)
-		{
-			if (locComponent == null)
-				return;
-
-			foreach (var kvp in idToLocInfo)
-			{
-				var id = kvp.Key;
-				var locInfo = kvp.Value;
-				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
-			}
-		}*/
-
 		protected static string UILanguageId => LocalizationManager.UILanguageId;
 
 		#endregion

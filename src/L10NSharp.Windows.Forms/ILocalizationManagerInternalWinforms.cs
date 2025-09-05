@@ -15,6 +15,10 @@ namespace L10NSharp.Windows.Forms
 		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfoWinforms>> LocalizableComponents { get; }
 		Icon ApplicationIcon { get; set; }
 
+		void ApplyLocalization(IComponent component);
+		void ApplyLocalizationsToILocalizableComponent(LocalizingInfoWinforms locInfo);
+		void ReapplyLocalizationsToAllComponents();
+
 		void RegisterComponentForLocalizing(IComponent component, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment);
 		void RegisterComponentForLocalizing(LocalizingInfoWinforms info,

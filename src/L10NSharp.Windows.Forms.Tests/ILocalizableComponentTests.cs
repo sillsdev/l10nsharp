@@ -79,7 +79,7 @@ namespace L10NSharp.Windows.Forms.Tests
 			Assert.AreEqual("Fish-eating bird", locComponent.GetLocalizedStringFromMock(locComponent.BirdButton, "TestItem.Bird.Eagle"));
 
 			// SUT2
-			LocalizationManager.SetUILanguage("fr", true);
+			LocalizationManagerWinforms.SetUILanguage("fr", true);
 
 			// Verify French
 			Assert.AreEqual("C'est un corbeau", locComponent.GetLocalizedStringFromMock(locComponent.BirdButton, "TestItem.Bird.Crow"));

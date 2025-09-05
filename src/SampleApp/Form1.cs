@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp;
+using L10NSharp.Windows.Forms;
 using SampleApp.Properties;
 
 namespace SampleApp
@@ -24,7 +25,7 @@ namespace SampleApp
 		private void uiLanguageComboBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			Settings.Default.UserInterfaceLanguage = uiLanguageComboBox1.SelectedLanguage;
-			LocalizationManager.SetUILanguage(uiLanguageComboBox1.SelectedLanguage, true);
+			LocalizationManagerWinforms.SetUILanguage(uiLanguageComboBox1.SelectedLanguage, true);
 			UpdateDynamicLabel();
 		}
 
