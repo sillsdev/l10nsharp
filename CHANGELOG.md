@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     MOVED: The following are moved to XliffLocalizationManagerWinforms:
 
     - The properties ApplicationIcon, ToolTipCtrls, LocalizableComponents and StringCache.
-    - The methods RegisterComponentForLocalizing, GetShortcutKeyFromStringCache, ApplyLocalizationToIlocalizableComponent, ReapplyLocalizationsToAllComponents, RefreshToolips, ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ApplyLocalizationsToControl, ApplyLocalizedToolTipToControl, HandleToolTipRefChanged, HandleToolTipRefDestroyed, ApplyLocalizationsToToolStripItem, ApplyLocalizationToListViewColumnHeader, and ApplyLocalizationToDataGridViewColumn.
+    - The methods RegisterComponentForLocalizing, GetShortcutKeyFromStringCache, ApplyLocalizationToIlocalizableComponent, ReapplyLocalizationsToAllComponents, RefreshToolTips, ApplyLocalization, ApplyLocalizationsToILocalizableComponent, ApplyLocalizationsToControl, ApplyLocalizedToolTipToControl, HandleToolTipRefChanged, HandleToolTipRefDestroyed, ApplyLocalizationsToToolStripItem, ApplyLocalizationToListViewColumnHeader, and ApplyLocalizationToDataGridViewColumn.
 
   - Split XliffLocalizedStringCache into XliffLocalizedStringCacheWinforms and XliffLocalizedStringCache.
 
