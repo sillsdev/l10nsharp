@@ -4,20 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using L10NSharp.TMXUtils;
-using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
-	public static class LocalizationManager
+	public class LocalizationManager
 	{
 		public const string kDefaultLang = "en";
 		internal const string kL10NPrefix = "_L10N_:";
@@ -69,119 +65,6 @@ namespace L10NSharp
 		/// If a localization manager has already been created for the specified id, then
 		/// that is returned.
 		/// </summary>
-		/// <param name="kind">Translation memory type to use</param>
-		/// <param name="desiredUiLangId">The language code of the desired UI language. If
-		/// there are no translations for that ID, a message is displayed and the UI language
-		/// falls back to the default.</param>
-		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
-		/// This should be a unique name that identifies the manager for an assembly or
-		/// application. May include an optional file extension, which will be stripped off but
-		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
-		/// base portion must still be unique (i.e., it is not valid to create a LM for
-		/// "Blah.exe" and another for "Blah.dll").</param>
-		/// <param name="appName">The application's name. This will appear to the user
-		/// in the localization dialog box as a parent item in the tree.</param>
-		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
-		/// files installed with the application.</param>
-		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
-		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
-		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
-		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
-		/// know what to do with their work</param>
-		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
-		/// what types to scan for localized string calls. For example, to only scan
-		/// types found in Pa.exe and assuming all types in that assembly begin with
-		/// 'Pa', then this value would only contain the string 'Pa'.</param>
-		/// ------------------------------------------------------------------------------------
-		[Obsolete("Use the overload without `TranslationMemory kind` parameter.")]
-		public static ILocalizationManager Create(TranslationMemory kind, string desiredUiLangId,
-			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
-			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions, params string[] namespaceBeginnings)
-		{
-			if (kind != TranslationMemory.XLiff)
-			{
-				throw new ArgumentException($@"Unknown translation memory kind {kind}. Only XLiff
-				 is supported.",
-					nameof(kind));
-			}
-
-			return Create(desiredUiLangId,
-				appId, appName, appVersion, directoryOfInstalledFiles,
-				relativeSettingPathForLocalizationFolder,
-				applicationIcon, emailForSubmissions,
-				namespaceBeginnings);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Creates a new instance of a localization manager for the specified application id.
-		/// If a localization manager has already been created for the specified id, then
-		/// that is returned.
-		/// </summary>
-		/// <param name="kind">Translation memory type to use</param>
-		/// <param name="desiredUiLangId">The language code of the desired UI language. If
-		/// there are no translations for that ID, a message is displayed and the UI language
-		/// falls back to the default.</param>
-		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
-		/// This should be a unique name that identifies the manager for an assembly or
-		/// application. May include an optional file extension, which will be stripped off but
-		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
-		/// base portion must still be unique (i.e., it is not valid to create a LM for
-		/// "Blah.exe" and another for "Blah.dll").</param>
-		/// <param name="appName">The application's name. This will appear to the user
-		/// in the localization dialog box as a parent item in the tree.</param>
-		/// <param name="appVersion"></param>
-		/// <param name="directoryOfInstalledFiles">The full folder path of the original l10n
-		/// files installed with the application.</param>
-		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
-		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
-		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
-		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
-		/// know what to do with their work</param>
-		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
-		/// additional methods that should be regarded as calls to get localizations. If the method
-		/// is named "Localize", the extractor will attempt to parse its signature as an extension
-		/// method with the parameters (this string s, string separateId="", string comment="").
-		/// Otherwise, it will be treated like a L10nSharp GetString method if its signature
-		/// matches one of the following: (string stringId, string englishText),
-		/// (string stringId, string englishText, string comment), or
-		/// (string stringId, string englishText, string comment, string englishToolTipText,
-		/// string englishShortcutKey, IComponent component).</param>
-		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
-		/// what types to scan for localized string calls. For example, to only scan
-		/// types found in Pa.exe and assuming all types in that assembly begin with
-		/// 'Pa', then this value would only contain the string 'Pa'.</param>
-		/// ------------------------------------------------------------------------------------
-		[Obsolete("Use the overload without `TranslationMemory kind` parameter.")]
-		public static ILocalizationManager Create(TranslationMemory kind, string desiredUiLangId,
-			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
-			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions,
-			IEnumerable<MethodInfo> additionalLocalizationMethods,
-			params string[] namespaceBeginnings)
-		{
-			if (kind != TranslationMemory.XLiff)
-			{
-				throw new ArgumentException($@"Unknown translation memory kind {kind}. Only XLiff
-				 is supported.",
-					nameof(kind));
-			}
-
-			return Create(desiredUiLangId, appId, appName, appVersion, directoryOfInstalledFiles,
-				relativeSettingPathForLocalizationFolder, applicationIcon, emailForSubmissions,
-				namespaceBeginnings, additionalLocalizationMethods);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Creates a new instance of a localization manager for the specified application id.
-		/// If a localization manager has already been created for the specified id, then
-		/// that is returned.
-		/// </summary>
 		/// <param name="desiredUiLangId">The language code of the desired UI language. If
 		/// there are no translations for that ID, a message is displayed and the UI language
 		/// falls back to the default.</param>
@@ -199,7 +82,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %localappdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
 		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
 		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
@@ -219,7 +101,7 @@ namespace L10NSharp
 		public static ILocalizationManager Create(string desiredUiLangId,
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, string emailForSubmissions,
+			string emailForSubmissions,
 			string[] namespaceBeginnings,
 			IEnumerable<MethodInfo> additionalLocalizationMethods = null)
 		{
@@ -227,7 +109,7 @@ namespace L10NSharp
 			EmailForSubmissions = emailForSubmissions;
 			return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
 				appId, appName, appVersion, directoryOfInstalledFiles,
-				relativeSettingPathForLocalizationFolder, applicationIcon,
+				relativeSettingPathForLocalizationFolder,
 				additionalLocalizationMethods,
 				namespaceBeginnings);
 		}
@@ -269,8 +151,7 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public static void SetUILanguage(string langId,
-			bool reapplyLocalizationsToAllObjectsInAllManagers)
+		public static void SetUILanguage(string langId)
 		{
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
 				return;
@@ -286,9 +167,6 @@ namespace L10NSharp
 					LocalizationManagerInternal<XLiffDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 					break;
 			}
-
-			if (reapplyLocalizationsToAllObjectsInAllManagers)
-				ReapplyLocalizationsToAllObjectsInAllManagers();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -443,28 +321,6 @@ namespace L10NSharp
 				default:
 				case TranslationMemory.XLiff:
 					return LocalizationManagerInternal<XLiffDocument>.StringCount(lang);
-			}
-		}
-
-		public static void ShowLocalizationDialogBox(IComponent component)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(component);
-					break;
-			}
-		}
-
-		public static void ShowLocalizationDialogBox(string id)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ShowLocalizationDialogBox(id);
-					break;
 			}
 		}
 
@@ -725,50 +581,6 @@ namespace L10NSharp
 			return UseLanguageCodeFolders
 				? Path.Combine(langId, $"{appId}{fileExtension}")
 				: $"{appId}.{langId}{fileExtension}";
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjectsInAllManagers();
-					break;
-			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.ReapplyLocalizationsToAllObjects(localizationManagerId);
-					break;
-			}
-		}
-
-		public static string GetLocalizedToolTipForControl(Control ctrl)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					return LocalizationManagerInternal<XLiffDocument>.GetLocalizedToolTipForControl(ctrl);
-			}
 		}
 
 		/// <summary>

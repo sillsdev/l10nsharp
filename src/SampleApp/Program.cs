@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp;
+using L10NSharp.Windows.Forms;
 using SampleApp.Properties;
 using static System.String;
 
@@ -24,7 +25,7 @@ namespace SampleApp
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			if (args.Any(a => a == "-i:permissive"))
-				LocalizationManager.StrictInitializationMode = false;
+				LocalizationManagerWinforms.StrictInitializationMode = false;
 
 			try
 			{
@@ -32,7 +33,7 @@ namespace SampleApp
 				// InvalidOperationException, which we will catch and (for the purposes
 				// of this sample app) ignore.
 				MessageBox.Show(Format(
-						LocalizationManager.GetString("accessed.before.setting.up.lm",
+						LocalizationManagerWinforms.GetString("accessed.before.setting.up.lm",
 						"Localization is not yet set up, so this will always be in English. " +
 						"It should not cause anything bad to happen even if the current culture " +
 						"is some other variant of a localized language (e.g., es-MX). By the " +
@@ -42,7 +43,7 @@ namespace SampleApp
 			}
 			catch (InvalidOperationException ex)
 			{
-				if (LocalizationManager.StrictInitializationMode)
+				if (LocalizationManagerWinforms.StrictInitializationMode)
 					Trace.WriteLine($"Got expected {ex.GetType().FullName} exception: {ex.Message}");
 				else
 					throw;
@@ -50,7 +51,7 @@ namespace SampleApp
 
 			SetUpLocalization(args.Any(a => a == "-m"), args.Any(a => a == "-tmx"));
 
-			LocalizationManager.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
+			LocalizationManagerWinforms.SetUILanguage(Settings.Default.UserInterfaceLanguage, false);
 
 			Application.Run(new Form1());
 			Settings.Default.Save();
@@ -82,7 +83,7 @@ namespace SampleApp
 							"The generated localization file should contain this string and the window title.", "This is a comment"),
 						MyOwnGetString("SampleApp.InformationalMessageBox.Title", "Cool Title"));
 
-					_localizationManager = LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
+					_localizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
@@ -95,7 +96,7 @@ namespace SampleApp
 				}
 				else
 				{
-					_localizationManager = LocalizationManager.Create(theLanguageYouRememberedFromLastTime,
+					_localizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
@@ -104,7 +105,7 @@ namespace SampleApp
 						new[] { "SampleApp" });
 				}
 
-				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
+				Settings.Default.UserInterfaceLanguage = LocalizationManagerWinforms.UILanguageId;
 			}
 			catch (Exception error)
 			{

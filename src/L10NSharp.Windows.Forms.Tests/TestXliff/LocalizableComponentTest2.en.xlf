@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:html="http://www.w3.org/TR/html" xmlns:sil="http://sil.org/software/XLiff">
+<file source-language="en" product-version="1.0.0.0"  original="Palaso.dll" datatype="csharp" sil:hard-linebreak-replacement="\n">
+	<body>
+		<trans-unit id="TestItem.PlainText">
+			<source xml:lang="en">This is plain text.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Bold">
+			<source xml:lang="en">This is <g id="genid-1" ctype="x-html-strong">bold</g>.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Italic">
+			<source xml:lang="en">This is <g id="genid-2" ctype="x-html-em">italic</g>.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Superscript">
+			<source xml:lang="en">This is <g id="genid-3" ctype="x-html-sup">superscript</g>.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Link">
+			<source xml:lang="en">This is a <g id="genid-4" ctype="x-html-a" html:href="https://sil.org" html:id="note1">link</g>.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Image">
+			<source xml:lang="en">This has an embedded image: <x id="genid-5" ctype="image" html:src="images/test.png" html:alt="This is a test."/>.</source>
+		</trans-unit>
+		<trans-unit id="TestItem.Paragraph">
+			<source xml:lang="en"><g id="genid-6" ctype="x-html-p">This is a paragraph.</g></source>
+		</trans-unit>
+		<trans-unit id="TestItem.Div">
+			<source xml:lang="en"><g id="genid-7" ctype="x-html-div" html:class="author">This is a div.</g></source>
+		</trans-unit>
+		<trans-unit id="TestItem.Blockquote">
+			<source xml:lang="en"><g id="genid-8" ctype="x-html-blockquote" html:class="poetry">This is a block quote.</g></source>
+		</trans-unit>
+		<trans-unit id="TestItem.Pre">
+		  <source xml:lang="en"><g id="genid-9" ctype="x-html-pre">This is in\npresentation\ndisplay.</g></source>
+		</trans-unit>
+		<trans-unit id="TestItem.Multiple">
+		  <source xml:lang="en"><g id="genid-10" ctype="x-html-em">This</g> is more <g id="genid-11" ctype="x-html-a" html:href="https://mit.edu">complex</g><g id="genid-12" ctype="x-html-strong">!!</g></source>
+		</trans-unit>
+	</body>
+</file>
+</xliff>

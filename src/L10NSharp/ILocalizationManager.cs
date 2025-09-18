@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace L10NSharp
 {
@@ -81,17 +80,7 @@ namespace L10NSharp
 
 		bool DoesCustomizedTranslationExistForLanguage(string langId);
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Recreates the tooltip control and updates the tooltip text for each object having
-		/// a tooltip. This is necessary sometimes when controls get moved from form to form
-		/// during runtime.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		void RefreshToolTips();
-
 		void PrepareToCustomizeLocalizations();
-		void ShowLocalizationDialogBox(bool runInReadonlyMode, IWin32Window owner = null);
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

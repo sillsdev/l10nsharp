@@ -5,21 +5,18 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using L10NSharp.UI;
 using L10NSharp.XLiffUtils;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
 namespace L10NSharp
 {
-	internal static class LocalizationManagerInternal<T>
+	internal class LocalizationManagerInternal<T>
 	{
-		private static List<string> s_fallbackLanguageIds =
+		protected static List<string> s_fallbackLanguageIds =
 			new List<string>(new[] { LocalizationManager.kDefaultLang });
 
 		/// <summary>
@@ -43,24 +40,20 @@ namespace L10NSharp
 		internal static object LazyLoadLock = new object();
 
 		/// <summary>
-		/// Function to choose a fallback language during construction. Overridable by unit tests.
+		/// Function to choose a fallback language. Uses LocalizationManager's default. Overridable by unit tests.
 		/// </summary>
-		internal static Func<string, Icon, string> ChooseFallbackLanguage = (desiredUiLangId, icon) =>
+		internal static string ChooseFallbackLanguage()
 		{
-			using (var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(desiredUiLangId), icon))
-			{
-				dlg.ShowDialog();
-				return dlg.SelectedLanguage;
-			}
-		};
+			return LocalizationManager.kDefaultLang;
+		}
 
-		private static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
+		protected static readonly Dictionary<string, ILocalizationManagerInternal<T>> s_loadedManagers =
 			new Dictionary<string, ILocalizationManagerInternal<T>>();
 
 		#region Static methods for creating a LocalizationManagerInternal
-		private static ILocalizationManager Create(string desiredUiLangId, string appId,
+		protected static ILocalizationManager Create(string desiredUiLangId, string appId,
 			string appName, string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon, Func<string, ILocalizationManagerInternal<T>> createMethod)
+			Func<string, ILocalizationManagerInternal<T>> createMethod)
 		{
 			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
 				relativeSettingPathForLocalizationFolder = appName;
@@ -78,8 +71,6 @@ namespace L10NSharp
 				PreviouslyLoadedManagers.Remove(appId);
 			}
 
-			lm.ApplicationIcon = applicationIcon;
-
 			if (string.IsNullOrEmpty(desiredUiLangId))
 			{
 				desiredUiLangId = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -87,17 +78,17 @@ namespace L10NSharp
 
 			if (!IsDesiredUiCultureAvailable(desiredUiLangId))
 			{
-				desiredUiLangId = ChooseFallbackLanguage(desiredUiLangId, applicationIcon);
+				desiredUiLangId = ChooseFallbackLanguage();
 			}
 
-			LocalizationManager.SetUILanguage(desiredUiLangId, false);
+			LocalizationManager.SetUILanguage(desiredUiLangId);
 
 			LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog = true;
 
 			return lm;
 		}
 
-		private static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
+		protected static bool IsDesiredUiCultureAvailable(string desiredUiLangId)
 		{
 			if (IsLocalizationAvailable(desiredUiLangId))
 				return true;
@@ -154,7 +145,6 @@ namespace L10NSharp
 		public static ILocalizationManager CreateXliff(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledXliffFiles,
 			string relativeSettingPathForLocalizationFolder,
-			Icon applicationIcon,
 			IEnumerable<MethodInfo> additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
@@ -166,7 +156,7 @@ namespace L10NSharp
 			appId = Path.GetFileNameWithoutExtension(appId);
 
 			return Create(desiredUiLangId, appId, appName,
-				relativeSettingPathForLocalizationFolder, applicationIcon,
+				relativeSettingPathForLocalizationFolder,
 				directoryOfWritableXliffFiles =>
 					(ILocalizationManagerInternal<T>) new XliffLocalizationManager(appId, origExeExtension, appName,
 						appVersion, directoryOfInstalledXliffFiles,
@@ -178,7 +168,7 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		internal static Dictionary<string, ILocalizationManagerInternal<T>> LoadedManagers => s_loadedManagers;
 
-		private static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
+		protected static HashSet<string> PreviouslyLoadedManagers = new HashSet<string>();
 
 		internal static void RemoveManager(string id)
 		{
@@ -187,23 +177,6 @@ namespace L10NSharp
 				LoadedManagers.Remove(id);
 				PreviouslyLoadedManagers.Add(id);
 			}
-		}
-
-		internal static void ShowLocalizationDialogBox(IComponent component,
-			IWin32Window owner = null)
-		{
-			if (owner == null)
-				owner = (component as Control)?.FindForm();
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<T>.ShowDialog(GetLocalizationManagerForComponent(component),
-				component, false, owner);
-		}
-
-		public static void ShowLocalizationDialogBox(string id, IWin32Window owner = null)
-		{
-			TipDialog.ShowAltShiftClickTip(owner);
-			LocalizeItemDlg<T>.ShowDialog(GetLocalizationManagerForString(id),
-				id, false, owner);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -453,36 +426,6 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjectsInAllManagers()
-		{
-			if (LoadedManagers == null)
-				return;
-
-			foreach (var lm in LoadedManagers.Values)
-				lm.ReapplyLocalizationsToAllComponents();
-		}
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Reapplies the localizations to all objects in the localization manager's cache of
-		/// localized objects.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static void ReapplyLocalizationsToAllObjects(string localizationManagerId)
-		{
-			if (LoadedManagers == null)
-				return;
-
-			if (LoadedManagers.TryGetValue(localizationManagerId, out var lm))
-				lm.ReapplyLocalizationsToAllComponents();
-		}
-
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
 		/// Gets the text for the specified component. The englishText is returned when the text
 		/// for the specified object cannot be found for the current UI language.
 		/// </summary>
@@ -715,7 +658,7 @@ namespace L10NSharp
 			return null;
 		}
 
-		private static string MapToExistingLanguageOrAddMapping(string stringId, string langId,
+		protected static string MapToExistingLanguageOrAddMapping(string stringId, string langId,
 			out string languageIdUsed)
 		{
 			var realLangId = MapToExistingLanguageIfPossible(langId);
@@ -769,20 +712,6 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
-			if (component != null)
-			{
-				var lm = GetLocalizationManagerForComponent(component) ??
-						GetLocalizationManagerForString(stringId);
-
-				if (lm != null)
-				{
-					lm.RegisterComponentForLocalizing(component, stringId, englishText,
-						englishToolTipText, englishShortcutKey, comment);
-
-					return lm.GetLocalizedString(stringId, englishText);
-				}
-			}
-
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
@@ -815,33 +744,6 @@ namespace L10NSharp
 			}
 
 			return stringFromAnyLocalizationManager;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		public static string GetLocalizedToolTipForControl(Control ctrl)
-		{
-			var lm = GetLocalizationManagerForComponent(ctrl);
-			var topCtrl = GetRealTopLevelControl(ctrl);
-			if (topCtrl == null || lm == null)
-				return null;
-
-			return lm.ToolTipCtrls.TryGetValue(topCtrl, out var ttctrl) ? ttctrl.GetToolTip(ctrl)
-			 : null;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets the real top level control (using the control's TopLevelControl property
-		/// seems to return null until the control is on a form).
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		internal static Control GetRealTopLevelControl(Control ctrl)
-		{
-			var parentControl = ctrl;
-			while (parentControl.Parent != null)
-				parentControl = parentControl.Parent;
-
-			return parentControl;
 		}
 
 		/// <summary>
