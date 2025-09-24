@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [9.0.0] - 2025-09-24
+
 ### Changed 
 
 - BREAKING CHANGE: Move code that depends on Windows.Forms or System.Drawing into an 		L10NSharp.Windows.Forms namespace. Rename L10NSharp.UI as L10NSharp.Windows.Forms.UIComponents. Move L10NExtender out of UI subfolder into L10NSharp.Windows.Forms. Move Winforms related tests to L10NSharp.Windows.Forms.Tests. Change the folder for L10NSharp tests to match its namespace L10NSharp.Tests.
