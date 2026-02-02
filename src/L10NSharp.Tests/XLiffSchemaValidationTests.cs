@@ -18,7 +18,7 @@ namespace L10NSharp.Tests
 		{
 			get
 			{
-				var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+				var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				var installedXliffDir = "../../../src/L10NSharp.Tests/TestXliff";
 
 				var schemaLocation = Path.Combine(dir, installedXliffDir,

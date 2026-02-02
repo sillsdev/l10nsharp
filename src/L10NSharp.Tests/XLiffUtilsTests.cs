@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
@@ -13,9 +13,7 @@ namespace L10NSharp.Tests
 
 		public XLiffUtilsTests()
 		{
-			var asmFile = Assembly.GetExecutingAssembly().CodeBase.Replace("file://", String.Empty);
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-				asmFile = asmFile.TrimStart('/');
+			var asmFile = Assembly.GetExecutingAssembly().Location;
 			var folder = Path.GetDirectoryName(asmFile);	// will be something like <repodir>/output/Debug
 			folder = Path.GetDirectoryName(folder);
 			folder = Path.GetDirectoryName(folder);

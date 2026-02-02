@@ -54,10 +54,7 @@ namespace L10NSharp.Tests
 			File.WriteAllLines(_path, contentLines);
 		}
 
-		public string Path
-		{
-			get { return _path; }
-		}
+		public string Path => _path;
 
 		// See comment on class above regarding Dispose
 		public void Dispose()
@@ -97,7 +94,7 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// Use this one when it's important to have a certain file extension
 		/// </summary>
-		/// <param name="extension">with or with out '.', will work the same</param>
+		/// <param name="extension">with or without '.', will work the same</param>
 		public static TempFile WithExtension(string extension)
 		{
 			extension = extension.TrimStart('.');
@@ -109,16 +106,16 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// Use this one when it's important to have a certain file name (with, or without extension).
 		/// </summary>
-		/// <param name="filename">with or with out an extension, will work the same</param>
+		/// <param name="filename">with or without an extension, will work the same</param>
 		public static TempFile WithFilename(string filename)
 		{
 			if(filename == null)
-				throw new ArgumentNullException("filename");
+				throw new ArgumentNullException(nameof(filename));
 			if(filename == string.Empty)
-				throw new ArgumentException("Filename has no content", "filename");
+				throw new ArgumentException("Filename has no content", nameof(filename));
 			filename = filename.Trim();
 			if(filename == string.Empty)
-				throw new ArgumentException("Filename has only whitespace", "filename");
+				throw new ArgumentException("Filename has only whitespace", nameof(filename));
 
 			var pathname = System.IO.Path.Combine(System.IO.Path.GetTempPath(), filename);
 			File.Create(pathname).Close();
@@ -136,7 +133,7 @@ namespace L10NSharp.Tests
 			var tempFolder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
 			Directory.CreateDirectory(tempFolder);
 			var path = System.IO.Path.Combine(tempFolder, fileName);
-			var result = TempFile.TrackExisting(path);
+			var result = TrackExisting(path);
 			result._folderToDelete = tempFolder;
 			return result;
 		}
@@ -145,7 +142,7 @@ namespace L10NSharp.Tests
 		/// Used to make a real file out of a resource for the purpose of testing
 		/// </summary>
 		/// <param name="resource">e.g., an audio resource</param>
-		/// <param name="extension">with or with out '.', will work the same</param>
+		/// <param name="extension">with or without '.', will work the same</param>
 		public static TempFile FromResource(Stream resource, string extension)
 		{
 			var f = WithExtension(extension);
@@ -159,7 +156,7 @@ namespace L10NSharp.Tests
 		/// Used to make a real file out of a resource for the purpose of testing
 		/// </summary>
 		/// <param name="resource">e.g., a video resource</param>
-		/// <param name="extension">with or with out '.', will work the same</param>
+		/// <param name="extension">with or without '.', will work the same</param>
 		public static TempFile FromResource(byte[] resource, string extension)
 		{
 			var f = WithExtension(extension);
