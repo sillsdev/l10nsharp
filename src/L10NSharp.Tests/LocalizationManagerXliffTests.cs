@@ -38,7 +38,7 @@ namespace L10NSharp.Tests
 			string genericLocaleId, string countrySpecificLocalId)
 		{
 			LocalizationManager.ClearLoadedManagers();
-			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			var lm = LocalizationManager.Create(genericLocaleId, "Test", "Test", "1.0",
 				Path.Combine(dir, "../../../src/L10NSharp.Tests/TestXliff2"), "", "",
 				new string[] {});

@@ -26,7 +26,7 @@ namespace L10NSharp.Windows.Forms.Tests
 		/// ------------------------------------------------------------------------------------
 		protected void TestSetup(string installedTranslationDir)
 		{
-			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().Location).LocalPath);
 			m_manager = LocalizationManagerWinforms.Create("en", "LocalizableComponentTest", "LocalizableComponentTest", "1.0",
 					Path.Combine(dir, installedTranslationDir),
 					"", null, "", new string[] {  })
