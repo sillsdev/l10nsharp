@@ -20,12 +20,18 @@ namespace L10NSharp
 	/// Therefore, this class should only be used for situations where we know only
 	/// a limited set of languages will occur, such as Bloom's UI languages.
 	/// It should not be used where the name passed in will be an arbitrary vernacular
-	/// language code.  (It won't crash, but it won't provide any information.)
+	/// language code. (It won't crash, but it won't provide any information.)
 	/// </remarks>
 	public class L10NCultureInfo
 	{
 		public L10NCultureInfo(string name)
 		{
+			if (name == "tp")
+			{
+				// `tp` is a legacy (Crowdin) code for Tok Pisin, but the actual ISO code is `tpi`,
+				name = "tpi";
+			}
+
 			try
 			{
 				RawCultureInfo = CultureInfo.GetCultureInfo(name);

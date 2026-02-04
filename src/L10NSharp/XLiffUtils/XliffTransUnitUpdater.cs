@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace L10NSharp.XLiffUtils
@@ -51,8 +50,7 @@ namespace L10NSharp.XLiffUtils
 			var xliffSource = _stringCache.GetDocument(_defaultLang);
 			Debug.Assert(xliffSource != null);
 
-			XLiffDocument xliffTarget;
-			if (!_stringCache.TryGetDocument(locInfo.LangId, out xliffTarget))
+			if (!_stringCache.TryGetDocument(locInfo.LangId, out var xliffTarget))
 			{
 				xliffTarget = new XLiffDocument();
 				xliffTarget.File.AmpersandReplacement = xliffSource.File.AmpersandReplacement;
@@ -210,9 +208,11 @@ namespace L10NSharp.XLiffUtils
 			// source language value (if any).
 			if (tuTarget == null)
 			{
-				tuTarget = new XLiffTransUnit();
-				tuTarget.Id = tuId;
-				tuTarget.Dynamic = locInfo.DiscoveredDynamically;
+				tuTarget = new XLiffTransUnit
+				{
+					Id = tuId,
+					Dynamic = locInfo.DiscoveredDynamically
+				};
 				xliffTarget.AddTransUnit(tuTarget);
 				if (tuSource != null && locInfo.LangId != _defaultLang)
 				{

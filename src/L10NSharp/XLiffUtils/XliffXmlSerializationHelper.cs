@@ -29,21 +29,6 @@ namespace L10NSharp.XLiffUtils
 			/// <summary>
 			/// Initializes a new instance of the <see cref="XLiffXmlReader"/> class.
 			/// </summary>
-			/// <param name="reader">The stream reader.</param>
-			/// <param name="fKeepWhitespaceInElements">if set to <c>true</c>, the reader
-			/// will preserve and return elements that contain only whitespace, otherwise
-			/// these elements will be ignored during a deserialization.</param>
-			/// --------------------------------------------------------------------------------
-			public XLiffXmlReader(TextReader reader, bool fKeepWhitespaceInElements) :
-				base(reader)
-			{
-				m_fKeepWhitespaceInElements = fKeepWhitespaceInElements;
-			}
-
-			/// --------------------------------------------------------------------------------
-			/// <summary>
-			/// Initializes a new instance of the <see cref="XLiffXmlReader"/> class.
-			/// </summary>
 			/// <param name="filename">The filename.</param>
 			/// <param name="fKeepWhitespaceInElements">if set to <c>true</c>, the reader
 			/// will preserve and return elements that contain only whitespace, otherwise
@@ -63,7 +48,7 @@ namespace L10NSharp.XLiffUtils
 			public override bool Read()
 			{
 				// Since we use this class only for deserialization, catch file not found
-				// exceptions for the case when the XML file contains a !DOCTYPE declearation
+				// exceptions for the case when the XML file contains a !DOCTYPE declaration
 				// and the specified DTD file is not found. (This is because the base class
 				// attempts to open the DTD by merely reading the !DOCTYPE node from the
 				// current directory instead of relative to the XML document location.)
@@ -77,7 +62,8 @@ namespace L10NSharp.XLiffUtils
 				}
 				catch (Exception e)
 				{
-					throw e; // helps in setting breakpoint for debugging problems
+					Console.WriteLine(e); // Allows for setting a breakpoint when debugging
+					throw;
 				}
 			}
 
@@ -93,7 +79,7 @@ namespace L10NSharp.XLiffUtils
 					if (m_fKeepWhitespaceInElements &&
 						(base.NodeType == XmlNodeType.Whitespace ||
 						base.NodeType == XmlNodeType.SignificantWhitespace) &&
-						Value != null && Value.IndexOf('\n') < 0 && Value.Trim().Length == 0)
+						Value.IndexOf('\n') < 0 && Value.Trim().Length == 0)
 					{
 						// We found some whitespace that was most
 						// likely whitespace we want to keep.
@@ -111,35 +97,14 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Serializes an object to an XML string.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static string SerializeToString<T>(T data)
-		{
-			StringBuilder output = new StringBuilder();
-			using (StringWriter writer = new StringWriter(output))
-			{
-				XmlSerializerNamespaces nameSpaces = new XmlSerializerNamespaces();
-				nameSpaces.Add(string.Empty, "urn:oasis:names:tc:xliff:document:1.2");
-				nameSpaces.Add("sil", kSilNamespace);
-				XmlSerializer serializer = new XmlSerializer(typeof(T));
-				serializer.Serialize(writer, data, nameSpaces);
-				writer.Close();
-			}
-
-			return (output.Length == 0 ? null : output.ToString());
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Serializes an object to a the specified file.
+		/// Serializes an object to the specified file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static bool SerializeToFile<T>(string filename, T data)
 		{
 			// Ensure that the file can be written, even to a new language tag subfolder.
 			var folder = Path.GetDirectoryName(filename);
-			if (!String.IsNullOrEmpty(folder) && !Directory.Exists(folder))
+			if (!string.IsNullOrEmpty(folder) && !Directory.Exists(folder))
 				Directory.CreateDirectory(folder);
 			using (TextWriter writer = new StreamWriter(filename))
 			{
@@ -151,135 +116,6 @@ namespace L10NSharp.XLiffUtils
 				writer.Close();
 				return true;
 			}
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Serializes the specified data to a string and writes that XML using the specified
-		/// writer. Since strings in .Net are UTF16, the serialized XML data string is, of
-		/// course, UTF16. Before the string is written it is converted to UTF8. So the
-		/// assumption is the writer is expecting UTF8 data.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static bool SerializeDataAndWriteAsNode<T>(XmlWriter writer, T data)
-		{
-			string xmlData = SerializeToString(data);
-
-			using (XmlReader reader = XmlReader.Create(new StringReader(xmlData)))
-			{
-				// Read past declaration and whitespace.
-				while (reader.NodeType != XmlNodeType.Element && reader.Read())
-				{
-				}
-
-				if (!reader.EOF)
-				{
-					xmlData = reader.ReadOuterXml();
-					if (xmlData.Length > 0)
-						writer.WriteRaw(Environment.NewLine + xmlData + Environment.NewLine);
-
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified string to an object of the specified type.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromString<T>(string input) where T : class
-		{
-			Exception e;
-			return (DeserializeFromString<T>(input, out e));
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified string to an object of the specified type.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromString<T>(string input, bool fKeepWhitespaceInElements)
-			where T : class
-		{
-			Exception e;
-			return (DeserializeFromString<T>(input, fKeepWhitespaceInElements, out e));
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified string to an object of the specified type.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromString<T>(string input, out Exception e) where T : class
-		{
-			return DeserializeFromString<T>(input, false, out e);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified string to an object of the specified type.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromString<T>(string input, bool fKeepWhitespaceInElements,
-			out Exception                               e) where T : class
-		{
-			T data = null;
-			e = null;
-
-			try
-			{
-				if (string.IsNullOrEmpty(input))
-					return null;
-
-				// Whitespace is not allowed before the XML declaration,
-				// so get rid of any that exists.
-				input = input.TrimStart();
-
-				using (XLiffXmlReader reader = new XLiffXmlReader(
-					new StringReader(input), fKeepWhitespaceInElements))
-				{
-					data = DeserializeInternal<T>(reader);
-				}
-			}
-			catch (Exception outEx)
-			{
-				e = outEx;
-			}
-
-			return data;
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified file to an object of the specified type.
-		/// </summary>
-		/// <typeparam name="T">The object type</typeparam>
-		/// <param name="filename">The filename from which to load</param>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromFile<T>(string filename) where T : class
-		{
-			Exception e;
-			return DeserializeFromFile<T>(filename, false, out e);
-		}
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Deserializes XML from the specified file to an object of the specified type.
-		/// </summary>
-		/// <typeparam name="T">The object type</typeparam>
-		/// <param name="filename">The filename from which to load</param>
-		/// <param name="fKeepWhitespaceInElements">if set to <c>true</c>, the reader
-		/// will preserve and return elements that contain only whitespace, otherwise
-		/// these elements will be ignored during a deserialization.</param>
-		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromFile<T>(string filename, bool fKeepWhitespaceInElements)
-			where T : class
-		{
-			Exception e;
-			return DeserializeFromFile<T>(filename, fKeepWhitespaceInElements, out e);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -343,8 +179,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			XmlSerializer deserializer = new XmlSerializer(typeof(T));
 			deserializer.UnknownAttribute += deserializer_UnknownAttribute;
-			deserializer.UnknownElement +=
-				new XmlElementEventHandler(deserializer_UnknownElement);
+			deserializer.UnknownElement += deserializer_UnknownElement;
 			return (T) deserializer.Deserialize(reader);
 		}
 
@@ -365,17 +200,19 @@ namespace L10NSharp.XLiffUtils
 				// treats xml:lang as a special case and basically skips over it (but it does
 				// set the current XmlLang to the specified value). This keeps the deserializer
 				// from getting xml:lang as an attribute which keeps us from getting these values.
-				// The fix for this is to look at the object that is being deserialized and,
-				// using reflection, see if it has any fields that have an XmlAttribute looking
-				// for the xml:lang and setting it to the value we get here. (TE-8328)
+				// The fix is to inspect the object currently being deserialized and, using reflection,
+				// look for a field or property marked with an XmlAttribute for "xml:lang", then set it
+				// explicitly to the value provided here. (TE-8328)
 				object obj = e.ObjectBeingDeserialized;
+				if (obj == null)
+					return; // Probably impossible here, but just in case.
 				Type type = obj.GetType();
 				foreach (FieldInfo field in type.GetFields())
 				{
-					object[] bla =
+					object[] attributes =
 						field.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
-					if (bla.Length == 1 &&
-						((XmlAttributeAttribute) bla[0]).AttributeName == "xml:lang")
+					if (attributes.Length == 1 &&
+						((XmlAttributeAttribute) attributes[0]).AttributeName == "xml:lang")
 					{
 						field.SetValue(obj, e.Attr.Value);
 						return;
@@ -384,9 +221,9 @@ namespace L10NSharp.XLiffUtils
 
 				foreach (PropertyInfo prop in type.GetProperties())
 				{
-					object[] bla = prop.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
-					if (bla.Length == 1 &&
-						((XmlAttributeAttribute) bla[0]).AttributeName == "xml:lang")
+					object[] attributes = prop.GetCustomAttributes(typeof(XmlAttributeAttribute), false);
+					if (attributes.Length == 1 &&
+						((XmlAttributeAttribute) attributes[0]).AttributeName == "xml:lang")
 					{
 						prop.SetValue(obj, e.Attr.Value, null);
 						return;
@@ -396,15 +233,15 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// <summary>
-		/// Handle complex encoded HTML markup inside the translated strings.  This is detected by unknown
+		/// Handle complex encoded HTML markup inside the translated strings. This is detected by unknown
 		/// elements encountered while deserializing XLiffTransUnitVariant objects.
 		/// </summary>
-		static void deserializer_UnknownElement(object sender, XmlElementEventArgs e)
+		private static void deserializer_UnknownElement(object sender, XmlElementEventArgs e)
 		{
 			/* The XLIFF standard allows for internal markup inside <source> and <target> elements.
-			 * This markup takes the form of <g> and <x> elements.  As far I can tell, the only
+			 * This markup takes the form of <g> and <x> elements. As far I can tell, the only
 			 * difference between <g> and <x> elements is that <g> elements have content and <x>
-			 * elements do not.  Consider an input like this:
+			 * elements do not. Consider an input like this:
 			 *
 			 * <target xml:lang='en'>This is a <g id='gen1' ctype='x-html-strong' html:style='color:red;'>test</g>.</target>
 			 *
@@ -443,8 +280,8 @@ namespace L10NSharp.XLiffUtils
 			 *** tuv._deserializedFromElement = "This is a <strong style=\"color:red;\">test</strong>"
 			 *
 			 * At this point, the desired value of the XLiffTransUnitVariant object's Value property is split between
-			 * two private string variables: _value and _deserializedFromElement.  The next call from anywhere
-			 * to the getter of the Value property will put the pieces together.  This could even be from the
+			 * two private string variables: _value and _deserializedFromElement. The next call from anywhere
+			 * to the getter of the Value property will put the pieces together. This could even be from the
 			 * XmlSerializer code if the input had another <g> or <x> element in it.
 			 */
 			var tuv = e.ObjectBeingDeserialized as XLiffTransUnitVariant;
@@ -460,8 +297,8 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			// Only <g></g> and <x/> elements can be encountered since that's all the xliff standard allows
-			// inside <source> and <target> elements (other than text of course).  <g> elements have internal
-			// content while <x> elements do not.  The expected attributes are the same for both <g> and <x>
+			// inside <source> and <target> elements (other than text of course). <g> elements have internal
+			// content while <x> elements do not. The expected attributes are the same for both <g> and <x>
 			// elements.
 			var bldr = new StringBuilder();
 			bldr.Append(tuv.Value);
@@ -494,7 +331,7 @@ namespace L10NSharp.XLiffUtils
 					bldr.AppendFormat(" {0}=\"{1}\"", attr.LocalName, attr.Value);
 			}
 
-			// ENHANCE: handle nested <g> (and <x> inside <g>) elements.  Perhaps a recursive method?
+			// ENHANCE: handle nested <g> (and <x> inside <g>) elements. Perhaps a recursive method?
 			if (e.Element.Name == "g")
 				bldr.AppendFormat(">{0}</{1}>",
 					e.Element.InnerText.Replace("\\n", Environment.NewLine), ctype);
@@ -502,8 +339,8 @@ namespace L10NSharp.XLiffUtils
 				bldr.Append("/>");
 			// We can't just set tuv.Value from here because it would get wiped out by a following text node.
 			// The string would end up equal to just the content of the last text node if the overall content
-			// ends in a text node.  So we let the Value getter code in the XLiffTransUnitVariant figure things
-			// out properly.  (Note that what we store here is the entire string so far, not just what we
+			// ends in a text node. So we let the Value getter code in the XLiffTransUnitVariant figure things
+			// out properly. (Note that what we store here is the entire string so far, not just what we
 			// obtained from the current element.)
 			tuv.SaveDeserializationFromElement(bldr.ToString());
 		}

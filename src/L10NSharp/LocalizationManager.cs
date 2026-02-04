@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 SIL Global
+// Copyright © 2022-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -8,12 +8,13 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using JetBrains.Annotations;
 using L10NSharp.TMXUtils;
 using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
-	public class LocalizationManager
+	public static class LocalizationManager
 	{
 		public const string kDefaultLang = "en";
 		internal const string kL10NPrefix = "_L10N_:";
@@ -21,13 +22,6 @@ namespace L10NSharp
 
 		private static string s_uiLangId;
 		internal static TranslationMemory TranslationMemoryKind { get; set; }
-
-		/// <summary>
-		/// These two events allow us to know when the localization dialog is running.
-		/// For example, HearThis needs to turn off some event prefiltering.
-		/// </summary>
-		public static event EventHandler LaunchingLocalizationDialog;
-		public static event EventHandler ClosingLocalizationDialog;
 
 		/// <summary>
 		/// Flag that the program organizes translation files by folder rather than by filename.
@@ -52,15 +46,6 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Set this to false to make Localization Manager ignore clicks on the UI
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public static bool EnableClickingOnControlToBringUpLocalizationDialog { get; set; }
-
-		public static string EmailForSubmissions { get; set; }
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
 		/// Creates a new instance of a localization manager for the specified application id.
 		/// If a localization manager has already been created for the specified id, then
 		/// that is returned.
@@ -68,7 +53,7 @@ namespace L10NSharp
 		/// <param name="desiredUiLangId">The language code of the desired UI language. If
 		/// there are no translations for that ID, a message is displayed and the UI language
 		/// falls back to the default.</param>
-		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
+		/// <param name="appId">The application ID (e.g. 'Pa' for Phonology Assistant).
 		/// This should be a unique name that identifies the manager for an assembly or
 		/// application. May include an optional file extension, which will be stripped off but
 		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
@@ -82,8 +67,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %localappdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="emailForSubmissions">This will be used in UI that helps the translator
-		/// know what to do with their work</param>
 		/// <param name="namespaceBeginnings">A list of namespace beginnings indicating
 		/// what types to scan for localized string calls. For example, to only scan
 		/// types found in Pa.exe and assuming all types in that assembly begin with
@@ -101,12 +84,10 @@ namespace L10NSharp
 		public static ILocalizationManager Create(string desiredUiLangId,
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
-			string emailForSubmissions,
 			string[] namespaceBeginnings,
 			IEnumerable<MethodInfo> additionalLocalizationMethods = null)
 		{
 			TranslationMemoryKind = TranslationMemory.XLiff;
-			EmailForSubmissions = emailForSubmissions;
 			return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
 				appId, appName, appVersion, directoryOfInstalledFiles,
 				relativeSettingPathForLocalizationFolder,
@@ -132,6 +113,7 @@ namespace L10NSharp
 		/// <param name="cleanUpTmx">Although TMX files are no longer supported, calling this
 		/// method with this flag set will clean up TMX files (instead of XLIFF files)</param>
 		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		public static void DeleteOldTranslationFiles(string appId,
 			string directoryOfWritableTranslationFiles, string directoryOfInstalledTranslationFiles,
 			bool cleanUpTmx = false)
@@ -153,8 +135,16 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static void SetUILanguage(string langId)
 		{
+			if (TrySetUILanguage(langId))
+				NotifyUiLanguageChanged();
+		}
+		
+		[CanBeNull]
+		/// ------------------------------------------------------------------------------------
+		internal static bool TrySetUILanguage(string langId)
+		{
 			if (UILanguageId == langId || string.IsNullOrEmpty(langId))
-				return;
+				return false;
 			var ci = L10NCultureInfo.GetCultureInfo(langId);
 			Thread.CurrentThread.CurrentUICulture = ci.RawCultureInfo ??
 				CultureInfo.InvariantCulture;
@@ -167,11 +157,20 @@ namespace L10NSharp
 					LocalizationManagerInternal<XLiffDocument>.SetAvailableFallbackLanguageIds(GetAvailableLocalizedLanguages());
 					break;
 			}
+
+			return true;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		internal static void NotifyUiLanguageChanged()
+		{
+			foreach (var manager in LoadedManagers.Values)
+					manager.HandleUiLanguageChange();
 		}
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets the current UI language Id (i.e. the target language).
+		/// Gets the current UI language ID (i.e. the target language).
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public static string UILanguageId
@@ -257,6 +256,7 @@ namespace L10NSharp
 		/// Return the number of strings that appear to have been translated and approved for the
 		/// given language in all the loaded managers.
 		/// </summary>
+		[PublicAPI]
 		public static int NumberApproved(string lang)
 		{
 			switch (TranslationMemoryKind)
@@ -286,6 +286,7 @@ namespace L10NSharp
 		/// Return the number of strings that appear to have been translated for the given language
 		/// in all the loaded managers.
 		/// </summary>
+		[PublicAPI]
 		public static int NumberTranslated(string lang)
 		{
 			switch (TranslationMemoryKind)
@@ -314,6 +315,7 @@ namespace L10NSharp
 		/// Return the number of strings that appear to be available for the given language in all
 		/// the loaded managers.
 		/// </summary>
+		[PublicAPI]
 		public static int StringCount(string lang)
 		{
 			switch (TranslationMemoryKind)
@@ -326,7 +328,7 @@ namespace L10NSharp
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets or sets the list of languages (by id) used to fallback to when looking for a
+		/// Gets or sets the list of languages (by id) used as a fallback to when looking for a
 		/// string in the current UI language fails. The fallback order goes from the first
 		/// item in this list to the last.
 		/// </summary>
@@ -357,9 +359,10 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the text for the specified component. The englishText is returned when the text
-		/// for the specified object cannot be found for the current UI language.
+		/// for the specified component cannot be found for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		public static string GetStringForObject(IComponent component, string englishText)
 		{
 			switch (TranslationMemoryKind)
@@ -375,7 +378,7 @@ namespace L10NSharp
 		/// <summary>
 		/// Gets a string for the specified string id. The englishText is returned when
 		/// a string cannot be found for the specified id and the current UI language.
-		/// Currently this and other overloads are intended to be thread-safe when
+		/// Currently, this and other overloads are intended to be thread-safe when
 		/// the xliff backing store is used.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -489,6 +492,7 @@ namespace L10NSharp
 		/// language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		public static string GetDynamicString(string appId, string id, string englishText,
 			string comment)
 		{
@@ -507,6 +511,7 @@ namespace L10NSharp
 		/// the unit tests that dispose of LMs should also call this so the others don't
 		/// throw ObjectDisposedExceptions.
 		/// </summary>
+		[PublicAPI]
 		public static void ForgetDisposedManagers()
 		{
 			switch (TranslationMemoryKind)
@@ -583,33 +588,6 @@ namespace L10NSharp
 				: $"{appId}.{langId}{fileExtension}";
 		}
 
-		/// <summary>
-		/// Merge the existing English l10n file into newly collected data and write the
-		/// result to the temp directory.
-		/// </summary>
-		public static void MergeExistingEnglishTranslationFileIntoNew(
-			string installedStringFileFolder, string appId)
-		{
-			switch (TranslationMemoryKind)
-			{
-				default:
-				case TranslationMemory.XLiff:
-					LocalizationManagerInternal<XLiffDocument>.MergeExistingEnglishTranslationFileIntoNew(
-						installedStringFileFolder, appId);
-					break;
-			}
-		}
-
-		internal static void OnLaunchingLocalizationDialog(ILocalizationManager lm)
-		{
-			LaunchingLocalizationDialog?.Invoke(lm, new EventArgs());
-		}
-
-		internal static void OnClosingLocalizationDialog(ILocalizationManager lm)
-		{
-			ClosingLocalizationDialog?.Invoke(lm, new EventArgs());
-		}
-
 		/// ------------------------------------------------------------------------------------
 		internal static Dictionary<string, ILocalizationManagerInternal> LoadedManagers
 		{
@@ -644,8 +622,8 @@ namespace L10NSharp
 		}
 
 		/// <summary>
-		/// True (default) to throw if we try to get a string from a particular manager
-		/// and it has been disposed. When false, we will instead just return the English string,
+		/// True (default) to throw if we try to get a string from a manager that doesn't exist
+		/// has been disposed. When false, we will instead just return the English string,
 		/// or if none, the ID. This is useful in some apps (e.g., Bloom) which may
 		/// accidentally request a localized string during shutdown after disposing of
 		/// the localization managers.

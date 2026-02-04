@@ -989,7 +989,7 @@ namespace L10NSharp.Tests
 				AddChineseOfChinaTranslation(installedFolder);
 				LocalizationManagerInternal<T>.ChooseFallbackLanguage();
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
-					$"Temp/{Path.GetFileName(folder.Path)}/user", null, new string[] { });
+					$"Temp/{Path.GetFileName(folder.Path)}/user", new string[] { });
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
 
 				var langs = LocalizationManager.GetAvailableLocalizedLanguages();

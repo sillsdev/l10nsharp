@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using L10NSharp.CodeReader;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {

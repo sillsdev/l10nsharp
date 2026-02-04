@@ -14,11 +14,23 @@ namespace SampleApp
 		public Form1()
 		{
 			InitializeComponent();
+
+			Program.PrimaryLocalizationManager.UiLanguageChanged += HandleFormLocalized;
+			HandleFormLocalized(Program.PrimaryLocalizationManager, EventArgs.Empty);
+		}
+
+		private void HandleFormLocalized(object sender, EventArgs e)
+		{
+			if (sender != Program.PrimaryLocalizationManager)
+				throw new InvalidOperationException(
+					$"The {nameof(sender)} should have been the primary localization manager on which we subscribed to handle the {nameof(ILocalizationManager.UiLanguageChanged)} event.");
+
+			label2.Text = string.Format(label2.Text, DateTime.Now.ToShortTimeString(), DateTime.Now.ToShortDateString());
 		}
 
 		private void UpdateDynamicLabel()
 		{
-			if(_dynamicLabel!=null)
+			if (_dynamicLabel != null)
 				_dynamicLabel.Text = LocalizationManager.GetDynamicString("SampleApp", "The User Name", Environment.UserName);
 		}
 
@@ -29,9 +41,9 @@ namespace SampleApp
 			UpdateDynamicLabel();
 		}
 
-		//This demonstrates how to handle strings that aren't hard-coded, so can't be discovered
-		//by the runtime code scanner. Instead, we ue this GetDynamicString.
-		//Note that L10NSharp.LocalizationManager.CollectUpNewStringsDiscoveredDynamically = false
+		// This demonstrates how to handle strings that aren't hard-coded, so can't be discovered
+		// by the runtime code scanner. Instead, we ue this GetDynamicString.
+		// Note that L10NSharp.LocalizationManager.CollectUpNewStringsDiscoveredDynamically = false
 		// can be used to avoid adding new strings to the database when inappropriate.
 		private void button1_Click(object sender, EventArgs e)
 		{
@@ -43,7 +55,7 @@ namespace SampleApp
 			};
 			uiLanguageComboBox1.SelectedLanguage = Settings.Default.UserInterfaceLanguage;
 			UpdateDynamicLabel();
-			this.Controls.Add(_dynamicLabel);
+			Controls.Add(_dynamicLabel);
 		}
 	}
 }

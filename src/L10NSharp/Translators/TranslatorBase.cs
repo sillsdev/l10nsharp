@@ -1,18 +1,8 @@
 using System;
-using System.Web;
 using L10NSharp.Utility;
 
 namespace L10NSharp.Translators
 {
-	/// ----------------------------------------------------------------------------------------
-	public enum TranslatorTypes
-	{
-		/// ------------------------------------------------------------------------------------
-		Google,
-		/// ------------------------------------------------------------------------------------
-		Bing
-	}
-
 	/// ----------------------------------------------------------------------------------------
 	public interface ITranslator
 	{
@@ -62,7 +52,7 @@ namespace L10NSharp.Translators
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Prepares the text for google translate by removing accelerator ampersands and
+		/// Prepares the text for Google Translate by removing accelerator ampersands and
 		/// counting the number of parameters (i.e. "{n}" where n is a number from 0 - n).
 		/// The number of parameters found is returned.
 		/// </summary>
@@ -100,7 +90,7 @@ namespace L10NSharp.Translators
 
 			if (paramCount > 0)
 			{
-				// Because Google translate replaces the braces in string parameters,
+				// Because Google Translate replaces the braces in string parameters,
 				// with parentheses, we need to restore the braces. This process will
 				// be a problem only when the original string contains numbers surrounded
 				// by parentheses. However, I think those cases are far less likely.

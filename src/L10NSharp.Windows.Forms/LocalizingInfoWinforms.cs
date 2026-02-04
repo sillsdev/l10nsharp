@@ -311,7 +311,7 @@ namespace L10NSharp.Windows.Forms
 					{
 						Keys keys = (Keys)keysobj;
 						_shortcutKeys = (keys == Keys.None ?
-							string.Empty : ShortcutKeysEditor.KeysToString(keys));
+							string.Empty : ShortcutKeysConverter.KeysToString(keys));
 					}
 				}
 

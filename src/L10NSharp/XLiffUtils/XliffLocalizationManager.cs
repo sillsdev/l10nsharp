@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -15,6 +13,8 @@ namespace L10NSharp.XLiffUtils
 	/// ----------------------------------------------------------------------------------------
 	internal class XliffLocalizationManager : ILocalizationManagerInternal<XLiffDocument>
 	{
+		public event EventHandler UiLanguageChanged;
+
 		/// ------------------------------------------------------------------------------------
 		public const string FileExtension = ".xlf";
 		private readonly string _installedXliffFileFolder;
@@ -96,32 +96,13 @@ namespace L10NSharp.XLiffUtils
 			DefaultStringFilePath = GetPathForLanguage(LocalizationManager.kDefaultLang,
 				false);
 
-			NamespaceBeginnings = namespaceBeginnings;
 			CollectUpNewStringsDiscoveredDynamically = true;
 
 			CreateOrUpdateDefaultXliffFileIfNecessary(additionalLocalizationMethods, namespaceBeginnings);
 
 			_customXliffFileFolder = directoryOfUserModifiedXliffFiles;
 			if (string.IsNullOrEmpty(_customXliffFileFolder))
-			{
 				_customXliffFileFolder = null;
-				CanCustomizeLocalizations = false;
-			}
-			else
-			{
-				try
-				{
-					new FileIOPermission(FileIOPermissionAccess.Write, _customXliffFileFolder).Demand();
-					CanCustomizeLocalizations = true;
-				}
-				catch (Exception e)
-				{
-					if (e is SecurityException)
-						CanCustomizeLocalizations = false;
-					else
-						throw;
-				}
-			}
 
 			ComponentCache = new Dictionary<IComponent, string>();
 			StringCache = new XliffLocalizedStringCache(this);
@@ -330,14 +311,6 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public ILocalizedStringCache<XLiffDocument> StringCache { get; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets a value indicating whether user has authority to change localized strings.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		public bool CanCustomizeLocalizations { get; private set; }
-
-		public string[] NamespaceBeginnings { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -426,7 +399,6 @@ namespace L10NSharp.XLiffUtils
 			}
 			catch (IOException e)
 			{
-				CanCustomizeLocalizations = false;
 				if (langIdsToForceCreate != null && langIdsToForceCreate.Any())
 					throw new IOException(e.Message);
 			}
@@ -472,29 +444,6 @@ namespace L10NSharp.XLiffUtils
 			return File.Exists(GetPathForLanguage(langId, true));
 		}
 
-		/// ------------------------------------------------------------------------------------
-		public void PrepareToCustomizeLocalizations()
-		{
-			if (_customXliffFileFolder == null)
-				throw new InvalidOperationException("Localization manager for " + Id + "has no folder specified for customizing localizations");
-			if (!CanCustomizeLocalizations)
-				throw new InvalidOperationException("User does not have sufficient privilege to customize localizations for " + Id);
-			try
-			{
-				// Make sure the folder exists.
-				if (!Directory.Exists(_customXliffFileFolder))
-					Directory.CreateDirectory(_customXliffFileFolder);
-			}
-			catch (Exception e)
-			{
-				if (e is SecurityException || e is UnauthorizedAccessException || e is IOException)
-				{
-					CanCustomizeLocalizations = false;
-				}
-				else
-					throw;
-			}
-		}
 		#endregion
 
 		#region Methods for adding localized strings to cache.
@@ -585,6 +534,12 @@ namespace L10NSharp.XLiffUtils
 
 		#endregion
 
+		/// ------------------------------------------------------------------------------------
+		public virtual void HandleUiLanguageChange()
+		{
+			UiLanguageChanged?.Invoke(this, EventArgs.Empty);
+		}
+		
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{

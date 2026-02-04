@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+ - [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+ - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+
+### Removed
+- [L10NSharp] Removed EnableClickingOnControlToBringUpLocalizationDialog. Since the localization dialog was jettisoned, this is meaningless (and wouldn't belong in the Winforms agnostic namespace anyway).
+- [L10NSharp] Removed EmailForSubmissions. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+ - [L10NSharp.Windows.Forms] Removed LmGrid, LmButtonColumn, LmButtonCell, TipDialog.
+
 ## [9.0.0] - 2026-02-02
 
 ### Changed 
