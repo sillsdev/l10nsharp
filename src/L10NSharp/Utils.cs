@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace L10NSharp
 {
@@ -14,8 +13,7 @@ namespace L10NSharp
 			get
 			{
 				if (_isMono == null)
-					_isMono = Type.GetType("Mono.Runtime")
-							!= null;
+					_isMono = Type.GetType("Mono.Runtime") != null;
 
 				return (bool)_isMono;
 			}
@@ -32,11 +30,10 @@ namespace L10NSharp
 				(BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public);
 
 			// If binding is a Type then assume invoke on a static method, property or field.
-			// Otherwise invoke on an instance method, property or field.
-			if (binding is Type)
+			// Otherwise, invoke on an instance method, property or field.
+			if (binding is Type type)
 			{
-				return ((binding as Type).GetMember(propertyName,
-					flags | BindingFlags.Static).Length > 0);
+				return type.GetMember(propertyName, flags | BindingFlags.Static).Length > 0;
 			}
 
 			return binding.GetType().GetMember(propertyName,
@@ -65,18 +62,20 @@ namespace L10NSharp
 			try
 			{
 				// If binding is a Type then assume invoke on a static method, property or field.
-				// Otherwise invoke on an instance method, property or field.
-				if (binding is Type)
+				// Otherwise, invoke on an instance method, property or field.
+				if (binding is Type type)
 				{
-					return ((binding as Type).InvokeMember(propertyName,
-						flags | BindingFlags.Static, null, binding, null));
+					return type.InvokeMember(propertyName,
+						flags | BindingFlags.Static, null, type, null);
 				}
 
 				return binding.GetType().InvokeMember(propertyName,
 					flags | BindingFlags.Instance, null, binding, null);
 			}
-			// Warning: this will (sometimes?) NOT catch the most likely exception, MissingMethodException, because it has been defined as unrecoverable.
-			catch { }
+			catch
+			{
+				// Warning: this will (sometimes?) NOT catch the most likely exception, MissingMethodException, because it has been defined as unrecoverable.
+			}
 
 			return null;
 		}

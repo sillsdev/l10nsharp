@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -40,7 +39,7 @@ namespace L10NSharp.Tests
 			LocalizationManager.ClearLoadedManagers();
 			var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			var lm = LocalizationManager.Create(genericLocaleId, "Test", "Test", "1.0",
-				Path.Combine(dir, "../../../src/L10NSharp.Tests/TestXliff2"), "", "",
+				Path.Combine(dir, "../../../src/L10NSharp.Tests/TestXliff2"), "",
 				new string[] {});
 			Assert.AreEqual($"Protección de configuraciones ({genericLocaleId})...",
 				lm.GetLocalizedString("SettingsProtection.LauncherButtonLabel", "don't use this"));

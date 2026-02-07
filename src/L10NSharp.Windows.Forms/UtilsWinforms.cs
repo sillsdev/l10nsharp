@@ -1,7 +1,5 @@
-using System.Reflection;
 using System;
 using System.Windows.Forms;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace L10NSharp.Windows.Forms

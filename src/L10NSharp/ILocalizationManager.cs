@@ -1,14 +1,29 @@
-// Copyright © 2022-2025 SIL Global
+// Copyright © 2022-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using JetBrains.Annotations;
 
 namespace L10NSharp
 {
 	public interface ILocalizationManager: IDisposable
 	{
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// This event is raised when the user changes the UI language from the initial default
+		/// used when first creating the localization manager(s). Winforms clients that used to
+		/// handle LocalizeItemDlg.StringsLocalized will likely want to handle this event instead
+		/// to refresh any UI elements that might be displayed when the user changes the UI
+		/// language. However, note that whereas StringsLocalized could be raised when individual
+		/// localized strings were customized, changing customized strings at runtime is no longer
+		/// supported, so it is typically unnecessary to handle this event in many of the cases
+		/// where StringsLocalized used to be possible, such as in most modal dialog boxes.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		event EventHandler UiLanguageChanged;
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is what identifies a localization manager for a particular set of
@@ -23,20 +38,11 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This is the presentable name for the set of localized strings. For example, the
-		/// Id might be 'PA' but the LocalizationSetName might be 'Phonology Assistant'.
+		/// ID might be 'PA' but the LocalizationSetName might be 'Phonology Assistant'.
 		/// This should be a name presentable to the user.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		string Name { get; }
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// This is sent from the application that's creating the localization manager. It's
-		/// written to the l10n file and used to determine whether or not the application
-		/// needs to be rescanned for localized strings.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		string AppVersion { get; }
 
 		/// <summary>
 		/// Set this to false if you don't want users to pollute l10n files they might send
@@ -48,28 +54,6 @@ namespace L10NSharp
 		/// </summary>
 		bool CollectUpNewStringsDiscoveredDynamically { get; set; }
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Gets a value indicating whether or not user has authority to change localized strings.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		bool CanCustomizeLocalizations { get; }
-
-		string[] NamespaceBeginnings { get; set; }
-
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		/// Enumerates a l10n file for each language. Prefer the custom localizations folder
-		/// version if it exists, otherwise the installed language folder.
-		/// Exception: never return the English l10n file, which is always handled separately and
-		/// first. Doing this serves to insert any new dynamic strings into the cache, thus
-		/// validating them as non-obsolete if we encounter them in other languages.
-		/// Enhance JohnT: there ought to be some way NOT to load data for a language until we
-		/// need it. This wastes time AND space.
-		/// </summary>
-		/// ------------------------------------------------------------------------------------
-		IEnumerable<string> FilenamesToAddToCache { get; }
-
 		/// <summary>
 		/// Return the language tags for those languages that have been localized for the given
 		/// program.
@@ -78,9 +62,16 @@ namespace L10NSharp
 
 		bool IsUILanguageAvailable(string langId);
 
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Although L10nSharp no longer provides a mechanism by which users may customize
+		/// localizations, it does still allow for their existence, although it is unlikely.
+		/// This both provides for backwards compatibility and allows for the possibility of
+		/// clients that may provide a mechanism for users to customize localizations.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		bool DoesCustomizedTranslationExistForLanguage(string langId);
-
-		void PrepareToCustomizeLocalizations();
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -95,6 +86,7 @@ namespace L10NSharp
 		/// Gets the localized text for the specified component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		string GetLocalizedString(IComponent component, string id, string defaultText,
 			string defaultTooltip, string defaultShortcutKeys, string comment);
 

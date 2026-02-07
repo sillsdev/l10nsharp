@@ -19,6 +19,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="all" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
@@ -32,25 +35,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Update="UIComponents\CustomDropDownComboBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UIComponents\DontShowThisAgainButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="UIComponents\EditSourceBeforeTranslatingDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="UIComponents\FallbackLanguagesDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UIComponents\FallbackLanguagesDlgBase.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UIComponents\Grid\LmGrid.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="UIComponents\HowToDistributeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UIComponents\InitializationProgressDlg.cs">
@@ -65,25 +53,13 @@
     <Compile Update="UIComponents\LanguageChoosingSimpleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UIComponents\PopupControl.cs">
+    <Compile Update="UIComponents\ShortcutKeysConverter.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UIComponents\ShortcutKeysDropDown.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UIComponents\ShortcutKeysEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UIComponents\TipDialog.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Update="UIComponents\UILanguageComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="UIComponents\UILanguageListBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="UIComponents\XButton.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>

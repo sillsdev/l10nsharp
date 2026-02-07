@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
@@ -44,6 +44,15 @@ namespace L10NSharp.Tests
 				Assert.IsTrue(pbuci.RawCultureInfo.CultureTypes.HasFlag(CultureTypes.UserCustomCulture));
 				Assert.AreEqual("ZZZ", pbuci.RawCultureInfo.ThreeLetterWindowsLanguageName);
 			}
+		}
+
+		[Test]
+		public void L10NCultureInfo_TestPTp()
+		{
+			var tpCi = L10NCultureInfo.GetCultureInfo("tp");
+			var tpiCi = L10NCultureInfo.GetCultureInfo("tpi");
+			Assert.That(tpCi.EnglishName, Is.EqualTo(tpiCi.EnglishName));
+			Assert.That(tpCi.NativeName, Is.EqualTo(tpiCi.NativeName));
 		}
 
 		[Test]

@@ -1,10 +1,9 @@
-// Copyright © 2019-2025 SIL Global
+// Copyright © 2019-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace L10NSharp.Windows.Forms
@@ -13,7 +12,6 @@ namespace L10NSharp.Windows.Forms
 	{
 		Dictionary<Control, ToolTip> ToolTipCtrls { get; }
 		Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfoWinforms>> LocalizableComponents { get; }
-		Icon ApplicationIcon { get; set; }
 
 		void ApplyLocalization(IComponent component);
 		void ApplyLocalizationsToILocalizableComponent(LocalizingInfoWinforms locInfo);
@@ -23,7 +21,6 @@ namespace L10NSharp.Windows.Forms
 			string defaultTooltip, string defaultShortcutKeys, string comment);
 		void RegisterComponentForLocalizing(LocalizingInfoWinforms info,
 			Action<ILocalizationManagerInternalWinforms, LocalizingInfoWinforms> successAction);
-
 	}
 
 	internal interface ILocalizationManagerInternalWinforms<T> : ILocalizationManagerInternalWinforms, ILocalizationManagerInternal<T>

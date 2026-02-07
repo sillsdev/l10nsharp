@@ -179,7 +179,7 @@ namespace L10NSharp.Windows.Forms.Tests
 					return choice;
 				};
 				var manager = LocalizationManagerWinforms.Create("zh", AppId, AppName, AppVersion, installedFolder,
-					userRelativeFolder, null, null, new string[] { });
+					userRelativeFolder, null, new string[] { });
 				Assert.That(userPromptCount, Is.EqualTo(1));
 				LocalizationManagerInternal<XLiffDocument>.LoadedManagers[AppId] = (ILocalizationManagerInternal<XLiffDocument>)manager;
 

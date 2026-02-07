@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Globalization;
 using System.Windows.Forms;
-using L10NSharp;
+using JetBrains.Annotations;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
@@ -19,22 +20,17 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		}
 
 		/// ------------------------------------------------------------------------------------
+		[PublicAPI]
 		public IEnumerable<string> FallbackLanguageIds
 		{
 			get { return _listBoxFallbackLanguages.Items.Cast<CultureInfo>().Select(x => x.Name); }
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private CultureInfo SelectedAvailableLanguage
-		{
-			get { return _listBoxAvailableLanguages.SelectedItem as CultureInfo; }
-		}
+		private CultureInfo SelectedAvailableLanguage => _listBoxAvailableLanguages.SelectedItem as CultureInfo;
 
 		/// ------------------------------------------------------------------------------------
-		private CultureInfo SelectedFallbackLanguage
-		{
-			get { return _listBoxFallbackLanguages.SelectedItem as CultureInfo; }
-		}
+		private CultureInfo SelectedFallbackLanguage => _listBoxFallbackLanguages.SelectedItem as CultureInfo;
 
 		/// ------------------------------------------------------------------------------------
 		protected void UpdateDisplay()
@@ -43,25 +39,27 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			{
 				int i = Math.Max(0, _listBoxAvailableLanguages.SelectedIndex);
 				_listBoxAvailableLanguages.SelectedItem = _listBoxAvailableLanguages.Items[i];
+				Debug.Assert(SelectedAvailableLanguage != null);
 			}
 
 			if (SelectedFallbackLanguage == null)
 			{
 				int i = Math.Max(0, _listBoxFallbackLanguages.SelectedIndex);
 				_listBoxFallbackLanguages.SelectedItem = _listBoxFallbackLanguages.Items[i];
+				Debug.Assert(SelectedFallbackLanguage != null);
 			}
 
-			_buttonAdd.Enabled = (_uiCulture.Name != SelectedAvailableLanguage.Name &&
-				!_listBoxFallbackLanguages.Items.Contains(SelectedAvailableLanguage));
+			_buttonAdd.Enabled = _uiCulture.Name != SelectedAvailableLanguage.Name &&
+				!_listBoxFallbackLanguages.Items.Contains(SelectedAvailableLanguage);
 
 			_buttonRemove.Enabled =
-				(SelectedFallbackLanguage.Name != LocalizationManager.kDefaultLang);
+				SelectedFallbackLanguage.Name != LocalizationManager.kDefaultLang;
 
-			_buttonMoveUp.Enabled = (_listBoxFallbackLanguages.SelectedIndex > 0 &&
-				SelectedFallbackLanguage.Name != LocalizationManager.kDefaultLang);
+			_buttonMoveUp.Enabled = _listBoxFallbackLanguages.SelectedIndex > 0 &&
+				SelectedFallbackLanguage.Name != LocalizationManager.kDefaultLang;
 
 			_buttonMoveDown.Enabled =
-				(_listBoxFallbackLanguages.SelectedIndex < _listBoxFallbackLanguages.Items.Count - 2);
+				_listBoxFallbackLanguages.SelectedIndex < _listBoxFallbackLanguages.Items.Count - 2;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -95,10 +93,10 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		/// ------------------------------------------------------------------------------------
 		private void MoveSelectedFallbackLanguage(bool down)
 		{
-			int dy = (down ? 1 : -1);
+			int dy = down ? 1 : -1;
 
 			int i = _listBoxFallbackLanguages.SelectedIndex + dy;
-			var ci = _listBoxFallbackLanguages.SelectedItem as CultureInfo;
+			var ci = (CultureInfo)_listBoxFallbackLanguages.SelectedItem;
 			_listBoxFallbackLanguages.Items.Remove(ci);
 			_listBoxFallbackLanguages.Items.Insert(i, ci);
 			_listBoxFallbackLanguages.SelectedItem = ci;

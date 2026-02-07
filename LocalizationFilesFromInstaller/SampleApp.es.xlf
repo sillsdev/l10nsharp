@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns:sil="http://sil.org/software/XLiff" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" product-version="1.0.0" original="SampleApp.exe" datatype="plaintext" target-language="es-ES">
+    <body>
+      <trans-unit id="Form1.WindowTitle">
+        <source xml:lang="en">Localization Sample App</source>
+        <target xml:lang="es-ES" state="final">App de muestra para la localización {0}</target>
+        <note>ID: Form1.WindowTitle</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.ASubHeading.Label">
+        <source xml:lang="en">A Static Label</source>
+        <target xml:lang="es-ES" state="final">Una etiqueta estática</target>
+        <note>ID: TheSampleForm.ASubHeading.Label</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.SampleDataGridView.ColumnHeadings.FirstColumn">
+        <source xml:lang="en">First</source>
+        <note>ID: TheSampleForm.SampleDataGridView.ColumnHeadings.FirstColumn</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.button1">
+        <source xml:lang="en">Get Name Dynamically</source>
+        <note>ID: TheSampleForm.button1</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.columnHeader1">
+        <source xml:lang="en">One</source>
+        <target xml:lang="es-ES" state="final">Uno</target>
+        <note>ID: TheSampleForm.columnHeader1</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.columnHeader2">
+        <source xml:lang="en">Two</source>
+        <note>ID: TheSampleForm.columnHeader2</note>
+      </trans-unit>
+      <trans-unit id="accessed.before.setting.up.lm">
+        <source xml:lang="en">Localization is not yet set up, so this will always be in English. It should not cause anything bad to happen even if the current culture is some other variant of a localized language (e.g., es-MX). By the way, the current locale is {0}</source>
+        <note>ID: accessed.before.setting.up.lm</note>
+      </trans-unit>
+      <trans-unit id="TheSampleForm.Form1.label2">
+        <source xml:lang="en">The UI language was last changed at {0} on {1}.</source>
+        <target xml:lang="es-ES" state="final">El idioma de la interfaz de usuario se cambió por última vez a las {0} el {1}.</target>
+        <note>ID: TheSampleForm.Form1.label2</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -81,7 +81,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 			try
 			{
-
 				// This if/else used to be more concise but sometimes there were occasions
 				// adding an item the first time using ComponentCache[component] = id would throw an
 				// index outside the bounds of the array exception. I have no clue why nor
@@ -139,9 +138,10 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 				return;
 			}
 #if DEBUG
-			var msg =
-				"Either locInfo.component is not an ILocalizableComponent or LocalizableComponents hasn't been updated with id={0}.";
-			throw new ApplicationException(string.Format(msg, locInfo.Id));
+			throw new ApplicationException(
+				$"Either {nameof(locInfo)}.{nameof(locInfo.Component)} is not an " +
+				$"{nameof(ILocalizableComponent)} or {nameof(LocalizableComponents)} " +
+				$"hasn't been updated with id={locInfo.Id}.");
 #endif
 		}
 
@@ -364,11 +364,5 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		}
 
 		#endregion
-
-		public Icon ApplicationIcon
-		{
-			get => _applicationIcon;
-			set => _applicationIcon = value;
-		}
 	}
 }
