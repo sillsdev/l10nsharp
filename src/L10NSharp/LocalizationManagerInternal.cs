@@ -479,7 +479,8 @@ namespace L10NSharp
 		/// langId = 'en', irrespective of what is in l10n file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
+		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
+			string comment, string langId)
 		{
 			// This happens in unit test environments or apps that have imported a library that
 			// is localized, but the app itself isn't initializing L10N yet.

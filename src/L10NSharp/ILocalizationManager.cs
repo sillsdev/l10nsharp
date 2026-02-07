@@ -10,6 +10,18 @@ namespace L10NSharp
 {
 	public interface ILocalizationManager: IDisposable
 	{
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// This event is raised when the user changes the UI language from the initial default
+		/// used when first creating the localization manager(s). Winforms clients that used to
+		/// handle LocalizeItemDlg.StringsLocalized will likely want to handle this event instead
+		/// to refresh any UI elements that might be displayed when the user changes the UI
+		/// language. However, note that whereas StringsLocalized could be raised when individual
+		/// localized strings were customized, changing customized strings at runtime is no longer
+		/// supported, so it is typically unnecessary to handle this event in many of the cases
+		/// where StringsLocalized used to be possible, such as in most modal dialog boxes.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
 		event EventHandler UiLanguageChanged;
 
 		/// ------------------------------------------------------------------------------------

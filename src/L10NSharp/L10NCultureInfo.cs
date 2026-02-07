@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using static System.StringComparison;
 
 namespace L10NSharp
 {
@@ -26,6 +28,9 @@ namespace L10NSharp
 	{
 		public L10NCultureInfo(string name)
 		{
+			if (name == null)
+				throw new ArgumentNullException(nameof(name));
+
 			if (name == "tp")
 			{
 				// `tp` is a legacy (Crowdin) code for Tok Pisin, but the actual ISO code is `tpi`,
@@ -46,20 +51,13 @@ namespace L10NSharp
 			//    1. Check for the custom culture flag
 			//    2. Check if the three-letter language name is set to default
 			// Source: https://stackoverflow.com/a/71388328/1964319
-			var isFullyUnknown = RawCultureInfo.CultureTypes.HasFlag(CultureTypes.UserCustomCulture) && RawCultureInfo.ThreeLetterWindowsLanguageName == "ZZZ";
+			var isFullyUnknown = RawCultureInfo == null || RawCultureInfo.CultureTypes.HasFlag(CultureTypes.UserCustomCulture) && RawCultureInfo.ThreeLetterWindowsLanguageName == "ZZZ";
 			if (RawCultureInfo == null || isFullyUnknown)
 			{
 				Name = name;
-				IsNeutralCulture = !Name.Contains("-");
-				if (IsNeutralCulture)
-				{
-					IetfLanguageTag = name;
-				}
-				else
-				{
-					var idx = name.IndexOf("-");
-					IetfLanguageTag = name.Substring(0, idx);
-				}
+				var idx = name.IndexOf("-", Ordinal);
+				IsNeutralCulture = idx == -1;
+				IetfLanguageTag = IsNeutralCulture ? name : name.Substring(0, idx);
 				// CultureInfo returns 3-letter tags when a 2-letter tag doesn't exist.
 				// If it's a minor enough language to be unknown to .Net or Mono, it's
 				// not worth trying to find a 2-letter tag that usually wouldn't exist.
@@ -86,7 +84,7 @@ namespace L10NSharp
 					NumberFormat = CultureInfo.GetCultureInfo("en").NumberFormat;
 					break;
 				default:
-					EnglishName = string.Format("Unknown Language ({0})", name);
+					EnglishName = $"Unknown Language ({name})";
 					DisplayName = EnglishName;
 					NativeName = EnglishName;
 					NumberFormat = CultureInfo.InvariantCulture.NumberFormat;
@@ -130,7 +128,7 @@ namespace L10NSharp
 		/// <summary>
 		/// Provide access to the underlying CultureInfo object if it exists.
 		/// </summary>
-		public CultureInfo RawCultureInfo { get; private set; }
+		public CultureInfo RawCultureInfo { get; }
 
 		// The following properties mimic those provided by CultureInfo.
 
@@ -161,10 +159,7 @@ namespace L10NSharp
 					_currentInfo = new L10NCultureInfo(CultureInfo.CurrentCulture);
 				return _currentInfo;
 			}
-			internal set
-			{
-				_currentInfo = value;
-			}
+			internal set => _currentInfo = value;
 		}
 
 		/// <summary>
@@ -210,11 +205,10 @@ namespace L10NSharp
 
 		public override bool Equals(object obj)
 		{
-			var that = obj as L10NCultureInfo;
-			if (ReferenceEquals(that, null))
+			if (!(obj is L10NCultureInfo that))
 				return false;
-			return (that.Name == this.Name) &&
-				(that.EnglishName == this.EnglishName);
+			return that.Name == Name &&
+				that.EnglishName == EnglishName;
 		}
 
 		public override int GetHashCode()
@@ -224,7 +218,7 @@ namespace L10NSharp
 
 		public override string ToString()
 		{
-			return string.Format("[L10NCultureInfo: Name={0}, EnglishName={1}]", Name, EnglishName);
+			return $"[L10NCultureInfo: Name={Name}, EnglishName={EnglishName}]";
 		}
 
 		public static bool operator ==(L10NCultureInfo ci1, L10NCultureInfo ci2)

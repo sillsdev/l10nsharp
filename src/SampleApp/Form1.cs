@@ -25,7 +25,12 @@ namespace SampleApp
 				throw new InvalidOperationException(
 					$"The {nameof(sender)} should have been the primary localization manager on which we subscribed to handle the {nameof(ILocalizationManager.UiLanguageChanged)} event.");
 
-			label2.Text = string.Format(label2.Text, DateTime.Now.ToShortTimeString(), DateTime.Now.ToShortDateString());
+			// At this point, L10NSharpExtender has already reapplied localization,
+			// so label2.Text contains the localized *format string*, not a previously
+			// formatted value.
+			var format = label2.Text;
+			var now = DateTime.Now;
+			label2.Text = string.Format(format, now.ToShortTimeString(), now.ToShortDateString());
 		}
 
 		private void UpdateDynamicLabel()
