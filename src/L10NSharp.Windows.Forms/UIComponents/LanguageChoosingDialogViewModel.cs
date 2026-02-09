@@ -1,7 +1,5 @@
 using System;
-using System.Diagnostics;
 using L10NSharp.Translators;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
@@ -50,7 +48,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 				var s = translator.TranslateText(sourceString);
 				if (s == sourceString)
 					return;
-				if (s.Contains("{0}") && s.Length > 5) // If we just get back "{0} or "({0})", we won't consider that useful.
+				if (s.Contains("{0}") && s.Length > 5) // If we just get back "{0}" or "({0})", we won't consider that useful.
 				{
 					// Bing will presumably have translated the English string into the native language, so now we want
 					// to display the English name in parentheses. (As a sanity check, we could look to see whether the

@@ -231,7 +231,7 @@ namespace L10NSharp.Windows.Forms
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// This method goes through the collection of the controls that have been extended
-		/// and adds to or udates the default values in the string files. Then each extended
+		/// and adds to or updates the default values in the string files. Then each extended
 		/// control is localized.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
@@ -258,9 +258,12 @@ namespace L10NSharp.Windows.Forms
 				// Special case: the Text of a column header is "ColumnHeader" before it is ever set.
 				// This means that if we first processed the CH before we set its text, we have noted
 				// "ColumnHeader" as its default English name. Get the real one if it has since been updated.
-				var ch = locInfo.Component as ColumnHeader;
-				if (ch != null && ch.Text != "ColumnHeader" && locInfo.Text == "ColumnHeader")
+				if (locInfo.Component is ColumnHeader ch && ch.Text != "ColumnHeader" &&
+				    locInfo.Text == "ColumnHeader")
+				{
 					locInfo.UpdateTextFromObject();
+				}
+				
 				_manager.RegisterComponentForLocalizing(locInfo, (lm, info) =>
 				{
 					if (info.Category == LocalizationCategory.LocalizableComponent)

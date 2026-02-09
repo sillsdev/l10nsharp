@@ -1,19 +1,13 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright © 2009-2025 SIL Global
-// <copyright from='2009' to='2025' company='SIL Global'>
-//		Copyright © 2009-2025 SIL Global
+#region // Copyright © 2009-2026 SIL Global
+// <copyright from='2009' to='2026' company='SIL Global'>
+//		Copyright © 2009-2026 SIL Global
 //
 //		Distributable under the terms of either the Common Public License or the
 //		GNU Lesser General Public License, as specified in the LICENSING.txt file.
 // </copyright>
 #endregion
-//
-// File: XLiffTransUnitVariant.cs
-//
-// <remarks>
-// </remarks>
 // ---------------------------------------------------------------------------------------------
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils
@@ -40,54 +34,54 @@ namespace L10NSharp.XLiffUtils
 		public string Lang { get; set; }
 
 		// Crowdin uses only "needs-translated" and "translated" as far as I can tell.  It appears to remove
-		// this attribute ("undefined") and use the "approved" attribute on the the trans-unit element to
+		// this attribute ("undefined") and use the "approved" attribute on the trans-unit element to
 		// signal that it's been "reviewed and approved".
 		public enum TranslationState
 		{
-			[XmlEnumAttribute("undefined")] Undefined,
+			[XmlEnum("undefined")] Undefined,
 
-			[XmlEnumAttribute("translated")] // Indicates that the item has been translated.
+			[XmlEnum("translated")] // Indicates that the item has been translated.
 			Translated,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-translation")]
 			// Indicates that the item needs to be translated.
 			NeedsTranslation,
 
-			[XmlEnumAttribute("final")] // Indicates the terminating state.
+			[XmlEnum("final")] // Indicates the terminating state.
 			Final,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-adaptation")]
 			//Indicates only non-textual information needs adaptation.
 			NeedsAdaptation,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-l10n")]
 			// Indicates both text and non-textual information needs adaptation.
 			NeedsLocalization,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-review-adaptation")]
 			// Indicates only non-textual information needs review.
 			AdaptationNeedsReview,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-review-l10n")]
 			// Indicates both text and non-textual information needs review.
 			LocalizationNeedsReview,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"needs-review-translation")]
 			// Indicates that only the text of the item needs to be reviewed.
 			TranslationNeedsReview,
 
-			[XmlEnumAttribute(
+			[XmlEnum(
 				"new")]
 			// Indicates that the item is new. For example, translation units that were not in a previous version of the document.
 			New,
 
-			[XmlEnumAttribute("signed-off")] // Indicates that changes are reviewed and approved.
+			[XmlEnum("signed-off")] // Indicates that changes are reviewed and approved.
 			SignedOff
 		};
 
@@ -128,7 +122,7 @@ namespace L10NSharp.XLiffUtils
 
 				return _value;
 			}
-			set { _value = value; }
+			set => _value = value;
 		}
 
 		/// <summary>

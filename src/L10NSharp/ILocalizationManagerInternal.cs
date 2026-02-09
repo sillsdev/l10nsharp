@@ -1,6 +1,7 @@
-// Copyright © 2019-2025 SIL Global
+// Copyright © 2019-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -14,6 +15,7 @@ namespace L10NSharp
 
 		void SaveIfDirty(ICollection<string> langIdsToForceCreate);
 		string GetPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent);
+		void HandleUiLanguageChange();
 	}
 
 	internal interface ILocalizationManagerInternal<T>: ILocalizationManagerInternal

@@ -1,19 +1,11 @@
 // ---------------------------------------------------------------------------------------------
 #region
-// Copyright © 2017-2025 SIL Global
+// Copyright © 2017-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 #endregion
-//
-// File: XLiffFile.cs
-//
-// <remarks>
-// </remarks>
 // ---------------------------------------------------------------------------------------------
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Xml.Serialization;
-using System.Linq;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -48,8 +40,8 @@ namespace L10NSharp.XLiffUtils
 		[XmlElement("header")]
 		public XLiffHeader Header
 		{
-			get { return _header; }
-			set { _header = value; }
+			get => _header;
+			set => _header = value;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -60,8 +52,8 @@ namespace L10NSharp.XLiffUtils
 		[XmlElement("body")]
 		public XLiffBody Body
 		{
-			get { return _body; }
-			set { _body = value; }
+			get => _body;
+			set => _body = value;
 		}
 
 		/// ------------------------------------------------------------------------------------

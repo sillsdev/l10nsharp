@@ -1,7 +1,6 @@
 using System;
 using System.Windows.Forms;
 using NUnit.Framework;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.Tests
 {

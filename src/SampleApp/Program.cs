@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows.Forms;
 using L10NSharp;
@@ -14,7 +13,8 @@ namespace SampleApp
 {
 	static class Program
 	{
-		private static ILocalizationManager _localizationManager;
+		public static ILocalizationManager PrimaryLocalizationManager;
+		
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -25,7 +25,7 @@ namespace SampleApp
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			if (args.Any(a => a == "-i:permissive"))
-				LocalizationManagerWinforms.StrictInitializationMode = false;
+				LocalizationManager.StrictInitializationMode = false;
 
 			try
 			{
@@ -33,7 +33,7 @@ namespace SampleApp
 				// InvalidOperationException, which we will catch and (for the purposes
 				// of this sample app) ignore.
 				MessageBox.Show(Format(
-						LocalizationManagerWinforms.GetString("accessed.before.setting.up.lm",
+						LocalizationManager.GetString("accessed.before.setting.up.lm",
 						"Localization is not yet set up, so this will always be in English. " +
 						"It should not cause anything bad to happen even if the current culture " +
 						"is some other variant of a localized language (e.g., es-MX). By the " +
@@ -43,7 +43,7 @@ namespace SampleApp
 			}
 			catch (InvalidOperationException ex)
 			{
-				if (LocalizationManagerWinforms.StrictInitializationMode)
+				if (LocalizationManager.StrictInitializationMode)
 					Trace.WriteLine($"Got expected {ex.GetType().FullName} exception: {ex.Message}");
 				else
 					throw;
@@ -56,8 +56,8 @@ namespace SampleApp
 			Application.Run(new Form1());
 			Settings.Default.Save();
 
-			_localizationManager?.Dispose();
-			_localizationManager = null;
+			PrimaryLocalizationManager?.Dispose();
+			PrimaryLocalizationManager = null;
 		}
 
 		private static void SetUpLocalization(bool useAdditionalMethodInfo, bool useTmx)
@@ -66,7 +66,7 @@ namespace SampleApp
 				throw new NotSupportedException("TMX-based localization is no longer supported.");
 
 			// Your installer should have a folder where you place the localization files you're shipping with the program
-			var directoryOfInstalledLocFiles = "../../LocalizationFilesFromInstaller";
+			var directoryOfInstalledLocFiles = "../../../LocalizationFilesFromInstaller";
 			Directory.CreateDirectory(directoryOfInstalledLocFiles);
 
 			try
@@ -83,12 +83,11 @@ namespace SampleApp
 							"The generated localization file should contain this string and the window title.", "This is a comment"),
 						MyOwnGetString("SampleApp.InformationalMessageBox.Title", "Cool Title"));
 
-					_localizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
+					PrimaryLocalizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
-						"sampleappLocalizations@nowhere.com",
 						new[] { "SampleApp" },
 						typeof(Program)
 							.GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -96,16 +95,15 @@ namespace SampleApp
 				}
 				else
 				{
-					_localizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
+					PrimaryLocalizationManager = LocalizationManagerWinforms.Create(theLanguageYouRememberedFromLastTime,
 						"SampleApp.exe", "SampleApp", Application.ProductVersion,
 						directoryOfInstalledLocFiles,
 						"MyCompany/L10NSharpSample",
 						Resources.Icon, //replace with your icon
-						"sampleappLocalizations@nowhere.com",
 						new[] { "SampleApp" });
 				}
 
-				Settings.Default.UserInterfaceLanguage = LocalizationManagerWinforms.UILanguageId;
+				Settings.Default.UserInterfaceLanguage = LocalizationManager.UILanguageId;
 			}
 			catch (Exception error)
 			{

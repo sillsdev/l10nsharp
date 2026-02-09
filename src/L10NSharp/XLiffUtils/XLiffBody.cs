@@ -1,19 +1,13 @@
 // ---------------------------------------------------------------------------------------------
-#region // Copyright © 2009-2025 SIL Global
-// <copyright from='2009' to='2025' company='SIL Global'>
-//		Copyright © 2009-2025 SIL Global
+#region // Copyright © 2009-2026 SIL Global
+// <copyright from='2009' to='2026' company='SIL Global'>
+//		Copyright © 2009-2026 SIL Global
 //
 //		Distributable under the terms of either the Common Public License or the
 //		GNU Lesser General Public License, as specified in the LICENSING.txt file.
 // </copyright>
 #endregion
-//
-// File: XLiffBody.cs
-//
-// <remarks>
-// </remarks>
 // ---------------------------------------------------------------------------------------------
-using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -33,7 +27,7 @@ namespace L10NSharp.XLiffUtils
 		private int _transUnitId;
 		static SpinLock _transUnitIdLock;
 
-		private ConcurrentDictionary<string, XLiffTransUnit> _transUnitDict =
+		private readonly ConcurrentDictionary<string, XLiffTransUnit> _transUnitDict =
 			new ConcurrentDictionary<string, XLiffTransUnit>();
 
 		private object mutex = new object(); // lock for accessing non-concurrent variables.
@@ -42,8 +36,8 @@ namespace L10NSharp.XLiffUtils
 
 		public class ListWrapper : IEnumerable<XLiffTransUnit>
 		{
-			private IEnumerable<XLiffTransUnit> _list;
-			private XLiffBody _body;
+			private readonly IEnumerable<XLiffTransUnit> _list;
+			private readonly XLiffBody _body;
 
 			public ListWrapper(IEnumerable<XLiffTransUnit> startWith, XLiffBody body)
 			{

@@ -1,9 +1,7 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using L10NSharp.Windows.Forms.UIComponents;
 using L10NSharp.XLiffUtils;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.XLiffUtils
 {
@@ -33,7 +31,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		public Keys GetShortcutKeys(string langId, string id)
 		{
 			string keys = GetValueForLangAndIdWithFallback(langId, id + kShortcutSuffix);
-			return ShortcutKeysEditor.KeysFromString(keys);
+			return ShortcutKeysConverter.KeysFromString(keys);
 		}
 
 		#endregion

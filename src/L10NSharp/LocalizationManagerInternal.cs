@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 SIL Global
+// Copyright © 2022-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System;
@@ -58,7 +58,7 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(relativeSettingPathForLocalizationFolder))
 				relativeSettingPathForLocalizationFolder = appName;
 			else if (Path.IsPathRooted(relativeSettingPathForLocalizationFolder))
-				throw new ArgumentException(@"Relative (non-rooted) path expected", nameof(relativeSettingPathForLocalizationFolder));
+				throw new ArgumentException("Relative (non-rooted) path expected", nameof(relativeSettingPathForLocalizationFolder));
 
 			var directoryOfWritableTranslationFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 				relativeSettingPathForLocalizationFolder, "localizations");
@@ -83,8 +83,6 @@ namespace L10NSharp
 
 			LocalizationManager.SetUILanguage(desiredUiLangId);
 
-			LocalizationManager.EnableClickingOnControlToBringUpLocalizationDialog = true;
-
 			return lm;
 		}
 
@@ -96,7 +94,7 @@ namespace L10NSharp
 			// If so we want to return true.
 			var fallbackLangId = MapToExistingLanguageIfPossible(desiredUiLangId);
 			// If the input and output of MapToExistingLanguageIfPossible are the same then there is no mapping
-			// known for the language and we should return false instead of infinitely recursing.
+			// known for the language, and we should return false instead of infinitely recursing.
 			// (Storing such redundant mappings makes other code more performant.)
 			if (fallbackLangId == desiredUiLangId)
 				return false;
@@ -113,7 +111,7 @@ namespace L10NSharp
 		/// <param name="desiredUiLangId">The language code of the desired UI language. If
 		/// there are no translations for that ID, a message is displayed and the UI language
 		/// falls back to the default.</param>
-		/// <param name="appId">The application Id (e.g. 'Pa' for Phonology Assistant).
+		/// <param name="appId">The application ID (e.g. 'Pa' for Phonology Assistant).
 		/// This should be a unique name that identifies the manager for an assembly or
 		/// application. May include an optional file extension, which will be stripped off but
 		/// used to correctly set the "original" attribute when persisting an XLIFF file. The
@@ -127,7 +125,6 @@ namespace L10NSharp
 		/// <param name="relativeSettingPathForLocalizationFolder">The path, relative to
 		/// %appdata%, where your application stores user settings (e.g., "SIL\SayMore").
 		/// A folder named "localizations" will be created there.</param>
-		/// <param name="applicationIcon"> </param>
 		/// <param name="additionalLocalizationMethods">MethodInfo objects representing
 		/// additional methods that should be regarded as calls to get localizations. If the method
 		/// is named "Localize", the extractor will attempt to parse its signature as an extension
@@ -482,11 +479,11 @@ namespace L10NSharp
 		/// langId = 'en', irrespective of what is in l10n file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText, string comment, string langId)
+		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
+			string comment, string langId)
 		{
-			//this happens in unit test environments or apps that
-			//have imported a library that is L10N'ized, but the app
-			//itself isn't initializing L10N yet.
+			// This happens in unit test environments or apps that have imported a library that
+			// is localized, but the app itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
 			{
 				if (PreviouslyLoadedManagers.Contains(appId))

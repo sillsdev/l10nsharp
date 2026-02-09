@@ -86,6 +86,12 @@ The command line build command would look something like this:
 dotnet build
 ```
 
+## Public API annotations
+
+Some public types and members are annotated with `PublicApi` to suppress “unused” warnings in tooling for APIs that are consumed externally.
+
+These annotations are advisory only. All public members should generally be considered part of the public API unless otherwise documented.
+
 ## Running Unit Tests
 
 We use NUnit to run our unit tests. NUnit is downloaded via NuGet.  There may be a few tests that

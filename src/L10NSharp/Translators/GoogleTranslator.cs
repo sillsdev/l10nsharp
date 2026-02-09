@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Web;
+using JetBrains.Annotations;
 using L10NSharp.Utility;
 
 namespace L10NSharp.Translators
@@ -13,6 +13,7 @@ namespace L10NSharp.Translators
 	///
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
+	[PublicAPI]
 	public class GoogleTranslator : TranslatorBase
 	{
 		private const string kServiceUrl = "http://ajax.googleapis.com/ajax/services/language/translate";
@@ -54,25 +55,21 @@ namespace L10NSharp.Translators
 		{
 			var text = HttpUtilityFromMono.UrlPathEncode(srcText);
 			var ver = HttpUtilityFromMono.UrlEncode("1.0");
-			var langPair = HttpUtilityFromMono.UrlEncode(string.Format("{0}|{1}", m_srcCultureId, m_tgtCultureId));
-			var encodedRequestUrlFragment = string.Format("?v={0}&q={1}&langpair={2}", ver, text, langPair);
+			var langPair = HttpUtilityFromMono.UrlEncode($"{m_srcCultureId}|{m_tgtCultureId}");
+			var encodedRequestUrlFragment = $"?v={ver}&q={text}&langpair={langPair}";
+
+			var requestUri = kServiceUrl + encodedRequestUrlFragment;
 
 			try
 			{
-				var request = WebRequest.Create(kServiceUrl + encodedRequestUrlFragment);
-				var response = request.GetResponse();
+				using var client = new HttpClient();
+				var responseString = client.GetStringAsync(requestUri).GetAwaiter().GetResult(); // sync wait
 
-				using (var reader = new StreamReader(response.GetResponseStream()))
-				{
-					var json = reader.ReadLine();
-					using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-					{
-						var ser = new DataContractJsonSerializer(typeof(JSONResponse));
-						var translation = ser.ReadObject(ms) as JSONResponse;
-						reader.Close();
-						return translation.responseData.translatedText;
-					}
-				}
+				using var ms = new MemoryStream(Encoding.Unicode.GetBytes(responseString));
+				var ser = new DataContractJsonSerializer(typeof(JSONResponse));
+				var translation = ser.ReadObject(ms) as JSONResponse;
+
+				return translation?.responseData?.translatedText ?? string.Empty;
 			}
 			catch (Exception)
 			{

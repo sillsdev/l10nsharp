@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp.Translators;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
@@ -13,7 +12,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		public LanguageChoosingDialog(L10NCultureInfo requestedCulture, Icon icon)
 		{
 			InitializeComponent();
-			this.Icon = icon;
+			Icon = icon;
 			_model = new LanguageChoosingDialogViewModel(_messageLabel.Text, _OKButton.Text, Text, requestedCulture, () => { Application.Idle += Application_Idle; } );
 			_messageLabel.Text = _model.Message;
 		}
@@ -29,7 +28,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 
 		public string SelectedLanguage;
 
-		private void _OKButton_Click(object sender, System.EventArgs e)
+		private void _OKButton_Click(object sender, EventArgs e)
 		{
 			Close();
 		}

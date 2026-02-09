@@ -3,7 +3,6 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using L10NSharp;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
@@ -25,7 +24,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Gets a value indicating whether or not the extender is currently in design mode.
+		/// Gets a value indicating whether the extender is currently in design mode.
 		/// I have had some problems with the base class' DesignMode property being true
 		/// when in design mode. I'm not sure why, but adding a couple more checks fixes the
 		/// problem.
@@ -33,22 +32,17 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		/// ------------------------------------------------------------------------------------
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		private new bool DesignMode
-		{
-			get
-			{
-				return (base.DesignMode || GetService(typeof(IDesignerHost)) != null) ||
-					(LicenseManager.UsageMode == LicenseUsageMode.Designtime);
-			}
-		}
+		private new bool DesignMode =>
+			base.DesignMode || GetService(typeof(IDesignerHost)) != null ||
+			LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
 		/// ----------------------------------------------------------------------------------------
 		[Browsable(false)]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string SelectedLanguage
 		{
-			get { return ((L10NCultureInfo)SelectedItem).Name; }
-			set { SelectedItem = L10NCultureInfo.GetCultureInfo(value); }
+			get => ((L10NCultureInfo)SelectedItem).Name;
+			set => SelectedItem = L10NCultureInfo.GetCultureInfo(value);
 		}
 
 		/// ----------------------------------------------------------------------------------------
@@ -70,7 +64,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		[DefaultValue(false)]
 		public bool ShowOnlyLanguagesHavingLocalizations
 		{
-			get { return _showOnlyLanguagesHavingLocalizations; }
+			get => _showOnlyLanguagesHavingLocalizations;
 			set
 			{
 				if (_showOnlyLanguagesHavingLocalizations == value)
@@ -93,14 +87,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			Items.Clear();
 			Items.AddRange(cultureList.Distinct().OrderBy(ci => ci.NativeName).ToArray());
 			var currCulture = L10NCultureInfo.GetCultureInfo(LocalizationManager.UILanguageId);
-			if (Items.Contains(currCulture))
-			{
-				SelectedItem = currCulture;
-			}
-			else
-			{
-				SelectedItem =  L10NCultureInfo.GetCultureInfo("en");
-			}
+			SelectedItem = Items.Contains(currCulture) ? currCulture : L10NCultureInfo.GetCultureInfo("en");
 		}
 	}
 }
