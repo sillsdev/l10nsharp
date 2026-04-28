@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<TargetFrameworks>$(TargetFrameworks);net8.0</TargetFrameworks>
 		<Description>Unit tests for L10NSharp</Description>
 		<RootNamespace>L10NSharp.Tests</RootNamespace>
 		<AssemblyTitle>L10NSharp.Tests</AssemblyTitle>
