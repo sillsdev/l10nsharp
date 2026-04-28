@@ -39,16 +39,17 @@ jobs:
     - name: Build and Pack
       run: dotnet build --configuration Release
 
-    - name: Test (Framework 4.6.1)
+    - name: Test (Windows only, Framework 4.6.1)
       run: dotnet test --configuration Release --no-build output\Release\net461\*Tests.dll -- NUnit.TestOutputXml=TestResults
-      if: matrix.os != 'ubuntu-latest'
+      if: matrix.os == 'windows-latest'
 
-    - name: Test (Framework 4.8 and net8.0-windows)
+    - name: Test (Windows only, all TFMs)
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
-      if: matrix.os != 'ubuntu-latest'
+      if: matrix.os == 'windows-latest'
 
-    - name: Test (net8.0 cross-platform)
+    - name: Test (Linux only, .NET 8.0)
       run: dotnet test --configuration Release --no-build --framework net8.0 -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Upload Test Results
       if: always()
