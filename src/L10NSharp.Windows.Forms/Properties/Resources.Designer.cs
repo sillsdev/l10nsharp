@@ -39,7 +39,7 @@ namespace L10NSharp.Windows.Forms.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("L10NSharp.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("L10NSharp.Windows.Forms.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,66 +57,6 @@ namespace L10NSharp.Windows.Forms.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidBing {
-            get {
-                object obj = ResourceManager.GetObject("kimidBing", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidCopyTranslation {
-            get {
-                object obj = ResourceManager.GetObject("kimidCopyTranslation", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidCopyTranslationBig {
-            get {
-                object obj = ResourceManager.GetObject("kimidCopyTranslationBig", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidGoogle {
-            get {
-                object obj = ResourceManager.GetObject("kimidGoogle", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidMoveNext {
-            get {
-                object obj = ResourceManager.GetObject("kimidMoveNext", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap kimidMovePrevious {
-            get {
-                object obj = ResourceManager.GetObject("kimidMovePrevious", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -146,16 +86,6 @@ namespace L10NSharp.Windows.Forms.Properties {
         internal static System.Drawing.Bitmap Move_up {
             get {
                 object obj = ResourceManager.GetObject("Move_up", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SelectAllRows {
-            get {
-                object obj = ResourceManager.GetObject("SelectAllRows", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

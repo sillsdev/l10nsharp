@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>L10NSharp.Windows.Forms</RootNamespace>
     <Description>L10NSharp.Windows.Forms is a .NET localization library for Windows Forms applications. It collects strings which need localization when your application first runs and saves them in a XLIFF file. It can also dynamically collect strings at runtime.</Description>
     <AssemblyTitle>L10NSharp.Windows.Forms</AssemblyTitle>
