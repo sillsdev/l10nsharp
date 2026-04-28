@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -14,7 +12,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 	internal class XliffLocalizationManagerWinforms : XliffLocalizationManager, ILocalizationManagerInternalWinforms<XLiffDocument>
 	{
 		/// ------------------------------------------------------------------------------------
-		private static Icon _applicationIcon;
 		public Dictionary<Control, ToolTip> ToolTipCtrls { get; }
 		public Dictionary<ILocalizableComponent, Dictionary<string, LocalizingInfoWinforms>> LocalizableComponents { get; }
 
@@ -37,12 +34,6 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 		internal XliffLocalizationManagerWinforms(string appId, string appName, string appVersion) : base(appId, appName, appVersion)
 		{
-		}
-
-		/// <summary> Sometimes, on Linux, there is an empty DefaultStringFile.  This causes problems. </summary>
-		private bool DefaultStringFileExistsAndHasContents()
-		{
-			return File.Exists(DefaultStringFilePath) && !string.IsNullOrWhiteSpace(File.ReadAllText(DefaultStringFilePath));
 		}
 
 		#endregion

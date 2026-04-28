@@ -13,7 +13,6 @@
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == '' ">
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />
