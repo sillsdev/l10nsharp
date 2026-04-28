@@ -43,9 +43,12 @@ jobs:
       run: dotnet test --configuration Release --no-build output\Release\net461\*Tests.dll -- NUnit.TestOutputXml=TestResults
       if: matrix.os != 'ubuntu-latest'
 
-    - name: Test (Framework and .NET latest)
+    - name: Test (Framework 4.8 and net8.0-windows)
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
       if: matrix.os != 'ubuntu-latest'
+
+    - name: Test (net8.0 cross-platform)
+      run: dotnet test --configuration Release --no-build --framework net8.0 -- NUnit.TestOutputXml=TestResults
 
     - name: Upload Test Results
       if: always()

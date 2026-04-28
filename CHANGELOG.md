@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms.
+- [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms, and added cross-platform CI/CD coverage for `net8.0`.
 - [L10NSharp] Added UiLanguageChanged event to ILocalizationManager. This provides a way for clients to deal with changes now that (in Windows) LocalizeItemDlg<XLiffDocument>.StringsLocalized no longer exists.
 
 ### Changed
