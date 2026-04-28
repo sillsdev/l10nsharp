@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms.
 - [L10NSharp] Added UiLanguageChanged event to ILocalizationManager. This provides a way for clients to deal with changes now that (in Windows) LocalizeItemDlg<XLiffDocument>.StringsLocalized no longer exists.
 
 ### Changed
@@ -25,10 +26,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Removed CanCustomizeLocalizations and PrepareToCustomizeLocalizations from ILocalizationManager since L10nSharp no longer provides a mechanism by which users may customize localizations.
 - [L10NSharp] Removed the following members from from ILocalizationManager since they are really only needed internally and serve no purpose in the public API:
     - AppVersion
-	- NamespaceBeginnings (no longer used even internally)
-	- FilenamesToAddToCache
+    - NamespaceBeginnings (no longer used even internally)
+    - FilenamesToAddToCache
 - [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+
+### Fixed
+
+- [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
+- [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
+- [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
 
 ### Removed
 

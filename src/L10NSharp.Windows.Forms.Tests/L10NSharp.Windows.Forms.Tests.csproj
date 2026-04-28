@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<UseWindowsForms>true</UseWindowsForms>
 		<Description>Unit tests for L10NSharpWinforms</Description>
 		<RootNamespace>L10NSharp.Windows.Forms.Tests</RootNamespace>
 		<AssemblyTitle>L10NSharp.Windows.Forms.Tests</AssemblyTitle>

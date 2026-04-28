@@ -101,7 +101,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			// 
 			// _buttonMoveUp
 			// 
-			this._buttonMoveUp.Image = global::L10NSharp.Properties.Resources.Move_up;
+			this._buttonMoveUp.Image = global::L10NSharp.Windows.Forms.Properties.Resources.Move_up;
 			this._buttonMoveUp.Location = new System.Drawing.Point(445, 123);
 			this._buttonMoveUp.Name = "_buttonMoveUp";
 			this._buttonMoveUp.Size = new System.Drawing.Size(26, 26);
@@ -112,7 +112,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			// 
 			// _buttonAdd
 			// 
-			this._buttonAdd.Image = global::L10NSharp.Properties.Resources.Move;
+			this._buttonAdd.Image = global::L10NSharp.Windows.Forms.Properties.Resources.Move;
 			this._buttonAdd.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this._buttonAdd.Location = new System.Drawing.Point(188, 123);
 			this._buttonAdd.Name = "_buttonAdd";
@@ -147,7 +147,7 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			// 
 			// _buttonMoveDown
 			// 
-			this._buttonMoveDown.Image = global::L10NSharp.Properties.Resources.Move_down;
+			this._buttonMoveDown.Image = global::L10NSharp.Windows.Forms.Properties.Resources.Move_down;
 			this._buttonMoveDown.Location = new System.Drawing.Point(445, 155);
 			this._buttonMoveDown.Name = "_buttonMoveDown";
 			this._buttonMoveDown.Size = new System.Drawing.Size(26, 26);
