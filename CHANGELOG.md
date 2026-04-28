@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - [L10NSharp] Removed CanCustomizeLocalizations and PrepareToCustomizeLocalizations from ILocalizationManager since L10nSharp no longer provides a mechanism by which users may customize localizations.
-- [L10NSharp] Removed the following members from from ILocalizationManager since they are really only needed internally and serve no purpose in the public API:
+- [L10NSharp] Removed the following members from ILocalizationManager since they are really only needed internally and serve no purpose in the public API:
     - AppVersion
     - NamespaceBeginnings (no longer used even internally)
     - FilenamesToAddToCache
