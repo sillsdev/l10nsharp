@@ -28,9 +28,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - AppVersion
     - NamespaceBeginnings (no longer used even internally)
     - FilenamesToAddToCache
-- [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+- [L10NSharp] Removed emailForSubmissions parameter from LocalizationManagcer.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
-
+- [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
+ 
 ### Fixed
 
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Removed EmailForSubmissions. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed LmGrid, LmButtonColumn, LmButtonCell, TipDialog.
 - [L10NSharp.Windows.Forms] Removed the version of LocalizationManagerWinforms.Create that did not take an icon. The mere absence of a usable icon does not preclude the possibility of displaying the dialog for the user to choose a fallback language. Callers that do not wish to provide an icon can safely pass null for that parameter.
+- [L10NSharp] Removed ITranslator, TranslatorBase, GoogleTranslator, and BingTranslator
 
 ## [9.0.0] - 2026-02-02
 

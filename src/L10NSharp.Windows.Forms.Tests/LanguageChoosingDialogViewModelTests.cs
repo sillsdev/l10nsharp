@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using L10NSharp.Translators;
+using L10NSharp.Windows.Forms.Translators;
 using L10NSharp.Windows.Forms.UIComponents;
 using NUnit.Framework;
 

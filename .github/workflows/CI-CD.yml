@@ -47,7 +47,7 @@ jobs:
       run: dotnet test --configuration Release --no-build -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'windows-latest'
 
-    - name: Test (Linux only, .NET 8.0)
+    - name: Test (Linux only)
       run: dotnet test --configuration Release --no-build --framework net8.0 -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
 
