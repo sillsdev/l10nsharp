@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - AppVersion
     - NamespaceBeginnings (no longer used even internally)
     - FilenamesToAddToCache
-- [L10NSharp] Removed emailForSubmissions parameter from LocalizationManagcer.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
+- [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
  
