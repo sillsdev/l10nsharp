@@ -5,7 +5,7 @@ using System.ServiceModel;
 using System.ServiceModel.Security;
 using System.Text;
 using System.Threading;
-using L10NSharp.BingTranslatorService;
+using L10NSharp.Windows.Forms.BingTranslatorService;
 
 namespace L10NSharp.Windows.Forms.Translators
 {
