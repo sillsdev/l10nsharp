@@ -26,10 +26,12 @@ namespace L10NSharp.Windows.Forms.Tests
 		/// ------------------------------------------------------------------------------------
 		protected void TestSetup(string installedTranslationDir)
 		{
+			var uniqueId = $"LocalizableComponentTest_{Guid.NewGuid()}";
+			
 			var dir = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().Location).LocalPath);
 			m_manager = LocalizationManagerWinforms.Create("en", "LocalizableComponentTest", "LocalizableComponentTest", "1.0",
 					Path.Combine(dir, installedTranslationDir),
-					"", null, new string[] {  })
+					uniqueId, null, new string[] {  })
 				as ILocalizationManagerInternalWinforms<XLiffDocument>;
 			m_translationPath = m_manager.GetPathForLanguage("en", true);
 			m_extender = new L10NSharpExtender { LocalizationManagerId = "LocalizableComponentTest" };

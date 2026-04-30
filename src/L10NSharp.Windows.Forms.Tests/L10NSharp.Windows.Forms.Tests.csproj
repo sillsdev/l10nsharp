@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<TargetFrameworks>$(TargetFrameworks);net8.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<Description>Unit tests for L10NSharpWinforms</Description>
 		<RootNamespace>L10NSharp.Windows.Forms.Tests</RootNamespace>
