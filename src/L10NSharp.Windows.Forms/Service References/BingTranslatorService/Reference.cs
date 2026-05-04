@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace L10NSharp.BingTranslatorService {
+namespace L10NSharp.Windows.Forms.BingTranslatorService {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -31,12 +31,12 @@ namespace L10NSharp.BingTranslatorService {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface LanguageServiceChannel : L10NSharp.BingTranslatorService.LanguageService, System.ServiceModel.IClientChannel {
+    public interface LanguageServiceChannel : L10NSharp.Windows.Forms.BingTranslatorService.LanguageService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class LanguageServiceClient : System.ServiceModel.ClientBase<L10NSharp.BingTranslatorService.LanguageService>, L10NSharp.BingTranslatorService.LanguageService {
+    public partial class LanguageServiceClient : System.ServiceModel.ClientBase<L10NSharp.Windows.Forms.BingTranslatorService.LanguageService>, L10NSharp.Windows.Forms.BingTranslatorService.LanguageService {
         
         public LanguageServiceClient() {
         }

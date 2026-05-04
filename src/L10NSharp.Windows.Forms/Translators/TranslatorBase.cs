@@ -1,17 +1,10 @@
 using System;
 using L10NSharp.Utility;
 
-namespace L10NSharp.Translators
+namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	public interface ITranslator
-	{
-		/// ------------------------------------------------------------------------------------
-		string TranslateText(string srcText);
-	}
-
-	/// ----------------------------------------------------------------------------------------
-	public abstract class TranslatorBase : ITranslator
+	internal abstract class TranslatorBase
 	{
 		/// ------------------------------------------------------------------------------------
 		protected string m_srcCultureId;

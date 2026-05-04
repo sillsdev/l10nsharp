@@ -72,7 +72,7 @@ namespace CheckOrFixXliff
 					string filename = arg;
 					if (!File.Exists(filename))
 					{
-						Console.WriteLine(@"{0} does not exist!", filename);
+						Console.WriteLine($"{filename} does not exist!");
 						missingFile = true;
 						continue;
 					}
@@ -131,7 +131,7 @@ namespace CheckOrFixXliff
 			var target = tu.XPathSelectElement("x:target", namespaceManager);
 			if (source.HasElements || target.HasElements)
 			{
-				Console.WriteLine(@"Cannot fix {0} because the translated material contains XML elements", tuid);
+				Console.WriteLine($"Cannot fix {tuid} because the translated material contains XML elements");
 				return;
 			}
 			var targetValue = target.Value;
@@ -144,7 +144,7 @@ namespace CheckOrFixXliff
 		}
 
 		/// <summary>
-		/// Check whether the given file is even valid ("well formed") XML.
+		/// Check whether the given file is even valid ("well-formed") XML.
 		/// </summary>
 		/// <returns>
 		/// true if okay, false if the file cannot load as an XmlDocument
@@ -159,7 +159,7 @@ namespace CheckOrFixXliff
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(@"{0} is invalid XML: {1}", filename, e.Message);
+				Console.WriteLine($"{filename} is invalid XML: {e.Message}");
 				return false;
 			}
 		}
@@ -185,7 +185,7 @@ namespace CheckOrFixXliff
 				var document = XDocument.Load(filename, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
 				document.Validate(schemas, (sender, args) => {
 					if (!_quiet)
-						Console.WriteLine(@"{0} did not validate against schema on line {1}: {2}", filename, args.Exception.LineNumber, args.Message);
+						Console.WriteLine($"{filename} did not validate against schema on line {args.Exception.LineNumber}: {args.Message}");
 					valid = false;
 				});
 			}
@@ -248,16 +248,14 @@ namespace CheckOrFixXliff
 					{
 						// missing instances, but may be valid
 						if (!_quiet)
-							Console.WriteLine(@"Translation of {0} is missing {1} copies of the marker: {2}",
-								tuId, dictSourceMarkers[key] - dictTargetMarkers[key], key);
+							Console.WriteLine($"Translation of {tuId} is missing {dictSourceMarkers[key] - dictTargetMarkers[key]} copies of the marker: {key}");
 						retval = false;
 					}
 					else if (dictTargetMarkers[key] > dictSourceMarkers[key])
 					{
 						// extra instances, but may be valid
 						if (!_quiet)
-							Console.WriteLine(@"Translation of {0} has {1} extra copies of the marker: {2}",
-								tuId, dictTargetMarkers[key] - dictSourceMarkers[key], key);
+							Console.WriteLine($"Translation of {tuId} has {dictTargetMarkers[key] - dictSourceMarkers[key]} extra copies of the marker: {key}");
 						retval = false;
 					}
 				}
@@ -265,7 +263,7 @@ namespace CheckOrFixXliff
 				{
 					// missing altogether, probably invalid
 					if (!_quiet)
-						Console.WriteLine(@"Translation of {0} is missing the marker: {1}", tuId, key);
+						Console.WriteLine($"Translation of {tuId} is missing the marker: {key}");
 					retval = false;
 				}
 			}
@@ -275,7 +273,7 @@ namespace CheckOrFixXliff
 				{
 					// introduced instance, certainly invalid!
 					if (!_quiet)
-						Console.WriteLine(@"Translation of {0} has an unexpected marker: {1}", tuId, key);
+						Console.WriteLine($"Translation of {tuId} has an unexpected marker: {key}");
 					retval = false;
 				}
 			}

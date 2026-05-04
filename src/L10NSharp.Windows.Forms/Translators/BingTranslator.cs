@@ -5,12 +5,12 @@ using System.ServiceModel;
 using System.ServiceModel.Security;
 using System.Text;
 using System.Threading;
-using L10NSharp.BingTranslatorService;
+using L10NSharp.Windows.Forms.BingTranslatorService;
 
-namespace L10NSharp.Translators
+namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	public class BingTranslator : TranslatorBase
+	internal class BingTranslator : TranslatorBase
 	{
 		// This is my (David Olson) personal application id, acquired from
 		// Microsoft at http://www.bing.com/developer.

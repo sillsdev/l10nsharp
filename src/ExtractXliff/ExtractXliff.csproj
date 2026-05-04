@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsTool>true</IsTool>
+    <TargetFrameworks>$(TargetFrameworks);net8.0</TargetFrameworks>
     <RootNamespace>ExtractXliff</RootNamespace>
     <Description>Extract static strings from one or more C# assemblies (either .dll or .exe)
     and save them as XLIFF file.</Description>
@@ -11,9 +12,6 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <NoWarn>$(NoWarn);NU5128;NU5118</NoWarn>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == '' ">
-    <Reference Include="System.ServiceModel" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4">

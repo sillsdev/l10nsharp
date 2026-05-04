@@ -6,7 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 using L10NSharp.Utility;
 
-namespace L10NSharp.Translators
+namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
@@ -14,7 +14,7 @@ namespace L10NSharp.Translators
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
 	[PublicAPI]
-	public class GoogleTranslator : TranslatorBase
+	internal class GoogleTranslator : TranslatorBase
 	{
 		private const string kServiceUrl = "http://ajax.googleapis.com/ajax/services/language/translate";
 

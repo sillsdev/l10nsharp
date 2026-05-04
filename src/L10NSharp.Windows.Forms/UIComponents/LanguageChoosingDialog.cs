@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using L10NSharp.Translators;
+using L10NSharp.Windows.Forms.Translators;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
