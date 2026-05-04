@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsTool>true</IsTool>
-	<TargetFrameworks>$(TargetFrameworks);netstandard2.0</TargetFrameworks>
+	<TargetFrameworks>$(TargetFrameworks);net8.0-windows</TargetFrameworks>
     <RootNamespace>CheckOrFixXliff</RootNamespace>
     <Description>Validate and fix XLIFF files.</Description>
     <AssemblyTitle>CheckOrFixXliff</AssemblyTitle>

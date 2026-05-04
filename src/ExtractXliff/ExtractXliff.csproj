@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsTool>true</IsTool>
-	<TargetFrameworks>$(TargetFrameworks);netstandard2.0</TargetFrameworks>
+	<TargetFrameworks>$(TargetFrameworks);net8.0-windows</TargetFrameworks>
     <RootNamespace>ExtractXliff</RootNamespace>
     <Description>Extract static strings from one or more C# assemblies (either .dll or .exe)
     and save them as XLIFF file.</Description>
