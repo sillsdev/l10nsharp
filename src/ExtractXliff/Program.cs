@@ -66,7 +66,7 @@ namespace ExtractXliff
 				foreach (var glob in _assemblyFiles)
 				{
 					var dir = Path.GetDirectoryName(glob);
-					if (string.IsNullOrEmpty(dir))
+					if (dir == null)
 						continue;
 					assemblyPaths.AddRange(Directory.GetFiles(dir, Path.GetFileName(glob)));
 				}
@@ -113,8 +113,7 @@ namespace ExtractXliff
 			}
 
 			// Scan the input assemblies for localizable strings.
-			var extractor = new StringExtractor<XLiffDocument>
-			{
+			var extractor = new StringExtractor<XLiffDocument> {
 				ExternalAssembliesToScan = assemblies.ToArray(),
 				OutputErrorsToConsole = _verbose
 			};
