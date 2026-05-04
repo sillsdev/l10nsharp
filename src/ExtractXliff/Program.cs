@@ -37,13 +37,13 @@ namespace ExtractXliff
 		private static bool _verbose;                       // verbose console output (-v)
 		private static bool _glob;
 		private static bool _doneWithOptions;               // flag that either "--" or first assembly filename seen already
-		private static readonly List<string> _assemblyFiles = new List<string>();   // input assembly file(s)
-																					// Tuple holds: namespace/class/method name(s) (specified using -m option)
+		private static readonly List<string> _assemblyFiles = new List<string>();	// input assembly file(s)
+		// Tuple holds: namespace/class/method name(s) (specified using -m option)
 		private static readonly List<Tuple<string, string, string>> _additionalLocalizationMethodNames = new List<Tuple<string, string, string>>();
 		private static readonly List<MethodInfo> _additionalLocalizationMethods = new List<MethodInfo>();
 
-		private const string kDefaultLangId = "en";
-		private const string kDefaultNewlineReplacement = "\\n";
+		private const string kDefaultLangId               = "en";
+		private const string kDefaultNewlineReplacement   = "\\n";
 		private const string kDefaultAmpersandReplacement = "|amp|";
 
 		private static void Main(string[] args)
