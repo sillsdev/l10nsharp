@@ -3,25 +3,15 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using JetBrains.Annotations;
 using L10NSharp.Utility;
 
 namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	/// <summary>
-	///
-	/// </summary>
-	/// ----------------------------------------------------------------------------------------
-	[PublicAPI]
 	internal class GoogleTranslator : TranslatorBase
 	{
 		private const string kServiceUrl = "http://ajax.googleapis.com/ajax/services/language/translate";
 
-		/// ------------------------------------------------------------------------------------
-		/// <summary>
-		///
-		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		public GoogleTranslator(string srcCultureId, string tgtCultureId)
 		{
@@ -80,7 +70,7 @@ namespace L10NSharp.Windows.Forms.Translators
 
 	/// ----------------------------------------------------------------------------------------
 	[Serializable]
-	public class JSONResponse
+	internal class JSONResponse
 	{
 		/// ------------------------------------------------------------------------------------
 		public TranslationResponseData responseData = new TranslationResponseData();
@@ -92,7 +82,7 @@ namespace L10NSharp.Windows.Forms.Translators
 
 	/// ----------------------------------------------------------------------------------------
 	[Serializable]
-	public class TranslationResponseData
+	internal class TranslationResponseData
 	{
 		/// ------------------------------------------------------------------------------------
 		public string translatedText;
