@@ -58,14 +58,17 @@ namespace ExtractXliff
 			LocalizationManager.TranslationMemoryKind = TranslationMemory.XLiff;
 
 			// Load the input assemblies so that they can be scanned.
-			List<Assembly> assemblies = new List<Assembly>();
+			var assemblies = new List<Assembly>();
 
-			List<string> assemblyPaths = new List<string>();
+			var assemblyPaths = new List<string>();
 			if (_glob)
 			{
 				foreach (var glob in _assemblyFiles)
 				{
-					assemblyPaths.AddRange(Directory.GetFiles(Path.GetDirectoryName(glob), Path.GetFileName(glob)));
+					var dir = Path.GetDirectoryName(glob);
+					if (dir == null)
+						continue;
+					assemblyPaths.AddRange(Directory.GetFiles(dir, Path.GetFileName(glob)));
 				}
 			}
 			else
@@ -92,21 +95,21 @@ namespace ExtractXliff
 							.Where(m => m.Name == methodNameSpec.Item3));
 
 						if (_verbose)
-							Console.WriteLine($@"Method {methodNameSpec.Item2}.{methodNameSpec.Item3} in {asm.GetName().FullName} will be treated as a localization method.");
+							Console.WriteLine($"Method {methodNameSpec.Item2}.{methodNameSpec.Item3} in {asm.GetName().FullName} will be treated as a localization method.");
 						_additionalLocalizationMethodNames.RemoveAt(index--);
 					}
 					catch (Exception e)
 					{
 						if (_verbose)
-							Console.WriteLine($@"Error using reflection on {asm.GetName().FullName} to get type {methodNameSpec.Item2} or method {methodNameSpec.Item3}: {e.Message}");
+							Console.WriteLine($"Error using reflection on {asm.GetName().FullName} to get type {methodNameSpec.Item2} or method {methodNameSpec.Item3}: {e.Message}");
 					}
 				}
 			}
 			if (_verbose && _additionalLocalizationMethodNames.Any())
 			{
-				Console.WriteLine(@"Failed to find the following additional localization methods:");
+				Console.WriteLine("Failed to find the following additional localization methods:");
 				foreach (var methodNameSpec in _additionalLocalizationMethodNames)
-					Console.WriteLine($@"{methodNameSpec.Item1}.{methodNameSpec.Item2}.{methodNameSpec.Item3}");
+					Console.WriteLine($"{methodNameSpec.Item1}.{methodNameSpec.Item2}.{methodNameSpec.Item3}");
 			}
 
 			// Scan the input assemblies for localizable strings.
@@ -329,26 +332,26 @@ namespace ExtractXliff
 		/// </summary>
 		private static void Usage()
 		{
-			Console.WriteLine(@"usage: ExtractXliff [options] assembly-file(s)");
-			Console.WriteLine(@"-n  --namespace = namespace beginning [one or more required]");
-			Console.WriteLine(@"-x  --xliff-file = output .xlf file [one required]");
-			Console.WriteLine(@"-o  --original = file element attribute value [one required]");
+			Console.WriteLine("usage: ExtractXliff [options] assembly-file(s)");
+			Console.WriteLine("-n  --namespace = namespace beginning [one or more required]");
+			Console.WriteLine("-x  --xliff-file = output .xlf file [one required]");
+			Console.WriteLine("-o  --original = file element attribute value [one required]");
 			Console.WriteLine();
-			Console.WriteLine(@"-d  --datatype = file element attribute value [one optional]");
-			Console.WriteLine(@"-g  --glob = treat assembly arguments as filename globs instead of files (directory globs are not supported) [one optional]");
-			Console.WriteLine(@"-p  --product-version = file element attribute value [one optional]");
-			Console.WriteLine(@"-b  --base-xliff = existing xliff file to serve as base for output [one optional]");
-			Console.WriteLine(@"-v  --verbose = produce verbose output on differences from base file [optional]");
-			Console.WriteLine(@"-m  --method = fully-specified name (namespace.class.method) of additional localization method(s) [optional]");
+			Console.WriteLine("-d  --datatype = file element attribute value [one optional]");
+			Console.WriteLine("-g  --glob = treat assembly arguments as filename globs instead of files (directory globs are not supported) [one optional]");
+			Console.WriteLine("-p  --product-version = file element attribute value [one optional]");
+			Console.WriteLine("-b  --base-xliff = existing xliff file to serve as base for output [one optional]");
+			Console.WriteLine("-v  --verbose = produce verbose output on differences from base file [optional]");
+			Console.WriteLine("-m  --method = fully-specified name (namespace.class.method) of additional localization method(s) [optional]");
 			Console.WriteLine();
-			Console.WriteLine(@"Every option except -v (--verbose) and -g (--glob) consumes a following argument as its value.");
-			Console.WriteLine(@"The option list can be terminated by '--' in case an assembly filename starts");
-			Console.WriteLine(@"with a dash ('-'). One or more assembly files (either .dll or .exe) are ");
-			Console.WriteLine(@"required following all of the options. If a base xliff file is given, then its");
-			Console.WriteLine(@"content serves as the base for the output, with the extracted strings merged");
-			Console.WriteLine(@"into, and updating, the existing strings. Statistics are then written to the");
-			Console.WriteLine(@"console for the number of new strings, changed strings, identical strings, and");
-			Console.WriteLine(@"number of strings in the base that were not extracted.");
+			Console.WriteLine("Every option except -v (--verbose) and -g (--glob) consumes a following argument as its value.");
+			Console.WriteLine("The option list can be terminated by '--' in case an assembly filename starts");
+			Console.WriteLine("with a dash ('-'). One or more assembly files (either .dll or .exe) are ");
+			Console.WriteLine("required following all of the options. If a base xliff file is given, then its");
+			Console.WriteLine("content serves as the base for the output, with the extracted strings merged");
+			Console.WriteLine("into, and updating, the existing strings. Statistics are then written to the");
+			Console.WriteLine("console for the number of new strings, changed strings, identical strings, and");
+			Console.WriteLine("number of strings in the base that were not extracted.");
 		}
 
 		/// <summary>
@@ -366,20 +369,20 @@ namespace ExtractXliff
 				baseDoc = XLiffDocument.Read(_baseXliffFilename);
 				if (baseDoc.File.SourceLang != kDefaultLangId)
 				{
-					Console.WriteLine(@"ERROR: old source-language ({0}) is not the same as the new source-language ({1})",
+					Console.WriteLine("ERROR: old source-language ({0}) is not the same as the new source-language ({1})",
 						baseDoc.File.SourceLang, kDefaultLangId);
 					throw new ApplicationException("Only " + kDefaultLangId + " is allowed as the source-language attribute");
 				}
 				if (baseDoc.File.Original != _fileOriginal)
 				{
-					Console.WriteLine(@"WARNING: old original ({0}) is not the same as the new original ({1})",
+					Console.WriteLine("WARNING: old original ({0}) is not the same as the new original ({1})",
 						baseDoc.File.Original, _fileOriginal);
 				}
 				if (string.IsNullOrEmpty(_fileDatatype))
 				{
 					if (baseDoc.File.DataType != newDoc.File.DataType)
 					{
-						Console.WriteLine(@"WARNING: old datatype ({0}) is not the same as the new datatype ({1})",
+						Console.WriteLine("WARNING: old datatype ({0}) is not the same as the new datatype ({1})",
 							baseDoc.File.DataType, newDoc.File.DataType);
 					}
 				}
@@ -387,7 +390,7 @@ namespace ExtractXliff
 				{
 					if (baseDoc.File.DataType != _fileDatatype)
 					{
-						Console.WriteLine(@"WARNING: old datatype ({0}) is not the same as the new datatype ({1})",
+						Console.WriteLine("WARNING: old datatype ({0}) is not the same as the new datatype ({1})",
 							baseDoc.File.DataType, _fileDatatype);
 					}
 				}
@@ -395,7 +398,7 @@ namespace ExtractXliff
 				{
 					if (baseDoc.File.ProductVersion != newDoc.File.ProductVersion)
 					{
-						Console.WriteLine(@"WARNING: old product-version ({0}) is not the same as the new product-version ({1})",
+						Console.WriteLine("WARNING: old product-version ({0}) is not the same as the new product-version ({1})",
 							baseDoc.File.ProductVersion, newDoc.File.ProductVersion);
 					}
 				}
@@ -403,7 +406,7 @@ namespace ExtractXliff
 				{
 					if (baseDoc.File.ProductVersion != _fileProductVersion)
 					{
-						Console.WriteLine(@"WARNING: old product-version ({0}) is not the same as the new product-version ({1})",
+						Console.WriteLine("WARNING: old product-version ({0}) is not the same as the new product-version ({1})",
 							baseDoc.File.ProductVersion, _fileProductVersion);
 					}
 				}
