@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 SIL Global
+// Copyright © 2022-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-// Copyright © 2019-2025 SIL Global
+// Copyright © 2019-2026 SIL Global
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
 using NUnit.Framework;
