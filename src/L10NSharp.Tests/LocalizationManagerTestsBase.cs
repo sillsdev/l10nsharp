@@ -216,19 +216,19 @@ namespace L10NSharp.Tests
 
 				Assert.AreEqual("My Own English String",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String"));
-				
+
 				Assert.AreEqual("My Own English String (with comment)",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id.With.Comment",
 					"My Own English String (with comment)",
 					"This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction."));
-				
+
 				Assert.AreEqual("Click me",
 					ProxyLocalizationManager.MyOwnGetString("myDlg.btnClickMe.Text", "Click me",
 					"This is the text from the third version of MyOwnGetString.",
 					"Click this thingy to do stuff.", "Ctrl-T", btnClickMe));
-				
+
 				Assert.AreEqual("String to Localize", "String to Localize".Localize());
-				
+
 				Assert.AreEqual("Another String to Localize", "Another String to Localize".Localize("With.Id.And.Comment",
 					"This is used to test the case where Localize is passed as an extra method to use for extraction."));
 			}
@@ -358,17 +358,13 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void GetString_WithOneShotEnumerable_UsespreferredLanguages()
+		public void GetString_WithOneShotEnumerable_UsesPreferredLanguages()
 		{
 			using (var folder = new TempFolder())
 			{
 				SetupManager(folder);
 
-				// A C# yield-return local function produces a re-enumerable IEnumerable — each
-				// GetEnumerator() call creates a fresh state machine, so Count() would not exhaust
-				// subsequent iterations. To simulate a truly one-shot sequence we wrap a single
-				// IEnumerator in a generator: both enumerations share the same underlying enumerator,
-				// so Count() advancing it leaves nothing for GetStringFromAnyLocalizationManager.
+				// Wrap a single IEnumerator so the sequence can only be consumed once.
 				IEnumerable<string> WrapSingleUse(IEnumerator<string> e)
 				{
 					while (e.MoveNext())
@@ -378,9 +374,9 @@ namespace L10NSharp.Tests
 				var oneShotLangIds = WrapSingleUse(
 					new List<string> { "fr", "en" }.GetEnumerator());
 
-				// SUT — before the fix, Count() exhausted the shared enumerator and
-				// GetStringFromAnyLocalizationManager got an empty sequence, falling back to English.
-				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", oneShotLangIds, out var languageFound);
+				// SUT
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode",
+					"comment", oneShotLangIds, out var languageFound);
 
 				Assert.AreEqual("blahInFrench", result);
 				Assert.AreEqual("fr", languageFound);
