@@ -358,6 +358,27 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void GetString_WithOneShotEnumerable_UsespreferredLanguages()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+
+				IEnumerable<string> OneShotLangIds()
+				{
+					yield return "fr";
+					yield return "en";
+				}
+
+				// SUT — a one-shot iterator must not be exhausted before GetStringFromAnyLocalizationManager iterates it
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", OneShotLangIds(), out var languageFound);
+
+				Assert.AreEqual("blahInFrench", result);
+				Assert.AreEqual("fr", languageFound);
+			}
+		}
+
+		[Test]
 		public void GetUiLanguages_EnglishIsThere()
 		{
 			var cultures = LocalizationManager.GetUILanguages(false);
