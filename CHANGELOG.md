@@ -31,12 +31,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
- 
+- [L10NSharp] BREAKING CHANGE: `XliffLocalizationManager.ExtractionExceptions` is now `ConcurrentBag<string>` instead of `List<string>`. Code using `List<string>`-specific members (indexers, `Sort`, `RemoveAt`, etc.) will need updating. (#138)
+
 ### Fixed
 
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
+- [L10NSharp] Fixed file handle leak in `XliffLocalizationManager.CreateOrUpdateDefaultXliffFileIfNecessary` when an exception was thrown between `File.Open` and `Close`. (#138)
 
 ### Removed
 
