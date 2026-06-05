@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
+- [L10NSharp] BREAKING CHANGE: `LocalizationManager.GetString`, `GetDynamicString`, and `GetDynamicStringOrEnglish` now throw `ArgumentException` when called with a null or empty string ID. Previously, empty IDs were silently accepted and could produce a malformed XLIFF file that crashed on next launch.
  
 ### Fixed
 
