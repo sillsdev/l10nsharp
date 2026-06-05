@@ -217,10 +217,6 @@ namespace L10NSharp.Windows.Forms.Tests
 			}
 		}
 
-		/// <summary>
-		/// Rule 3: when an exact generic match (zh) is available alongside specific variants
-		/// (zh-CN, zh-TW), the exact match should be used with no prompt.
-		/// </summary>
 		[Test]
 		public void TestMappingLanguageCodesToAvailable_ExactGenericMatchUsedWhenSpecificsAlsoExist()
 		{
