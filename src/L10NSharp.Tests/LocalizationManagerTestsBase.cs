@@ -364,14 +364,23 @@ namespace L10NSharp.Tests
 			{
 				SetupManager(folder);
 
-				IEnumerable<string> OneShotLangIds()
+				// A C# yield-return local function produces a re-enumerable IEnumerable — each
+				// GetEnumerator() call creates a fresh state machine, so Count() would not exhaust
+				// subsequent iterations. To simulate a truly one-shot sequence we wrap a single
+				// IEnumerator in a generator: both enumerations share the same underlying enumerator,
+				// so Count() advancing it leaves nothing for GetStringFromAnyLocalizationManager.
+				IEnumerable<string> WrapSingleUse(IEnumerator<string> e)
 				{
-					yield return "fr";
-					yield return "en";
+					while (e.MoveNext())
+						yield return e.Current;
 				}
 
-				// SUT — a one-shot iterator must not be exhausted before GetStringFromAnyLocalizationManager iterates it
-				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", OneShotLangIds(), out var languageFound);
+				var oneShotLangIds = WrapSingleUse(
+					new List<string> { "fr", "en" }.GetEnumerator());
+
+				// SUT — before the fix, Count() exhausted the shared enumerator and
+				// GetStringFromAnyLocalizationManager got an empty sequence, falling back to English.
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode", "comment", oneShotLangIds, out var languageFound);
 
 				Assert.AreEqual("blahInFrench", result);
 				Assert.AreEqual("fr", languageFound);
