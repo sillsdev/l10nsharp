@@ -369,8 +369,11 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							langIdsOfCustomizedLocales.Add(langId);
-							yield return xliffFile;
+							if (!langIdsOfCustomizedLocales.Contains(langId))
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return xliffFile;
+							}
 						}
 					}
 					else
