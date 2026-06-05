@@ -240,12 +240,12 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
-		public void AddTransUnit_NullSourceWithNonNullTarget_DoesNotThrow()
+		public void AddTransUnit_NullSourceNullTarget_DoesNotThrow()
 		{
 			var body = new XLiffBody();
-			var tu = new XLiffTransUnit { Id = "some-id" };
-			tu.Source = null;
-			tu.Target = new XLiffTransUnitVariant { Lang = "fr" };
+			// Target is null (default), so the else branch in AddTransUnit fires.
+			// Before the fix: tu.Source.Value throws NRE when Source is also null.
+			var tu = new XLiffTransUnit { Id = "some-id", Source = null };
 			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
 		}
 
