@@ -155,17 +155,17 @@ namespace L10NSharp.XLiffUtils
 					tu.Id = (System.Threading.Interlocked.Increment(ref _transUnitId)).ToString();
 					key = tu.Id;
 				}
+
+				// If a translation unit with the specified id already exists, then quit here.
+				if (GetTransUnitForId(tu.Id) != null)
+					return false;
+				_transUnitDict[key] = tu;
+				return true;
 			}
 			finally
 			{
 				if (lockTaken) _transUnitIdLock.Exit(false);
 			}
-
-			// If a translation unit with the specified id already exists, then quit here.
-			if (GetTransUnitForId(tu.Id) != null)
-				return false;
-			_transUnitDict[key] = tu;
-			return true;
 		}
 		public bool AddTransUnit(XLiffTransUnit tu)
 		{
@@ -176,7 +176,7 @@ namespace L10NSharp.XLiffUtils
 			// the source value there.
 			if (tu.Target != null && tu.Target.Value != null)
 				TranslationsById[tu.Id] = tu.Target.Value;
-			else
+			else if (tu.Source != null)
 				TranslationsById[tu.Id] = tu.Source.Value;
 			return true;
 		}
@@ -246,7 +246,7 @@ namespace L10NSharp.XLiffUtils
 							{
 								++_translatedCount;
 							}
-							else if (tu.Target.Value != tu.Source.Value &&
+							else if (tu.Source != null && tu.Target.Value != tu.Source.Value &&
 							         tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 							{
 								++_translatedCount;
