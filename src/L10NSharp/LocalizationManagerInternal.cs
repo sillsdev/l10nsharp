@@ -724,6 +724,9 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment,
 			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
+			if (preferredLanguageIds == null)
+				throw new ArgumentNullException(nameof(preferredLanguageIds));
+
 			var langIds = preferredLanguageIds.ToList();
 			if (langIds.Count == 0)
 				throw new ArgumentException("preferredLanguageIds was empty");
