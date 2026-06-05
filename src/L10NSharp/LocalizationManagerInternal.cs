@@ -461,6 +461,8 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicString(string appId, string id, string englishText, string comment)
 		{
+			if (string.IsNullOrWhiteSpace(id))
+				throw new ArgumentException("id may not be null or empty.", nameof(id));
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, LocalizationManager.UILanguageId);
 		}
 
@@ -479,6 +481,8 @@ namespace L10NSharp
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
 			string comment, string langId)
 		{
+			if (string.IsNullOrWhiteSpace(id))
+				throw new ArgumentException("id may not be null or empty.", nameof(id));
 			// This happens in unit test environments or apps that have imported a library that
 			// is localized, but the app itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
