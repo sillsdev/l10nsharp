@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -190,8 +191,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
-			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-			fileStream.Close();
+			using (File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None)) { }
 
 			var stringCache = new XliffLocalizedStringCache(this, false);
 
@@ -216,7 +216,7 @@ namespace L10NSharp.XLiffUtils
 			stringCache.SaveIfDirty();
 		}
 
-		public static List<string> ExtractionExceptions = new List<string>();
+		public static ConcurrentBag<string> ExtractionExceptions = new ConcurrentBag<string>();
 
 		public static IReadOnlyList<LocalizingInfo> ExtractStringsFromCode(string name,
 			IEnumerable<MethodInfo> additionalLocalizationMethods, string[] namespaceBeginnings)
@@ -228,7 +228,8 @@ namespace L10NSharp.XLiffUtils
 				extractor.OutputErrorsToConsole = true;
 				var result = extractor.DoExtractingWork(additionalLocalizationMethods, namespaceBeginnings, null);
 				Trace.WriteLine($"Extracted {result.Count} localization strings for {name} with {extractor.ExtractionExceptions.Count} exceptions ignored");
-				ExtractionExceptions.AddRange(extractor.ExtractionExceptions);
+				foreach (var ex in extractor.ExtractionExceptions)
+					ExtractionExceptions.Add(ex);
 				return result;
 			}
 			catch (Exception e)
@@ -369,8 +370,11 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							langIdsOfCustomizedLocales.Add(langId);
-							yield return xliffFile;
+							if (!langIdsOfCustomizedLocales.Contains(langId))
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return xliffFile;
+							}
 						}
 					}
 					else
