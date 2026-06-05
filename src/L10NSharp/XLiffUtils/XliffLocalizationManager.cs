@@ -608,6 +608,9 @@ namespace L10NSharp.XLiffUtils
 					{
 						foreach (var note in tuOld.Notes)
 						{
+							// Skip "Not found" notes — the string IS found in this run.
+							if (note.Text.StartsWith("Not found in static scan") || note.Text.StartsWith("Not found when running"))
+								continue;
 							bool haveAlready = false;
 							foreach (var newNote in tu.Notes)
 							{
@@ -656,12 +659,16 @@ namespace L10NSharp.XLiffUtils
 							++missingDynamicStringCount;
 							missingDynamicStringIds.Add(tu.Id);
 							if (newDynamicCount > 0)	// note only if attempt made to collect dynamic strings
+							{
+								tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found in static scan") || n.Text.StartsWith("Not found when running"));
 								tu.AddNote("en", $"Not found when running compiled program (version {xliffNew.File.ProductVersion})");
+							}
 						}
 						else
 						{
 							++missingStringCount;
 							missingStringIds.Add(tu.Id);
+							tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found in static scan") || n.Text.StartsWith("Not found when running"));
 							tu.AddNote("en", $"Not found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
