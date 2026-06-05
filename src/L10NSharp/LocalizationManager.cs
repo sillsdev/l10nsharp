@@ -629,6 +629,24 @@ namespace L10NSharp
 			return GetTranslationFileNameForLanguage(appId, langId, fileExtension);
 		}
 
+		/// <summary>
+		/// Merge the existing English l10n file into newly collected data and write the
+		/// result to the temp directory.
+		/// </summary>
+		[PublicAPI]
+		public static void MergeExistingEnglishTranslationFileIntoNew(
+			string installedStringFileFolder, string appId)
+		{
+			switch (TranslationMemoryKind)
+			{
+				default:
+				case TranslationMemory.XLiff:
+					LocalizationManagerInternal<XLiffDocument>.MergeExistingEnglishTranslationFileIntoNew(
+						installedStringFileFolder, appId);
+					break;
+			}
+		}
+
 		internal static string GetTranslationFileNameForLanguage(string appId, string langId, string fileExtension)
 		{
 			return UseLanguageCodeFolders
