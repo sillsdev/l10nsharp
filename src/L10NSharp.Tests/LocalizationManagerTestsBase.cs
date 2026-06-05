@@ -448,6 +448,59 @@ namespace L10NSharp.Tests
 			}
 		}
 
+		/// <summary>
+		/// Regression test for fix/135: when UseLanguageCodeFolders is true and both an installed
+		/// and a user-modified file exist for the same language, the custom (user-modified) file
+		/// must win. Before the fix, FilenamesToAddToCache yielded both files and whichever loaded
+		/// last would overwrite the other.
+		/// </summary>
+		[Test]
+		public void CustomTranslation_TakesPrecedenceOverInstalled_WithLanguageCodeFolders()
+		{
+			try
+			{
+				LocalizationManager.UseLanguageCodeFolders = true;
+				using (var folder = new TempFolder())
+				{
+					// Set up the English default in the installed directory.
+					AddEnglishTranslation(GetInstalledDirectory(folder), "1.0");
+
+					// Set up an installed Arabic translation with value "inArabic".
+					AddArabicTranslation(GetInstalledDirectory(folder));
+
+					// Set up a user-modified Arabic translation for the same "theId" string
+					// with a different value to confirm the custom one wins.
+					var customArabicDoc = CreateNewDocument(null, "en", "ar");
+					var customTu = CreateTransUnit("theId", false,
+						CreateTransUnitVariant("en", "wrong"),
+						CreateTransUnitVariant("ar", "custom arabic translation"),
+						"Test", TranslationStatus.Approved);
+					customArabicDoc.AddTransUnit(customTu);
+					var customArabicPath = Path.Combine(GetUserModifiedDirectory(folder),
+						LocalizationManager.GetTranslationFileNameForLanguage(AppId, "ar"));
+					Directory.CreateDirectory(Path.GetDirectoryName(customArabicPath));
+					customArabicDoc.Save(customArabicPath);
+
+					// Set up the localization manager.
+					var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
+						GetInstalledDirectory(folder), GetGeneratedDirectory(folder),
+						GetUserModifiedDirectory(folder));
+					LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
+
+					LocalizationManager.SetUILanguage("ar");
+
+					// SUT: the custom translation must win over the installed one.
+					Assert.AreEqual("custom arabic translation",
+						LocalizationManager.GetString("theId", "default"),
+						"Custom (user-modified) translation should take precedence over installed translation when UseLanguageCodeFolders is true");
+				}
+			}
+			finally
+			{
+				LocalizationManager.UseLanguageCodeFolders = false;
+			}
+		}
+
 		[Test]
 		public void GetUiLanguages_AzeriHasHackedNativeName()
 		{
