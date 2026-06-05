@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
+- [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` when a trans-unit has no source variant (e.g. from a malformed XLIFF file). (#137)
+- [L10NSharp] Fixed race condition in `XLiffBody.AddTransUnitRaw` where two concurrent threads with the same translation-unit ID could both bypass the duplicate check and silently overwrite each other's entry. (#137)
 
 ### Removed
 
