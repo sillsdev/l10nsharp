@@ -239,6 +239,16 @@ namespace L10NSharp.Tests
 				}, true);
 		}
 
+		[Test]
+		public void AddTransUnit_NullSourceWithNonNullTarget_DoesNotThrow()
+		{
+			var body = new XLiffBody();
+			var tu = new XLiffTransUnit { Id = "some-id" };
+			tu.Source = null;
+			tu.Target = new XLiffTransUnitVariant { Lang = "fr" };
+			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
+		}
+
 		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
 			Assert.IsNotNull(tu);
