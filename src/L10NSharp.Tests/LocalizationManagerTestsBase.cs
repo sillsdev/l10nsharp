@@ -290,6 +290,20 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void GetDynamicString_WithEmptyId_ThrowsArgumentException()
+		{
+			Assert.Throws<ArgumentException>(() =>
+				LocalizationManager.GetDynamicString(AppId, "", "some text"));
+		}
+
+		[Test]
+		public void GetDynamicStringOrEnglish_WithEmptyId_ThrowsArgumentException()
+		{
+			Assert.Throws<ArgumentException>(() =>
+				LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, "", "some text", null, "en"));
+		}
+
+		[Test]
 		public void GetDynamicStringOrEnglish_LmDisposed_GivesUsefulException()
 		{
 			using (var folder = new TempFolder())
