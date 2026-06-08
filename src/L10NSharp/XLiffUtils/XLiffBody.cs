@@ -25,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 		// This is used when translation unit IDs are not found in the file (which seems to be
 		// the case with Lingobit XLiff files).
 		private int _transUnitId;
-		static SpinLock _transUnitIdLock;
+		SpinLock _transUnitIdLock;
 
 		private readonly ConcurrentDictionary<string, XLiffTransUnit> _transUnitDict =
 			new ConcurrentDictionary<string, XLiffTransUnit>();
