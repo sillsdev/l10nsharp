@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
 - [L10NSharp] Fixed race condition in `XLiffBody.AddTransUnitRaw` where two concurrent threads with the same translation-unit ID could both bypass the duplicate check and silently overwrite each other's entry. (#150)
+- [L10NSharp] Eliminated unnecessary cross-instance lock contention in `XLiffBody` by making `_transUnitIdLock` instance-level instead of static. (#150)
 
 ### Removed
 
