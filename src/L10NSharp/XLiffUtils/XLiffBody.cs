@@ -152,7 +152,7 @@ namespace L10NSharp.XLiffUtils
 				key = tu.Id;
 				if (string.IsNullOrEmpty(key))
 				{
-					tu.Id = (System.Threading.Interlocked.Increment(ref _transUnitId)).ToString();
+					tu.Id = (++_transUnitId).ToString();
 					key = tu.Id;
 				}
 
