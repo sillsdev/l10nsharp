@@ -176,7 +176,7 @@ namespace L10NSharp.XLiffUtils
 			// the source value there.
 			if (tu.Target != null && tu.Target.Value != null)
 				TranslationsById[tu.Id] = tu.Target.Value;
-			else
+			else if (tu.Source != null)
 				TranslationsById[tu.Id] = tu.Source.Value;
 			return true;
 		}
@@ -246,7 +246,7 @@ namespace L10NSharp.XLiffUtils
 							{
 								++_translatedCount;
 							}
-							else if (tu.Target.Value != tu.Source.Value &&
+							else if (tu.Source != null && tu.Target.Value != tu.Source.Value &&
 							         tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 							{
 								++_translatedCount;
