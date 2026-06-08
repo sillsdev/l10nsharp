@@ -239,6 +239,16 @@ namespace L10NSharp.Tests
 				}, true);
 		}
 
+		[Test]
+		public void AddTransUnit_NullSourceNullTarget_DoesNotThrow()
+		{
+			var body = new XLiffBody();
+			// Target is null (default), so the else branch in AddTransUnit fires.
+			// Before the fix: tu.Source.Value throws NRE when Source is also null.
+			var tu = new XLiffTransUnit { Id = "some-id", Source = null };
+			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
+		}
+
 		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
 			Assert.IsNotNull(tu);
