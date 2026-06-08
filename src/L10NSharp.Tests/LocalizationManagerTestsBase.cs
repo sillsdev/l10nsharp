@@ -449,10 +449,8 @@ namespace L10NSharp.Tests
 		}
 
 		/// <summary>
-		/// Regression test for fix/135: when UseLanguageCodeFolders is true and both an installed
-		/// and a user-modified file exist for the same language, the custom (user-modified) file
-		/// must win. Before the fix, FilenamesToAddToCache yielded both files and whichever loaded
-		/// last would overwrite the other.
+		/// When UseLanguageCodeFolders is true and both an installed and a user-modified file
+		/// exist for the same language, the custom (user-modified) file must win.
 		/// </summary>
 		[Test]
 		public void CustomTranslation_TakesPrecedenceOverInstalled_WithLanguageCodeFolders()
