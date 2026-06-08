@@ -272,7 +272,7 @@ namespace L10NSharp.Tests
 
 			var tu = mergedDoc2.GetTransUnitForId("That.test");
 			Assert.IsNotNull(tu);
-			Assert.That(tu.Notes.Any(n => n.Text.StartsWith("Not found")), Is.False);
+			Assert.That(tu.Notes.Any(n => n.Text.Contains("Not found")), Is.False);
 		}
 
 		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
