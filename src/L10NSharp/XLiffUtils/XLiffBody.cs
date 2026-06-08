@@ -155,16 +155,19 @@ namespace L10NSharp.XLiffUtils
 					tu.Id = (System.Threading.Interlocked.Increment(ref _transUnitId)).ToString();
 					key = tu.Id;
 				}
+
+				// If a translation unit with the specified id already exists, then quit here.
+				// This check and the dictionary write must both happen inside the lock to avoid
+				// a TOCTOU race where two threads with the same ID both pass the check.
+				if (GetTransUnitForId(key) != null)
+					return false;
+				_transUnitDict[key] = tu;
 			}
 			finally
 			{
 				if (lockTaken) _transUnitIdLock.Exit(false);
 			}
 
-			// If a translation unit with the specified id already exists, then quit here.
-			if (GetTransUnitForId(tu.Id) != null)
-				return false;
-			_transUnitDict[key] = tu;
 			return true;
 		}
 		public bool AddTransUnit(XLiffTransUnit tu)
