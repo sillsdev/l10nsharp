@@ -219,7 +219,8 @@ namespace L10NSharp.XLiffUtils
 			if (tu == null || tu.Id == null)
 				return;
 
-			// No SpinLock needed: _transUnitIdLock guards ID assignment, not the dictionary itself.
+			// No SpinLock needed: _transUnitIdLock serializes AddTransUnitRaw's check-then-add
+			// sequence; TryRemove is independently atomic.
 			_transUnitDict.TryRemove(tu.Id, out _);
 			TranslationsById.TryRemove(tu.Id, out _);
 		}
