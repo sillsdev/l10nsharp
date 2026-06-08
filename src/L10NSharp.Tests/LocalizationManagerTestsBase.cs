@@ -13,7 +13,7 @@ using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	public abstract class LocalizationManagerTestsBase<T> where T: IDocument
+	public abstract class LocalizationManagerTestsBase<T> where T : IDocument
 	{
 		protected const string AppId = "test";
 		protected const string AppName = "unit test";
@@ -216,19 +216,19 @@ namespace L10NSharp.Tests
 
 				Assert.AreEqual("My Own English String",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String"));
-				
+
 				Assert.AreEqual("My Own English String (with comment)",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id.With.Comment",
 					"My Own English String (with comment)",
 					"This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction."));
-				
+
 				Assert.AreEqual("Click me",
 					ProxyLocalizationManager.MyOwnGetString("myDlg.btnClickMe.Text", "Click me",
 					"This is the text from the third version of MyOwnGetString.",
 					"Click this thingy to do stuff.", "Ctrl-T", btnClickMe));
-				
+
 				Assert.AreEqual("String to Localize", "String to Localize".Localize());
-				
+
 				Assert.AreEqual("Another String to Localize", "Another String to Localize".Localize("With.Id.And.Comment",
 					"This is used to test the case where Localize is passed as an extra method to use for extraction."));
 			}
