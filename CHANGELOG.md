@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
+- [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use. (#139)
 
 ### Removed
 
