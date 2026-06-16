@@ -263,17 +263,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 -   Create nuget package
 -   Strong-name assembly
-
-[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...HEAD
-[9.0.0]: https://github.com/sillsdev/l10nsharp/compare/v8.0.0.0...v9.0.0
-[8.0.0]: https://github.com/sillsdev/l10nsharp/compare/v7.0.0...v8.0.0.0
-[7.0.0]: https://github.com/sillsdev/l10nsharp/compare/v6.0.0...v7.0.0
-[6.0.0]: https://github.com/sillsdev/l10nsharp/compare/v5.0.0...v6.0.0
-[5.0.0]: https://github.com/sillsdev/l10nsharp/compare/v4.1.0...v5.0.0
-[4.1.0]: https://github.com/sillsdev/l10nsharp/compare/v4.0.3...v4.1.0
-[4.0.3]: https://github.com/sillsdev/l10nsharp/compare/v4.0.2...v4.0.3
-[4.0.2]: https://github.com/sillsdev/l10nsharp/compare/v4.0.1...v4.0.2
-[4.0.1]: https://github.com/sillsdev/l10nsharp/compare/v4.0.0...v4.0.1
-[4.0.0]: https://github.com/sillsdev/l10nsharp/compare/xliff-3.1.1...v4.0.0
-[3.1.1]: https://github.com/sillsdev/l10nsharp/compare/v3.1.0...xliff-3.1.1
-[3.1.0]: https://github.com/sillsdev/l10nsharp/compare/v3.0...v3.1.0
