@@ -1,6 +1,3 @@
-// Copyright © 2020-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-
 using System.ComponentModel;
 
 namespace L10NSharp.Tests

@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a repository-level MIT `LICENSE` file, which is now bundled into the NuGet packages (via `PackageLicenseFile`).
 - [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms, and added cross-platform CI/CD coverage for `net8.0`.
 - [L10NSharp] Added UiLanguageChanged event to ILocalizationManager. This provides a way for clients to deal with changes now that (in Windows) LocalizeItemDlg<XLiffDocument>.StringsLocalized no longer exists.
 
@@ -45,6 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
+- Removed per-file copyright and license headers from source files, since they are covered by the repository-level `LICENSE` and the `Copyright` assembly metadata. (Headers on third-party files are retained.)
 - [L10NSharp] Removed EnableClickingOnControlToBringUpLocalizationDialog. Since the localization dialog was jettisoned, this is meaningless (and wouldn't belong in the Winforms agnostic namespace anyway).
 - [L10NSharp] Removed EmailForSubmissions. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed LmGrid, LmButtonColumn, LmButtonCell, TipDialog.

@@ -1,6 +1,3 @@
-// Copyright © 2012-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Forms;

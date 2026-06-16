@@ -7,7 +7,7 @@
     <Copyright>Copyright © 2010-2026 SIL Global</Copyright>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ChangelogFile>$(MSBuildThisFileDirectory)/CHANGELOG.md</ChangelogFile>
     <OutputPath>$(MSBuildThisFileDirectory)/output/$(Configuration)</OutputPath>
@@ -32,5 +32,7 @@ See full changelog at https://github.com/sillsdev/l10nsharp/blob/master/CHANGELO
     must include at least one top-level (not nested) item when DeterministicSourcePaths is
     true". See https://github.com/dotnet/roslyn/issues/37379#issuecomment-513371985 -->
     <SourceRoot Include="$(MSBuildThisFileDirectory)/src/"/>
+    <!-- Pack the repo-level MIT license into the NuGet packages (referenced by PackageLicenseFile). -->
+    <None Include="$(MSBuildThisFileDirectory)/LICENSE" Pack="true" PackagePath="" Visible="false"/>
   </ItemGroup>
 </Project>

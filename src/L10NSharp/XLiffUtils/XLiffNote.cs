@@ -1,18 +1,3 @@
-// ---------------------------------------------------------------------------------------------
-#region // Copyright © 2009-2026 SIL Global
-// <copyright from='2009' to='2026' company='SIL Global'>
-//		Copyright © 2009-2026 SIL Global
-//
-//		Distributable under the terms of either the Common Public License or the
-//		GNU Lesser General Public License, as specified in the LICENSING.txt file.
-// </copyright>
-#endregion
-//
-// File: XLiffNote.cs
-//
-// <remarks>
-// </remarks>
-// ---------------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using System.Xml.Serialization;
 

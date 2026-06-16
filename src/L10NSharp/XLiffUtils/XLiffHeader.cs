@@ -1,14 +1,3 @@
-// ---------------------------------------------------------------------------------------------
-#region
-// Copyright © 2017-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-#endregion
-//
-// File: XliffHeader.cs
-//
-// <remarks>
-// </remarks>
-// ---------------------------------------------------------------------------------------------
 using System.Xml.Serialization;
 using System.Collections.Generic;
 

@@ -1,6 +1,3 @@
-// Copyright © 2019-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-
 using NUnit.Framework;
 using System;
 using System.Threading;
