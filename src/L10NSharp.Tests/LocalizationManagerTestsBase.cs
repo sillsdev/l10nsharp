@@ -85,7 +85,7 @@ namespace L10NSharp.Tests
 
 				// generate an empty English Translation file
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				using (File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None)) { }
+				File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 				// SUT (buried down in there somewhere)
 				SetupManager(folder);
@@ -215,19 +215,19 @@ namespace L10NSharp.Tests
 
 				Assert.AreEqual("My Own English String",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String"));
-				
+
 				Assert.AreEqual("My Own English String (with comment)",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id.With.Comment",
 					"My Own English String (with comment)",
 					"This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction."));
-				
+
 				Assert.AreEqual("Click me",
 					ProxyLocalizationManager.MyOwnGetString("myDlg.btnClickMe.Text", "Click me",
 					"This is the text from the third version of MyOwnGetString.",
 					"Click this thingy to do stuff.", "Ctrl-T", btnClickMe));
-				
+
 				Assert.AreEqual("String to Localize", "String to Localize".Localize());
-				
+
 				Assert.AreEqual("Another String to Localize", "Another String to Localize".Localize("With.Id.And.Comment",
 					"This is used to test the case where Localize is passed as an extra method to use for extraction."));
 			}

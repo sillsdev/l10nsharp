@@ -190,7 +190,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
-			using (File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None)) { }
+			File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 			var stringCache = new XliffLocalizedStringCache(this, false);
 
@@ -538,7 +538,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			UiLanguageChanged?.Invoke(this, EventArgs.Empty);
 		}
-		
+
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{
