@@ -239,6 +239,42 @@ namespace L10NSharp.Tests
 				}, true);
 		}
 
+		[Test]
+		public void MergeXliffDocuments_RunTwice_DoesNotDuplicateNotFoundNotes()
+		{
+			var oldDoc = CreateTestDocument();
+			var newDoc = CreateTestDocument();
+			AdjustDocumentForTestingMerge(newDoc);
+
+			var mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
+			var tuAfterFirstMerge = mergedDoc.GetTransUnitForId("That.test");
+			Assert.IsNotNull(tuAfterFirstMerge);
+			var expectedNoteCount = tuAfterFirstMerge.Notes.Count;
+
+			var mergedDoc2 = XliffLocalizationManager.MergeXliffDocuments(newDoc, mergedDoc, true);
+			var tuAfterSecondMerge = mergedDoc2.GetTransUnitForId("That.test");
+			Assert.IsNotNull(tuAfterSecondMerge);
+			Assert.That(expectedNoteCount, Is.EqualTo(tuAfterSecondMerge.Notes.Count));
+		}
+
+		[Test]
+		public void MergeXliffDocuments_StringFoundAfterBeingMissing_RemovesNotFoundNote()
+		{
+			var oldDoc = CreateTestDocument();
+			var newDoc = CreateTestDocument();
+			AdjustDocumentForTestingMerge(newDoc);
+
+			var mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true);
+
+			// newDoc2 is NOT adjusted, so "That.test" IS present in it
+			var newDoc2 = CreateTestDocument();
+			var mergedDoc2 = XliffLocalizationManager.MergeXliffDocuments(newDoc2, mergedDoc, true);
+
+			var tu = mergedDoc2.GetTransUnitForId("That.test");
+			Assert.IsNotNull(tu);
+			Assert.That(tu.Notes.Any(n => n.Text.Contains("Not found")), Is.False);
+		}
+
 		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
 			Assert.IsNotNull(tu);

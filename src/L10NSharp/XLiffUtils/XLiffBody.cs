@@ -25,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 		// This is used when translation unit IDs are not found in the file (which seems to be
 		// the case with Lingobit XLiff files).
 		private int _transUnitId;
-		static SpinLock _transUnitIdLock;
+		SpinLock _transUnitIdLock;
 
 		private readonly ConcurrentDictionary<string, XLiffTransUnit> _transUnitDict =
 			new ConcurrentDictionary<string, XLiffTransUnit>();
@@ -152,19 +152,22 @@ namespace L10NSharp.XLiffUtils
 				key = tu.Id;
 				if (string.IsNullOrEmpty(key))
 				{
-					tu.Id = (System.Threading.Interlocked.Increment(ref _transUnitId)).ToString();
+					tu.Id = (++_transUnitId).ToString();
 					key = tu.Id;
 				}
+
+				// If a translation unit with the specified id already exists, then quit here.
+				// This check and the dictionary write must both happen inside the lock to avoid
+				// a TOCTOU race where two threads with the same ID both pass the check.
+				if (GetTransUnitForId(key) != null)
+					return false;
+				_transUnitDict[key] = tu;
 			}
 			finally
 			{
 				if (lockTaken) _transUnitIdLock.Exit(false);
 			}
 
-			// If a translation unit with the specified id already exists, then quit here.
-			if (GetTransUnitForId(tu.Id) != null)
-				return false;
-			_transUnitDict[key] = tu;
 			return true;
 		}
 		public bool AddTransUnit(XLiffTransUnit tu)
@@ -216,6 +219,8 @@ namespace L10NSharp.XLiffUtils
 			if (tu == null || tu.Id == null)
 				return;
 
+			// No SpinLock needed: _transUnitIdLock serializes AddTransUnitRaw's check-then-add
+			// sequence; TryRemove is independently atomic.
 			_transUnitDict.TryRemove(tu.Id, out _);
 			TranslationsById.TryRemove(tu.Id, out _);
 		}
