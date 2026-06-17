@@ -190,8 +190,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
-			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-			fileStream.Close();
+			File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 			var stringCache = new XliffLocalizedStringCache(this, false);
 
