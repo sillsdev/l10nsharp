@@ -83,8 +83,7 @@ namespace L10NSharp.Tests
 
 				// generate an empty English Translation file
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				var fileStream = File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-				fileStream.Close();
+				File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 				// SUT (buried down in there somewhere)
 				SetupManager(folder);
