@@ -7,7 +7,6 @@
     <Description>Validate and fix XLIFF files.</Description>
     <AssemblyTitle>CheckOrFixXliff</AssemblyTitle>
     <PackageId>L10NSharp.CheckOrFixXliff</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp/tree/master/src/CheckOrFixXliff</PackageProjectUrl>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <NoWarn>$(NoWarn);NU5128;NU5118</NoWarn>
