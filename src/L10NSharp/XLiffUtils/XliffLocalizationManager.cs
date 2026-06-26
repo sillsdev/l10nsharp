@@ -634,7 +634,8 @@ namespace L10NSharp.XLiffUtils
 						{
 							++changedStringCount;
 							changedStringIds.Add(tu.Id);
-							tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source?.Value}");
+							if (!string.IsNullOrWhiteSpace(tuOld.Source?.Value))
+								tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source.Value}");
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{

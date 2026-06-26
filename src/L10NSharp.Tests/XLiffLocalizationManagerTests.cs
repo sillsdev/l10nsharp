@@ -296,9 +296,10 @@ namespace L10NSharp.Tests
 			Assert.DoesNotThrow(() =>
 				mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true));
 
+			// A null old source has no value to report, so no "OLD TEXT" note is added.
 			var tu = mergedDoc.GetTransUnitForId("Some.id");
 			Assert.IsNotNull(tu);
-			Assert.That(tu.Notes.Any(n => n.Text.StartsWith("OLD TEXT")), Is.True);
+			Assert.That(tu.Notes.Any(n => n.Text.StartsWith("OLD TEXT")), Is.False);
 		}
 
 		private static void CheckMergedTransUnit(
