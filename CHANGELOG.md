@@ -38,13 +38,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
-- [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` when a trans-unit has no source variant (e.g. from a malformed XLIFF file). (#149)
-- [L10NSharp] Fixed file handle leak in `XliffLocalizationManager.CreateOrUpdateDefaultXliffFileIfNecessary` when an exception was thrown between `File.Open` and `Close`. (#151)
-- [L10NSharp] Fixed race condition in `XLiffBody.AddTransUnitRaw` where two concurrent threads with the same translation-unit ID could both bypass the duplicate check and silently overwrite each other's entry. (#150)
-- [L10NSharp] Eliminated unnecessary cross-instance lock contention in `XLiffBody` by making `_transUnitIdLock` instance-level instead of static. (#150)
-- [L10NSharp] Fixed `FilenamesToAddToCache` yielding both the custom and installed XLIFF for the same language when `UseLanguageCodeFolders` is `true`, causing custom translations to be silently overwritten by installed ones. (#140)
-- [L10NSharp] Fixed `ExtractXliff` accumulating duplicate "Not found in static scan" notes on successive runs; the note is now replaced rather than appended, and removed when the string is subsequently found. (#113)
-- [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use. (#139)
+- [L10NSharp] Fixed file handle leak in `XliffLocalizationManager.CreateOrUpdateDefaultXliffFileIfNecessary` when an exception was thrown between `File.Open` and `Close`.
+- [L10NSharp] Fixed race condition in `XLiffBody.AddTransUnitRaw` where two concurrent threads with the same translation-unit ID could both bypass the duplicate check and silently overwrite each other's entry.
+- [L10NSharp] Eliminated unnecessary cross-instance lock contention in `XLiffBody` by making `_transUnitIdLock` instance-level instead of static.
+- [L10NSharp] Fixed `FilenamesToAddToCache` yielding both the custom and installed XLIFF for the same language when `UseLanguageCodeFolders` is `true`, causing custom translations to be silently overwritten by installed ones.
+- [L10NSharp] Fixed `ExtractXliff` accumulating duplicate "Not found in static scan" notes on successive runs; the note is now replaced rather than appended, and removed when the string is subsequently found.
+- [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use.
+- [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` when a trans-unit has no source variant (e.g. from a malformed XLIFF file).
 
 ### Removed
 

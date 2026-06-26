@@ -278,6 +278,7 @@ namespace L10NSharp.Tests
 			var body = new XLiffBody();
 			var tu = new XLiffTransUnit { Id = "some-id", Source = null, Target = null };
 			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
+		}
 
 		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
