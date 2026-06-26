@@ -289,18 +289,64 @@ namespace L10NSharp.Tests
 			}
 		}
 
-		[Test]
-		public void GetDynamicString_WithEmptyId_ThrowsArgumentException()
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetDynamicString_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
 		{
 			Assert.Throws<ArgumentException>(() =>
-				LocalizationManager.GetDynamicString(AppId, "", "some text"));
+				LocalizationManager.GetDynamicString(AppId, id, "some text"));
 		}
 
-		[Test]
-		public void GetDynamicStringOrEnglish_WithEmptyId_ThrowsArgumentException()
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetDynamicStringOrEnglish_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
 		{
 			Assert.Throws<ArgumentException>(() =>
-				LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, "", "some text", null, "en"));
+				LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, id, "some text", null, "en"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetString_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		{
+			Assert.Throws<ArgumentException>(() =>
+				LocalizationManager.GetString(id, "some text"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetString_WithPreferredLanguageIds_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		{
+			Assert.Throws<ArgumentException>(() =>
+				LocalizationManager.GetString(id, "some text", null, new[] { "en" }, out _));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void UpdateLocalizedInfo_WithNullOrEmptyOrWhitespaceId_DoesNotAddEntry(string id)
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+				var cache = LocalizationManagerInternal<T>.LoadedManagers[AppId].StringCache;
+				var locInfo = new LocalizingInfo(id)
+				{
+					LangId = "fr",
+					Text = "some text",
+					UpdateFields = UpdateFields.Text
+				};
+
+				cache.UpdateLocalizedInfo(locInfo);
+
+				// The guard in XliffTransUnitUpdater.Update should have prevented an empty-id
+				// entry from being added (which previously produced a malformed XLIFF file).
+				Assert.That(cache.GetString("fr", id ?? ""), Is.Null);
+			}
 		}
 
 		[Test]

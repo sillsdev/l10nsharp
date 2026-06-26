@@ -710,6 +710,8 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
+			if (string.IsNullOrWhiteSpace(stringId))
+				throw new ArgumentException("id may not be null or empty.", nameof(stringId));
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
@@ -725,6 +727,9 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment,
 			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
+			if (string.IsNullOrWhiteSpace(stringId))
+				throw new ArgumentException("id may not be null or empty.", nameof(stringId));
+
 			if (preferredLanguageIds == null)
 				throw new ArgumentNullException(nameof(preferredLanguageIds));
 
