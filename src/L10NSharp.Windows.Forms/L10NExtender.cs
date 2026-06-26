@@ -1,19 +1,3 @@
-// ---------------------------------------------------------------------------------------------
-#region // Copyright © 2009-2025 SIL Global
-// <copyright from='2009' to='2025' company='SIL Global'>
-//		Copyright © 2009-2025 SIL Global
-//
-//		Distributable under the terms of either the Common Public License or the
-//		GNU Lesser General Public License, as specified in the LICENSING.txt file.
-// </copyright>
-#endregion
-//
-// File: LocalizingExtender.cs
-// Responsibility: D. Olson
-//
-// <remarks>
-// </remarks>
-// ---------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -263,7 +247,7 @@ namespace L10NSharp.Windows.Forms
 				{
 					locInfo.UpdateTextFromObject();
 				}
-				
+
 				_manager.RegisterComponentForLocalizing(locInfo, (lm, info) =>
 				{
 					if (info.Category == LocalizationCategory.LocalizableComponent)
