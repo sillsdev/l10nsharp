@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Fixed `FilenamesToAddToCache` yielding both the custom and installed XLIFF for the same language when `UseLanguageCodeFolders` is `true`, causing custom translations to be silently overwritten by installed ones.
 - [L10NSharp] Fixed `ExtractXliff` accumulating duplicate "Not found in static scan" notes on successive runs; the note is now replaced rather than appended, and removed when the string is subsequently found.
 - [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use.
-- [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` when a trans-unit has no source variant (e.g. from a malformed XLIFF file).
+- [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` and  `XliffLocalizationManager.MergeXliffDocuments` when a trans-unit has no source variant (e.g., from a malformed XLIFF file).
 
 ### Removed
 

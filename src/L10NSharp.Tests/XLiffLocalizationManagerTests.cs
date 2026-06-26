@@ -280,7 +280,29 @@ namespace L10NSharp.Tests
 			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
 		}
 
-		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
+		[Test]
+		public void MergeXliffDocuments_BaselineUnitHasNullSource_DoesNotThrow()
+		{
+			var newDoc = new XLiffDocument();
+			newDoc.AddTransUnit(new XLiffTransUnit {
+				Id = "Some.id",
+				Source = new XLiffTransUnitVariant { Lang = "en", Value = "Current text." }
+			});
+
+			var oldDoc = new XLiffDocument();
+			oldDoc.AddTransUnit(new XLiffTransUnit { Id = "Some.id", Source = null });
+
+			XLiffDocument mergedDoc = null;
+			Assert.DoesNotThrow(() =>
+				mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true));
+
+			var tu = mergedDoc.GetTransUnitForId("Some.id");
+			Assert.IsNotNull(tu);
+			Assert.That(tu.Notes.Any(n => n.Text.StartsWith("OLD TEXT")), Is.True);
+		}
+
+		private static void CheckMergedTransUnit(
+			XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
 			Assert.IsNotNull(tu);
 			Assert.That("en", Is.EqualTo(tu.Source.Lang));
