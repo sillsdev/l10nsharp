@@ -1,14 +1,3 @@
-// ---------------------------------------------------------------------------------------------
-#region
-// Copyright © 2017-2025 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-#endregion
-//
-// File: XLiffTargetVariant.cs
-//
-// <remarks>
-// </remarks>
-// ---------------------------------------------------------------------------------------------
 using System.Xml.Serialization;
 
 namespace L10NSharp.XLiffUtils

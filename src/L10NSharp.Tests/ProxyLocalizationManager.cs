@@ -1,6 +1,3 @@
-// Copyright © 2020-2025 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-
 using System.ComponentModel;
 
 namespace L10NSharp.Tests
@@ -27,7 +24,7 @@ namespace L10NSharp.Tests
 
 	public static class ProxyLocalizationStringExtensions
 	{
-		public static string Localize(this string s, string separateId="", string comment="")
+		public static string Localize(this string s, string separateId = "", string comment = "")
 		{
 			return L10NStringExtensions.Localize(s, separateId, comment);
 		}
