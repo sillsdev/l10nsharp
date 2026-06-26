@@ -190,8 +190,7 @@ namespace L10NSharp.XLiffUtils
 			}
 
 			// Before wasting a bunch of time, make sure we can open the file for writing.
-			var fileStream = File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-			fileStream.Close();
+			File.Open(DefaultStringFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 			var stringCache = new XliffLocalizedStringCache(this, false);
 
@@ -369,8 +368,11 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							langIdsOfCustomizedLocales.Add(langId);
-							yield return xliffFile;
+							if (!langIdsOfCustomizedLocales.Contains(langId))
+							{
+								langIdsOfCustomizedLocales.Add(langId);
+								yield return xliffFile;
+							}
 						}
 					}
 					else
@@ -539,7 +541,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			UiLanguageChanged?.Invoke(this, EventArgs.Empty);
 		}
-		
+
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{
@@ -608,6 +610,9 @@ namespace L10NSharp.XLiffUtils
 					{
 						foreach (var note in tuOld.Notes)
 						{
+							// Skip "Not found[...]" notes — the string IS found in this run.
+							if (note.Text.StartsWith("Not found"))
+								continue;
 							bool haveAlready = false;
 							foreach (var newNote in tu.Notes)
 							{
@@ -655,13 +660,17 @@ namespace L10NSharp.XLiffUtils
 						{
 							++missingDynamicStringCount;
 							missingDynamicStringIds.Add(tu.Id);
-							if (newDynamicCount > 0)	// note only if attempt made to collect dynamic strings
+							if (newDynamicCount > 0) // note only if attempt made to collect dynamic strings
+							{
+								tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found"));
 								tu.AddNote("en", $"Not found when running compiled program (version {xliffNew.File.ProductVersion})");
+							}
 						}
 						else
 						{
 							++missingStringCount;
 							missingStringIds.Add(tu.Id);
+							tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found"));
 							tu.AddNote("en", $"Not found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}

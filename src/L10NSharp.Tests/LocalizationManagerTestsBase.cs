@@ -1,5 +1,3 @@
-// Copyright © 2022-2025 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +11,7 @@ using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	public abstract class LocalizationManagerTestsBase<T> where T: IDocument
+	public abstract class LocalizationManagerTestsBase<T> where T : IDocument
 	{
 		protected const string AppId = "test";
 		protected const string AppName = "unit test";
@@ -85,8 +83,7 @@ namespace L10NSharp.Tests
 
 				// generate an empty English Translation file
 				Directory.CreateDirectory(GetGeneratedDirectory(folder));
-				var fileStream = File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-				fileStream.Close();
+				File.Open(generatedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None).Dispose();
 
 				// SUT (buried down in there somewhere)
 				SetupManager(folder);
@@ -216,19 +213,19 @@ namespace L10NSharp.Tests
 
 				Assert.AreEqual("My Own English String",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id", "My Own English String"));
-				
+
 				Assert.AreEqual("My Own English String (with comment)",
 					ProxyLocalizationManager.MyOwnGetString("myOwn.English.String.Id.With.Comment",
 					"My Own English String (with comment)",
 					"This is used to test the case where MyOwnGetString is passed as an extra method to use for extraction."));
-				
+
 				Assert.AreEqual("Click me",
 					ProxyLocalizationManager.MyOwnGetString("myDlg.btnClickMe.Text", "Click me",
 					"This is the text from the third version of MyOwnGetString.",
 					"Click this thingy to do stuff.", "Ctrl-T", btnClickMe));
-				
+
 				Assert.AreEqual("String to Localize", "String to Localize".Localize());
-				
+
 				Assert.AreEqual("Another String to Localize", "Another String to Localize".Localize("With.Id.And.Comment",
 					"This is used to test the case where Localize is passed as an extra method to use for extraction."));
 			}
@@ -358,6 +355,32 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void GetString_WithOneShotEnumerable_UsesPreferredLanguages()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+
+				// Wrap a single IEnumerator so the sequence can only be consumed once.
+				IEnumerable<string> WrapSingleUse(IEnumerator<string> e)
+				{
+					while (e.MoveNext())
+						yield return e.Current;
+				}
+
+				var oneShotLangIds = WrapSingleUse(
+					new List<string> { "fr", "en" }.GetEnumerator());
+
+				// SUT
+				var result = LocalizationManager.GetString("blahId", "blahInEnglishCode",
+					"comment", oneShotLangIds, out var languageFound);
+
+				Assert.AreEqual("blahInFrench", result);
+				Assert.AreEqual("fr", languageFound);
+			}
+		}
+
+		[Test]
 		public void GetUiLanguages_EnglishIsThere()
 		{
 			var cultures = LocalizationManager.GetUILanguages(false);
@@ -380,39 +403,25 @@ namespace L10NSharp.Tests
 		[Test]
 		public void GetUiLanguages_FindsAllWithFolders()
 		{
-			try
+			LocalizationManager.UseLanguageCodeFolders = true;
+			using (var folder = new TempFolder())
 			{
-				LocalizationManager.UseLanguageCodeFolders = true;
-				using (var folder = new TempFolder())
-				{
-					SetupManager(folder);
-					var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
-					Assert.AreEqual(4, cultures.Count);
-					CollectionAssert.AreEquivalent(new[] { "ar", "en", "fr", "es" }, cultures.Select(c => c.IetfLanguageTag).ToArray());
-					Assert.That(cultures, Is.Ordered.By("DisplayName"));
-				}
-			}
-			finally
-			{
-				LocalizationManager.UseLanguageCodeFolders = false;
+				SetupManager(folder);
+				var cultures = new List<L10NCultureInfo>(LocalizationManager.GetUILanguages(true));
+				Assert.AreEqual(4, cultures.Count);
+				CollectionAssert.AreEquivalent(new[] { "ar", "en", "fr", "es" }, cultures.Select(c => c.IetfLanguageTag).ToArray());
+				Assert.That(cultures, Is.Ordered.By("DisplayName"));
 			}
 		}
 
 		[Test]
 		public void GetDynamicStringInEnglish_NoDefault_FindsEnglishWithFolders()
 		{
-			try
+			LocalizationManager.UseLanguageCodeFolders = true;
+			using (var folder = new TempFolder())
 			{
-				LocalizationManager.UseLanguageCodeFolders = true;
-				using (var folder = new TempFolder())
-				{
-					SetupManager(folder);
-					Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
-				}
-			}
-			finally
-			{
-				LocalizationManager.UseLanguageCodeFolders = false;
+				SetupManager(folder);
+				Assert.That(LocalizationManager.GetDynamicString(AppId, "blahId", null), Is.EqualTo("blah"), "With no default supplied, should find saved English");
 			}
 		}
 
@@ -445,6 +454,50 @@ namespace L10NSharp.Tests
 
 				Assert.AreEqual(expectedResult, result);
 				Assert.AreEqual(expectedLanguage, languageFound);
+			}
+		}
+
+		/// <summary>
+		/// When UseLanguageCodeFolders is true and both an installed and a user-modified file
+		/// exist for the same language, the custom (user-modified) file must win.
+		/// </summary>
+		[Test]
+		public void CustomTranslation_TakesPrecedenceOverInstalled_WithLanguageCodeFolders()
+		{
+			LocalizationManager.UseLanguageCodeFolders = true;
+			using (var folder = new TempFolder())
+			{
+				// Set up the English default in the installed directory.
+				AddEnglishTranslation(GetInstalledDirectory(folder), "1.0");
+
+				// Set up an installed Arabic translation with value "inArabic".
+				AddArabicTranslation(GetInstalledDirectory(folder));
+
+				// Set up a user-modified Arabic translation for the same "theId" string
+				// with a different value to confirm the custom one wins.
+				var customArabicDoc = CreateNewDocument(null, "en", "ar");
+				var customTu = CreateTransUnit("theId", false,
+					CreateTransUnitVariant("en", "wrong"),
+					CreateTransUnitVariant("ar", "custom arabic translation"),
+					"Test", TranslationStatus.Approved);
+				customArabicDoc.AddTransUnit(customTu);
+				var customArabicPath = Path.Combine(GetUserModifiedDirectory(folder),
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "ar"));
+				Directory.CreateDirectory(Path.GetDirectoryName(customArabicPath));
+				customArabicDoc.Save(customArabicPath);
+
+				// Set up the localization manager.
+				var manager = CreateLocalizationManager(AppId, AppName, AppVersion,
+					GetInstalledDirectory(folder), GetGeneratedDirectory(folder),
+					GetUserModifiedDirectory(folder));
+				LocalizationManagerInternal<T>.LoadedManagers[AppId] = manager;
+
+				LocalizationManager.SetUILanguage("ar");
+
+				// SUT: the custom translation must win over the installed one.
+				Assert.AreEqual("custom arabic translation",
+					LocalizationManager.GetString("theId", "default"),
+					"Custom (user-modified) translation should take precedence over installed translation when UseLanguageCodeFolders is true");
 			}
 		}
 

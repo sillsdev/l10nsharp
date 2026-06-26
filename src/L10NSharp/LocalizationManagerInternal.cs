@@ -1,6 +1,3 @@
-// Copyright © 2022-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -724,13 +721,17 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment,
 			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
-			if (preferredLanguageIds.Count() == 0)
+			if (preferredLanguageIds == null)
+				throw new ArgumentNullException(nameof(preferredLanguageIds));
+
+			var langIds = preferredLanguageIds.ToList();
+			if (langIds.Count == 0)
 				throw new ArgumentException("preferredLanguageIds was empty");
 
 			if (string.IsNullOrEmpty(englishText))
 				throw new ArgumentException($"{nameof(englishText)} may not be empty (because common... that can't be what you meant to do...");
 
-			var stringFromAnyLocalizationManager = GetStringFromAnyLocalizationManager(stringId, preferredLanguageIds, out languageIdUsed);
+			var stringFromAnyLocalizationManager = GetStringFromAnyLocalizationManager(stringId, langIds, out languageIdUsed);
 
 			// Even if found in the English l10n file, we prefer to use the version that came from
 			// the code.

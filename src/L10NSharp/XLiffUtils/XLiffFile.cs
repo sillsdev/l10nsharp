@@ -1,9 +1,3 @@
-// ---------------------------------------------------------------------------------------------
-#region
-// Copyright © 2017-2026 SIL Global
-// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
-#endregion
-// ---------------------------------------------------------------------------------------------
 using System.ComponentModel;
 using System.Xml.Serialization;
 

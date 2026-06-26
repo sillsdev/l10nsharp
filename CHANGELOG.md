@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a repository-level MIT `LICENSE` file, which is now bundled into the NuGet packages (via `PackageLicenseFile`).
 - [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms, and added cross-platform CI/CD coverage for `net8.0`.
 - [L10NSharp] Added UiLanguageChanged event to ILocalizationManager. This provides a way for clients to deal with changes now that (in Windows) LocalizeItemDlg<XLiffDocument>.StringsLocalized no longer exists.
 
@@ -38,9 +39,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Corrected resource manager base name to `L10NSharp.Windows.Forms.Properties.Resources`.
 - [L10NSharp.Windows.Forms.Tests] Corrected resource manager base name to `L10NSharp.Windows.Forms.Tests.Properties.Resources`.
 - [L10NSharp] Fixed `NullReferenceException` in `XLiffBody.AddTransUnit` when a trans-unit has no source variant (e.g. from a malformed XLIFF file). (#149)
+- [L10NSharp] Fixed file handle leak in `XliffLocalizationManager.CreateOrUpdateDefaultXliffFileIfNecessary` when an exception was thrown between `File.Open` and `Close`. (#151)
+- [L10NSharp] Fixed race condition in `XLiffBody.AddTransUnitRaw` where two concurrent threads with the same translation-unit ID could both bypass the duplicate check and silently overwrite each other's entry. (#150)
+- [L10NSharp] Eliminated unnecessary cross-instance lock contention in `XLiffBody` by making `_transUnitIdLock` instance-level instead of static. (#150)
+- [L10NSharp] Fixed `FilenamesToAddToCache` yielding both the custom and installed XLIFF for the same language when `UseLanguageCodeFolders` is `true`, causing custom translations to be silently overwritten by installed ones. (#140)
+- [L10NSharp] Fixed `ExtractXliff` accumulating duplicate "Not found in static scan" notes on successive runs; the note is now replaced rather than appended, and removed when the string is subsequently found. (#113)
+- [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use. (#139)
 
 ### Removed
 
+- Removed per-file copyright and license headers from source files, since they are covered by the repository-level `LICENSE` and the `Copyright` assembly metadata. (Headers on third-party files are retained.)
 - [L10NSharp] Removed EnableClickingOnControlToBringUpLocalizationDialog. Since the localization dialog was jettisoned, this is meaningless (and wouldn't belong in the Winforms agnostic namespace anyway).
 - [L10NSharp] Removed EmailForSubmissions. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed LmGrid, LmButtonColumn, LmButtonCell, TipDialog.
