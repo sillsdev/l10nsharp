@@ -728,7 +728,7 @@ namespace L10NSharp
 			if (string.IsNullOrWhiteSpace(stringId))
 			{
 				languageIdUsed = "en";
-				return englishText;
+				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 			}
 
 			if (preferredLanguageIds == null)

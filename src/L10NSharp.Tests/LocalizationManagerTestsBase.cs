@@ -344,7 +344,7 @@ namespace L10NSharp.Tests
 
 				// The guard in XliffTransUnitUpdater.Update should have prevented an empty-id
 				// entry from being added (which previously produced a malformed XLIFF file).
-				Assert.That(cache.GetString("fr", id ?? ""), Is.Null);
+				Assert.That(cache.GetString("fr", id), Is.Null);
 			}
 		}
 
