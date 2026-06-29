@@ -289,6 +289,65 @@ namespace L10NSharp.Tests
 			}
 		}
 
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetDynamicString_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
+		{
+			Assert.That(LocalizationManager.GetDynamicString(AppId, id, "some text"), Is.EqualTo("some text"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetDynamicStringOrEnglish_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
+		{
+			Assert.That(LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, id, "some text", null, "en"),
+				Is.EqualTo("some text"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetString_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
+		{
+			Assert.That(LocalizationManager.GetString(id, "some text"), Is.EqualTo("some text"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void GetString_WithPreferredLanguageIds_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
+		{
+			var result = LocalizationManager.GetString(id, "some text", null, new[] { "en" }, out var langUsed);
+			Assert.That(result, Is.EqualTo("some text"));
+			Assert.That(langUsed, Is.EqualTo("en"));
+		}
+
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase(" ")]
+		public void UpdateLocalizedInfo_WithNullOrEmptyOrWhitespaceId_DoesNotAddEntry(string id)
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+				var cache = LocalizationManagerInternal<T>.LoadedManagers[AppId].StringCache;
+				var locInfo = new LocalizingInfo(id)
+				{
+					LangId = "fr",
+					Text = "some text",
+					UpdateFields = UpdateFields.Text
+				};
+
+				cache.UpdateLocalizedInfo(locInfo);
+
+				// The guard in XliffTransUnitUpdater.Update should have prevented an empty-id
+				// entry from being added (which previously produced a malformed XLIFF file).
+				Assert.That(cache.GetString("fr", id), Is.Null);
+			}
+		}
+
 		[Test]
 		public void GetDynamicStringOrEnglish_LmDisposed_GivesUsefulException()
 		{
