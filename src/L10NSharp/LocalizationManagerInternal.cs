@@ -461,8 +461,6 @@ namespace L10NSharp
 		/// ------------------------------------------------------------------------------------
 		public static string GetDynamicString(string appId, string id, string englishText, string comment)
 		{
-			if (string.IsNullOrWhiteSpace(id))
-				throw new ArgumentException("id may not be null or empty.", nameof(id));
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, LocalizationManager.UILanguageId);
 		}
 
@@ -482,7 +480,7 @@ namespace L10NSharp
 			string comment, string langId)
 		{
 			if (string.IsNullOrWhiteSpace(id))
-				throw new ArgumentException("id may not be null or empty.", nameof(id));
+				return string.IsNullOrEmpty(englishText) ? string.Empty : englishText;
 			// This happens in unit test environments or apps that have imported a library that
 			// is localized, but the app itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
@@ -711,7 +709,7 @@ namespace L10NSharp
 			string englishShortcutKey, IComponent component)
 		{
 			if (string.IsNullOrWhiteSpace(stringId))
-				throw new ArgumentException("id may not be null or empty.", nameof(stringId));
+				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
@@ -728,7 +726,10 @@ namespace L10NSharp
 			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
 			if (string.IsNullOrWhiteSpace(stringId))
-				throw new ArgumentException("id may not be null or empty.", nameof(stringId));
+			{
+				languageIdUsed = "en";
+				return englishText;
+			}
 
 			if (preferredLanguageIds == null)
 				throw new ArgumentNullException(nameof(preferredLanguageIds));

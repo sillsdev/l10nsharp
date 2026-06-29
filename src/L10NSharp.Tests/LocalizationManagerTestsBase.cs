@@ -292,37 +292,36 @@ namespace L10NSharp.Tests
 		[TestCase(null)]
 		[TestCase("")]
 		[TestCase(" ")]
-		public void GetDynamicString_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		public void GetDynamicString_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
 		{
-			Assert.Throws<ArgumentException>(() =>
-				LocalizationManager.GetDynamicString(AppId, id, "some text"));
+			Assert.That(LocalizationManager.GetDynamicString(AppId, id, "some text"), Is.EqualTo("some text"));
 		}
 
 		[TestCase(null)]
 		[TestCase("")]
 		[TestCase(" ")]
-		public void GetDynamicStringOrEnglish_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		public void GetDynamicStringOrEnglish_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
 		{
-			Assert.Throws<ArgumentException>(() =>
-				LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, id, "some text", null, "en"));
+			Assert.That(LocalizationManagerInternal<T>.GetDynamicStringOrEnglish(AppId, id, "some text", null, "en"),
+				Is.EqualTo("some text"));
 		}
 
 		[TestCase(null)]
 		[TestCase("")]
 		[TestCase(" ")]
-		public void GetString_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		public void GetString_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
 		{
-			Assert.Throws<ArgumentException>(() =>
-				LocalizationManager.GetString(id, "some text"));
+			Assert.That(LocalizationManager.GetString(id, "some text"), Is.EqualTo("some text"));
 		}
 
 		[TestCase(null)]
 		[TestCase("")]
 		[TestCase(" ")]
-		public void GetString_WithPreferredLanguageIds_WithNullOrEmptyOrWhitespaceId_ThrowsArgumentException(string id)
+		public void GetString_WithPreferredLanguageIds_WithNullOrEmptyOrWhitespaceId_ReturnsFallbackText(string id)
 		{
-			Assert.Throws<ArgumentException>(() =>
-				LocalizationManager.GetString(id, "some text", null, new[] { "en" }, out _));
+			var result = LocalizationManager.GetString(id, "some text", null, new[] { "en" }, out var langUsed);
+			Assert.That(result, Is.EqualTo("some text"));
+			Assert.That(langUsed, Is.EqualTo("en"));
 		}
 
 		[TestCase(null)]
