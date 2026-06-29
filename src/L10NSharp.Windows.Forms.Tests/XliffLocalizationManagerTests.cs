@@ -155,6 +155,29 @@ namespace L10NSharp.Windows.Forms.Tests
 			chineseDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "zh-TW")));
 		}
 
+		private void AddChineseBareTranslation(string folderPath)
+		{
+			var chineseDoc = CreateNewDocument(null, "en", "zh");
+			// first unit
+			var tu = CreateTransUnit("theId", false,
+				CreateTransUnitVariant("en", "from English Translation"),
+				CreateTransUnitVariant("zh", "from Chinese (generic) Translation"),
+				"Test", TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu);
+			// second unit
+			var tu2 = CreateTransUnit("notUsedId", false,
+				CreateTransUnitVariant("en", "no longer used English text"),
+				CreateTransUnitVariant("zh", "no longer used Chinese (generic) text"),
+				null, TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu2);
+			// third unit
+			var tu3 = CreateTransUnit("blahId", false,
+				CreateTransUnitVariant("en", "blah"),
+				CreateTransUnitVariant("zh", "中文 blah"));
+			chineseDoc.AddTransUnit(tu3);
+			chineseDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "zh")));
+		}
+
 		[Test]
 		public void TestMappingLanguageCodesToAvailable_AmbiguousOptions_PromptsUser([Values("zh-CN", "zh-TW")] string choice)
 		{
@@ -189,6 +212,45 @@ namespace L10NSharp.Windows.Forms.Tests
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-TW");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "en"), Is.True, "en should find en");
+			}
+		}
+
+		[Test]
+		public void TestMappingLanguageCodesToAvailable_ExactGenericMatchUsedWhenSpecificsAlsoExist()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+				AddEnglishTranslation(installedFolder, null);
+				AddChineseBareTranslation(installedFolder);
+				AddChineseOfChinaTranslation(installedFolder);
+				AddChineseOfTaiwanTranslation(installedFolder);
+				var userPromptCount = 0;
+				LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguageWinforms = (langTag, icon) =>
+				{
+					userPromptCount++;
+					return langTag;
+				};
+				var manager = LocalizationManagerWinforms.Create("zh", AppId, AppName, AppVersion, installedFolder,
+					userRelativeFolder, null, new string[] { });
+				// Exact match available — no prompt should have been shown.
+				Assert.That(userPromptCount, Is.EqualTo(0));
+				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo("zh"));
+				LocalizationManagerInternal<XLiffDocument>.LoadedManagers[AppId] = (ILocalizationManagerInternal<XLiffDocument>)manager;
+
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find zh (exact)");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-TW");
+
+				// The generic zh request should use the generic zh translation, not CN or TW.
+				var str = LocalizationManager.GetString("theId", ".", "", new[] { "zh" }, out var languageIdUsed);
+				Assert.That(str, Is.EqualTo("from Chinese (generic) Translation"));
+				Assert.That(languageIdUsed, Is.EqualTo("zh"));
 			}
 		}
 	}
