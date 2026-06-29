@@ -630,11 +630,12 @@ namespace L10NSharp.XLiffUtils
 									tu.AddNote(note.NoteLang, "[OLD NOTE] " + note.Text);
 							}
 						}
-						if (tu.Source.Value != tuOld.Source.Value)
+						if (tu.Source?.Value != tuOld.Source?.Value)
 						{
 							++changedStringCount;
 							changedStringIds.Add(tu.Id);
-							tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source.Value}");
+							if (!string.IsNullOrWhiteSpace(tuOld.Source?.Value))
+								tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source.Value}");
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{
