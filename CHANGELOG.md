@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Removed emailForSubmissions parameter from LocalizationManager.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
+- [L10NSharp] `GetDynamicString`, `GetDynamicStringOrEnglish`, and `GetString` now return the English fallback text immediately when called with a null, empty, or whitespace string ID, rather than attempting a cache lookup or write.
  
 ### Fixed
 
@@ -44,6 +45,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp] Fixed `FilenamesToAddToCache` yielding both the custom and installed XLIFF for the same language when `UseLanguageCodeFolders` is `true`, causing custom translations to be silently overwritten by installed ones. (#140)
 - [L10NSharp] Fixed `ExtractXliff` accumulating duplicate "Not found in static scan" notes on successive runs; the note is now replaced rather than appended, and removed when the string is subsequently found. (#113)
 - [L10NSharp] Fixed `LocalizationManager.GetString` silently falling back to English when called with a one-shot `IEnumerable<string>` for `preferredLanguageIds`; the sequence is now materialized before use. (#139)
+- [L10NSharp] Fixed malformed XLIFF file produced when `GetDynamicString`/`GetString` was called with a null, empty, or whitespace string ID; the entry is now silently skipped rather than written with a blank `id` attribute that caused a crash on next launch. (#104)
 
 ### Removed
 
