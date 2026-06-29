@@ -46,6 +46,8 @@ namespace L10NSharp.XLiffUtils
 			// Can't do anything without a language id.
 			if (string.IsNullOrEmpty(locInfo.LangId))
 				return _updated;
+			if (string.IsNullOrWhiteSpace(locInfo.Id))
+				return _updated;
 
 			var xliffSource = _stringCache.GetDocument(_defaultLang);
 			Debug.Assert(xliffSource != null);

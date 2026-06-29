@@ -479,6 +479,8 @@ namespace L10NSharp
 		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
 			string comment, string langId)
 		{
+			if (string.IsNullOrWhiteSpace(id))
+				return string.IsNullOrEmpty(englishText) ? string.Empty : englishText;
 			// This happens in unit test environments or apps that have imported a library that
 			// is localized, but the app itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
@@ -706,6 +708,8 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
 			string englishShortcutKey, IComponent component)
 		{
+			if (string.IsNullOrWhiteSpace(stringId))
+				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
@@ -721,6 +725,12 @@ namespace L10NSharp
 		public static string GetString(string stringId, string englishText, string comment,
 			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
 		{
+			if (string.IsNullOrWhiteSpace(stringId))
+			{
+				languageIdUsed = "en";
+				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
+			}
+
 			if (preferredLanguageIds == null)
 				throw new ArgumentNullException(nameof(preferredLanguageIds));
 
