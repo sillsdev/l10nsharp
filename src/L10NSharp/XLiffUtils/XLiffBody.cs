@@ -164,12 +164,12 @@ namespace L10NSharp.XLiffUtils
 		{
 			if (!AddTransUnitRaw(tu))
 				return false;
-		
+
 			// If the target exists, store its value in the dictionary lookup.  Otherwise, store
 			// the source value there.
-			if (tu.Target != null && tu.Target.Value != null)
+			if (tu.Target?.Value != null)
 				TranslationsById[tu.Id] = tu.Target.Value;
-			else
+			else if (tu.Source?.Value != null)
 				TranslationsById[tu.Id] = tu.Source.Value;
 			return true;
 		}
@@ -234,14 +234,15 @@ namespace L10NSharp.XLiffUtils
 						_translatedCount = 0;
 						foreach (var tu in TransUnitsUnordered)
 						{
-							if (tu.Target == null || string.IsNullOrWhiteSpace(tu.Target.Value))
+							if (string.IsNullOrWhiteSpace(tu.Target?.Value))
 								continue;
 							if (tu.TranslationStatus == TranslationStatus.Approved ||
 							    tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
 							{
 								++_translatedCount;
 							}
-							else if (tu.Target.Value != tu.Source.Value &&
+							else if (!string.IsNullOrWhiteSpace(tu.Source?.Value) &&
+							         tu.Target.Value != tu.Source.Value &&
 							         tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 							{
 								++_translatedCount;
@@ -271,7 +272,7 @@ namespace L10NSharp.XLiffUtils
 						_approvedCount = 0;
 						foreach (var tu in TransUnitsUnordered)
 						{
-							if (tu.Target == null || string.IsNullOrWhiteSpace(tu.Target.Value))
+							if (string.IsNullOrWhiteSpace(tu.Target?.Value))
 								continue;
 							if (tu.TranslationStatus == TranslationStatus.Approved)
 								++_approvedCount;
