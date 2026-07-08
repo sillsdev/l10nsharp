@@ -272,7 +272,38 @@ namespace L10NSharp.Tests
 			Assert.That(tu.Notes.Any(n => n.Text.Contains("Not found")), Is.False);
 		}
 
-		private void CheckMergedTransUnit(XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
+		[Test]
+		public void AddTransUnit_NullSourceNullTarget_DoesNotThrow()
+		{
+			var body = new XLiffBody();
+			var tu = new XLiffTransUnit { Id = "some-id", Source = null, Target = null };
+			Assert.DoesNotThrow(() => body.AddTransUnit(tu));
+		}
+
+		[Test]
+		public void MergeXliffDocuments_BaselineUnitHasNullSource_DoesNotThrow()
+		{
+			var newDoc = new XLiffDocument();
+			newDoc.AddTransUnit(new XLiffTransUnit {
+				Id = "Some.id",
+				Source = new XLiffTransUnitVariant { Lang = "en", Value = "Current text." }
+			});
+
+			var oldDoc = new XLiffDocument();
+			oldDoc.AddTransUnit(new XLiffTransUnit { Id = "Some.id", Source = null });
+
+			XLiffDocument mergedDoc = null;
+			Assert.DoesNotThrow(() =>
+				mergedDoc = XliffLocalizationManager.MergeXliffDocuments(newDoc, oldDoc, true));
+
+			// A null old source has no value to report, so no "OLD TEXT" note is added.
+			var tu = mergedDoc.GetTransUnitForId("Some.id");
+			Assert.IsNotNull(tu);
+			Assert.That(tu.Notes.Any(n => n.Text.StartsWith("OLD TEXT")), Is.False);
+		}
+
+		private static void CheckMergedTransUnit(
+			XLiffTransUnit tu, string sourceText, string[] notes, bool isDynamic)
 		{
 			Assert.IsNotNull(tu);
 			Assert.That("en", Is.EqualTo(tu.Source.Lang));
