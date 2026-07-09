@@ -27,7 +27,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			_stringCache = cache;
 			_defaultLang = LocalizationManager.kDefaultLang;
-			var replacement = _stringCache.GetDocument(_defaultLang).File
+			var replacement = _stringCache.GetDocument(_defaultLang)?.File
 				.HardLineBreakReplacement;
 			if (replacement != null)
 				_literalNewline = replacement;
@@ -49,10 +49,10 @@ namespace L10NSharp.XLiffUtils
 			if (string.IsNullOrWhiteSpace(locInfo.Id))
 				return _updated;
 
-			var xliffSource = _stringCache.GetDocument(_defaultLang);
-			Debug.Assert(xliffSource != null);
+			if (!_stringCache.TryGetDocument(_defaultLang, out var xliffSource))
+                throw new InvalidOperationException($"Source document for default language {_defaultLang} not found");
 
-			if (!_stringCache.TryGetDocument(locInfo.LangId, out var xliffTarget))
+			if (!_stringCache.TryGetDocument(locInfo.LangId!, out var xliffTarget))
 			{
 				xliffTarget = new XLiffDocument();
 				xliffTarget.File.AmpersandReplacement = xliffSource.File.AmpersandReplacement;
@@ -65,10 +65,10 @@ namespace L10NSharp.XLiffUtils
 				xliffTarget.File.TargetLang = locInfo.LangId;
 				xliffTarget.IsDirty = true;
 				_updated = true;
-				_stringCache.AddDocument(locInfo.LangId, xliffTarget);
+				_stringCache.AddDocument(locInfo.LangId!, xliffTarget);
 			}
 
-			var tuSourceText = xliffSource.GetTransUnitForId(locInfo.Id);
+			var tuSourceText = xliffSource.GetTransUnitForId(locInfo.Id!);
 			var tuSourceToolTip = xliffSource.GetTransUnitForId(locInfo.Id + kToolTipSuffix);
 			var tuSourceShortcutKeys =
 				xliffSource.GetTransUnitForId(locInfo.Id + kShortcutSuffix);
@@ -116,7 +116,7 @@ namespace L10NSharp.XLiffUtils
 				text = text.Replace(_literalNewline, "@#$");
 				text = text.Replace(kOSRealNewline, _literalNewline);
 				text = text.Replace("@#$", _literalNewline);
-				UpdateValueAndComment(xliffTarget, tuSourceText, text, locInfo, locInfo.Id);
+				UpdateValueAndComment(xliffTarget, tuSourceText, text, locInfo, locInfo.Id!);
 			}
 
 			if (_updated)
@@ -124,15 +124,15 @@ namespace L10NSharp.XLiffUtils
 			return _updated;
 		}
 
-		void UpdateValueAndComment(XLiffDocument xliffTarget, XLiffTransUnit tuSource,
-			string                               newText,     LocalizingInfo locInfo, string tuId)
+		void UpdateValueAndComment(XLiffDocument xliffTarget, XLiffTransUnit? tuSource,
+			string?                               newText,     LocalizingInfo locInfo, string tuId)
 		{
 			var tuTarget = UpdateValue(xliffTarget, tuSource, newText, locInfo, tuId);
 			UpdateTransUnitComment(xliffTarget, tuSource, locInfo);
 			UpdateTransUnitComment(xliffTarget, tuTarget, locInfo);
 		}
 
-		private void UpdateTransUnitComment(XLiffDocument xliffTarget, XLiffTransUnit tu,
+		private void UpdateTransUnitComment(XLiffDocument xliffTarget, XLiffTransUnit? tu,
 			LocalizingInfo                                locInfo)
 		{
 			if (tu == null)
@@ -155,7 +155,7 @@ namespace L10NSharp.XLiffUtils
 			tu.Notes.Clear();
 			tu.AddNote("ID: " + tu.Id);
 			if (!string.IsNullOrEmpty(locInfo.Comment))
-				tu.AddNote(locInfo.Comment);
+				tu.AddNote(locInfo.Comment!);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -163,8 +163,8 @@ namespace L10NSharp.XLiffUtils
 		/// Updates the value for the specified translation unit with the specified new value.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private XLiffTransUnit UpdateValue(XLiffDocument xliffTarget, XLiffTransUnit tuSource,
-			string                                       newValue,    LocalizingInfo locInfo,
+		private XLiffTransUnit? UpdateValue(XLiffDocument xliffTarget, XLiffTransUnit? tuSource,
+			string?                                       newValue,    LocalizingInfo locInfo,
 			string                                       tuId)
 		{
 			// One would think there would be a source XLiffTransUnit, but that isn't necessarily true
@@ -226,8 +226,8 @@ namespace L10NSharp.XLiffUtils
 				tuTarget.AddNote("ID: " + tuId);
 			}
 
-			tuTarget.AddOrReplaceVariant(locInfo.LangId, newValue);
-			xliffTarget.File.Body.TranslationsById[tuId] = newValue;
+			tuTarget.AddOrReplaceVariant(locInfo.LangId!, newValue!);
+			xliffTarget.File.Body.TranslationsById[tuId] = newValue!;
 			_updated = true;
 			return tuTarget;
 		}

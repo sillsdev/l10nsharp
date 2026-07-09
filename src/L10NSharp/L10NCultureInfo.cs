@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using static System.StringComparison;
@@ -93,7 +94,7 @@ namespace L10NSharp
 			}
 			else
 			{
-				InitializeFromRawCultureInfo();
+				InitializeFromRawCultureInfo(RawCultureInfo);
 				// The Windows .Net runtime returns 'Azərbaycan dili (Azərbaycan)' for az-Latn, and
 				// something totally different for az.
 				// The Mono runtime returns "azərbaycan" for both az and az-Latn.
@@ -109,26 +110,27 @@ namespace L10NSharp
 		private L10NCultureInfo(CultureInfo ci)
 		{
 			RawCultureInfo = ci;
-			InitializeFromRawCultureInfo();
+			InitializeFromRawCultureInfo(ci);
 		}
 
-		private void InitializeFromRawCultureInfo()
+		[MemberNotNull(nameof(EnglishName), nameof(DisplayName), nameof(NativeName), nameof(IsNeutralCulture), nameof(NumberFormat), nameof(Name), nameof(TwoLetterISOLanguageName), nameof(ThreeLetterISOLanguageName), nameof(IetfLanguageTag))]
+		private void InitializeFromRawCultureInfo(CultureInfo rawCultureInfo)
 		{
-			EnglishName = RawCultureInfo.EnglishName;
-			DisplayName = RawCultureInfo.DisplayName;
-			NativeName = RawCultureInfo.NativeName;
-			IsNeutralCulture = RawCultureInfo.IsNeutralCulture;
-			NumberFormat = RawCultureInfo.NumberFormat;
-			Name = RawCultureInfo.Name;
-			TwoLetterISOLanguageName = RawCultureInfo.TwoLetterISOLanguageName;
-			ThreeLetterISOLanguageName = RawCultureInfo.ThreeLetterISOLanguageName;
-			IetfLanguageTag = RawCultureInfo.IetfLanguageTag;
+			EnglishName = rawCultureInfo.EnglishName;
+			DisplayName = rawCultureInfo.DisplayName;
+			NativeName = rawCultureInfo.NativeName;
+			IsNeutralCulture = rawCultureInfo.IsNeutralCulture;
+			NumberFormat = rawCultureInfo.NumberFormat;
+			Name = rawCultureInfo.Name;
+			TwoLetterISOLanguageName = rawCultureInfo.TwoLetterISOLanguageName;
+			ThreeLetterISOLanguageName = rawCultureInfo.ThreeLetterISOLanguageName;
+			IetfLanguageTag = rawCultureInfo.IetfLanguageTag;
 		}
 
 		/// <summary>
 		/// Provide access to the underlying CultureInfo object if it exists.
 		/// </summary>
-		public CultureInfo RawCultureInfo { get; }
+		public CultureInfo? RawCultureInfo { get; }
 
 		// The following properties mimic those provided by CultureInfo.
 
@@ -150,7 +152,7 @@ namespace L10NSharp
 
 		public NumberFormatInfo NumberFormat { get; set; }
 
-		private static L10NCultureInfo _currentInfo;
+		private static L10NCultureInfo? _currentInfo;
 		public static L10NCultureInfo CurrentCulture
 		{
 			get
@@ -221,7 +223,7 @@ namespace L10NSharp
 			return $"[L10NCultureInfo: Name={Name}, EnglishName={EnglishName}]";
 		}
 
-		public static bool operator ==(L10NCultureInfo ci1, L10NCultureInfo ci2)
+		public static bool operator ==(L10NCultureInfo? ci1, L10NCultureInfo? ci2)
 		{
 			if (ReferenceEquals(ci1, ci2))
 				return true;
@@ -233,7 +235,7 @@ namespace L10NSharp
 		}
 
 		// this is second one '!='
-		public static bool operator !=(L10NCultureInfo ci1, L10NCultureInfo ci2)
+		public static bool operator !=(L10NCultureInfo? ci1, L10NCultureInfo? ci2)
 		{
 			return !(ci1 == ci2);
 		}

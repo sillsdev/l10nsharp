@@ -21,7 +21,7 @@ namespace L10NSharp.XLiffUtils
 			DataType = "plaintext";
 		}
 
-		protected XLiffHeader _header /* = new XLiffHeader()*/;
+		protected XLiffHeader? _header /* = new XLiffHeader()*/;
 		protected XLiffBody   _body = new XLiffBody();
 
 		#region Properties
@@ -32,7 +32,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("header")]
-		public XLiffHeader Header
+		public XLiffHeader? Header
 		{
 			get => _header;
 			set => _header = value;
@@ -65,7 +65,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("target-language")]
-		public string TargetLang { get; set; }
+		public string? TargetLang { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -81,7 +81,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("original")]
-		public string Original { get; set; }
+		public string? Original { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -101,7 +101,7 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("hard-linebreak-replacement", Namespace =
 			XliffXmlSerializationHelper.kSilNamespace),
 		DefaultValue(LocalizedStringCache.kDefaultNewlineReplacement)]
-		public string HardLineBreakReplacement { get; set; }
+		public string? HardLineBreakReplacement { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -113,7 +113,7 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("ampersand-replacement", Namespace =
 			XliffXmlSerializationHelper.kSilNamespace),
 		DefaultValue(LocalizedStringCache.kDefaultAmpersandReplacement)]
-		public string AmpersandReplacement { get; set; }
+		public string? AmpersandReplacement { get; set; }
 
 		#endregion
 	}

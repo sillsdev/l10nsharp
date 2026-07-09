@@ -33,6 +33,7 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -50,7 +51,7 @@ namespace System.Web.Util
 	{
 		static char[] hexChars = "0123456789abcdef".ToCharArray();
 		static object entitiesLock = new object();
-		static SortedDictionary<string, char> entities;
+		static SortedDictionary<string, char>? entities;
 #if NET_4_0
 		static Lazy <HttpEncoder> defaultEncoder;
 		static Lazy <HttpEncoder> currentEncoderLazy;
@@ -136,7 +137,7 @@ namespace System.Web.Util
 				encodedHeaderValue = EncodeHeaderString(headerValue);
 		}
 
-		static void StringBuilderAppend(string s, ref StringBuilder sb)
+		static void StringBuilderAppend(string s, ref StringBuilder? sb)
 		{
 			if (sb == null)
 				sb = new StringBuilder(s);
@@ -146,7 +147,7 @@ namespace System.Web.Util
 
 		static string EncodeHeaderString(string input)
 		{
-			StringBuilder sb = null;
+			StringBuilder? sb = null;
 			char ch;
 
 			for (int i = 0; i < input.Length; i++)
@@ -257,7 +258,8 @@ namespace System.Web.Util
 			return result.ToArray();
 		}
 
-		internal static string HtmlEncode(string s)
+		[return: NotNullIfNotNull("s")]
+		internal static string? HtmlEncode(string? s)
 		{
 			if (s == null)
 				return null;
@@ -333,7 +335,8 @@ namespace System.Web.Util
 			return output.ToString();
 		}
 
-		internal static string HtmlAttributeEncode(string s)
+		[return: NotNullIfNotNull("s")]
+		internal static string? HtmlAttributeEncode(string? s)
 		{
 #if NET_4_0
 			if (String.IsNullOrEmpty (s))
@@ -390,7 +393,8 @@ namespace System.Web.Util
 			return output.ToString();
 		}
 
-		internal static string HtmlDecode(string s)
+        [return: NotNullIfNotNull("s")]
+		internal static string? HtmlDecode(string? s)
 		{
 			if (s == null)
 				return null;
@@ -657,6 +661,7 @@ namespace System.Web.Util
 				result.WriteByte((byte)c);
 		}
 
+        [MemberNotNull(nameof(entities))]
 		static void InitEntities()
 		{
 			// Build the hash table of HTML entity references.  This list comes

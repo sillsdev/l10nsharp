@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using static System.String;
 
@@ -24,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("id")]
-		public string Id { get; set; }
+		public string? Id { get; set; }
 
 		//  approved="yes"
 
@@ -59,7 +60,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlElement("target")]
-		public XLiffTransUnitVariant Target { get; set; }
+		public XLiffTransUnitVariant? Target { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -83,7 +84,7 @@ namespace L10NSharp.XLiffUtils
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("priority", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
-		public string Priority { get; set; }
+		public string? Priority { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -93,7 +94,7 @@ namespace L10NSharp.XLiffUtils
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("group", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
-		public string Group { get; set; }
+		public string? Group { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -105,7 +106,7 @@ namespace L10NSharp.XLiffUtils
 		/// <remarks>This appears to not be used in the Bloom files.</remarks>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("category", Namespace = XliffXmlSerializationHelper.kSilNamespace)]
-		public string Category { get; set; }
+		public string? Category { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -113,6 +114,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlIgnore]
+        [MemberNotNullWhen(false, nameof(Id), nameof(Source), nameof(Target))]
 		public bool IsEmpty =>
 			IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null && Target == null;
 
@@ -143,7 +145,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="tuv">The variant.</param>
 		/// <returns>true if the variant was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		public bool AddOrReplaceVariant(XLiffTransUnitVariant tuv)
+		public bool AddOrReplaceVariant(XLiffTransUnitVariant? tuv)
 		{
 			if (tuv == null)
 				return false;
@@ -173,9 +175,9 @@ namespace L10NSharp.XLiffUtils
 		/// Removes the variant for the specified language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RemoveVariant(string langId)
+		public void RemoveVariant(string? langId)
 		{
-			XLiffTransUnitVariant tuv = GetVariantForLang(langId);
+			XLiffTransUnitVariant? tuv = GetVariantForLang(langId);
 			if (tuv != null)
 			{
 				if (langId == kDefaultLangId)
@@ -190,7 +192,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the translation unit variant for the specified language id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public XLiffTransUnitVariant GetVariantForLang(string langId)
+		public XLiffTransUnitVariant? GetVariantForLang(string? langId)
 		{
 			if (langId == kDefaultLangId)
 				return Source;
