@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace L10NSharp.Windows.Forms.UIComponents
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class LocTreeNode<T> : TreeNode
+	internal class LocTreeNode<T> : TreeNode where T : class
 	{
 		internal string Group { get; set; }
 		internal string Id { get; private set; }

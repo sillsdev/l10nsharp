@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace L10NSharp.Windows.Forms.UIComponents
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class NodeComparer<T> : IComparer<LocTreeNode<T>>
+	internal class NodeComparer<T> : IComparer<LocTreeNode<T>> where T : class
 	{
 		internal enum SortField
 		{
