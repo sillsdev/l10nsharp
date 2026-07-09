@@ -241,12 +241,12 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrWhiteSpace(tu.Target?.Value))
 								continue;
 							if (tu.TranslationStatus == TranslationStatus.Approved ||
-							    tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
+							    tu.Target!.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
 							{
 								++_translatedCount;
 							}
 							else if (!string.IsNullOrWhiteSpace(tu.Source?.Value) &&
-							         tu.Target.Value != tu.Source.Value &&
+							         tu.Target.Value != tu.Source?.Value &&
 							         tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 							{
 								++_translatedCount;
