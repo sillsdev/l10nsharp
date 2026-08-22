@@ -8,8 +8,14 @@ namespace L10NSharp.Pseudo
 		internal static bool MayNeedEscaping(string value)
 		{
 			return (value.IndexOf('{') >= 0 && value.IndexOf('}') >= 0) ||
-				(value.IndexOf('<') >= 0 && value.IndexOf('>') >= 0);
+				(value.IndexOf('<') >= 0 && value.IndexOf('>') >= 0) ||
+				value.IndexOf('%') >= 0;
 		}
+
+		// Local addition (not upstream): placeholder names may be alphanumeric/underscore,
+		// not just digits — consumers substitute named placeholders like "{app_title}".
+		private static bool IsPlaceholderNameChar(char c)
+			=> char.IsLetterOrDigit(c) || c == '_';
 
 		internal static bool ShouldTransform(char[] array, char ch, ref int i)
 		{
@@ -18,9 +24,9 @@ namespace L10NSharp.Pseudo
 			{
 				int j = i;
 
-				while (j < array.Length - 1 && char.IsDigit(array[++j]))
+				while (j < array.Length - 1 && IsPlaceholderNameChar(array[++j]))
 				{
-					// Consume all the digits
+					// Consume the placeholder name (digits for "{0}", or a name like "{lang}")
 				}
 
 				if (array[j] == ':')
@@ -36,6 +42,18 @@ namespace L10NSharp.Pseudo
 					i = j;
 					return false;
 				}
+			}
+			else if (ch == '%' && i < array.Length - 1 && char.IsDigit(array[i + 1]))
+			{
+				// Local addition (not upstream): "%0"-style placeholders, substituted by
+				// consumers' front ends (e.g. Bloom's simpleFormat), pass through untouched.
+				int j = i;
+
+				while (j < array.Length - 1 && char.IsDigit(array[j + 1]))
+					j++;
+
+				i = j;
+				return false;
 			}
 			else if (ch == '<' && i < array.Length - 2)
 			{

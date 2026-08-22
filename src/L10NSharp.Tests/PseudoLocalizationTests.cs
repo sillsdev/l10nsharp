@@ -69,6 +69,9 @@ namespace L10NSharp.Tests
 
 		[TestCase("Page {0} of {1}", "{0}", "{1}")]
 		[TestCase("Showing {0:n0} items", "{0:n0}")]
+		[TestCase("Save %0 of %1 pages", "%0", "%1")]
+		[TestCase("Installed {app_title} at {installFolder}", "{app_title}", "{installFolder}")]
+		[TestCase("Level {N}", "{N}")]
 		public void PseudoLocalize_FormatPlaceholders_SurviveUntouched(string english,
 			params string[] placeholders)
 		{
@@ -228,6 +231,19 @@ namespace L10NSharp.Tests
 					new[] { "en", Pseudo }, out var languageIdUsed);
 				Assert.That(result, Is.EqualTo("only in code"));
 				Assert.That(languageIdUsed, Is.EqualTo("en"));
+			}
+		}
+
+		[Test]
+		public void GetString_NullEntryInPreferredLanguagesBeforePseudo_DoesNotThrow()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+				var result = LocalizationManager.GetString("blahId", "blah", null,
+					new[] { null, Pseudo }, out var languageIdUsed);
+				Assert.That(result, Is.EqualTo(LocalizationManager.PseudoLocalize("blah")));
+				Assert.That(languageIdUsed, Is.EqualTo(Pseudo));
 			}
 		}
 

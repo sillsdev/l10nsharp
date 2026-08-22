@@ -787,7 +787,8 @@ namespace L10NSharp
 			// it too was preferred over the pseudo-locale.
 			var pseudoIndex = langIds.FindIndex(LocalizationManager.IsPseudoLanguageId);
 			var englishPreferredOverPseudo = pseudoIndex >= 0 && langIds.Take(pseudoIndex)
-				.Any(l => l == "en" || l.StartsWith("en-", StringComparison.OrdinalIgnoreCase));
+				.Any(l => l == "en" ||
+					(l != null && l.StartsWith("en-", StringComparison.OrdinalIgnoreCase)));
 			if (pseudoIndex >= 0)
 				langIds = langIds.Take(pseudoIndex).ToList();
 

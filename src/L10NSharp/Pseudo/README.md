@@ -17,6 +17,10 @@ namespace; the only way in is `PseudoLocalization.Transform` (exposed publicly a
   `ExtraLength.LengthenCharacter`) were dropped.
 - Minor syntax downgrades for this repository's C# 8 / net461 targets
   (collection expressions, `string.Contains(char)`).
+- `EscapeHelpers` preserves more placeholder shapes than upstream (which only skips
+  `{digits}`/`{digits:fmt}` and HTML tags): named braces like `{app_title}` and
+  `%0`-style placeholders, both used by L10NSharp consumers (e.g. Bloom's front end
+  substitutes `{name}` and `%N` at render time).
 
 The behaviors L10NSharp relies on are pinned by `PseudoLocalizationTests`.
 
