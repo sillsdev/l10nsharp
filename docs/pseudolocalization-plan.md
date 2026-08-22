@@ -51,6 +51,22 @@ targets `netstandard2.0` — same as L10NSharp) already provides exactly this:
 
 Add it as a `PackageReference` to `src/L10NSharp/L10NSharp.csproj`.
 
+### Library survey (why this one)
+
+The .NET pseudolocalization niche is small; a 2026 survey of NuGet and GitHub found:
+
+| Candidate | Verdict |
+|---|---|
+| **PseudoLocalizer.Core** (martincostello) | **Chosen.** ~36k downloads (the companion `PseudoLocalize` CLI has ~100k), actively maintained (v0.12.2, March 2026), MIT, netstandard2.0, well-known .NET OSS maintainer. GitHub stars are low (~17) but that reflects the niche, not health — downloads and maintenance are the better signal here. |
+| `PseudoLocalizer` (bymyslf) | Small .NET Standard lib, ~5.5k downloads, unmaintained since 2019. |
+| `Pseudolocalizer` (anderskaplan) | The 2012 original that martincostello's is a maintained fork of; console tool, no library package. |
+| `AndersonN.Omni.Localization` | Brand-new (2026), ~130 downloads, and is a whole localization framework rather than a string-transform library — wrong shape and too immature. |
+| Non-.NET tools (translate-toolkit `podebug`, Google's pseudolocalization-tool, JS `pseudolocale`) | File-conversion or other-ecosystem tools; we need a runtime .NET transform. |
+
+Since none of the alternatives is both maintained and library-shaped, the realistic choice is
+PseudoLocalizer.Core or writing the ~150 lines ourselves; the vendoring fallback below covers the
+gap between those two if the dependency ever becomes a problem.
+
 Notes / verifications for the implementer:
 
 - PseudoLocalizer.Core drags in one dependency of its own (`Karambolo.PO.Compact`, for PO-file
