@@ -489,6 +489,15 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public string GetLocalizedString(string id, string defaultText)
 		{
+			// For the pseudo-locale, pseudolocalize the English text (the code-supplied default
+			// wins over the cache, as for English).
+			if (LocalizationManager.IsPseudoLanguageId(UILanguageId))
+			{
+				return PseudoLocalization.Transform(
+					LocalizationManager.StripOffLocalizationInfoFromText(defaultText) ??
+					GetStringFromStringCache(LocalizationManager.kDefaultLang, id));
+			}
+
 			var text = (UILanguageId != LocalizationManager.kDefaultLang ? GetStringFromStringCache(UILanguageId, id) : null);
 
 			return text ?? LocalizationManager.StripOffLocalizationInfoFromText(defaultText);
