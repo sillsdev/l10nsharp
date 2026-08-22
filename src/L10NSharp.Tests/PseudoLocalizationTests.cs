@@ -49,6 +49,17 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void PseudoLocalize_MultipleWords_PaddingIsDistributedPerWord()
+		{
+			// Padding runs before accenting: each word gets its own expansion (the padding
+			// 'x' then gets accented to 'ẋ' and the space becomes an em space), so layout is
+			// stressed mid-string rather than only at the end.
+			var result = LocalizationManager.PseudoLocalize("Cook Book");
+			Assert.That(result, Does.Contain("ẋẋ ") /* two accented padding chars + em-space word break */,
+				"the first word should carry its padding before the word break");
+		}
+
+		[Test]
 		public void PseudoLocalize_IsDeterministic()
 		{
 			const string english = "The quick brown fox jumps over the lazy dog";
@@ -201,6 +212,21 @@ namespace L10NSharp.Tests
 				var result = LocalizationManager.GetString("blahId", "blah", null,
 					new[] { "en", Pseudo }, out var languageIdUsed);
 				Assert.That(result, Is.EqualTo("blah"));
+				Assert.That(languageIdUsed, Is.EqualTo("en"));
+			}
+		}
+
+		[Test]
+		public void GetString_EnglishPreferredOverPseudo_StringMissingFromCache_StillReturnsPlainEnglish()
+		{
+			using (var folder = new TempFolder())
+			{
+				SetupManager(folder);
+				// The id is in no cache at all, but English (always satisfiable from the
+				// code-supplied text) was preferred over the pseudo-locale, so it must win.
+				var result = LocalizationManager.GetString("no.such.id", "only in code", null,
+					new[] { "en", Pseudo }, out var languageIdUsed);
+				Assert.That(result, Is.EqualTo("only in code"));
 				Assert.That(languageIdUsed, Is.EqualTo("en"));
 			}
 		}

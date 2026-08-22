@@ -783,7 +783,11 @@ namespace L10NSharp
 
 			// If the pseudo-locale is in the list, it always has every string (derived from the
 			// English), so only languages preferred over it can win; anything after it is moot.
+			// English is also always available (the code-supplied englishText), so note whether
+			// it too was preferred over the pseudo-locale.
 			var pseudoIndex = langIds.FindIndex(LocalizationManager.IsPseudoLanguageId);
+			var englishPreferredOverPseudo = pseudoIndex >= 0 && langIds.Take(pseudoIndex)
+				.Any(l => l == "en" || l.StartsWith("en-", StringComparison.OrdinalIgnoreCase));
 			if (pseudoIndex >= 0)
 				langIds = langIds.Take(pseudoIndex).ToList();
 
@@ -795,7 +799,7 @@ namespace L10NSharp
 			{
 				// No language preferred over the pseudo-locale had the string (and English was
 				// not preferred over it), so pseudolocalize the code-supplied English.
-				if (pseudoIndex >= 0 && languageIdUsed != "en")
+				if (pseudoIndex >= 0 && !englishPreferredOverPseudo)
 				{
 					languageIdUsed = LocalizationManager.PseudoLocalizationLanguageId;
 					return PseudoLocalization.Transform(

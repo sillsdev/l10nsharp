@@ -13,7 +13,10 @@ namespace L10NSharp.Pseudo
 		{
 			if (string.IsNullOrEmpty(english))
 				return english;
-			return "[" + ExtraLength.Transform(Accents.Transform(english)) + "]";
+			// Pad first, then accent: Accents replaces spaces with em-spaces, so running it
+			// first would defeat ExtraLength's per-word padding (all the padding would clump
+			// at the end of the string instead of stressing the layout mid-string).
+			return "[" + Accents.Transform(ExtraLength.Transform(english)) + "]";
 		}
 	}
 }
