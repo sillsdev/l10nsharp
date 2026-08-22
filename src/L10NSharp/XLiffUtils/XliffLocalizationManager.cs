@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using L10NSharp.Pseudo;
 
 namespace L10NSharp.XLiffUtils
 {

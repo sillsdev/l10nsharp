@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using L10NSharp.Pseudo;
 using L10NSharp.XLiffUtils;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 

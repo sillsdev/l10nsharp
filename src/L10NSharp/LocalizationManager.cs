@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using L10NSharp.Pseudo;
 using L10NSharp.TMXUtils;
 using L10NSharp.XLiffUtils;
 

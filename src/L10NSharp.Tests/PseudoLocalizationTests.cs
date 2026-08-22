@@ -66,6 +66,16 @@ namespace L10NSharp.Tests
 				Assert.That(result, Does.Contain(placeholder));
 		}
 
+		[TestCase("<strong>Bold</strong> text", "<strong>", "</strong>")]
+		[TestCase("A <a href=\"x\">link</a>.", "<a href=\"x\">", "</a>")]
+		public void PseudoLocalize_HtmlTags_SurviveUntouched(string english,
+			params string[] tags)
+		{
+			var result = LocalizationManager.PseudoLocalize(english);
+			foreach (var tag in tags)
+				Assert.That(result, Does.Contain(tag));
+		}
+
 		[TestCase(null)]
 		[TestCase("")]
 		public void PseudoLocalize_NullOrEmpty_ReturnedAsIs(string english)
