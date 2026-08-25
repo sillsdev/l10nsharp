@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using L10NSharp.Pseudo;
 
 namespace L10NSharp.XLiffUtils
 {
@@ -489,6 +490,15 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public string GetLocalizedString(string id, string defaultText)
 		{
+			// For the pseudo-locale, pseudolocalize the English text (the code-supplied default
+			// wins over the cache, as for English).
+			if (LocalizationManager.IsPseudoLanguageId(UILanguageId))
+			{
+				return PseudoLocalization.Transform(
+					LocalizationManager.StripOffLocalizationInfoFromText(defaultText) ??
+					GetStringFromStringCache(LocalizationManager.kDefaultLang, id));
+			}
+
 			var text = (UILanguageId != LocalizationManager.kDefaultLang ? GetStringFromStringCache(UILanguageId, id) : null);
 
 			return text ?? LocalizationManager.StripOffLocalizationInfoFromText(defaultText);
@@ -497,6 +507,17 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public string GetStringFromStringCache(string uiLangId, string id)
 		{
+			// There is no cache for the pseudo-locale (no files exist for it), so derive it from
+			// the English entry. Doing it here rather than only in GetLocalizedString matters
+			// because the WinForms component localizers (which set the Text of designer-created
+			// controls, tool strip items and column headers) call straight into the string cache;
+			// without this they would find nothing and leave the designer's plain English in
+			// place, which is exactly what the pseudo-locale is supposed to mean "not
+			// internationalized".
+			if (LocalizationManager.IsPseudoLanguageId(uiLangId))
+				return PseudoLocalization.Transform(
+					GetStringFromStringCache(LocalizationManager.kDefaultLang, id));
+
 			var realLangId = LocalizationManagerInternal<XLiffDocument>.MapToExistingLanguageIfPossible(uiLangId);
 			return StringCache.GetString(realLangId, id);
 		}
@@ -504,6 +525,12 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		protected string GetTooltipFromStringCache(string uiLangId, string id)
 		{
+			// See GetStringFromStringCache: same story for the tooltips of designer-created
+			// controls.
+			if (LocalizationManager.IsPseudoLanguageId(uiLangId))
+				return PseudoLocalization.Transform(
+					GetTooltipFromStringCache(LocalizationManager.kDefaultLang, id));
+
 			var realLangId = LocalizationManagerInternal<XLiffDocument>.MapToExistingLanguageIfPossible(uiLangId);
 			return StringCache.GetToolTipText(realLangId, id);
 		}
