@@ -104,6 +104,16 @@ namespace L10NSharp
 				else if (name == "id")
 					NativeName = "Bahasa Indonesia";
 			}
+
+			if (LocalizationManager.IsPseudoLanguageId(name))
+			{
+				// Don't rely on the OS to produce a sensible name (or canonical casing) for the
+				// pseudo-locale (and Linux typically doesn't know the culture at all).
+				Name = LocalizationManager.PseudoLocalizationLanguageId;
+				EnglishName = "Pseudo-English (qps-ploc)";
+				DisplayName = EnglishName;
+				NativeName = EnglishName;
+			}
 		}
 
 		private L10NCultureInfo(CultureInfo ci)
