@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [10.0.0] - 2026-08-26
+
 ### Added
 
 - Added a repository-level MIT `LICENSE` file, which is now bundled into the NuGet packages (via `PackageLicenseFile`).
@@ -270,7 +272,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Create nuget package
 -   Strong-name assembly
 
-[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...HEAD
+[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v10.0.0...HEAD
+[10.0.0]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...v10.0.0
 [9.0.0]: https://github.com/sillsdev/l10nsharp/compare/v8.0.0.0...v9.0.0
 [8.0.0]: https://github.com/sillsdev/l10nsharp/compare/v7.0.0...v8.0.0.0
 [7.0.0]: https://github.com/sillsdev/l10nsharp/compare/v6.0.0...v7.0.0
