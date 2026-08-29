@@ -4,7 +4,7 @@ using L10NSharp.Windows.Forms.UIComponents;
 
 namespace L10NSharp.Windows.Forms
 {
-	internal interface ILocalizedStringCacheWinforms<T> : L10NSharp.ILocalizedStringCache<T>
+	internal interface ILocalizedStringCacheWinforms<T> : L10NSharp.ILocalizedStringCache<T> where T : class
 	{
 		List<LocTreeNode<T>> LeafNodeList { get; }
 		Keys GetShortcutKeys(string langId, string id);

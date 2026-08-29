@@ -91,16 +91,18 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the translation unit for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal XLiffTransUnit GetTransUnitForId(string id)
+		internal XLiffTransUnit? GetTransUnitForId(string? id)
 		{
-			_transUnitDict.TryGetValue(id, out XLiffTransUnit result);
+            if (id == null)
+                return null;
+			_transUnitDict.TryGetValue(id, out XLiffTransUnit? result);
 			return result;
 		}
 
 		/// <summary>
 		/// When all but the last part of the id changed, this can help reunite things
 		/// </summary>
-		internal XLiffTransUnit GetTransUnitForOrphan(XLiffTransUnit orphan, XLiffBody source)
+		internal XLiffTransUnit? GetTransUnitForOrphan(XLiffTransUnit orphan, XLiffBody? source)
 		{
 			var terminalIdToMatch = XliffLocalizedStringCache.GetTerminalIdPart(orphan.Id);
 			var defaultTextToMatch = GetDefaultVariantValue(orphan);
@@ -111,7 +113,7 @@ namespace L10NSharp.XLiffUtils
 				&& source?.GetTransUnitForId(tu.Id) == null); // and translation does not already have an element for this
 		}
 
-		string GetDefaultVariantValue(XLiffTransUnit tu)
+		string? GetDefaultVariantValue(XLiffTransUnit tu)
 		{
 			var variant = tu.GetVariantForLang(LocalizationManager.kDefaultLang);
 			return variant?.Value;
@@ -124,7 +126,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="tu">The translation unit.</param>
 		/// <returns>true if the translation unit was successfully added. Otherwise, false.</returns>
 		/// ------------------------------------------------------------------------------------
-		internal bool AddTransUnitRaw(XLiffTransUnit tu)
+		internal bool AddTransUnitRaw(XLiffTransUnit? tu)
 		{
 			if (tu == null || tu.IsEmpty)
 				return false;
@@ -189,6 +191,8 @@ namespace L10NSharp.XLiffUtils
 				return;
 
 			var existingTu = GetTransUnitForId(tu.Id);
+			if (existingTu == null)
+				return;
 
 			//notice, we don't care if there is already a string in there for this language
 			//(that was the cause of a previous bug), because the XLiff of language X should
@@ -237,12 +241,12 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrWhiteSpace(tu.Target?.Value))
 								continue;
 							if (tu.TranslationStatus == TranslationStatus.Approved ||
-							    tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
+							    tu.Target!.TargetState == XLiffTransUnitVariant.TranslationState.Translated)
 							{
 								++_translatedCount;
 							}
 							else if (!string.IsNullOrWhiteSpace(tu.Source?.Value) &&
-							         tu.Target.Value != tu.Source.Value &&
+							         tu.Target.Value != tu.Source?.Value &&
 							         tu.Target.TargetState == XLiffTransUnitVariant.TranslationState.Undefined)
 							{
 								++_translatedCount;

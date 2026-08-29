@@ -35,7 +35,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
 - [L10NSharp] `GetDynamicString`, `GetDynamicStringOrEnglish`, and `GetString` now return the English fallback text immediately when called with a null, empty, or whitespace string ID, rather than attempting a cache lookup or write.
- 
+- [L10NSharp] Enabled nullable reference types on the core project with full CS86xx warning cleanup across all layers; `ILocalizedStringCache` and `ILocalizationManagerInternal` gained nullable annotations that may require source updates for NRT consumers.
+
 ### Fixed
 
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).

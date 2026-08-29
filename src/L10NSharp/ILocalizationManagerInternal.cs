@@ -8,14 +8,14 @@ namespace L10NSharp
 	{
 		Dictionary<IComponent, string> ComponentCache { get; }
 
-		string GetStringFromStringCache(string uiLangId, string id);
+		string? GetStringFromStringCache(string uiLangId, string id);
 
-		void SaveIfDirty(ICollection<string> langIdsToForceCreate);
-		string GetPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent);
+		void SaveIfDirty(ICollection<string>? langIdsToForceCreate);
+		string? GetPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent);
 		void HandleUiLanguageChange();
 	}
 
-	internal interface ILocalizationManagerInternal<T>: ILocalizationManagerInternal
+	internal interface ILocalizationManagerInternal<T> : ILocalizationManagerInternal where T : class
 	{
 		ILocalizedStringCache<T> StringCache { get; }
 		/// <summary>

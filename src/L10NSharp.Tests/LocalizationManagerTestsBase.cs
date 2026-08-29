@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace L10NSharp.Tests
 {
-	public abstract class LocalizationManagerTestsBase<T> where T : IDocument
+	public abstract class LocalizationManagerTestsBase<T> where T : class, IDocument
 	{
 		protected const string AppId = "test";
 		protected const string AppName = "unit test";

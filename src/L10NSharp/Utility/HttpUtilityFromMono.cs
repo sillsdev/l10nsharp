@@ -37,6 +37,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Web.Util;
@@ -98,7 +99,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 #endif
 		}
 
-		public static string HtmlAttributeEncode (string s)
+        [return: NotNullIfNotNull("s")]
+		public static string? HtmlAttributeEncode (string? s)
 		{
 #if NET_4_0
 			if (s == null)
@@ -113,7 +115,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 #endif
 		}
 
-		public static string UrlDecode (string str)
+        [return: NotNullIfNotNull("str")]
+		public static string? UrlDecode (string? str)
 		{
 			return UrlDecode(str, Encoding.UTF8);
 		}
@@ -132,7 +135,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 				buf.Add ((byte)ch);
 		}
 
-		public static string UrlDecode (string s, Encoding e)
+        [return: NotNullIfNotNull("s")]
+		public static string? UrlDecode (string? s, Encoding? e)
 		{
 			if (null == s)
 				return null;
@@ -180,7 +184,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 
 		}
 
-		public static string UrlDecode (byte [] bytes, Encoding e)
+        [return: NotNullIfNotNull("bytes")]
+		public static string? UrlDecode (byte []? bytes, Encoding e)
 		{
 			if (bytes == null)
 				return null;
@@ -235,7 +240,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return val;
 		}
 
-		public static string UrlDecode (byte [] bytes, int offset, int count, Encoding e)
+        [return: NotNullIfNotNull("bytes")]
+		public static string? UrlDecode (byte []? bytes, int offset, int count, Encoding e)
 		{
 			if (bytes == null)
 				return null;
@@ -292,11 +298,12 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 				output.Append (GetChars (acc, e));
 			}
 
-			acc = null;
+			acc = null!;
 			return output.ToString ();
 		}
 
-		public static byte [] UrlDecodeToBytes (byte [] bytes)
+        [return: NotNullIfNotNull("bytes")]
+		public static byte[]? UrlDecodeToBytes (byte []? bytes)
 		{
 			if (bytes == null)
 				return null;
@@ -304,12 +311,14 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlDecodeToBytes (bytes, 0, bytes.Length);
 		}
 
-		public static byte [] UrlDecodeToBytes (string str)
+        [return: NotNullIfNotNull("str")]
+		public static byte[]? UrlDecodeToBytes (string? str)
 		{
 			return UrlDecodeToBytes (str, Encoding.UTF8);
 		}
 
-		public static byte [] UrlDecodeToBytes (string str, Encoding e)
+        [return: NotNullIfNotNull("str")]
+		public static byte[]? UrlDecodeToBytes (string? str, Encoding e)
 		{
 			if (str == null)
 				return null;
@@ -320,7 +329,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlDecodeToBytes (e.GetBytes (str));
 		}
 
-		public static byte [] UrlDecodeToBytes (byte [] bytes, int offset, int count)
+        [return: NotNullIfNotNull("bytes")]
+		public static byte[]? UrlDecodeToBytes (byte []? bytes, int offset, int count)
 		{
 			if (bytes == null)
 				return null;
@@ -353,12 +363,14 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return result.ToArray ();
 		}
 
-		public static string UrlEncode(string str)
+        [return: NotNullIfNotNull("str")]
+		public static string? UrlEncode(string? str)
 		{
 			return UrlEncode(str, Encoding.UTF8);
 		}
 
-		public static string UrlEncode (string s, Encoding Enc)
+        [return: NotNullIfNotNull("s")]
+		public static string? UrlEncode (string? s, Encoding Enc)
 		{
 			if (s == null)
 				return null;
@@ -388,7 +400,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, 0, realLen));
 		}
 
-		public static string UrlEncode (byte [] bytes)
+        [return: NotNullIfNotNull("bytes")]
+		public static string? UrlEncode (byte []? bytes)
 		{
 			if (bytes == null)
 				return null;
@@ -399,7 +412,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, 0, bytes.Length));
 		}
 
-		public static string UrlEncode (byte [] bytes, int offset, int count)
+        [return: NotNullIfNotNull("bytes")]
+		public static string? UrlEncode (byte []? bytes, int offset, int count)
 		{
 			if (bytes == null)
 				return null;
@@ -410,12 +424,14 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, offset, count));
 		}
 
-		public static byte [] UrlEncodeToBytes (string str)
+        [return: NotNullIfNotNull("str")]
+		public static byte[]? UrlEncodeToBytes (string? str)
 		{
 			return UrlEncodeToBytes (str, Encoding.UTF8);
 		}
 
-		public static byte [] UrlEncodeToBytes (string str, Encoding e)
+		[return: NotNullIfNotNull("str")]
+		public static byte[]? UrlEncodeToBytes (string? str, Encoding e)
 		{
 			if (str == null)
 				return null;
@@ -427,7 +443,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlEncodeToBytes (bytes, 0, bytes.Length);
 		}
 
-		public static byte [] UrlEncodeToBytes (byte [] bytes)
+		[return: NotNullIfNotNull("bytes")]
+		public static byte[]? UrlEncodeToBytes (byte []? bytes)
 		{
 			if (bytes == null)
 				return null;
@@ -438,7 +455,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlEncodeToBytes (bytes, 0, bytes.Length);
 		}
 
-		public static byte [] UrlEncodeToBytes (byte [] bytes, int offset, int count)
+		[return: NotNullIfNotNull("bytes")]
+		public static byte[]? UrlEncodeToBytes (byte []? bytes, int offset, int count)
 		{
 			if (bytes == null)
 				return null;
@@ -449,7 +467,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 #endif
 		}
 
-		public static string UrlEncodeUnicode (string str)
+		[return: NotNullIfNotNull("str")]
+		public static string? UrlEncodeUnicode (string? str)
 		{
 			if (str == null)
 				return null;
@@ -457,7 +476,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeUnicodeToBytes (str));
 		}
 
-		public static byte [] UrlEncodeUnicodeToBytes (string str)
+		[return: NotNullIfNotNull("str")]
+		public static byte[]? UrlEncodeUnicodeToBytes (string? str)
 		{
 			if (str == null)
 				return null;
@@ -477,7 +497,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 		/// </summary>
 		/// <param name="s">The HTML string to decode. </param>
 		/// <returns>The decoded text.</returns>
-		public static string HtmlDecode (string s)
+		[return: NotNullIfNotNull("s")]
+		public static string? HtmlDecode (string? s)
 		{
 #if NET_4_0
 			if (s == null)
@@ -516,7 +537,8 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			}
 		}
 
-		public static string HtmlEncode (string s)
+		[return: NotNullIfNotNull("s")]
+		public static string? HtmlEncode (string? s)
 		{
 #if NET_4_0
 			if (s == null)
@@ -697,7 +719,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 						namePos++;
 				}
 
-				string name, value;
+				string? name, value;
 				if (valuePos == -1) {
 					name = null;
 					valuePos = namePos;

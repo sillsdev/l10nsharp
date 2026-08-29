@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -51,6 +52,8 @@ namespace L10NSharp.XLiffUtils
 					Console.WriteLine("Error occurred reading localization file:");
 					Console.WriteLine(e.Message);
 					LocalizationManager.SetUILanguage(LocalizationManager.kDefaultLang);
+					if (DefaultXliffDocument is null)
+						throw new InvalidOperationException("DefaultXliffDocument could not be loaded", e);
 				}
 			}
 			else
@@ -72,13 +75,13 @@ namespace L10NSharp.XLiffUtils
 			IsDirty = false;
 		}
 
-		internal XLiffDocument GetDocument(string langId)
+		internal XLiffDocument? GetDocument(string langId)
 		{
-			TryGetDocument(langId, out XLiffDocument doc);
+			TryGetDocument(langId, out XLiffDocument? doc);
 			return doc;
 		}
 
-		public bool TryGetDocument(string langId, out XLiffDocument doc)
+		public bool TryGetDocument(string langId, [NotNullWhen(true)] out XLiffDocument? doc)
 		{
 			// It's tempting to try to do this with the ConcurrentDictionary method GetOrAdd.
 			// But it's not guaranteed that the doc which LoadXLiff loads will be put in
@@ -121,6 +124,7 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// May only be called from constructor. Not thread-safe.
 		/// </summary>
+		[MemberNotNull(nameof(DefaultXliffDocument))]
 		private void MergeXliffFilesIntoCache(IEnumerable<string> xliffFiles)
 		{
 			DefaultXliffDocument = XLiffDocument.Read(OwningManager.DefaultStringFilePath); // read the generated file
@@ -149,7 +153,7 @@ namespace L10NSharp.XLiffUtils
 				var langId = XliffLocalizationManager.GetLangIdFromXliffFileName(file);
 				Debug.Assert(!string.IsNullOrEmpty(langId));
 				Debug.Assert(langId != LocalizationManager.kDefaultLang);
-				_unloadedXliffDocuments[langId] = file;
+				_unloadedXliffDocuments[langId!] = file;
 			}
 		}
 
@@ -192,6 +196,8 @@ namespace L10NSharp.XLiffUtils
 
 			// This might be different, typically more specific, than the name we deduced from the file path.
 			var targetLang = xliffDoc.File.TargetLang;
+            if (targetLang is null)
+                throw new InvalidOperationException($"Target language not found in {file}");
 
 			// Now we have some maintenance to do on MapToExistingLanguage, which does not yet contain data
 			// about this file. It is definitely the one to use for targetLanguage.
@@ -227,6 +233,8 @@ namespace L10NSharp.XLiffUtils
 			var defunctUnits = new List<XLiffTransUnit>();
 			foreach (var tu in xliffDoc.File.Body.TransUnitsUnordered.ToList()) // need a list here because we may modify it while enumerating
 			{
+                if (tu.Id is null)
+                    throw new InvalidOperationException($"Translation unit ID is null in {file}");
 				// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
 				// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
 				// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
@@ -251,7 +259,7 @@ namespace L10NSharp.XLiffUtils
 						if (xliffDoc.File.Body.TranslationsById.ContainsKey(tu.Id))
 						{
 							// adjust the document's internal cache
-							xliffDoc.File.Body.TranslationsById[movedUnit.Id] =
+							xliffDoc.File.Body.TranslationsById[movedUnit.Id!] =
 								xliffDoc.File.Body.TranslationsById[tu.Id];
 							xliffDoc.File.Body.TranslationsById.TryRemove(tu.Id, out _);
 						}
@@ -326,12 +334,12 @@ namespace L10NSharp.XLiffUtils
 		/// Otherwise, false is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void SaveIfDirty(ICollection<string> langIdsToForceCreate)
+		internal void SaveIfDirty(ICollection<string>? langIdsToForceCreate)
 		{
 			if (!IsDirty)
 				return;
 
-			StringBuilder errorMsg = null;
+			StringBuilder? errorMsg = null;
 			foreach (var langId in XliffDocuments.Keys)
 			{
 				try
@@ -381,8 +389,8 @@ namespace L10NSharp.XLiffUtils
 
 			foreach (var tu in DefaultXliffDocument.File.Body.TransUnitsUnordered)
 			{
-				var tuTarget = xliffOriginal.File.Body.GetTransUnitForId(tu.Id);
-				XLiffTransUnitVariant tuv = null;
+				var tuTarget = xliffOriginal.File.Body.GetTransUnitForId(tu.Id!);
+				XLiffTransUnitVariant? tuv = null;
 				if (tuTarget != null)
 					tuv = tuTarget.GetVariantForLang(langId);
 				// REVIEW: should we write units with no translation (target)?
@@ -393,7 +401,10 @@ namespace L10NSharp.XLiffUtils
 				newTu.Notes = tu.CopyNotes();
 				xliffOutput.AddTransUnit(newTu);
 			}
-			xliffOutput.Save(OwningManager.GetPathForLanguage(langId, true));
+			var outputPath = OwningManager.GetPathForLanguage(langId, true);
+			if (outputPath == null)
+                throw new InvalidOperationException($"Output path is null for language {langId}");
+			xliffOutput.Save(outputPath);
 		}
 		#endregion
 
@@ -402,7 +413,7 @@ namespace L10NSharp.XLiffUtils
 		/// Compares two translation units for equality.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal static int TuComparer(XLiffTransUnit tu1, XLiffTransUnit tu2)
+		internal static int TuComparer(XLiffTransUnit? tu1, XLiffTransUnit? tu2)
 		{
 			if (tu1 == null && tu2 == null)
 				return 0;
@@ -413,11 +424,11 @@ namespace L10NSharp.XLiffUtils
 			if (tu2 == null)
 				return 1;
 
-			string x = tu1.Group;
-			string y = tu2.Group;
+			string? x = tu1.Group;
+			string? y = tu2.Group;
 
 			if (x == y)
-				return string.CompareOrdinal(tu1.Id, tu2.Id);
+				return string.CompareOrdinal(tu1.Id ?? string.Empty, tu2.Id ?? string.Empty);
 
 			if (x == null)
 				return -1;
@@ -450,7 +461,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the localized text for the specified id and suffix.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetString(string langId, string id)
+		public string? GetString(string langId, string id)
 		{
 			return GetValueForLangAndIdWithFallback(langId, id);
 		}
@@ -462,7 +473,7 @@ namespace L10NSharp.XLiffUtils
 		/// is displayed nicely at runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetString(string langId, string id, bool formatForDisplay)
+		public string? GetString(string langId, string id, bool formatForDisplay)
 		{
 			return GetValueForExactLangAndId(langId, id, formatForDisplay);
 		}
@@ -472,7 +483,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the localized tooltip text for the specified id and suffix.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetToolTipText(string langId, string id)
+		public string? GetToolTipText(string langId, string id)
 		{
 			return GetValueForLangAndIdWithFallback(langId, id + kToolTipSuffix);
 		}
@@ -484,7 +495,7 @@ namespace L10NSharp.XLiffUtils
 		/// converted so the text is displayed nicely at runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetToolTipText(string langId, string id, bool formatForDisplay)
+		public string? GetToolTipText(string langId, string id, bool formatForDisplay)
 		{
 			return GetValueForExactLangAndId(langId, id + kToolTipSuffix, formatForDisplay);
 		}
@@ -494,7 +505,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the localized tooltip text for the specified id and suffix.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetShortcutKeysText(string langId, string id)
+		public string? GetShortcutKeysText(string langId, string id)
 		{
 			return GetValueForExactLangAndId(langId, id + kShortcutSuffix, false);
 		}
@@ -506,7 +517,7 @@ namespace L10NSharp.XLiffUtils
 		/// fails, then the default (i.e. "en") is used.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		protected string GetValueForLangAndIdWithFallback(string langId, string id)
+		protected string? GetValueForLangAndIdWithFallback(string langId, string id)
 		{
 			var value = GetValueForExactLangAndId(langId, id, true);
 			if (value != null)
@@ -529,7 +540,7 @@ namespace L10NSharp.XLiffUtils
 		/// nicely at runtime.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
+		public string? GetValueForExactLangAndId(string langId, string id, bool formatForDisplay)
 		{
 			if (string.IsNullOrEmpty(langId) || string.IsNullOrEmpty(id))
 				return null;
@@ -578,10 +589,9 @@ namespace L10NSharp.XLiffUtils
 		/// considered the "comment" if it exists.
 		/// </remarks>
 		/// ------------------------------------------------------------------------------------
-		public string GetComment(string id)
+		public string? GetComment(string id)
 		{
-			XLiffTransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
-			return (tu == null ? null : tu.GetComment());
+			return DefaultXliffDocument.GetTransUnitForId(id)?.GetComment();
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -589,10 +599,9 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the group for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal string GetGroup(string id)
+		internal string? GetGroup(string id)
 		{
-			XLiffTransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
-			return (tu == null ? null : tu.Group);
+			return DefaultXliffDocument.GetTransUnitForId(id)?.Group;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -602,7 +611,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationPriority GetPriority(string id)
 		{
-			XLiffTransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
+			XLiffTransUnit? tu = DefaultXliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
 				if (string.IsNullOrEmpty(tu.Priority))
@@ -610,7 +619,7 @@ namespace L10NSharp.XLiffUtils
 
 				try
 				{
-					return (LocalizationPriority)Enum.Parse(typeof(LocalizationPriority), tu.Priority);
+					return (LocalizationPriority)Enum.Parse(typeof(LocalizationPriority), tu.Priority!);
 				}
 				catch { }
 			}
@@ -624,10 +633,10 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal LocalizationCategory GetCategory(string id)
 		{
-			XLiffTransUnit tu = DefaultXliffDocument.GetTransUnitForId(id);
+			XLiffTransUnit? tu = DefaultXliffDocument.GetTransUnitForId(id);
 			if (tu != null)
 			{
-				string category = tu.Category;
+				string? category = tu.Category;
 				if (string.IsNullOrEmpty(category))
 					return LocalizationCategory.DontCare;
 
@@ -681,6 +690,8 @@ namespace L10NSharp.XLiffUtils
 		{
 			foreach (var tu in DefaultXliffDocument.File.Body.TransUnitsUnordered)
 			{
+                if (tu.Id is null)
+					throw new InvalidOperationException("Translation unit ID is null in DefaultXliffDocument");
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
 				if (!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
 					yield return tu;
@@ -732,9 +743,11 @@ namespace L10NSharp.XLiffUtils
 			return allPieces;
 		}
 
-		public static string GetTerminalIdPart(string id)
+		public static string GetTerminalIdPart(string? id)
 		{
-			var pieces = id.Split('.');
+			if (string.IsNullOrEmpty(id))
+				return "";
+			var pieces = id!.Split('.');
 			if (pieces.Length == 0)
 				return "";
 			return pieces.Last();
@@ -752,7 +765,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			try
 			{
-				string s = null;
+				string? s = null;
 				switch (markersCount)
 				{
 					case 0:

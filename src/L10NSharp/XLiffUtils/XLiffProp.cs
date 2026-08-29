@@ -21,7 +21,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("type")]
-		public string Type { get; set; }
+		public string? Type { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -29,7 +29,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("xml:lang")]
-		public string Lang { get; set; }
+		public string? Lang { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -37,7 +37,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlText]
-		public string Value { get; set; }
+		public string? Value { get; set; }
 
 		#endregion
 
@@ -82,7 +82,7 @@ namespace L10NSharp.XLiffUtils
 		/// Adds a property.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal static bool AddProp(string lang, string type, string value, List<XLiffProp> propList)
+		internal static bool AddProp(string? lang, string type, string value, List<XLiffProp> propList)
 		{
 			var prop = new XLiffProp();
 			prop.Lang = lang;
