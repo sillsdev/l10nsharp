@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Security
+
+- [L10NSharp] [L10NSharp.Windows.Forms] [CheckOrFixXliff] [ExtractXliff] Upgraded `SIL.ReleaseTasks` from 2.5.0 to 3.2.1 to remove a vulnerable transitive dependency. This also raises the resolved version of `System.Resources.Extensions` (a transitive dependency of `SIL.ReleaseTasks`) from 6.0.0 to 10.0.11.
+- [L10NSharp.Windows.Forms] Upgraded `System.ServiceModel.Http` and `System.ServiceModel.Primitives` from 6.2.0 to 8.1.2.
+
+### Changed
+
+- BREAKING CHANGE: [L10NSharp] [L10NSharp.Windows.Forms] [SampleApp] [CheckOrFixXliff] [ExtractXliff] Replaced the `net461` target framework with `net462`. The `System.Resources.Extensions` version raised transitively by the `SIL.ReleaseTasks` upgrade (above) no longer ships a `net461`-specific assembly, so `net461` is no longer a supported or tested target. Projects that still need to target `net461` should continue using the last release built for it, or upgrade to at least `net462`.
+
 ## [10.0.0] - 2026-08-27
 
 ### Added
