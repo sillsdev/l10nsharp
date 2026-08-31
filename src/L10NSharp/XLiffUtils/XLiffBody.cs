@@ -132,7 +132,6 @@ namespace L10NSharp.XLiffUtils
 				return false;
 
 			bool lockTaken = false;
-			string key;
 			try
 			{
 				_transUnitIdLock.Enter(ref lockTaken);
@@ -141,11 +140,11 @@ namespace L10NSharp.XLiffUtils
 				// it into the dictionary. This assumes nothing else modifies IDs once they
 				// are in this system: once our locked code has given the TU an ID, any other
 				// thread will see that it is non-empty.
-				key = tu.Id;
-				if (string.IsNullOrEmpty(key))
+				var key = tu.Id;
+				if (key is null || key.Length == 0)
 				{
-					tu.Id = (++_transUnitId).ToString();
-					key = tu.Id;
+					key = (++_transUnitId).ToString();
+					tu.Id = key;
 				}
 
 				// If a translation unit with the specified id already exists, then quit here.
@@ -167,12 +166,15 @@ namespace L10NSharp.XLiffUtils
 			if (!AddTransUnitRaw(tu))
 				return false;
 
+			// AddTransUnitRaw generates an Id for null/empty Ids, so it is non-null on success.
+			var id = tu.Id!;
+
 			// If the target exists, store its value in the dictionary lookup.  Otherwise, store
 			// the source value there.
 			if (tu.Target?.Value != null)
-				TranslationsById[tu.Id] = tu.Target.Value;
+				TranslationsById[id] = tu.Target.Value;
 			else if (tu.Source?.Value != null)
-				TranslationsById[tu.Id] = tu.Source.Value;
+				TranslationsById[id] = tu.Source.Value;
 			return true;
 		}
 
@@ -194,11 +196,14 @@ namespace L10NSharp.XLiffUtils
 			if (existingTu == null)
 				return;
 
+			// GetTransUnitForId returns null for a null id, so existingTu proves tu.Id isn't.
+			var id = tu.Id!;
+
 			//notice, we don't care if there is already a string in there for this language
 			//(that was the cause of a previous bug), because the XLiff of language X should
 			//surely take precedence, as the translation for that language.
 			existingTu.AddOrReplaceVariant(variantToAdd);
-			TranslationsById[tu.Id] = variantToAdd.Value;
+			TranslationsById[id] = variantToAdd.Value;
 		}
 
 		/// ------------------------------------------------------------------------------------

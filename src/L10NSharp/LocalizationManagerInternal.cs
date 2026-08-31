@@ -566,8 +566,8 @@ namespace L10NSharp
 		[return: NotNullIfNotNull("langId")]
 		internal static string? MapToExistingLanguageIfPossible(string? langId)
 		{
-			if (langId is null || string.IsNullOrEmpty(langId))
-				return null;
+			if (langId is null || langId.Length == 0)
+				return langId;
 			// It's a concurrent dictionary, so we can (for performance) try this without a lock.
 			if (MapToExistingLanguage.TryGetValue(langId, out var realId))
 				return realId;

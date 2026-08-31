@@ -22,6 +22,7 @@ namespace L10NSharp.XLiffUtils
 		private readonly string? _customXliffFileFolder;
 		private readonly string? _origExeExtension;
 		private readonly Version _appVersion;
+		private readonly ILocalizedStringCache<XLiffDocument>? _stringCache;
 
 		public Dictionary<IComponent, string> ComponentCache { get; } = new Dictionary<IComponent, string>();
 
@@ -104,7 +105,7 @@ namespace L10NSharp.XLiffUtils
 			if (string.IsNullOrEmpty(_customXliffFileFolder))
 				_customXliffFileFolder = null;
 
-			StringCache = new XliffLocalizedStringCache(this);
+			_stringCache = new XliffLocalizedStringCache(this);
 		}
 
 		/// <summary>
@@ -181,8 +182,8 @@ namespace L10NSharp.XLiffUtils
 					Console.WriteLine("WARNING - L10NSharp Update deleted corrupted {0}", DefaultStringFilePath);
 				}
 				if (verAttribute != null &&
-				    Version.TryParse(verAttribute.Value, out var existingVer) &&
-				    existingVer >= _appVersion)
+					Version.TryParse(verAttribute.Value, out var existingVer) &&
+					existingVer >= _appVersion)
 				{
 					return;
 				}
@@ -204,10 +205,10 @@ namespace L10NSharp.XLiffUtils
 				else
 				{
 					stringCache.UpdateLocalizedInfo(new LocalizingInfo("_dummyEntryToGetValidFile")
-						{
-							LangId = "en",
-							Text = "No strings were collected. This entry prevents an invalid, zero-length file. Delete this file to try regenerating it."
-						}
+					{
+						LangId = "en",
+						Text = "No strings were collected. This entry prevents an invalid, zero-length file. Delete this file to try regenerating it."
+					}
 					);
 				}
 			}
@@ -298,16 +299,21 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// Full file name and path to the default string file (i.e. English strings).
 		/// </summary>
+		/// <remarks>Empty for instances created by the minimal constructor.</remarks>
 		/// ------------------------------------------------------------------------------------
-		internal string DefaultStringFilePath { get; }
+		internal string DefaultStringFilePath { get; } = string.Empty;
 
 		internal string DefaultInstalledStringFilePath =>
-			Path.Combine(_installedXliffFileFolder,
+			Path.Combine(
+				_installedXliffFileFolder ?? throw new InvalidOperationException(
+					$"{nameof(DefaultInstalledStringFilePath)} is not available on a localization manager created without a folder of installed XLIFF files."),
 				LocalizationManager.GetTranslationFileNameForLanguage(Id,
 					LocalizationManager.kDefaultLang));
 
 		/// ------------------------------------------------------------------------------------
-		public ILocalizedStringCache<XLiffDocument> StringCache { get; } = null!;
+		public ILocalizedStringCache<XLiffDocument> StringCache =>
+			_stringCache ?? throw new InvalidOperationException(
+				"There is no string cache on a localization manager created by the minimal constructor.");
 
 
 		/// ------------------------------------------------------------------------------------
@@ -600,15 +606,20 @@ namespace L10NSharp.XLiffUtils
 			foreach (var tu in xliffNew.File.Body.TransUnitsUnordered)
 			{
 				xliffOutput.File.Body.AddTransUnit(tu);
+				var id = tu.Id;
+				// AddTransUnit assigns an Id unless the unit is entirely empty.
+				if (id == null)
+					continue;
+
 				if (tu.Dynamic)
 					++newDynamicCount;
 				if (xliffOld != null)
 				{
-					var tuOld = xliffOld.File.Body.GetTransUnitForId(tu.Id!);
+					var tuOld = xliffOld.File.Body.GetTransUnitForId(id);
 					if (tuOld == null)
 					{
 						++newStringCount;
-						newStringIds.Add(tu.Id!);
+						newStringIds.Add(id);
 					}
 					else
 					{
@@ -637,14 +648,14 @@ namespace L10NSharp.XLiffUtils
 						if (tu.Source?.Value != tuOld.Source?.Value)
 						{
 							++changedStringCount;
-							changedStringIds.Add(tu.Id!);
+							changedStringIds.Add(id);
 							if (!string.IsNullOrWhiteSpace(tuOld.Source?.Value))
 								tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source!.Value}");
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{
 							++wrongDynamicFlagCount;
-							wrongDynamicStringIds.Add(tu.Id!);
+							wrongDynamicStringIds.Add(id);
 							tu.AddNote("en", $"Not dynamic: found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
@@ -657,14 +668,19 @@ namespace L10NSharp.XLiffUtils
 			{
 				foreach (var tu in xliffOld.File.Body.TransUnitsUnordered)
 				{
-					var tuNew = xliffNew.File.Body.GetTransUnitForId(tu.Id!);
+					var tuNew = xliffNew.File.Body.GetTransUnitForId(tu.Id);
 					if (tuNew == null)
 					{
 						xliffOutput.File.Body.AddTransUnit(tu);
+						var id = tu.Id;
+						// AddTransUnit assigns an Id unless the unit is entirely empty.
+						if (id == null)
+							continue;
+
 						if (tu.Dynamic)
 						{
 							++missingDynamicStringCount;
-							missingDynamicStringIds.Add(tu.Id!);
+							missingDynamicStringIds.Add(id);
 							if (newDynamicCount > 0) // note only if attempt made to collect dynamic strings
 							{
 								tu.Notes.RemoveAll(n => n.Text != null && n.Text.StartsWith("Not found"));
@@ -674,7 +690,7 @@ namespace L10NSharp.XLiffUtils
 						else
 						{
 							++missingStringCount;
-							missingStringIds.Add(tu.Id!);
+							missingStringIds.Add(id);
 							tu.Notes.RemoveAll(n => n.Text != null && n.Text.StartsWith("Not found"));
 							tu.AddNote("en", $"Not found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
