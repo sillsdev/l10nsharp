@@ -35,7 +35,6 @@ namespace L10NSharp.Windows.Forms.Translators
 			binding.SendTimeout = new TimeSpan(0, 1, 0);
 			binding.AllowCookies = false;
 			binding.BypassProxyOnLocal = false;
-			binding.HostNameComparisonMode = HostNameComparisonMode.StrongWildcard;
 			binding.MaxBufferSize = 65536;
 			binding.MaxBufferPoolSize = 524288;
 			binding.MaxReceivedMessageSize = 65536;
@@ -51,7 +50,6 @@ namespace L10NSharp.Windows.Forms.Translators
 			binding.Security.Mode = BasicHttpSecurityMode.None;
 			binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
 			binding.Security.Transport.ProxyCredentialType = HttpProxyCredentialType.None;
-			binding.Security.Transport.Realm = string.Empty;
 			binding.Security.Message.ClientCredentialType = BasicHttpMessageCredentialType.UserName;
 			binding.Security.Message.AlgorithmSuite = SecurityAlgorithmSuite.Default;
 

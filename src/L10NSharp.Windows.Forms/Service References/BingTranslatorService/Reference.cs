@@ -40,20 +40,22 @@ namespace L10NSharp.Windows.Forms.BingTranslatorService {
         
         public LanguageServiceClient() {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName) : 
+
+#if NETFRAMEWORK
+        public LanguageServiceClient(string endpointConfigurationName) :
                 base(endpointConfigurationName) {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName, string remoteAddress) : 
+
+        public LanguageServiceClient(string endpointConfigurationName, string remoteAddress) :
                 base(endpointConfigurationName, remoteAddress) {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+
+        public LanguageServiceClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(endpointConfigurationName, remoteAddress) {
         }
-        
-        public LanguageServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+#endif
+
+        public LanguageServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(binding, remoteAddress) {
         }
         
