@@ -509,8 +509,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			// There is no cache for the pseudo-locale (no files exist for it), so derive it from
 			// the English entry. Doing it here rather than only in GetLocalizedString matters
-			// because the WinForms component localizers (which set the Text of designer-created
-			// controls, tool strip items and column headers) call straight into the string cache;
+			// because the WinForms component localizers call straight into the string cache;
 			// without this they would find nothing and leave the designer's plain English in
 			// place, which is exactly what the pseudo-locale is supposed to mean "not
 			// internationalized".

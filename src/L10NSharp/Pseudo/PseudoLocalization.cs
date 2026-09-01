@@ -5,8 +5,7 @@ namespace L10NSharp.Pseudo
 	/// doubled (accented on the first of the pair) for ~30-40% expansion, and the whole
 	/// string is bracketed, with format placeholders and HTML/XML markup passed through
 	/// untouched. E.g. "Title Missing" becomes "[Tîitlée Mîissîing]". The transform is
-	/// deterministic, and self-contained in this folder (see its README.md), so L10NSharp
-	/// carries no extra dependency for this feature.
+	/// deterministic. See README.md in this folder.
 	/// </summary>
 	internal static class PseudoLocalization
 	{

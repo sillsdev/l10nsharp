@@ -66,6 +66,8 @@ namespace L10NSharp.Tests
 		[TestCase("Save %0 of %1 pages", "%0", "%1")]
 		[TestCase("Installed {app_title} at {installFolder}", "{app_title}", "{installFolder}")]
 		[TestCase("Level {N}", "{N}")]
+		[TestCase("Total: {0,10:n0}", "{0,10:n0}")]
+		[TestCase("{name,-8} done", "{name,-8}")]
 		public void PseudoLocalize_FormatPlaceholders_SurviveUntouched(string english,
 			params string[] placeholders)
 		{
@@ -294,13 +296,18 @@ namespace L10NSharp.Tests
 				Assert.That(pseudoCulture, Is.Not.Null);
 				Assert.That(pseudoCulture.DisplayName, Is.EqualTo("Pseudo-English (qps-ploc)"));
 				Assert.That(pseudoCulture.NativeName, Is.EqualTo("Pseudo-English (qps-ploc)"));
+				// Pinned so the pseudo culture is identical on every platform.
+				Assert.That(pseudoCulture.IetfLanguageTag, Is.EqualTo(Pseudo));
+				Assert.That(pseudoCulture.TwoLetterISOLanguageName, Is.EqualTo("en"));
+				Assert.That(pseudoCulture.ThreeLetterISOLanguageName, Is.EqualTo("eng"));
+				Assert.That(pseudoCulture.IsNeutralCulture, Is.False);
+				Assert.That(pseudoCulture.NumberFormat, Is.Not.Null);
 			}
 		}
 
 		/// <summary>
-		/// The WinForms component localizers -- what sets the Text of controls, tool strip items
-		/// and column headers created in the designer -- read the string cache directly rather
-		/// than going through GetLocalizedString. There is no cache for the pseudo-locale, so
+		/// The WinForms component localizers read the string cache directly rather than going
+		/// through GetLocalizedString. There is no cache for the pseudo-locale, so
 		/// without a hook here they found nothing and left the designer's plain English in place,
 		/// which under this locale means "never internationalized" and so was actively
 		/// misleading. See BL-16748.
