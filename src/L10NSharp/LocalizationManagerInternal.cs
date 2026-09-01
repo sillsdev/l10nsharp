@@ -372,6 +372,8 @@ namespace L10NSharp
 		/// </summary>
 		public static float FractionApproved(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return 1.0F;
 			var total = Math.Max(StringCount(lang), StringCount(LocalizationManager.kDefaultLang));
@@ -405,6 +407,8 @@ namespace L10NSharp
 		/// </summary>
 		public static float FractionTranslated(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return 1.0F;
 			var total = Math.Max(StringCount(lang), StringCount(LocalizationManager.kDefaultLang));
@@ -478,6 +482,19 @@ namespace L10NSharp
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, LocalizationManager.UILanguageId);
 		}
 
+		/// <summary>
+		/// For the paths where no string cache is available: the caller-supplied englishText
+		/// (pseudolocalized if langId is the pseudo-locale), or fallback when there is none.
+		/// </summary>
+		private static string EnglishTextOrFallback(string englishText, string langId, string fallback)
+		{
+			if (string.IsNullOrEmpty(englishText))
+				return fallback;
+			return LocalizationManager.IsPseudoLanguageId(langId)
+				? PseudoLocalization.Transform(englishText)
+				: englishText;
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a string for the specified application id and string id, in the requested
@@ -506,11 +523,11 @@ namespace L10NSharp
 						throw new ObjectDisposedException(
 							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
 					}
-					return string.IsNullOrEmpty(englishText) ? id : englishText;
+					return EnglishTextOrFallback(englishText, langId, id);
 				}
 
-				if (!string.IsNullOrEmpty(englishText) && langId == LocalizationManager.kDefaultLang)
-					return englishText;
+				if (langId == LocalizationManager.kDefaultLang || LocalizationManager.IsPseudoLanguageId(langId))
+					return EnglishTextOrFallback(englishText, langId, id);
 				return id;
 			}
 			if (!LoadedManagers.TryGetValue(appId, out var lm))
@@ -523,7 +540,7 @@ namespace L10NSharp
 							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
 					}
 
-					return string.IsNullOrEmpty(englishText) ? id : englishText;
+					return EnglishTextOrFallback(englishText, langId, id);
 				}
 				throw new ArgumentException(
 					$"The application id '{appId}' does not have an associated localization manager. " +

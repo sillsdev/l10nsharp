@@ -23,16 +23,21 @@ consumers rely on are pinned by `PseudoLocalizationTests`.
 
 Design notes: the doubled-vowel expansion follows Mozilla's pseudolocalization approach
 (Fluent's "accented" locale); brackets are common to Microsoft's qps-ploc, Android's en-XA,
-and others. Earlier iterations of this feature (see git history) used the full accent map
-and per-word padding of the PseudoLocalizer project, which we used as a starting point but
-replaced for readability.
+and others.
+
+## No files, no dynamic-string collection
+
+No translation files exist or are written for `qps-ploc`; every lookup derives its result
+from the English text at runtime. In particular, running the app under the pseudo-locale
+does **not** collect dynamic strings (`CollectUpNewStringsDiscoveredDynamically` is never
+engaged on that path). To harvest new dynamic strings, run under English as before.
 
 ## Provenance
 
-`EscapeHelpers` (the placeholder/markup-skipping logic) is adapted from the MIT-licensed
-[PseudoLocalizer](https://github.com/martincostello/Pseudolocalizer) project, Copyright (C)
-2012, Anders Kaplan, and extended here to also recognize `%0`-style and named
-`{app_title}`-style placeholders. The rest of the folder is original to L10NSharp.
+`EscapeHelpers` (the placeholder/markup-skipping logic) is adapted from Anders Kaplan's
+[PseudoLocalizer](https://github.com/martincostello/Pseudolocalizer) project, and extended
+here to also recognize `%0`-style and named `{app_title}`-style placeholders. The rest of the
+folder is original to L10NSharp.
 
 Upstream license for the adapted code:
 

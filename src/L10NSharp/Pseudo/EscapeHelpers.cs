@@ -22,6 +22,15 @@ namespace L10NSharp.Pseudo
 					// Consume the placeholder name (digits for "{0}", or a name like "{lang}")
 				}
 
+				if (array[j] == ',')
+				{
+					// Local addition (not upstream): consume an alignment segment (e.g. "{0,-10}")
+					while (j < array.Length - 1 && (array[j + 1] == '-' || char.IsDigit(array[j + 1])))
+						j++;
+					if (j < array.Length - 1)
+						j++;
+				}
+
 				if (array[j] == ':')
 				{
 					while (j < array.Length - 1 && array[++j] != '}')
