@@ -24,8 +24,10 @@ namespace L10NSharp.Pseudo
 
 				if (array[j] == ',')
 				{
-					// Local addition (not upstream): consume an alignment segment (e.g. "{0,-10}")
-					while (j < array.Length - 1 && (array[j + 1] == '-' || char.IsDigit(array[j + 1])))
+					// Local addition (not upstream): consume an alignment segment (e.g. "{0,-10}"
+					// or "{0, 10}"; .NET allows whitespace around the alignment)
+					while (j < array.Length - 1 && (array[j + 1] == '-' || char.IsDigit(array[j + 1])
+						|| char.IsWhiteSpace(array[j + 1])))
 						j++;
 					if (j < array.Length - 1)
 						j++;

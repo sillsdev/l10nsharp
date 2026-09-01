@@ -68,6 +68,8 @@ namespace L10NSharp.Tests
 		[TestCase("Level {N}", "{N}")]
 		[TestCase("Total: {0,10:n0}", "{0,10:n0}")]
 		[TestCase("{name,-8} done", "{name,-8}")]
+		[TestCase("Value {0, 10:E2} here", "{0, 10:E2}")]
+		[TestCase("Due {date, -12 :ddd MMM} soon", "{date, -12 :ddd MMM}")]
 		public void PseudoLocalize_FormatPlaceholders_SurviveUntouched(string english,
 			params string[] placeholders)
 		{
