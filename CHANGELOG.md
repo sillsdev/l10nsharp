@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- [L10NSharp] Added pseudolocalization support: lookups for the standard `qps-ploc` pseudo-locale (`LocalizationManager.PseudoLocalizationLanguageId`) return the English text pseudolocalized at runtime (e.g. `[Tîitlée Mîissîing]`), so testers can spot non-internationalized strings and layout problems. Set `LocalizationManager.OfferPseudoLocalization = true` to include it in the offered UI languages; `LocalizationManager.PseudoLocalize(string)` exposes the transform directly. See `src/L10NSharp/Pseudo/README.md`.
+
 ## [10.0.0] - 2026-08-27
 
 ### Added
