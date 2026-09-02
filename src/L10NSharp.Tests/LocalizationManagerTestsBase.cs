@@ -727,6 +727,29 @@ namespace L10NSharp.Tests
 			chineseDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "zh-TW")));
 		}
 
+		private void AddChineseBareTranslation(string folderPath)
+		{
+			var chineseDoc = CreateNewDocument(null, "en", "zh");
+			// first unit
+			var tu = CreateTransUnit("theId", false,
+				CreateTransUnitVariant("en", "from English Translation"),
+				CreateTransUnitVariant("zh", "from Chinese (generic) Translation"),
+				"Test", TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu);
+			// second unit
+			var tu2 = CreateTransUnit("notUsedId", false,
+				CreateTransUnitVariant("en", "no longer used English text"),
+				CreateTransUnitVariant("zh", "no longer used Chinese (generic) text"),
+				null, TranslationStatus.Approved);
+			chineseDoc.AddTransUnit(tu2);
+			// third unit
+			var tu3 = CreateTransUnit("blahId", false,
+				CreateTransUnitVariant("en", "blah"),
+				CreateTransUnitVariant("zh", "中文 blah"));
+			chineseDoc.AddTransUnit(tu3);
+			chineseDoc.Save(Path.Combine(folderPath, LocalizationManager.GetTranslationFileNameForLanguage(AppId, "zh")));
+		}
+
 		protected void AddRandomTranslation(string langId, string folderPath)
 		{
 			var doc = CreateNewDocument(null, "en", langId);
@@ -1116,6 +1139,37 @@ namespace L10NSharp.Tests
 				var str = LocalizationManager.GetString("theId", ".", "", new []{ "zh" }, out var languageIdUsed);
 				Assert.That(str, Is.EqualTo("from Chinese (China) Translation"));
 				Assert.That(languageIdUsed, Is.EqualTo("zh-CN"));
+			}
+		}
+
+		[Test]
+		public void TestMappingLanguageCodesToAvailable_ExactGenericMatchUsedWhenSpecificsAlsoExist()
+		{
+			LocalizationManager.SetUILanguage("en");
+			LocalizationManagerInternal<T>.LoadedManagers.Clear();
+			using (var folder = new TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				AddEnglishTranslation(installedFolder, null);
+				AddChineseBareTranslation(installedFolder);
+				AddChineseOfChinaTranslation(installedFolder);
+				AddChineseOfTaiwanTranslation(installedFolder);
+				LocalizationManagerInternal<T>.ChooseFallbackLanguage();
+				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
+					$"Temp/{Path.GetFileName(folder.Path)}/user", new string[] { });
+				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
+
+				// The UI language should be set to the exact match "zh", not one of the specifics.
+				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo("zh"));
+
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find zh (exact)");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
+				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-TW"), Is.True, "zh-TW should find zh-TW");
+
+				// The generic zh request should use the generic zh translation, not CN or TW.
+				var str = LocalizationManager.GetString("theId", ".", "", new[] { "zh" }, out var languageIdUsed);
+				Assert.That(str, Is.EqualTo("from Chinese (generic) Translation"));
+				Assert.That(languageIdUsed, Is.EqualTo("zh"));
 			}
 		}
 	}
