@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- [L10NSharp] Added pseudolocalization support: lookups for the standard `qps-ploc` pseudo-locale (`LocalizationManager.PseudoLocalizationLanguageId`) return the English text pseudolocalized at runtime (e.g. `[Tîitlée Mîissîing]`), so testers can spot non-internationalized strings and layout problems. Set `LocalizationManager.OfferPseudoLocalization = true` to include it in the offered UI languages; `LocalizationManager.PseudoLocalize(string)` exposes the transform directly. See `src/L10NSharp/Pseudo/README.md`.
+
 ## [10.0.0] - 2026-08-27
 
 ### Added
@@ -23,7 +27,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added a repository-level MIT `LICENSE` file, which is now bundled into the NuGet packages (via `PackageLicenseFile`).
 - [L10NSharp] Added `net8.0` as a target framework, enabling use on non-Windows platforms, and added cross-platform CI/CD coverage for `net8.0`.
 - [L10NSharp] Added UiLanguageChanged event to ILocalizationManager. This provides a way for clients to deal with changes now that (in Windows) LocalizeItemDlg<XLiffDocument>.StringsLocalized no longer exists.
-- [L10NSharp] Added pseudolocalization support: lookups for the standard `qps-ploc` pseudo-locale (`LocalizationManager.PseudoLocalizationLanguageId`) return the English text pseudolocalized at runtime (e.g. `[Tîitlée Mîissîing]`), so testers can spot non-internationalized strings and layout problems. Set `LocalizationManager.OfferPseudoLocalization = true` to include it in the offered UI languages; `LocalizationManager.PseudoLocalize(string)` exposes the transform directly. See `src/L10NSharp/Pseudo/README.md`.
 
 ### Changed
 
