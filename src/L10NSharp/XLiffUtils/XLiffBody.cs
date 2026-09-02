@@ -93,8 +93,9 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		internal XLiffTransUnit? GetTransUnitForId(string? id)
 		{
-            if (id == null)
-                return null;
+			if (id == null)
+				return null;
+
 			_transUnitDict.TryGetValue(id, out XLiffTransUnit? result);
 			return result;
 		}
@@ -124,13 +125,15 @@ namespace L10NSharp.XLiffUtils
 		/// Adds the specified translation unit.
 		/// </summary>
 		/// <param name="tu">The translation unit.</param>
-		/// <returns>true if the translation unit was successfully added. Otherwise, false.</returns>
+		/// <returns>The id under which the translation unit was added, or null if it was not
+		/// added.</returns>
 		/// ------------------------------------------------------------------------------------
-		internal bool AddTransUnitRaw(XLiffTransUnit? tu)
+		internal string? AddTransUnitRaw(XLiffTransUnit? tu)
 		{
 			if (tu == null || tu.IsEmpty)
-				return false;
+				return null;
 
+			string key;
 			bool lockTaken = false;
 			try
 			{
@@ -140,8 +143,8 @@ namespace L10NSharp.XLiffUtils
 				// it into the dictionary. This assumes nothing else modifies IDs once they
 				// are in this system: once our locked code has given the TU an ID, any other
 				// thread will see that it is non-empty.
-				var key = tu.Id;
-				if (key is null || key.Length == 0)
+				key = tu.Id ?? "";
+				if (key.Length == 0)
 				{
 					key = (++_transUnitId).ToString();
 					tu.Id = key;
@@ -151,7 +154,7 @@ namespace L10NSharp.XLiffUtils
 				// This check and the dictionary write must both happen inside the lock to avoid
 				// a TOCTOU race where two threads with the same ID both pass the check.
 				if (GetTransUnitForId(key) != null)
-					return false;
+					return null;
 				_transUnitDict[key] = tu;
 			}
 			finally
@@ -159,15 +162,14 @@ namespace L10NSharp.XLiffUtils
 				if (lockTaken) _transUnitIdLock.Exit(false);
 			}
 
-			return true;
+			return key;
 		}
 		public bool AddTransUnit(XLiffTransUnit tu)
 		{
-			if (!AddTransUnitRaw(tu))
+			// Use inserted key (not tu.Id), so TranslationsById and _transUnitDict can't drift.
+			var id = AddTransUnitRaw(tu);
+			if (id == null)
 				return false;
-
-			// AddTransUnitRaw generates an Id for null/empty Ids, so it is non-null on success.
-			var id = tu.Id!;
 
 			// If the target exists, store its value in the dictionary lookup.  Otherwise, store
 			// the source value there.
@@ -189,21 +191,18 @@ namespace L10NSharp.XLiffUtils
 		{
 			var variantToAdd = tu.GetVariantForLang(langId);
 
-			if (variantToAdd == null || AddTransUnit(tu))
+			if (variantToAdd == null || AddTransUnit(tu) || tu.Id == null)
 				return;
 
 			var existingTu = GetTransUnitForId(tu.Id);
 			if (existingTu == null)
 				return;
 
-			// GetTransUnitForId returns null for a null id, so existingTu proves tu.Id isn't.
-			var id = tu.Id!;
-
 			//notice, we don't care if there is already a string in there for this language
 			//(that was the cause of a previous bug), because the XLiff of language X should
 			//surely take precedence, as the translation for that language.
 			existingTu.AddOrReplaceVariant(variantToAdd);
-			TranslationsById[id] = variantToAdd.Value;
+			TranslationsById[tu.Id] = variantToAdd.Value;
 		}
 
 		/// ------------------------------------------------------------------------------------
