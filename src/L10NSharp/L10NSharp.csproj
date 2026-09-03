@@ -8,12 +8,12 @@
     <PackageProjectUrl>https://github.com/sillsdev/l10nsharp</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.11.1" PrivateAssets="all" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-    <PackageReference Include="SIL.ReleaseTasks" Version="3.2.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="SIL.ReleaseTasks" Version="3.3.0" PrivateAssets="all" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.11" />
   </ItemGroup>
 </Project>
