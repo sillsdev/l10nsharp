@@ -56,6 +56,22 @@ namespace L10NSharp.Tests
 			}
 		}
 
+		/// <summary>
+		/// The pseudo-locale is treated like English here: with no manager loaded, the supplied
+		/// English text is still what gets returned, pseudolocalized.
+		/// </summary>
+		[Test]
+		public void GetDynamicStringOrEnglish_NoManagerLoaded_Pseudo_PseudolocalizesSuppliedEnglish()
+		{
+			var pseudo = LocalizationManager.PseudoLocalizationLanguageId;
+			Assert.That(
+				LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", "data", null, pseudo),
+				Is.EqualTo(LocalizationManager.PseudoLocalize("data")));
+			Assert.That(
+				LocalizationManager.GetDynamicStringOrEnglish("Glom", "prefix.data", null, null, pseudo),
+				Is.EqualTo("prefix.data"));
+		}
+
 		[TestCase(null)]
 		[TestCase("en")]
 		[TestCase("es")]
