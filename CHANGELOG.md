@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Security
 
-- [L10NSharp] [L10NSharp.Windows.Forms] [CheckOrFixXliff] [ExtractXliff] Upgraded `SIL.ReleaseTasks` from 2.5.0 to 3.2.1 to remove a vulnerable transitive dependency. This also raises the resolved version of `System.Resources.Extensions` (a transitive dependency of `SIL.ReleaseTasks`) from 6.0.0 to 10.0.11.
+- [L10NSharp] [L10NSharp.Windows.Forms] [CheckOrFixXliff] [ExtractXliff] Upgraded `SIL.ReleaseTasks` from 2.5.0 to 3.3.0. This also raises the resolved version of `System.Resources.Extensions` (a transitive dependency of `SIL.ReleaseTasks`) from 6.0.0 to 10.0.11. Note: `SIL.ReleaseTasks` 3.3.0 has a known, build-time-only dependency on a vulnerable `Newtonsoft.Json` (via a temporary revert of its own `SIL.Core` dependency, pending an upstream `Mono.Unix` packaging issue) — per the upstream maintainers this is not an exploitable runtime risk, since the package is build-tool-only and never ships in L10nSharp's own output, and no L10nSharp or SIL.ReleaseTasks build step feeds it untrusted JSON. See [sillsdev/SIL.BuildTasks#88](https://github.com/sillsdev/SIL.BuildTasks/pull/88) for details.
 - [L10NSharp.Windows.Forms] Upgraded `System.ServiceModel.Http` and `System.ServiceModel.Primitives` from 6.2.0 to 8.1.2, and added a direct `System.Security.Cryptography.Xml` reference pinned to 8.0.4. `System.ServiceModel.Primitives` 8.1.2 resolves a vulnerable 8.0.2 of `System.Security.Cryptography.Xml` transitively on `net8.0-windows`; the direct reference overrides it with the latest patched 8.0.x release.
 
 ### Changed
