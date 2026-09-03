@@ -65,6 +65,17 @@ namespace SampleApp
 			if (useTmx)
 				throw new NotSupportedException("TMX-based localization is no longer supported.");
 
+			// Offer the qps-ploc pseudo-locale ("Pseudo-English") in the language lists.
+			// No translation files exist for it: lookups derive the text from the live
+			// English at runtime, doubling every vowel and wrapping the result in
+			// brackets ("Title Missing" -> "[Tîitlée Mîissîing]"), so a tester can spot
+			// strings that never went through L10NSharp (still plain English), truncation
+			// (missing "]") and layout that can't cope with longer translations.
+			// Note that while the pseudo-locale is selected, the "Get Name Dynamically"
+			// demo below no longer harvests its string into the English XLIFF: pseudo
+			// lookups return before the collection step. Exercise that demo in English.
+			LocalizationManager.OfferPseudoLocalization = true;
+
 			// Your installer should have a folder where you place the localization files you're shipping with the program
 			var directoryOfInstalledLocFiles = "../../../LocalizationFilesFromInstaller";
 			Directory.CreateDirectory(directoryOfInstalledLocFiles);
