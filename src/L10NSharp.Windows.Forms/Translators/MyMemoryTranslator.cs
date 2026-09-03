@@ -8,14 +8,22 @@ using L10NSharp.Utility;
 namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	internal class GoogleTranslator : TranslatorBase
+	/// <summary>
+	/// Translates text using the free, anonymous MyMemory Translation API
+	/// (https://mymemory.translated.net/doc/spec.php). Requires no signup or key, but is
+	/// limited to a 5,000 character/day/IP quota, so this is intended only as a fail-safe
+	/// default for light, best-effort use. Host apps wanting more robust translation can
+	/// configure <see cref="MicrosoftTranslator"/> instead.
+	/// </summary>
+	/// ----------------------------------------------------------------------------------------
+	internal class MyMemoryTranslator : TranslatorBase
 	{
-		private const string kServiceUrl = "http://ajax.googleapis.com/ajax/services/language/translate";
+		private const string kServiceUrl = "https://api.mymemory.translated.net/get";
 
 		/// ------------------------------------------------------------------------------------
-		public GoogleTranslator(string srcCultureId, string tgtCultureId)
+		public MyMemoryTranslator(string srcCultureId, string tgtCultureId)
 		{
-			// Google can't handle regions.
+			// MyMemory can't handle regions.
 			int i = srcCultureId.IndexOf('_');
 			if (i >= 0)
 				srcCultureId = srcCultureId.Substring(0, i);
@@ -43,23 +51,23 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// ------------------------------------------------------------------------------------
 		protected override string InternalTranslate(string srcText)
 		{
-			var text = HttpUtilityFromMono.UrlPathEncode(srcText);
-			var ver = HttpUtilityFromMono.UrlEncode("1.0");
+			var text = HttpUtilityFromMono.UrlEncode(srcText);
 			var langPair = HttpUtilityFromMono.UrlEncode($"{m_srcCultureId}|{m_tgtCultureId}");
-			var encodedRequestUrlFragment = $"?v={ver}&q={text}&langpair={langPair}";
-
-			var requestUri = kServiceUrl + encodedRequestUrlFragment;
+			var requestUri = $"{kServiceUrl}?q={text}&langpair={langPair}";
 
 			try
 			{
 				using var client = new HttpClient();
 				var responseString = client.GetStringAsync(requestUri).GetAwaiter().GetResult(); // sync wait
 
-				using var ms = new MemoryStream(Encoding.Unicode.GetBytes(responseString));
+				using var ms = new MemoryStream(Encoding.UTF8.GetBytes(responseString));
 				var ser = new DataContractJsonSerializer(typeof(JSONResponse));
 				var translation = ser.ReadObject(ms) as JSONResponse;
 
-				return translation?.responseData?.translatedText ?? string.Empty;
+				if (translation == null || translation.quotaFinished)
+					return string.Empty;
+
+				return translation.responseData?.translatedText ?? string.Empty;
 			}
 			catch (Exception)
 			{
@@ -77,7 +85,9 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// ------------------------------------------------------------------------------------
 		public string responseDetails;
 		/// ------------------------------------------------------------------------------------
-		public string responseStatus;
+		public int responseStatus;
+		/// ------------------------------------------------------------------------------------
+		public bool quotaFinished;
 	}
 
 	/// ----------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ using L10NSharp.Utility;
 namespace L10NSharp.Windows.Forms.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	internal abstract class TranslatorBase
+	public abstract class TranslatorBase
 	{
 		/// ------------------------------------------------------------------------------------
 		protected string m_srcCultureId;

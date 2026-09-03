@@ -20,7 +20,13 @@ namespace L10NSharp.Windows.Forms.UIComponents
 		void Application_Idle(object sender, EventArgs e)
 		{
 			Application.Idle -= Application_Idle;
-			_model.TranslateStrings(new BingTranslator("en", _model.RequestedCultureTwoLetterISOLanguageName));
+			var targetCultureId = _model.RequestedCultureTwoLetterISOLanguageName;
+			TranslatorBase translator;
+			if (MicrosoftTranslator.IsConfigured)
+				translator = new MicrosoftTranslator("en", targetCultureId);
+			else
+				translator = new MyMemoryTranslator("en", targetCultureId);
+			_model.TranslateStrings(translator);
 			_messageLabel.Text = _model.Message;
 			_OKButton.Text = _model.AcceptButtonText;
 			Text = _model.WindowTitle;
