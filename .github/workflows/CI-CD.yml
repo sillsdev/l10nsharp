@@ -39,8 +39,8 @@ jobs:
     - name: Build and Pack
       run: dotnet build --configuration Release
 
-    - name: Test (Windows only, Framework 4.6.1)
-      run: dotnet test --configuration Release --no-build output\Release\net461\*Tests.dll -- NUnit.TestOutputXml=TestResults
+    - name: Test (Windows only, Framework 4.6.2)
+      run: dotnet test --configuration Release --no-build output\Release\net462\*Tests.dll -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'windows-latest'
 
     - name: Test (Windows only, all TFMs)

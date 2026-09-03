@@ -16,9 +16,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [11.0.0] - 2026-09-03
+
 ### Added
 
 - [L10NSharp] Added pseudolocalization support: lookups for the standard `qps-ploc` pseudo-locale (`LocalizationManager.PseudoLocalizationLanguageId`) return the English text pseudolocalized at runtime (e.g. `[Tîitlée Mîissîing]`), so testers can spot non-internationalized strings and layout problems. Set `LocalizationManager.OfferPseudoLocalization = true` to include it in the offered UI languages; `LocalizationManager.PseudoLocalize(string)` exposes the transform directly. The SampleApp turns this on, so you can see it in action. See `src/L10NSharp/Pseudo/README.md`.
+
+### Changed
+
+- BREAKING CHANGE: [L10NSharp] [L10NSharp.Windows.Forms] [SampleApp] [CheckOrFixXliff] [ExtractXliff] Replaced the `net461` target framework with `net462`. The `System.Resources.Extensions` version raised transitively by the `SIL.ReleaseTasks` upgrade (above) no longer ships a `net461`-specific assembly, so `net461` is no longer a supported or tested target. Projects that still need to target `net461` should continue using the last release built for it, or upgrade to at least `net462`.
+
+### Security
+
+- [L10NSharp] [L10NSharp.Windows.Forms] [CheckOrFixXliff] [ExtractXliff] Upgraded `SIL.ReleaseTasks` from 2.5.0 to 3.3.0. This also raises the resolved version of `System.Resources.Extensions` (a transitive dependency of `SIL.ReleaseTasks`) from 6.0.0 to 10.0.11. Note: `SIL.ReleaseTasks` 3.3.0 has a known, build-time-only dependency on a vulnerable `Newtonsoft.Json` (via a temporary revert of its own `SIL.Core` dependency, pending an upstream `Mono.Unix` packaging issue) — per the upstream maintainers this is not an exploitable runtime risk, since the package is build-tool-only and never ships in L10nSharp's own output, and no L10nSharp or SIL.ReleaseTasks build step feeds it untrusted JSON. See [sillsdev/SIL.BuildTasks#88](https://github.com/sillsdev/SIL.BuildTasks/pull/88) for details.
+- [L10NSharp.Windows.Forms] Upgraded `System.ServiceModel.Http` and `System.ServiceModel.Primitives` from 6.2.0 to 8.1.2, and added a direct `System.Security.Cryptography.Xml` reference pinned to 8.0.4. `System.ServiceModel.Primitives` 8.1.2 resolves a vulnerable 8.0.2 of `System.Security.Cryptography.Xml` transitively on `net8.0-windows`; the direct reference overrides it with the latest patched 8.0.x release.
 
 ## [10.0.0] - 2026-08-27
 
@@ -39,7 +50,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [L10NSharp.Windows.Forms] Removed emailForSubmissions parameter (8th parameter) from LocalizationManagerWinforms.Create. Since the localization dialog was jettisoned, it no longer makes sense to store this information on the localization manager.
 - [L10NSharp] Replaced the .NET 8.0 target with .NET Standard 2.0 for broader compatibility.
 - [L10NSharp] `GetDynamicString`, `GetDynamicStringOrEnglish`, and `GetString` now return the English fallback text immediately when called with a null, empty, or whitespace string ID, rather than attempting a cache lookup or write.
- 
+
 ### Fixed
 
 - [L10NSharp.Windows.Forms] Restored project-local Resources support for `FallbackLanguagesDlgBase` button images (`Move`, `Move_up`, and `Move_down`).
@@ -65,7 +76,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [9.0.0] - 2026-02-02
 
-### Changed 
+### Changed
 
 - BREAKING CHANGE: Move code that depends on Windows.Forms or System.Drawing into an 		L10NSharp.Windows.Forms namespace. Rename L10NSharp.UI as L10NSharp.Windows.Forms.UIComponents. Move L10NExtender out of UI subfolder into L10NSharp.Windows.Forms. Move Winforms related tests to L10NSharp.Windows.Forms.Tests. Change the folder for L10NSharp tests to match its namespace L10NSharp.Tests.
 
@@ -88,7 +99,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     CHANGED: Remove static designation from the LocalizationManager class in order for LocalizationManagerWinforms to subclass it and share its properties.
 
     CHANGED: The Icon argument is removed from the Create methods in LocalizationManager. Create methods for LocalizationManagerWinforms are available with and without the Icon argument. (The two obsolete create methods in LocalizationManager, which included a TranslationMemory argument, are removed.)
-	
+
 	CHANGED: SetUILanguage in LocalizationManager no longer reapplies localizations based on a reapplyLocalizationsToAllObjectsInAllManagers argument, since reapplying localizations is a Winforms method. SetUILanguage in LocalizationManagerWinforms retains this argument and reapplies localizations depending on its value.
 
     MOVED: The methods ReapplyLocalizationsToAllObjectsInAllManagers, ReapplyLocalizationsToAllObjects, and GetLocalisedToolTipForControl are moved to LocalizationManagerWinforms.
@@ -105,7 +116,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     CHANGED: In LocalizationManagerInternalWinforms, GetLocalizationManagerForComponent and GetLocalizationManagerForString, return type ILocalizationManagerInternalWinforms\<T> instead of ILocalizationManagerInternal\<T>.
 
-    MOVED: The methods ReapplyLocalizationsToAllObjectsInAllManagers, ReapplyLocalizationsToAllObjects, GetLocalizedToolTipForControl, and GetRealTopLevelControl are moved to LocalizationManagerInternalWinforms. 
+    MOVED: The methods ReapplyLocalizationsToAllObjectsInAllManagers, ReapplyLocalizationsToAllObjects, GetLocalizedToolTipForControl, and GetRealTopLevelControl are moved to LocalizationManagerInternalWinforms.
 
   - Split LocalizingInfo into LocalizingInfo and LocalizingInfoWinforms.
 
@@ -118,7 +129,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     MOVED: The methods SendMessage, SendMessageWindows and SetWindowRedraw are moved to UtilsWinforms.
 
   - Split XliffLocalizationManager into XliffLocalizationManager and XliffLocalizationManagerWinforms.
- 
+
     MOVED: The following are moved to XliffLocalizationManagerWinforms:
 
     - The properties ApplicationIcon, ToolTipCtrls, LocalizableComponents and StringCache.
@@ -127,15 +138,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Split XliffLocalizedStringCache into XliffLocalizedStringCacheWinforms and XliffLocalizedStringCache.
 
     MOVED: The LeafNodeList property and the methods LoadGroupNodes and GetShortcutKeys are moved to XliffLocalizedStringCacheWinforms.
-   
+
 ### Removed
 
 - BREAKING CHANGE: Remove code related to doing one's own localization at runtime. Also remove obsolete create methods from LocalizationManager.
 
     In particular:
 
-	- Remove the LocalizeItemDlg designer, cs, resx, and viewmodel. 
-    - Remove ShowLocalizationDialogBox from LocalizationManager and LocalizationManagerInternal. 
+	- Remove the LocalizeItemDlg designer, cs, resx, and viewmodel.
+    - Remove ShowLocalizationDialogBox from LocalizationManager and LocalizationManagerInternal.
     - Remove the following runtime-localization related methods from XliffLocalizationManager:
     PrepareComponentForRuntimeLocalization, HandleToolStripItemMouseDown, DoHandleMouseDown, HandeToolStripItemDisposed, HandleControlMouseDouwn, HandleControlDisposed, HandleTabPageDisposed, HandleDataGridViewDisposed, HandleListViewColumnHeaderClicked, HandleListViewDisposed, HandleListViewColumnDisposed, HandleDataGridViewCellMouseDown, HandleColumnDisposed, and ShowLocalizationDialogBox.
     - Remove obsolete Create methods from LocalizationManager. These are the two Create methods that included a TranslationMemory argument.
@@ -276,7 +287,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Create nuget package
 -   Strong-name assembly
 
-[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v10.0.0...HEAD
+[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v11.0.0...HEAD
+[11.0.0]: https://github.com/sillsdev/l10nsharp/compare/v10.0.0...v11.0.0
 [10.0.0]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...v10.0.0
 [9.0.0]: https://github.com/sillsdev/l10nsharp/compare/v8.0.0.0...v9.0.0
 [8.0.0]: https://github.com/sillsdev/l10nsharp/compare/v7.0.0...v8.0.0.0

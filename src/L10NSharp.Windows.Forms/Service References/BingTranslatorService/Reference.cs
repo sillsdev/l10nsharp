@@ -40,20 +40,30 @@ namespace L10NSharp.Windows.Forms.BingTranslatorService {
         
         public LanguageServiceClient() {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName) : 
+
+        // MANUAL EDIT — NOT REGENERATED SAFE: the #if NETFRAMEWORK guard below was added by hand
+        // and will be silently dropped if this file is regenerated (e.g. via "Update Service
+        // Reference" from BingTranslatorService.svcmap). Without it, these config-name-based
+        // ClientBase constructors don't compile against the modern System.ServiceModel.Primitives
+        // package used for net8.0-windows (no config-based WCF client support), breaking the build
+        // exactly as it did before. If you regenerate this file, reapply this guard, or — better —
+        // finish the replacement of BingTranslator/this proxy with a plain REST client (see
+        // https://github.com/sillsdev/l10nsharp/issues/163), which removes this file entirely.
+#if NETFRAMEWORK
+        public LanguageServiceClient(string endpointConfigurationName) :
                 base(endpointConfigurationName) {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName, string remoteAddress) : 
+
+        public LanguageServiceClient(string endpointConfigurationName, string remoteAddress) :
                 base(endpointConfigurationName, remoteAddress) {
         }
-        
-        public LanguageServiceClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+
+        public LanguageServiceClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(endpointConfigurationName, remoteAddress) {
         }
-        
-        public LanguageServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+#endif
+
+        public LanguageServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(binding, remoteAddress) {
         }
         
