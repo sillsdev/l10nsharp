@@ -20,6 +20,8 @@ namespace L10NSharp.Windows.Forms.Translators
 	{
 		private const string kServiceUrl = "https://api.mymemory.translated.net/get";
 
+		private static readonly HttpClient s_client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+
 		/// ------------------------------------------------------------------------------------
 		public MyMemoryTranslator(string srcCultureId, string tgtCultureId)
 		{
@@ -57,14 +59,17 @@ namespace L10NSharp.Windows.Forms.Translators
 
 			try
 			{
-				using var client = new HttpClient();
-				var responseString = client.GetStringAsync(requestUri).GetAwaiter().GetResult(); // sync wait
+				var responseString = s_client.GetStringAsync(requestUri).GetAwaiter().GetResult(); // sync wait
 
 				using var ms = new MemoryStream(Encoding.UTF8.GetBytes(responseString));
 				var ser = new DataContractJsonSerializer(typeof(JSONResponse));
 				var translation = ser.ReadObject(ms) as JSONResponse;
 
-				if (translation == null || translation.quotaFinished)
+				// MyMemory always returns HTTP 200, even for errors (invalid language pair, quota
+				// exceeded, etc.), signaling failure only via these body fields. On failure,
+				// responseData.translatedText contains a human-readable provider error/warning
+				// message, not a translation, so it must not be used.
+				if (translation == null || translation.responseStatus != 200 || translation.quotaFinished.GetValueOrDefault())
 					return string.Empty;
 
 				return translation.responseData?.translatedText ?? string.Empty;
@@ -87,7 +92,7 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// ------------------------------------------------------------------------------------
 		public int responseStatus;
 		/// ------------------------------------------------------------------------------------
-		public bool quotaFinished;
+		public bool? quotaFinished;
 	}
 
 	/// ----------------------------------------------------------------------------------------

@@ -24,6 +24,8 @@ namespace L10NSharp.Windows.Forms.Translators
 		private const string kSubscriptionKeyEnvVar = "L10NSHARP_TRANSLATOR_KEY";
 		private const string kRegionEnvVar = "L10NSHARP_TRANSLATOR_REGION";
 
+		private static readonly HttpClient s_client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// The Azure Translator subscription key to use. If not set, falls back to the
@@ -94,14 +96,18 @@ namespace L10NSharp.Windows.Forms.Translators
 				requestSer.WriteObject(ms, new List<TranslateRequestItem> { new TranslateRequestItem { Text = srcText } });
 				var requestBody = Encoding.UTF8.GetString(ms.ToArray());
 
-				using var client = new HttpClient();
-				client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
+				// Headers go on the request, not the (shared, static) client: DefaultRequestHeaders
+				// would race with concurrent calls and wouldn't pick up a key/region change between calls.
+				using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
+				{
+					Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
+				};
+				request.Headers.Add("Ocp-Apim-Subscription-Key", key);
 				var region = EffectiveRegion;
 				if (!string.IsNullOrEmpty(region))
-					client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Region", region);
+					request.Headers.Add("Ocp-Apim-Subscription-Region", region);
 
-				using var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-				using var response = client.PostAsync(requestUri, content).GetAwaiter().GetResult();
+				using var response = s_client.SendAsync(request).GetAwaiter().GetResult();
 				var responseString = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
 				using var responseStream = new MemoryStream(Encoding.UTF8.GetBytes(responseString));
