@@ -9,13 +9,7 @@
     <SignAssembly>True</SignAssembly>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net48' ">
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0-windows' ">
-    <PackageReference Include="System.ServiceModel.Http" Version="8.1.2" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\L10NSharp\L10NSharp.csproj" />
@@ -73,9 +67,6 @@
     <None Update="Properties\Settings.settings">
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
-    <None Update="Service References\BingTranslatorService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
     </None>
   </ItemGroup>
 </Project>
