@@ -50,15 +50,19 @@ namespace L10NSharp.Windows.Forms.UIComponents
 					return;
 				if (s.Contains("{0}") && s.Length > 5) // If we just get back "{0}" or "({0})", we won't consider that useful.
 				{
-					// Bing will presumably have translated the English string into the native language, so now we want
-					// to display the English name in parentheses. (As a sanity check, we could look to see whether the
-					// native name is in the string, but there could be situations where it may not be an exact match.)
+					// The on-the-fly localization will presumably have translated the English
+					// string into the desired language, so now we want to display the English
+					// name in parentheses. (As a sanity check, we could look to see whether the
+					// native name is in the string, but there could be situations where it may
+					// not be an exact match.)
 					s = string.Format(s, _requestedCulture.EnglishName);
 				}
 				else if (_messageLabelFormat.Contains("{1}"))
 				{
-					// If we already weeded out the param (because the language names are the same), there's no need to re-try (in case it's slow).
-					// This is just a fall-back in case there is some rare situation where the translator chokes on the presence of a formatting param in the string.
+					// If we already weeded out the param (because the language names are the
+					// same), there's no need to re-try (in case it's slow). This is just a fall-
+					// back in case there is some rare situation where the translator chokes on
+					// the presence of a formatting param in the string.
 					s = translator.TranslateText(string.Format(_messageLabelFormat, _requestedCulture.EnglishName, _requestedCulture.NativeName));
 				}
 

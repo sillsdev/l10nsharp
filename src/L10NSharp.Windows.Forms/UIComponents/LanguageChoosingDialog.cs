@@ -9,13 +9,28 @@ namespace L10NSharp.Windows.Forms.UIComponents
 	public partial class LanguageChoosingDialog : Form
 	{
 		private readonly LanguageChoosingDialogViewModel _model;
+		private bool _translationNeeded;
 
 		public LanguageChoosingDialog(L10NCultureInfo requestedCulture, Icon icon)
 		{
 			InitializeComponent();
 			Icon = icon;
-			_model = new LanguageChoosingDialogViewModel(_messageLabel.Text, _OKButton.Text, Text, requestedCulture, () => { Application.Idle += Application_Idle; } );
+			// The callback just records that translation is needed; we wait to hook
+			// Application.Idle until the handle exists (see OnHandleCreated) so the
+			// background BeginInvoke in Application_Idle can never run against a
+			// not-yet-created handle (which would throw InvalidOperationException).
+			_model = new LanguageChoosingDialogViewModel(_messageLabel.Text, _OKButton.Text, Text, requestedCulture, () => { _translationNeeded = true; } );
 			_messageLabel.Text = _model.Message;
+		}
+
+		protected override void OnHandleCreated(EventArgs e)
+		{
+			base.OnHandleCreated(e);
+			if (_translationNeeded)
+			{
+				_translationNeeded = false;
+				Application.Idle += Application_Idle;
+			}
 		}
 
 		void Application_Idle(object sender, EventArgs e)
