@@ -34,6 +34,7 @@ namespace SampleApp
             this.components = new System.ComponentModel.Container();
             this.localizationExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
             this._getDynamicStringButton = new System.Windows.Forms.Button();
+            this._showLanguageChoosingDialogButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.uiLanguageComboBox1 = new L10NSharp.Windows.Forms.UIComponents.UILanguageComboBox();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -63,7 +64,20 @@ namespace SampleApp
             this._getDynamicStringButton.Text = "Get Name Dynamically";
             this._getDynamicStringButton.UseVisualStyleBackColor = true;
             this._getDynamicStringButton.Click += new System.EventHandler(this.button1_Click);
-            // 
+            //
+            // _showLanguageChoosingDialogButton
+            //
+            this.localizationExtender1.SetLocalizableToolTip(this._showLanguageChoosingDialogButton, null);
+            this.localizationExtender1.SetLocalizationComment(this._showLanguageChoosingDialogButton, null);
+            this.localizationExtender1.SetLocalizingId(this._showLanguageChoosingDialogButton, "TheSampleForm.showLanguageChoosingDialogButton");
+            this._showLanguageChoosingDialogButton.Location = new System.Drawing.Point(184, 161);
+            this._showLanguageChoosingDialogButton.Name = "_showLanguageChoosingDialogButton";
+            this._showLanguageChoosingDialogButton.Size = new System.Drawing.Size(180, 23);
+            this._showLanguageChoosingDialogButton.TabIndex = 8;
+            this._showLanguageChoosingDialogButton.Text = "Show Language Chooser";
+            this._showLanguageChoosingDialogButton.UseVisualStyleBackColor = true;
+            this._showLanguageChoosingDialogButton.Click += new System.EventHandler(this.showLanguageChoosingDialogButton_Click);
+            //
             // label1
             // 
             this.label1.AutoSize = true;
@@ -167,6 +181,7 @@ namespace SampleApp
             this.Controls.Add(this.uiLanguageComboBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this._getDynamicStringButton);
+            this.Controls.Add(this._showLanguageChoosingDialogButton);
             this.localizationExtender1.SetLocalizableToolTip(this, null);
             this.localizationExtender1.SetLocalizationComment(this, null);
             this.localizationExtender1.SetLocalizingId(this, "Form1.WindowTitle");
@@ -186,6 +201,7 @@ namespace SampleApp
 
         private L10NSharp.Windows.Forms.L10NSharpExtender localizationExtender1;
         private System.Windows.Forms.Button _getDynamicStringButton;
+        private System.Windows.Forms.Button _showLanguageChoosingDialogButton;
         private System.Windows.Forms.Label label1;
         private L10NSharp.Windows.Forms.UIComponents.UILanguageComboBox uiLanguageComboBox1;
 		private System.Windows.Forms.ListView listView1;
