@@ -47,12 +47,6 @@
     <Compile Update="UIComponents\FallbackLanguagesDlgBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UIComponents\InitializationProgressDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UIComponents\InitializationProgressDlgBase.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="UIComponents\LanguageChoosingDialog.cs">
       <SubType>Form</SubType>
     </Compile>
