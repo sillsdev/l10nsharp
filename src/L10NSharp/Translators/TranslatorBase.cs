@@ -1,7 +1,7 @@
 using System;
 using L10NSharp.Utility;
 
-namespace L10NSharp.Windows.Forms.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	public abstract class TranslatorBase

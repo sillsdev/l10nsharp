@@ -23,9 +23,6 @@
     <PackageReference Include="SIL.ReleaseTasks" Version="3.3.0" PrivateAssets="all" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.11" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net48'">
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Update="L10NExtender.cs">
       <SubType>Component</SubType>

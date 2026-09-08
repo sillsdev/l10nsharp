@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace L10NSharp.Windows.Forms.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>

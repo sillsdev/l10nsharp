@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using L10NSharp.Utility;
 
-namespace L10NSharp.Windows.Forms.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
 	/// <summary>
@@ -16,7 +16,7 @@ namespace L10NSharp.Windows.Forms.Translators
 	/// configure <see cref="MicrosoftTranslator"/> instead.
 	/// </summary>
 	/// ----------------------------------------------------------------------------------------
-	internal class MyMemoryTranslator : TranslatorBase
+	public class MyMemoryTranslator : TranslatorBase
 	{
 		private const string kServiceUrl = "https://api.mymemory.translated.net/get";
 

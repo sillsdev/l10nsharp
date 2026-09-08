@@ -16,11 +16,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [11.0.0] - 2026-09-03
+## [11.0.0] - 2026-09-08
 
 ### Added
 
 - [L10NSharp] Added pseudolocalization support: lookups for the standard `qps-ploc` pseudo-locale (`LocalizationManager.PseudoLocalizationLanguageId`) return the English text pseudolocalized at runtime (e.g. `[Tîitlée Mîissîing]`), so testers can spot non-internationalized strings and layout problems. Set `LocalizationManager.OfferPseudoLocalization = true` to include it in the offered UI languages; `LocalizationManager.PseudoLocalize(string)` exposes the transform directly. The SampleApp turns this on, so you can see it in action. See `src/L10NSharp/Pseudo/README.md`.
+- [L10NSharp] Added two new public on-the-fly translators, `MicrosoftTranslator` and `MyMemoryTranslator`, subclassing the now-public `TranslatorBase`. They were introduced as the fail-safe translators behind `LanguageChoosingDialog` (see "Fixed", below), but are general-purpose and usable directly for similar ad hoc localization needs: `MyMemoryTranslator` needs no configuration (free, keyless, ~5,000 characters/day/IP quota); `MicrosoftTranslator` is an opt-in wrapper around the Azure AI Translator v3 REST API, configured via `MicrosoftTranslator.SubscriptionKey`/`.Region` or the `L10NSHARP_TRANSLATOR_KEY`/`L10NSHARP_TRANSLATOR_REGION` environment variables.
 
 ### Changed
 
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- [L10NSharp.Windows.Forms] Fixed `LanguageChoosingDialog`'s fail-safe, on-the-fly translation of its title/message/OK button, which had been silently broken since the Bing/Microsoft Translator v1 SOAP API it used was retired. It now uses the free, keyless MyMemory Translation API by default; host apps that want more robust translation can opt in to the new public `MicrosoftTranslator` class (Azure AI Translator v3) by setting a subscription key. See [#163](https://github.com/sillsdev/l10nsharp/issues/163). The SampleApp has a "Show Language Chooser" button so you can see it in action without needing to fake a missing-locale scenario.
+- [L10NSharp.Windows.Forms] Fixed `LanguageChoosingDialog`'s fail-safe, on-the-fly translation of its title/message/OK button, which had been silently broken since the Bing/Microsoft Translator v1 SOAP API it used was retired. It now uses the free, keyless MyMemory Translation API by default; host apps that want more robust translation can opt in to the new public `MicrosoftTranslator` class (Azure AI Translator v3) by setting a subscription key (see "Added", above). See [#163](https://github.com/sillsdev/l10nsharp/issues/163). The SampleApp has a "Show Language Chooser" button so you can see it in action without needing to fake a missing-locale scenario.
 
 ### Removed
 

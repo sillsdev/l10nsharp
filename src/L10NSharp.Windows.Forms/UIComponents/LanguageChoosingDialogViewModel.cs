@@ -1,5 +1,5 @@
 using System;
-using L10NSharp.Windows.Forms.Translators;
+using L10NSharp.Translators;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {

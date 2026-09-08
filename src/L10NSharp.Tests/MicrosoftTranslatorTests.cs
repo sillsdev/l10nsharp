@@ -1,8 +1,8 @@
 using System;
-using L10NSharp.Windows.Forms.Translators;
+using L10NSharp.Translators;
 using NUnit.Framework;
 
-namespace L10NSharp.Windows.Forms.Tests.Translators
+namespace L10NSharp.Tests
 {
 	[TestFixture]
 	public class MicrosoftTranslatorTests
