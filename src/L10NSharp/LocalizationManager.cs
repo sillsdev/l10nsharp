@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using L10NSharp.Pseudo;
 using L10NSharp.TMXUtils;
 using L10NSharp.XLiffUtils;
 
@@ -14,6 +15,14 @@ namespace L10NSharp
 	public static class LocalizationManager
 	{
 		public const string kDefaultLang = "en";
+
+		/// <summary>
+		/// The standard pseudo-locale tag. Any lookup for this language returns the English
+		/// text pseudolocalized (vowels doubled and accented, bracketed) at runtime; no translation files
+		/// exist or are created for it.
+		/// </summary>
+		public const string PseudoLocalizationLanguageId = "qps-ploc";
+
 		internal const string kL10NPrefix = "_L10N_:";
 		internal const string kAppVersionPropTag = "x-appversion";
 
@@ -40,6 +49,25 @@ namespace L10NSharp
 		/// translation didn't exist.
 		/// </summary>
 		public static bool ReturnOnlyApprovedStrings;
+
+		/// <summary>
+		/// When true, the qps-ploc pseudo-locale is included in GetAvailableLocalizedLanguages()
+		/// (and hence in the language lists shown to users). Lookups for qps-ploc work
+		/// regardless of this setting; it only controls whether the pseudo-locale is advertised.
+		/// Default: false.
+		/// </summary>
+		public static bool OfferPseudoLocalization { get; set; }
+
+		/// <summary>
+		/// Applies the same pseudolocalization transform used for qps-ploc lookups to the given
+		/// English text. Exposed so applications can pseudolocalize strings that take paths
+		/// around L10NSharp.
+		/// </summary>
+		[PublicAPI]
+		public static string PseudoLocalize(string english) => PseudoLocalization.Transform(english);
+
+		internal static bool IsPseudoLanguageId(string langId) =>
+			string.Equals(langId, PseudoLocalizationLanguageId, StringComparison.OrdinalIgnoreCase);
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
