@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using static System.String;
 
@@ -114,7 +113,6 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlIgnore]
-        [MemberNotNullWhen(false, nameof(Id), nameof(Source), nameof(Target))]
 		public bool IsEmpty =>
 			IsNullOrEmpty(Id) && Notes.Count == 0 && Source == null && Target == null;
 
@@ -206,7 +204,7 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public override string ToString()
 		{
-			return IsEmpty ? "Empty" : Id;
+			return IsNullOrEmpty(Id) ? "Empty" : Id!;
 		}
 
 		#endregion
