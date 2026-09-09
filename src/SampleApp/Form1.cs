@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using L10NSharp;
 using L10NSharp.Windows.Forms;
+using L10NSharp.Windows.Forms.UIComponents;
 using SampleApp.Properties;
 
 namespace SampleApp
@@ -10,6 +11,11 @@ namespace SampleApp
 	public partial class Form1 : Form
 	{
 		private Label _dynamicLabel;
+
+		// "ar" is deliberately excluded: LanguageChoosingDialog doesn't set RightToLeft, so
+		// Arabic would demo a layout bug rather than the translator.
+		private static readonly string[] kLanguageChoosingDialogDemoLanguages = { "de", "it", "fr" };
+		private static readonly Random kRandom = new Random();
 
 		public Form1()
 		{
@@ -61,6 +67,19 @@ namespace SampleApp
 			uiLanguageComboBox1.SelectedLanguage = Settings.Default.UserInterfaceLanguage;
 			UpdateDynamicLabel();
 			Controls.Add(_dynamicLabel);
+		}
+
+		// This demonstrates LanguageChoosingDialog's fail-safe, on-the-fly translation of its
+		// own title/message/OK button text: normally it's only shown when a requested UI
+		// language has no localization files installed, so this button lets you see it (and
+		// the translator behind it -- MyMemoryTranslator by default, or MicrosoftTranslator if
+		// you've set MicrosoftTranslator.SubscriptionKey) on demand. The target language is
+		// picked randomly each click so you can see a few different translations.
+		private void showLanguageChoosingDialogButton_Click(object sender, EventArgs e)
+		{
+			var cultureId = kLanguageChoosingDialogDemoLanguages[kRandom.Next(kLanguageChoosingDialogDemoLanguages.Length)];
+			using var dlg = new LanguageChoosingDialog(L10NCultureInfo.GetCultureInfo(cultureId), Icon);
+			dlg.ShowDialog(this);
 		}
 	}
 }
