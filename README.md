@@ -112,3 +112,29 @@ It is also possible to run the tests from inside Visual Studio or Rider.
   * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
 
 Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
+
+### Semantic versioning
+
+L10nSharp uses [GitVersion](https://gitversion.net/).
+
+- When a commit introduces a breaking change, include `+semver:major` at the start of the commit message.
+
+- For API additions or other backward-compatible enhancements, use `+semver:minor`.
+
+### Deployment on nuget.org
+
+Beta builds are published automatically to [nuget.org](https://www.nuget.org/) by the `build-test` GitHub Action.
+
+To publish an official release version:
+
+1. Push a Git tag in the format `v10.5.1`, matching the version calculated by GitVersion. In the typical case where there have been one or more beta releases since the previous release, the release version should match the latest beta version.
+
+2. Manually run the `Build, Test and Pack` workflow in GitHub Actions.
+
+## API Policy
+
+L10nSharp follows semantic versioning. For APIs this means:
+
+- Public APIs that become deprecated will be marked as obsolete.
+- Deprecated APIs, along with their obsolete tags, will remain available through the beta releases and for at least one subsequent stable release.
+- Deprecated APIs may be removed in a subsequent stable release.

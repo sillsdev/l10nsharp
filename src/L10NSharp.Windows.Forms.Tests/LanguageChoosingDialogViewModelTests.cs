@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using L10NSharp.Windows.Forms.Translators;
+using L10NSharp.Translators;
 using L10NSharp.Windows.Forms.UIComponents;
 using NUnit.Framework;
 
@@ -139,7 +139,10 @@ namespace L10NSharp.Windows.Forms.Tests
 			Assert.AreEqual("No localization for Spanish (español)", model.Message);
 			var translator = new TestTranslatorSpanishChokesOnFormatParam();
 			model.TranslateStrings(translator);
-			// Note: the test translator mimics Bing's behavior of replacing the English name of the requested language with the word "English" in the translation.
+			// Note: this fake translator's "chokes on {0}, then swaps in the word 'English'" behavior mimics a quirk of the old,
+			// now-removed BingTranslator. It's kept as a synthetic worst case for the retry-without-format-param fallback path
+			// below; the current default translator, MyMemoryTranslator, doesn't exhibit either behavior (verified live: it
+			// preserves a literal "{0}" through translation, and translates rather than substitutes the language name).
 			Assert.AreEqual("No choke No localization for English (español)", model.Message);
 			Assert.AreEqual("No choke OK", model.AcceptButtonText);
 			Assert.AreEqual("No choke Choose a Language", model.WindowTitle);

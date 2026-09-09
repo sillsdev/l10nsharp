@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using L10NSharp.Pseudo;
 using L10NSharp.XLiffUtils;
 // ReSharper disable StaticMemberInGenericType - these static fields are parameter-independent
 
@@ -262,6 +263,10 @@ namespace L10NSharp
 			var langsHavingLocalizations = (LoadedManagers == null ? new List<string>() :
 				LoadedManagers.Values.SelectMany(lm => lm.GetAvailableUILanguageTags())
 					.Distinct().ToList());
+			// The pseudo-locale is derived from the English strings at lookup time, so it is
+			// available whenever anything is, but is only advertised when the app opts in.
+			if (LocalizationManager.OfferPseudoLocalization && langsHavingLocalizations.Count > 0)
+				langsHavingLocalizations.Add(LocalizationManager.PseudoLocalizationLanguageId);
 			return langsHavingLocalizations;
 		}
 
@@ -269,6 +274,9 @@ namespace L10NSharp
 		{
 			if (LoadedManagers == null)
 				return false;
+			// The pseudo-locale is exactly as available as English.
+			if (LocalizationManager.IsPseudoLanguageId(langId))
+				langId = LocalizationManager.kDefaultLang;
 			return LoadedManagers.Values.Any(m => m.IsUILanguageAvailable(langId));
 		}
 
@@ -347,6 +355,8 @@ namespace L10NSharp
 		/// </summary>
 		public static int NumberApproved(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return StringCount(lang);
 			var approved = 0;
@@ -363,6 +373,8 @@ namespace L10NSharp
 		/// </summary>
 		public static float FractionApproved(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return 1.0F;
 			var total = Math.Max(StringCount(lang), StringCount(LocalizationManager.kDefaultLang));
@@ -378,6 +390,8 @@ namespace L10NSharp
 		/// </summary>
 		public static int NumberTranslated(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return StringCount(lang);
 			var translated = 0;
@@ -394,6 +408,8 @@ namespace L10NSharp
 		/// </summary>
 		public static float FractionTranslated(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			if (lang == LocalizationManager.kDefaultLang)
 				return 1.0F;
 			var total = Math.Max(StringCount(lang), StringCount(LocalizationManager.kDefaultLang));
@@ -409,6 +425,8 @@ namespace L10NSharp
 		/// </summary>
 		public static int StringCount(string lang)
 		{
+			if (LocalizationManager.IsPseudoLanguageId(lang))
+				lang = LocalizationManager.kDefaultLang; // pseudo is exactly as complete as English
 			var count = 0;
 			foreach (var lm in s_loadedManagers.Values)
 			{
@@ -465,6 +483,19 @@ namespace L10NSharp
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, LocalizationManager.UILanguageId);
 		}
 
+		/// <summary>
+		/// For the paths where no string cache is available: the caller-supplied englishText
+		/// (pseudolocalized if langId is the pseudo-locale), or fallback when there is none.
+		/// </summary>
+		private static string EnglishTextOrFallback(string? englishText, string langId, string fallback)
+		{
+			if (string.IsNullOrEmpty(englishText))
+				return fallback;
+			return LocalizationManager.IsPseudoLanguageId(langId)
+				? PseudoLocalization.Transform(englishText!)
+				: englishText!;
+		}
+
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets a string for the specified application id and string id, in the requested
@@ -493,11 +524,11 @@ namespace L10NSharp
 						throw new ObjectDisposedException(
 							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
 					}
-					return string.IsNullOrEmpty(englishText) ? id : englishText!;
+					return EnglishTextOrFallback(englishText, langId, id);
 				}
 
-				if (!string.IsNullOrEmpty(englishText) && langId == LocalizationManager.kDefaultLang)
-					return englishText!;
+				if (langId == LocalizationManager.kDefaultLang || LocalizationManager.IsPseudoLanguageId(langId))
+					return EnglishTextOrFallback(englishText, langId, id);
 				return id;
 			}
 			if (!LoadedManagers.TryGetValue(appId, out var lm))
@@ -510,11 +541,22 @@ namespace L10NSharp
 							$"The application id '{appId}' refers to a LocalizationManagerInternal that has been disposed");
 					}
 
-					return string.IsNullOrEmpty(englishText) ? id : englishText!;
+					return EnglishTextOrFallback(englishText, langId, id);
 				}
 				throw new ArgumentException(
 					$"The application id '{appId}' does not have an associated localization manager. " +
 					$"Initialized LMs are {string.Join(", ", LoadedManagers.Keys)}");
+			}
+
+			// For the pseudo-locale, pseudolocalize the English text. As for English, the
+			// caller-supplied englishText wins over the cache. Note that this never engages the
+			// dynamic-string collection machinery below: no files exist or are written for the
+			// pseudo-locale.
+			if (LocalizationManager.IsPseudoLanguageId(langId))
+			{
+				return PseudoLocalization.Transform(englishText ??
+					lm.GetStringFromStringCache(LocalizationManager.kDefaultLang, id) ??
+					string.Empty);
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless
@@ -568,6 +610,10 @@ namespace L10NSharp
 		{
 			if (langId is null || langId.Length == 0)
 				return langId;
+			// The pseudo-locale never maps to or from a real language, and no localization
+			// files exist for it, so don't try to load any.
+			if (LocalizationManager.IsPseudoLanguageId(langId))
+				return langId;
 			// It's a concurrent dictionary, so we can (for performance) try this without a lock.
 			if (MapToExistingLanguage.TryGetValue(langId, out var realId))
 				return realId;
@@ -614,6 +660,10 @@ namespace L10NSharp
 
 			if (string.IsNullOrEmpty(langId) || string.IsNullOrEmpty(id))
 				return false;
+
+			// Every English string is by definition available in the pseudo-locale.
+			if (LocalizationManager.IsPseudoLanguageId(langId))
+				langId = LocalizationManager.kDefaultLang;
 
 			var str = MapToExistingLanguageOrAddMapping(id, langId, out _);
 			return !string.IsNullOrEmpty(str);
@@ -712,6 +762,14 @@ namespace L10NSharp
 		{
 			if (string.IsNullOrWhiteSpace(stringId))
 				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
+			// For the pseudo-locale, pseudolocalize the English text (as for English, the
+			// caller-supplied englishText wins over the cache).
+			if (LocalizationManager.IsPseudoLanguageId(LocalizationManager.UILanguageId))
+			{
+				return PseudoLocalization.Transform(
+					LocalizationManager.StripOffLocalizationInfoFromText(englishText) ??
+					MapToExistingLanguageOrAddMapping(stringId, LocalizationManager.kDefaultLang, out _))!;
+			}
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 		}
@@ -743,12 +801,31 @@ namespace L10NSharp
 			if (string.IsNullOrEmpty(englishText))
 				throw new ArgumentException($"{nameof(englishText)} may not be empty (because common... that can't be what you meant to do...");
 
+			// If the pseudo-locale is in the list, it always has every string (derived from the
+			// English), so only languages preferred over it can win; anything after it is moot.
+			// English is also always available (the code-supplied englishText), so note whether
+			// it too was preferred over the pseudo-locale.
+			var pseudoIndex = langIds.FindIndex(LocalizationManager.IsPseudoLanguageId);
+			var englishPreferredOverPseudo = pseudoIndex >= 0 && langIds.Take(pseudoIndex)
+				.Any(l => l == "en" ||
+					(l != null && l.StartsWith("en-", StringComparison.OrdinalIgnoreCase)));
+			if (pseudoIndex >= 0)
+				langIds = langIds.Take(pseudoIndex).ToList();
+
 			var stringFromAnyLocalizationManager = GetStringFromAnyLocalizationManager(stringId, langIds, out languageIdUsed);
 
 			// Even if found in the English l10n file, we prefer to use the version that came from
 			// the code.
 			if (languageIdUsed == "en" || string.IsNullOrEmpty(stringFromAnyLocalizationManager))
 			{
+				// No language preferred over the pseudo-locale had the string (and English was
+				// not preferred over it), so pseudolocalize the code-supplied English.
+				if (pseudoIndex >= 0 && !englishPreferredOverPseudo)
+				{
+					languageIdUsed = LocalizationManager.PseudoLocalizationLanguageId;
+					return PseudoLocalization.Transform(
+						LocalizationManager.StripOffLocalizationInfoFromText(englishText));
+				}
 				languageIdUsed = "en";
 				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 			}

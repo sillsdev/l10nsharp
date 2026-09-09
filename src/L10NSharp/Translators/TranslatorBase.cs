@@ -1,22 +1,23 @@
-using System;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using L10NSharp.Utility;
 
-namespace L10NSharp.Windows.Forms.Translators
+namespace L10NSharp.Translators
 {
 	/// ----------------------------------------------------------------------------------------
-	internal abstract class TranslatorBase
+	public abstract class TranslatorBase
 	{
 		/// ------------------------------------------------------------------------------------
-		protected string m_srcCultureId;
+		protected string? m_srcCultureId;
 		/// ------------------------------------------------------------------------------------
-		protected string m_tgtCultureId;
+		protected string? m_tgtCultureId;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Translate the specified text.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public virtual string TranslateText(string srcText)
+		public virtual string? TranslateText(string srcText)
 		{
 			if (string.IsNullOrEmpty(srcText))
 				return null;
@@ -24,7 +25,7 @@ namespace L10NSharp.Windows.Forms.Translators
 			try
 			{
 				int paramCount = PreTranslateProcess(ref srcText);
-				string result = InternalTranslate(srcText);
+				string? result = InternalTranslate(srcText);
 				return (result == null ? null : PostTranslateProcess(paramCount, result));
 			}
 			catch
@@ -38,7 +39,7 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// Internal method for translating the specified text.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		protected virtual string InternalTranslate(string srcText)
+		protected virtual string? InternalTranslate(string srcText)
 		{
 			throw new NotImplementedException();
 		}
@@ -74,7 +75,7 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// string.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		protected virtual string PostTranslateProcess(int paramCount, string text)
+		protected virtual string? PostTranslateProcess(int paramCount, string? text)
 		{
 			if (text == null)
 				return null;
@@ -100,7 +101,8 @@ namespace L10NSharp.Windows.Forms.Translators
 		/// Removes accelerator ampersands from the specified text.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string RemoveAcceleratorAmpersands(string text)
+		[return: NotNullIfNotNull("text")]
+		public static string? RemoveAcceleratorAmpersands(string? text)
 		{
 			if (text == null)
 				return null;
