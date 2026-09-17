@@ -1154,10 +1154,12 @@ namespace L10NSharp.Tests
 				AddChineseBareTranslation(installedFolder);
 				AddChineseOfChinaTranslation(installedFolder);
 				AddChineseOfTaiwanTranslation(installedFolder);
-				LocalizationManagerInternal<T>.ChooseFallbackLanguage();
 				var manager = LocalizationManager.Create("zh", AppId, AppName, AppVersion, installedFolder,
 					$"Temp/{Path.GetFileName(folder.Path)}/user", new string[] { });
 				LocalizationManagerInternal<T>.LoadedManagers[AppId] = (ILocalizationManagerInternal<T>)manager;
+
+				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
+				Assert.That(langs, Is.EquivalentTo(new[] { "en", "zh", "zh-CN", "zh-TW" }));
 
 				// The UI language should be set to the exact match "zh", not one of the specifics.
 				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo("zh"));

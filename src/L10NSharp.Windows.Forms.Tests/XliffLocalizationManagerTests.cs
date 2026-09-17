@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using L10NSharp.XLiffUtils;
@@ -15,6 +17,11 @@ namespace L10NSharp.Windows.Forms.Tests
 		protected const string HigherVersion = "2.0.0";
 		protected const string LowerVersion = "0.0.1";
 		protected const string LiteralNewline = "\\n";
+
+		/// <remarks>Tests replace this static hook, so it has to be put back: a stub
+		/// installed by one test would otherwise still be in place for later tests.</remarks>
+		private static readonly Func<string, Icon, string> s_defaultChooseFallbackLanguage =
+			LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguageWinforms;
 
 		internal ILocalizationManagerInternalWinforms<XLiffDocument> CreateLocalizationManager(
 			string appId, string appName, string appVersion, string directoryOfInstalledLocFiles,
@@ -86,6 +93,8 @@ namespace L10NSharp.Windows.Forms.Tests
 			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
 			LocalizationManagerInternalWinforms<XLiffDocument>.MapToExistingLanguage.Clear();
 			LocalizationManagerWinforms.SetUILanguage(LocalizationManager.kDefaultLang, false);
+			LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguageWinforms =
+				s_defaultChooseFallbackLanguage;
 		}
 
 		private void AddEnglishTranslation(string folderPath, string appVersion)
@@ -230,18 +239,20 @@ namespace L10NSharp.Windows.Forms.Tests
 				AddChineseBareTranslation(installedFolder);
 				AddChineseOfChinaTranslation(installedFolder);
 				AddChineseOfTaiwanTranslation(installedFolder);
-				var userPromptCount = 0;
 				LocalizationManagerInternalWinforms<XLiffDocument>.ChooseFallbackLanguageWinforms = (langTag, icon) =>
 				{
-					userPromptCount++;
+					Assert.Fail(
+						"ChooseFallbackLanguageWinforms should not have been called, but was called with langTag={0}",
+						langTag);
 					return langTag;
 				};
 				var manager = LocalizationManagerWinforms.Create("zh", AppId, AppName, AppVersion, installedFolder,
 					userRelativeFolder, null, new string[] { });
-				// Exact match available — no prompt should have been shown.
-				Assert.That(userPromptCount, Is.EqualTo(0));
 				Assert.That(LocalizationManager.UILanguageId, Is.EqualTo("zh"));
 				LocalizationManagerInternal<XLiffDocument>.LoadedManagers[AppId] = (ILocalizationManagerInternal<XLiffDocument>)manager;
+
+				var langs = LocalizationManager.GetAvailableLocalizedLanguages();
+				Assert.That(langs, Is.EquivalentTo(new[] { "en", "zh", "zh-CN", "zh-TW" }));
 
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh"), Is.True, "zh should find zh (exact)");
 				Assert.That(LocalizationManager.GetIsStringAvailableForLangId("theId", "zh-CN"), Is.True, "zh-CN should find zh-CN");
