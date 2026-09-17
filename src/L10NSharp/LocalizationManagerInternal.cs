@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,10 +13,10 @@ using L10NSharp.XLiffUtils;
 
 namespace L10NSharp
 {
-	internal class LocalizationManagerInternal<T>
+	internal class LocalizationManagerInternal<T> where T : class
 	{
 		protected static List<string> s_fallbackLanguageIds =
-			new List<string>(new[] { LocalizationManager.kDefaultLang });
+			new List<string> { LocalizationManager.kDefaultLang };
 
 		/// <summary>
 		/// Map from the given language code to a variant we actually have.  (It can map from a
@@ -140,7 +141,7 @@ namespace L10NSharp
 		public static ILocalizationManager CreateXliff(string desiredUiLangId, string appId,
 			string appName, string appVersion, string directoryOfInstalledXliffFiles,
 			string relativeSettingPathForLocalizationFolder,
-			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			IEnumerable<MethodInfo>? additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
 			if (string.IsNullOrWhiteSpace(appId))
@@ -175,14 +176,14 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static ILocalizationManagerInternal<T> GetLocalizationManagerForComponent(
+		internal static ILocalizationManagerInternal<T>? GetLocalizationManagerForComponent(
 			IComponent component)
 		{
 			return LoadedManagers.Values.FirstOrDefault(lm => lm.ComponentCache.ContainsKey(component));
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static ILocalizationManagerInternal<T> GetLocalizationManagerForString(string id)
+		internal static ILocalizationManagerInternal<T>? GetLocalizationManagerForString(string id)
 		{
 			return LoadedManagers.Values.FirstOrDefault(
 				lm => lm.StringCache.GetString(LocalizationManager.UILanguageId, id) != null);
@@ -335,7 +336,7 @@ namespace L10NSharp
 					// (short of at least a major change of API).
 					return null; // to the Select; filtered out below
 				}
-			}).Where(ci => ci != null));
+			}).OfType<L10NCultureInfo>());
 
 			if (!returnOnlyLanguagesHavingLocalizations)
 				return from ci in allLangs
@@ -442,7 +443,7 @@ namespace L10NSharp
 		/// for the specified object cannot be found for the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetStringForObject(IComponent component, string englishText)
+		public static string GetStringForObject(IComponent component, string? englishText)
 		{
 			var lm = GetLocalizationManagerForComponent(component);
 
@@ -453,7 +454,7 @@ namespace L10NSharp
 			}
 
 			return LocalizationManager.StripOffLocalizationInfoFromText(
-				englishText ?? Utils.GetProperty(component, "Text") as string);
+				englishText ?? Utils.GetProperty(component, "Text") as string) ?? string.Empty;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -477,7 +478,7 @@ namespace L10NSharp
 		/// language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetDynamicString(string appId, string id, string englishText, string comment)
+		public static string GetDynamicString(string appId, string id, string englishText, string? comment)
 		{
 			return GetDynamicStringOrEnglish(appId, id, englishText, comment, LocalizationManager.UILanguageId);
 		}
@@ -486,13 +487,13 @@ namespace L10NSharp
 		/// For the paths where no string cache is available: the caller-supplied englishText
 		/// (pseudolocalized if langId is the pseudo-locale), or fallback when there is none.
 		/// </summary>
-		private static string EnglishTextOrFallback(string englishText, string langId, string fallback)
+		private static string EnglishTextOrFallback(string? englishText, string langId, string fallback)
 		{
 			if (string.IsNullOrEmpty(englishText))
 				return fallback;
 			return LocalizationManager.IsPseudoLanguageId(langId)
-				? PseudoLocalization.Transform(englishText)
-				: englishText;
+				? PseudoLocalization.Transform(englishText!)
+				: englishText!;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -507,11 +508,11 @@ namespace L10NSharp
 		/// langId = 'en', irrespective of what is in l10n file.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetDynamicStringOrEnglish(string appId, string id, string englishText,
-			string comment, string langId)
+		public static string GetDynamicStringOrEnglish(string appId, string id, string? englishText,
+			string? comment, string langId)
 		{
 			if (string.IsNullOrWhiteSpace(id))
-				return string.IsNullOrEmpty(englishText) ? string.Empty : englishText;
+				return string.IsNullOrEmpty(englishText) ? string.Empty : englishText!;
 			// This happens in unit test environments or apps that have imported a library that
 			// is localized, but the app itself isn't initializing L10N yet.
 			if (LoadedManagers.Count == 0)
@@ -554,7 +555,8 @@ namespace L10NSharp
 			if (LocalizationManager.IsPseudoLanguageId(langId))
 			{
 				return PseudoLocalization.Transform(englishText ??
-					lm.GetStringFromStringCache(LocalizationManager.kDefaultLang, id));
+					lm.GetStringFromStringCache(LocalizationManager.kDefaultLang, id) ??
+					string.Empty);
 			}
 
 			// If they asked for English, we are going to use the supplied englishText, regardless
@@ -570,7 +572,7 @@ namespace L10NSharp
 			}
 
 			if (!lm.CollectUpNewStringsDiscoveredDynamically)
-				return englishText;
+				return englishText ?? string.Empty;
 
 			var locInfo = new LocalizingInfo(id)
 			{
@@ -588,7 +590,7 @@ namespace L10NSharp
 
 			lm.StringCache.UpdateLocalizedInfo(locInfo);
 			lm.SaveIfDirty(null);// this will be common for GetDynamic string on users restricted from writing to ProgramData
-			return englishText;
+			return englishText ?? string.Empty;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -603,10 +605,11 @@ namespace L10NSharp
 		/// <remarks>
 		/// <see cref="XliffLocalizedStringCache.LoadXliffAndUpdateExistingLanguageMap"/> must load "es-ES" before "es" will map to "es-ES".
 		/// </remarks>
-		internal static string MapToExistingLanguageIfPossible(string langId)
+		[return: NotNullIfNotNull("langId")]
+		internal static string? MapToExistingLanguageIfPossible(string? langId)
 		{
-			if (string.IsNullOrEmpty(langId))
-				return null;
+			if (langId is null || langId.Length == 0)
+				return langId;
 			// The pseudo-locale never maps to or from a real language, and no localization
 			// files exist for it, so don't try to load any.
 			if (LocalizationManager.IsPseudoLanguageId(langId))
@@ -667,7 +670,7 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static string GetStringFromAnyLocalizationManager(string stringId)
+		internal static string? GetStringFromAnyLocalizationManager(string stringId)
 		{
 			if (LocalizationManager.StrictInitializationMode)
 			{
@@ -690,8 +693,8 @@ namespace L10NSharp
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static string GetStringFromAnyLocalizationManager(string stringId,
-			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		internal static string? GetStringFromAnyLocalizationManager(string stringId,
+			IEnumerable<string> preferredLanguageIds, out string? languageIdUsed)
 		{
 			foreach (var langId in preferredLanguageIds)
 			{
@@ -703,7 +706,7 @@ namespace L10NSharp
 			return null;
 		}
 
-		protected static string MapToExistingLanguageOrAddMapping(string stringId, string langId,
+		protected static string? MapToExistingLanguageOrAddMapping(string stringId, string langId,
 			out string languageIdUsed)
 		{
 			var realLangId = MapToExistingLanguageIfPossible(langId);
@@ -732,7 +735,7 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment)
+		public static string GetString(string stringId, string englishText, string? comment)
 		{
 			return GetString(stringId, englishText, comment, null, null, null);
 		}
@@ -743,7 +746,7 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment, IComponent component)
+		public static string GetString(string stringId, string englishText, string? comment, IComponent? component)
 		{
 			return GetString(stringId, englishText, comment, null, null, component);
 		}
@@ -754,8 +757,8 @@ namespace L10NSharp
 		/// a string cannot be found for the specified id and the current UI language.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment, string englishToolTipText,
-			string englishShortcutKey, IComponent component)
+		public static string GetString(string stringId, string englishText, string? comment, string? englishToolTipText,
+			string? englishShortcutKey, IComponent? component)
 		{
 			if (string.IsNullOrWhiteSpace(stringId))
 				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
@@ -765,7 +768,7 @@ namespace L10NSharp
 			{
 				return PseudoLocalization.Transform(
 					LocalizationManager.StripOffLocalizationInfoFromText(englishText) ??
-					MapToExistingLanguageOrAddMapping(stringId, LocalizationManager.kDefaultLang, out _));
+					MapToExistingLanguageOrAddMapping(stringId, LocalizationManager.kDefaultLang, out _))!;
 			}
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
@@ -779,8 +782,8 @@ namespace L10NSharp
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment,
-			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		public static string GetString(string stringId, string englishText, string? comment,
+			IEnumerable<string> preferredLanguageIds, out string? languageIdUsed)
 		{
 			if (string.IsNullOrWhiteSpace(stringId))
 			{
@@ -827,7 +830,7 @@ namespace L10NSharp
 				return LocalizationManager.StripOffLocalizationInfoFromText(englishText);
 			}
 
-			return stringFromAnyLocalizationManager;
+			return stringFromAnyLocalizationManager!;
 		}
 
 		/// <summary>

@@ -17,7 +17,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("xml:lang")]
-		public string NoteLang { get; set; }
+		public string? NoteLang { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -25,7 +25,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("from")]
-		public string From { get; set; }
+		public string? From { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -41,7 +41,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("annotates")]
-		public string Annotates { get; set; }
+		public string? Annotates { get; set; }
 
 
 
@@ -51,7 +51,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlText]
-		public string Text { get; set; }
+		public string? Text { get; set; }
 
 		#endregion
 
@@ -104,7 +104,7 @@ namespace L10NSharp.XLiffUtils
 		/// Adds the note.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static bool AddNote(string lang, string text, List<XLiffNote> noteList)
+		public static bool AddNote(string? lang, string text, List<XLiffNote> noteList)
 		{
 			var note = new XLiffNote();
 			note.Text = text;

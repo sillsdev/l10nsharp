@@ -15,10 +15,10 @@ namespace L10NSharp.CodeReader
 	/// ------------------------------------------------------------------------------------
 	public class StringExtractor<T>
 	{
-		private MethodInfo[] _getStringMethodOverloads;
-		private List<LocalizingInfo> _getStringCallsInfo;
-		private Dictionary<string, LocalizingInfo> _extenderInfo;
-		private List<ILInstruction> _instructions;
+		private MethodInfo[] _getStringMethodOverloads = Array.Empty<MethodInfo>();
+		private List<LocalizingInfo> _getStringCallsInfo = new List<LocalizingInfo>();
+		private Dictionary<string, LocalizingInfo> _extenderInfo = new Dictionary<string, LocalizingInfo>();
+		private List<ILInstruction> _instructions = new List<ILInstruction>();
 		private readonly HashSet<string> _scannedTypes = new HashSet<string>();
 
 		public List<string> ExtractionExceptions = new List<string>();
@@ -34,8 +34,8 @@ namespace L10NSharp.CodeReader
 
 		/// ------------------------------------------------------------------------------------
 		public IReadOnlyList<LocalizingInfo> DoExtractingWork(
-			IEnumerable<MethodInfo> additionalLocalizationMethods,
-			string[] namespaceBeginnings, BackgroundWorker worker)
+			IEnumerable<MethodInfo>? additionalLocalizationMethods,
+			string[] namespaceBeginnings, BackgroundWorker? worker)
 		{
 			_getStringMethodOverloads = typeof(LocalizationManager)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -43,7 +43,7 @@ namespace L10NSharp.CodeReader
 				.Union(typeof(L10NStringExtensions)
 				.GetMethods(BindingFlags.Static | BindingFlags.Public)
 				.Where(m => m.Name == "Localize"))
-				.Union(additionalLocalizationMethods ?? new MethodInfo[0])
+				.Union(additionalLocalizationMethods ?? Array.Empty<MethodInfo>())
 				.ToArray();
 
 			_getStringCallsInfo = new List<LocalizingInfo>();
@@ -193,7 +193,7 @@ namespace L10NSharp.CodeReader
 
 				foreach (var type in typesInAssembly
 					.Where(t => t != null && !typesToScan.Contains(t))
-					.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName.StartsWith(nsb))))
+					.Where(type => namespaceBeginnings.Count == 0 || namespaceBeginnings.Any(nsb => type.FullName?.StartsWith(nsb) ?? false)))
 				{
 					typesToScan.Add(type);
 				}
@@ -208,13 +208,13 @@ namespace L10NSharp.CodeReader
 			/// ------------------------------------------------------------------------------------
 			public bool Equals(LocalizingInfo x, LocalizingInfo y)
 			{
-				return x.Id.Equals(y.Id, StringComparison.Ordinal);
+				return string.Equals(x.Id, y.Id, StringComparison.Ordinal);
 			}
 
 			/// ------------------------------------------------------------------------------------
 			public int GetHashCode(LocalizingInfo obj)
 			{
-				return obj.Id.GetHashCode();
+				return obj.Id?.GetHashCode() ?? 0;
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace L10NSharp.CodeReader
 		/// If this is set, no other loaded assemblies are scanned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public Assembly[] ExternalAssembliesToScan;
+		public Assembly[]? ExternalAssembliesToScan;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -300,7 +300,6 @@ namespace L10NSharp.CodeReader
 #endif
 				try
 				{
-					_instructions = new List<ILInstruction>(new ILReader<T>(method));
 
 					var methodCallsInMethod = GetMethodCalls(method);
 					foreach (var getStringOverload in _getStringMethodOverloads)
@@ -328,6 +327,7 @@ namespace L10NSharp.CodeReader
 		/// ------------------------------------------------------------------------------------
 		private List<Tuple<int, MethodBase>> GetMethodCalls(MethodBase caller)
 		{
+			_instructions = new List<ILInstruction>(new ILReader<T>(caller));
 			var methodCalls = new List<Tuple<int, MethodBase>>();
 			var module = caller.Module;
 
@@ -336,8 +336,8 @@ namespace L10NSharp.CodeReader
 				if (_instructions[i].opCode != OpCodes.Call)
 					continue;
 
-				Type[] genericMethodArguments = null;
-				var genericTypeArguments = caller.DeclaringType.GetGenericArguments();
+				Type[]? genericMethodArguments = null;
+				var genericTypeArguments = caller.DeclaringType!.GetGenericArguments();
 
 				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
@@ -345,7 +345,7 @@ namespace L10NSharp.CodeReader
 				try
 				{
 					methodCalls.Add(new Tuple<int, MethodBase>(i,
-						module.ResolveMethod((int)_instructions[i].operand,
+						module.ResolveMethod((int)_instructions[i].operand!,
 						genericTypeArguments, genericMethodArguments)));
 				}
 				catch (FileNotFoundException e1)
@@ -388,7 +388,7 @@ namespace L10NSharp.CodeReader
 		/// This is special because, as an extension method the 1st parameter in "hello".Localize("myapp.greeting") will be the string ("hello") itself,
 		/// which is backwards from the convention used in the GetString(id, theString, etc.)
 		/// </summary>
-		private LocalizingInfo GetInfoForCallToLocalizeExtension(Module module, int instrIndex, int paramsInMethodCall)
+		private LocalizingInfo? GetInfoForCallToLocalizeExtension(Module module, int instrIndex, int paramsInMethodCall)
 		{
 			var parameters = GetParameters(module, instrIndex, paramsInMethodCall);
 
@@ -399,7 +399,7 @@ namespace L10NSharp.CodeReader
 
 			var id = String.IsNullOrEmpty(parameters[1]) ? parameters[0] : parameters[1];
 
-			var locInfo = new LocalizingInfo(id) { Text = parameters[0] };
+			var locInfo = new LocalizingInfo(id!) { Text = parameters[0] };
 
 			//end part that differs from GetInfoForCallToLocalizationMethod
 
@@ -417,14 +417,14 @@ namespace L10NSharp.CodeReader
 			return locInfo;
 		}
 
-		private string[] GetParameters(Module module, int instrIndex, int paramsInMethodCall)
+		private string?[] GetParameters(Module module, int instrIndex, int paramsInMethodCall)
 		{
 			int parameterIndex = paramsInMethodCall - 1;
-			var parameters = new string[paramsInMethodCall];
+			var parameters = new string?[paramsInMethodCall];
 			for (int i = 1; ; i++)
 			{
 				if (_instructions[instrIndex - i].opCode == OpCodes.Ldstr)
-					parameters[parameterIndex--] = module.ResolveString((int) _instructions[instrIndex - i].operand);
+					parameters[parameterIndex--] = module.ResolveString((int)_instructions[instrIndex - i].operand!);
 				else if (_instructions[instrIndex - i].opCode != OpCodes.Call)
 				{
 					parameterIndex--;
@@ -439,7 +439,7 @@ namespace L10NSharp.CodeReader
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private LocalizingInfo GetInfoForCallToGetStringMethod(Module module,
+		private LocalizingInfo? GetInfoForCallToGetStringMethod(Module module,
 			int instrIndex, int paramsInMethodCall)
 		{
 			var parameters = GetParameters(module, instrIndex, paramsInMethodCall);
@@ -447,7 +447,7 @@ namespace L10NSharp.CodeReader
 			if (parameters[0] == null || parameters[1] == null)
 				return null;
 
-			var locInfo = new LocalizingInfo(parameters[0]) { Text = parameters[1] };
+			var locInfo = new LocalizingInfo(parameters[0]!) { Text = parameters[1]! };
 
 			if (paramsInMethodCall >= 3 && parameters[2] != null)
 				locInfo.Comment = parameters[2];
@@ -470,11 +470,11 @@ namespace L10NSharp.CodeReader
 
 			for (int i = 1; i < _instructions.Count; i++)
 			{
-				string text = null;
+				string? text;
 
 				if (_instructions[i].opCode == OpCodes.Ldstr)
 				{
-					text = module.ResolveString((int)_instructions[i].operand);
+					text = module.ResolveString((int)_instructions[i].operand!);
 					if (text.StartsWith(LocalizationManager.kL10NPrefix))
 					{
 						var locInfo = GetLocInfoForField(caller.ReflectedType.Name, text);
@@ -494,18 +494,18 @@ namespace L10NSharp.CodeReader
 				if (_instructions[i - 1].opCode == OpCodes.Ldnull)
 					continue;
 
-				Type[] genericMethodArguments = null;
-				var genericTypeArguments = caller.DeclaringType.GetGenericArguments();
+				Type[]? genericMethodArguments = null;
+				var genericTypeArguments = caller.DeclaringType!.GetGenericArguments();
 
 				if (!caller.IsConstructor && !caller.Name.Equals(".cctor"))
 					genericMethodArguments = caller.GetGenericArguments();
 
-				string fldName = null;
+				string? fldName;
 
-				MethodBase mi = null;
+				MethodBase? mi;
 				try
 				{
-					mi = module.ResolveMethod((int)_instructions[i].operand,
+					mi = module.ResolveMethod((int)_instructions[i].operand!,
 						genericTypeArguments, genericMethodArguments);
 
 				}
@@ -516,6 +516,9 @@ namespace L10NSharp.CodeReader
 					continue;
 				}
 
+				if (mi == null)
+					continue;
+
 				if (mi.Name.Equals("SetLocalizationPriority", StringComparison.Ordinal))
 				{
 					var priority = (LocalizationPriority)(_instructions[i - 1].opCode.Value - 22);
@@ -525,7 +528,7 @@ namespace L10NSharp.CodeReader
 				}
 
 				text = (i > 1 && _instructions[i - 1].opCode == OpCodes.Ldstr ?
-					module.ResolveString((int)_instructions[i - 1].operand) : null);
+					module.ResolveString((int)_instructions[i - 1].operand!) : null);
 
 				if (text == null)
 					continue;
@@ -557,7 +560,7 @@ namespace L10NSharp.CodeReader
 		private string GetFieldName(Module module, ILInstruction instruction)
 		{
 			if (instruction.opCode == OpCodes.Ldfld)
-				return module.ResolveField((int)instruction.operand).Name;
+				return module.ResolveField((int)instruction.operand!).Name;
 
 			return (instruction.opCode == OpCodes.Ldarg_0 ? "Form" : "throwaway");
 		}

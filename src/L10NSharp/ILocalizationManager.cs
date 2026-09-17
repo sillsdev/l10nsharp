@@ -92,6 +92,6 @@ namespace L10NSharp
 		/// Gets the localized text for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		string GetLocalizedString(string id, string defaultText);
+		string GetLocalizedString(string id, string? defaultText);
 	}
 }

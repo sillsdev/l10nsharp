@@ -10,10 +10,10 @@ namespace L10NSharp.CodeReader
 	internal class ILInstruction
 	{
 		public readonly OpCode opCode;
-		public readonly object operand;
+		public readonly object? operand;
 
 		/// ------------------------------------------------------------------------------------
-		public ILInstruction(OpCode opCode, object operand)
+		public ILInstruction(OpCode opCode, object? operand)
 		{
 			this.opCode = opCode;
 			this.operand = operand;
@@ -94,7 +94,7 @@ namespace L10NSharp.CodeReader
 				opCode = s_TwoByteOpCodes[code];
 			}
 
-			object operand = null;
+			object? operand = null;
 
 			switch (opCode.OperandType)
 			{

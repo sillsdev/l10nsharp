@@ -59,7 +59,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the translation unit for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public XLiffTransUnit GetTransUnitForId(string id)
+		public XLiffTransUnit? GetTransUnitForId(string id)
 		{
 			return File.Body.GetTransUnitForId(id);
 		}
@@ -82,7 +82,9 @@ namespace L10NSharp.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public bool AddTransUnit(ITransUnit tu)
 		{
-			return File.Body.AddTransUnit(tu as XLiffTransUnit);
+			if (tu is not XLiffTransUnit xliffTu)
+				return false;
+			return File.Body.AddTransUnit(xliffTu);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -90,9 +92,10 @@ namespace L10NSharp.XLiffUtils
 		/// Remove the specified translation unit.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public void RemoveTransUnit(ITransUnit tu)
+		public void RemoveTransUnit(ITransUnit? tu)
 		{
-			File.Body.RemoveTransUnit(tu as XLiffTransUnit);
+			if (tu is XLiffTransUnit xliffTu)
+				File.Body.RemoveTransUnit(xliffTu);
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -136,12 +139,14 @@ namespace L10NSharp.XLiffUtils
 			if (!System.IO.File.Exists(xLiffFile))
 				throw new FileNotFoundException("XLiff file not found.", xLiffFile);
 
-			Exception e;
+			Exception? e;
 			var xLiffDoc =
 				XliffXmlSerializationHelper.DeserializeFromFile<XLiffDocument>(xLiffFile, out e);
 
 			if (e != null)
 				throw e;
+			if (xLiffDoc == null)
+				throw new InvalidOperationException("XLiff file could not be deserialized.", e);
 
 			// Fill in the fast lookup dictionary.
 			var langId = xLiffDoc.File.TargetLang;
@@ -149,7 +154,7 @@ namespace L10NSharp.XLiffUtils
 				langId = xLiffDoc.File.SourceLang;
 			foreach (var tu in xLiffDoc.File.Body.TransUnitsUnordered)
 			{
-				if (xLiffDoc.File.Body.TranslationsById.ContainsKey(tu.Id))
+				if (xLiffDoc.File.Body.TranslationsById.ContainsKey(tu.Id!))
 				{
 					Console.WriteLine("WARNING: string ID \"{0}\" already found in \"{1}\".",
 						tu.Id, xLiffFile);
@@ -159,9 +164,9 @@ namespace L10NSharp.XLiffUtils
 						!LocalizationManager.ReturnOnlyApprovedStrings ||
 						(tu.TranslationStatus == TranslationStatus.Approved))
 				{
-					var target = tu.GetVariantForLang(langId);
+					var target = tu.GetVariantForLang(langId!);
 					if (target != null && !string.IsNullOrEmpty(target.Value))
-						xLiffDoc.File.Body.TranslationsById[tu.Id] = target.Value;
+						xLiffDoc.File.Body.TranslationsById[tu.Id!] = target.Value;
 				}
 			}
 
@@ -178,7 +183,7 @@ namespace L10NSharp.XLiffUtils
 		/// has an ID matching something in that. (This argument should always be supplied, but
 		/// for backwards compatibility we allow it to be omitted.)
 		/// </summary>
-		public XLiffTransUnit GetTransUnitForOrphan(XLiffTransUnit orphan, XLiffBody source = null)
+		public XLiffTransUnit? GetTransUnitForOrphan(XLiffTransUnit orphan, XLiffBody? source = null)
 		{
 			return File.Body.GetTransUnitForOrphan(orphan, source);
 		}

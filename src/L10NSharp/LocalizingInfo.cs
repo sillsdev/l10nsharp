@@ -99,11 +99,11 @@ namespace L10NSharp
 	/// ----------------------------------------------------------------------------------------
 	public class LocalizingInfo
 	{
-		protected IComponent _component;
-		protected string _id;
-		protected string _text;
-		protected string _shortcutKeys;
-		protected string _comment;
+		protected IComponent? _component;
+		protected string? _id;
+		protected string? _text;
+		protected string? _shortcutKeys;
+		protected string? _comment;
 		protected LocalizationCategory _category = LocalizationCategory.Unspecified;
 
 		#region Constructors
@@ -134,7 +134,7 @@ namespace L10NSharp
 		/// Initializes a new instance of the <see cref="LocalizingInfo"/> class.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public LocalizingInfo(string id)
+		public LocalizingInfo(string? id)
 		{
 			Id = id;
 			Priority = LocalizationPriority.MediumHigh;
@@ -177,7 +177,7 @@ namespace L10NSharp
 		/// Gets or sets the id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string Id
+		public string? Id
 		{
 			get
 			{
@@ -195,7 +195,7 @@ namespace L10NSharp
 				}
 				else
 				{
-					_id = _id.Trim().Replace("..", ".");//it happens...
+					_id = _id!.Trim().Replace("..", ".");//it happens...
 				}
 			}
 		}
@@ -205,7 +205,7 @@ namespace L10NSharp
 		/// Gets the component.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal IComponent Component
+		internal IComponent? Component
 		{
 			get { return _component; }
 			set
@@ -219,7 +219,7 @@ namespace L10NSharp
 		/// Gets or sets the language id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string LangId { get; set; }
+		public string? LangId { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -233,7 +233,7 @@ namespace L10NSharp
 		/// Gets or sets the comment.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string Comment
+		public string? Comment
 		{
 			get { return _comment; }
 			set { _comment = (value == "null" ? null : value); }
@@ -273,28 +273,28 @@ namespace L10NSharp
 		/// Gets or sets the group.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string Group { get; set; }
+		public string? Group { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets or sets the tooltip.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string ToolTipText { get; set; }
+		public string? ToolTipText { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets or sets the shortcutKeys.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string ShortcutKeys;
+		public string? ShortcutKeys;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
 		/// Gets the text of the object.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string Text
+		public string? Text
 		{
 			get
 			{

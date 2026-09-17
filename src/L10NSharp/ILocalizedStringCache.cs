@@ -1,18 +1,19 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace L10NSharp
 {
-	internal interface ILocalizedStringCache<T>
+	internal interface ILocalizedStringCache<T> where T : class
 	{
-		bool TryGetDocument(string langId, out T doc);
+		bool TryGetDocument(string langId, [NotNullWhen(true)] out T? doc);
 		IEnumerable<string> AvailableLangKeys { get; }
-		string GetString(string langId, string id);
-		string GetString(string langId, string id, bool formatForDisplay);
-		string GetToolTipText(string langId, string id);
-		string GetToolTipText(string langId, string id, bool formatForDisplay);
-		string GetShortcutKeysText(string langId, string id);
-		string GetComment(string id);
-		string GetValueForExactLangAndId(string langId, string id, bool formatForDisplay);
+		string? GetString(string langId, string id);
+		string? GetString(string langId, string id, bool formatForDisplay);
+		string? GetToolTipText(string langId, string id);
+		string? GetToolTipText(string langId, string id, bool formatForDisplay);
+		string? GetShortcutKeysText(string langId, string id);
+		string? GetComment(string id);
+		string? GetValueForExactLangAndId(string langId, string id, bool formatForDisplay);
 
 		void UpdateLocalizedInfo(LocalizingInfo locInfo);
 

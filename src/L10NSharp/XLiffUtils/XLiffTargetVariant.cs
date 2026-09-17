@@ -16,7 +16,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("xml:lang")]
-		public string Lang { get; set; }
+		public string? Lang { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -24,7 +24,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlText]
-		public string Value { get; set; }
+		public string? Value { get; set; }
 
 		#endregion
 	}

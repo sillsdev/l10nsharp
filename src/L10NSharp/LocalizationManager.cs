@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -26,7 +27,7 @@ namespace L10NSharp
 		internal const string kL10NPrefix = "_L10N_:";
 		internal const string kAppVersionPropTag = "x-appversion";
 
-		private static string s_uiLangId;
+		private static string? s_uiLangId;
 		internal static TranslationMemory TranslationMemoryKind { get; set; }
 
 		/// <summary>
@@ -64,7 +65,8 @@ namespace L10NSharp
 		/// around L10NSharp.
 		/// </summary>
 		[PublicAPI]
-		public static string PseudoLocalize(string english) => PseudoLocalization.Transform(english);
+		[return: NotNullIfNotNull("english")]
+		public static string? PseudoLocalize(string? english) => PseudoLocalization.Transform(english);
 
 		internal static bool IsPseudoLanguageId(string langId) =>
 			string.Equals(langId, PseudoLocalizationLanguageId, StringComparison.OrdinalIgnoreCase);
@@ -110,7 +112,7 @@ namespace L10NSharp
 			string appId, string appName, string appVersion, string directoryOfInstalledFiles,
 			string relativeSettingPathForLocalizationFolder,
 			string[] namespaceBeginnings,
-			IEnumerable<MethodInfo> additionalLocalizationMethods = null)
+			IEnumerable<MethodInfo>? additionalLocalizationMethods = null)
 		{
 			TranslationMemoryKind = TranslationMemory.XLiff;
 			return LocalizationManagerInternal<XLiffDocument>.CreateXliff(desiredUiLangId,
@@ -477,8 +479,8 @@ namespace L10NSharp
 		/// policy for this library.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string GetString(string stringId, string englishText, string comment,
-			IEnumerable<string> preferredLanguageIds, out string languageIdUsed)
+		public static string GetString(string stringId, string englishText, string? comment,
+			IEnumerable<string> preferredLanguageIds, out string? languageIdUsed)
 		{
 			switch (TranslationMemoryKind)
 			{
@@ -631,7 +633,8 @@ namespace L10NSharp
 			}
 		}
 
-		public static string StripOffLocalizationInfoFromText(string text)
+		[return: NotNullIfNotNull("text")]
+		public static string? StripOffLocalizationInfoFromText(string? text)
 		{
 			if (text == null || !text.StartsWith(kL10NPrefix))
 				return text;

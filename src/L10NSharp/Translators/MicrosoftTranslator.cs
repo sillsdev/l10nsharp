@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace L10NSharp.Translators
 		/// L10NSHARP_TRANSLATOR_KEY environment variable.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string SubscriptionKey { get; set; }
+		public static string? SubscriptionKey { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -41,7 +41,7 @@ namespace L10NSharp.Translators
 		/// L10NSHARP_TRANSLATOR_REGION environment variable.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string Region { get; set; }
+		public static string? Region { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -49,7 +49,7 @@ namespace L10NSharp.Translators
 		/// or the L10NSHARP_TRANSLATOR_KEY environment variable.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string EffectiveSubscriptionKey =>
+		public static string? EffectiveSubscriptionKey =>
 			string.IsNullOrEmpty(SubscriptionKey) ? Environment.GetEnvironmentVariable(kSubscriptionKeyEnvVar) : SubscriptionKey;
 
 		/// ------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace L10NSharp.Translators
 		/// L10NSHARP_TRANSLATOR_REGION environment variable.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static string EffectiveRegion =>
+		public static string? EffectiveRegion =>
 			string.IsNullOrEmpty(Region) ? Environment.GetEnvironmentVariable(kRegionEnvVar) : Region;
 
 		/// ------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ namespace L10NSharp.Translators
 	{
 		/// ------------------------------------------------------------------------------------
 		[DataMember(Name = "Text")]
-		public string Text { get; set; }
+		public string? Text { get; set; }
 	}
 
 	/// ----------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace L10NSharp.Translators
 	{
 		/// ------------------------------------------------------------------------------------
 		[DataMember(Name = "translations")]
-		public List<TranslationItem> Translations { get; set; }
+		public List<TranslationItem>? Translations { get; set; }
 	}
 
 	/// ----------------------------------------------------------------------------------------
@@ -147,10 +147,10 @@ namespace L10NSharp.Translators
 	{
 		/// ------------------------------------------------------------------------------------
 		[DataMember(Name = "text")]
-		public string Text { get; set; }
+		public string? Text { get; set; }
 
 		/// ------------------------------------------------------------------------------------
 		[DataMember(Name = "to")]
-		public string To { get; set; }
+		public string? To { get; set; }
 	}
 }

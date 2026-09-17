@@ -14,17 +14,18 @@ namespace L10NSharp.XLiffUtils
 	/// ----------------------------------------------------------------------------------------
 	internal class XliffLocalizationManager : ILocalizationManagerInternal<XLiffDocument>
 	{
-		public event EventHandler UiLanguageChanged;
+		public event EventHandler? UiLanguageChanged;
 
 		/// ------------------------------------------------------------------------------------
 		public const string FileExtension = ".xlf";
-		private readonly string _installedXliffFileFolder;
-		private readonly string _generatedDefaultXliffFileFolder;
-		private readonly string _customXliffFileFolder;
-		private readonly string _origExeExtension;
+		private readonly string? _installedXliffFileFolder;
+		private readonly string? _generatedDefaultXliffFileFolder;
+		private readonly string? _customXliffFileFolder;
+		private readonly string? _origExeExtension;
 		private readonly Version _appVersion;
+		private readonly ILocalizedStringCache<XLiffDocument>? _stringCache;
 
-		public Dictionary<IComponent, string> ComponentCache { get; }
+		public Dictionary<IComponent, string> ComponentCache { get; } = new Dictionary<IComponent, string>();
 
 		#region Static methods
 		/// ------------------------------------------------------------------------------------
@@ -83,7 +84,7 @@ namespace L10NSharp.XLiffUtils
 		internal XliffLocalizationManager(string appId, string origExtension, string appName,
 			string appVersion, string directoryOfInstalledXliffFiles,
 			string directoryForGeneratedDefaultXliffFile, string directoryOfUserModifiedXliffFiles,
-			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			IEnumerable<MethodInfo>? additionalLocalizationMethods,
 			params string[] namespaceBeginnings) : this(appId, appName ?? appId, appVersion)
 		{
 			// Test for a pathological case of bad install
@@ -95,7 +96,7 @@ namespace L10NSharp.XLiffUtils
 			_installedXliffFileFolder = directoryOfInstalledXliffFiles;
 			_generatedDefaultXliffFileFolder = directoryForGeneratedDefaultXliffFile;
 			DefaultStringFilePath = GetPathForLanguage(LocalizationManager.kDefaultLang,
-				false);
+				false) ?? throw new InvalidOperationException($"Default file path is null for language {LocalizationManager.kDefaultLang}");
 
 			CollectUpNewStringsDiscoveredDynamically = true;
 
@@ -105,8 +106,7 @@ namespace L10NSharp.XLiffUtils
 			if (string.IsNullOrEmpty(_customXliffFileFolder))
 				_customXliffFileFolder = null;
 
-			ComponentCache = new Dictionary<IComponent, string>();
-			StringCache = new XliffLocalizedStringCache(this);
+			_stringCache = new XliffLocalizedStringCache(this);
 		}
 
 		/// <summary>
@@ -145,7 +145,7 @@ namespace L10NSharp.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		private void CreateOrUpdateDefaultXliffFileIfNecessary(
-			IEnumerable<MethodInfo> additionalLocalizationMethods,
+			IEnumerable<MethodInfo>? additionalLocalizationMethods,
 			params string[] namespaceBeginnings)
 		{
 			// Make sure the folder exists.
@@ -153,7 +153,7 @@ namespace L10NSharp.XLiffUtils
 			if (dir != null && !Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var defaultStringFileInstalledPath = Path.Combine(_installedXliffFileFolder,
+			var defaultStringFileInstalledPath = Path.Combine(_installedXliffFileFolder ?? throw new InvalidOperationException($"Installed file path is null"),
 				GetXliffFileNameForLanguage(LocalizationManager.kDefaultLang));
 
 			if (ScanningForCurrentStrings && DefaultStringFileExistsAndHasContents())
@@ -164,7 +164,7 @@ namespace L10NSharp.XLiffUtils
 
 			if (DefaultStringFileExistsAndHasContents())
 			{
-				XAttribute verAttribute = null;
+				XAttribute? verAttribute = null;
 				try
 				{
 					var xmlDoc = XElement.Load(DefaultStringFilePath);
@@ -183,8 +183,8 @@ namespace L10NSharp.XLiffUtils
 					Console.WriteLine("WARNING - L10NSharp Update deleted corrupted {0}", DefaultStringFilePath);
 				}
 				if (verAttribute != null &&
-				    Version.TryParse(verAttribute.Value, out var existingVer) &&
-				    existingVer >= _appVersion)
+					Version.TryParse(verAttribute.Value, out var existingVer) &&
+					existingVer >= _appVersion)
 				{
 					return;
 				}
@@ -206,10 +206,10 @@ namespace L10NSharp.XLiffUtils
 				else
 				{
 					stringCache.UpdateLocalizedInfo(new LocalizingInfo("_dummyEntryToGetValidFile")
-						{
-							LangId = "en",
-							Text = "No strings were collected. This entry prevents an invalid, zero-length file. Delete this file to try regenerating it."
-						}
+					{
+						LangId = "en",
+						Text = "No strings were collected. This entry prevents an invalid, zero-length file. Delete this file to try regenerating it."
+					}
 					);
 				}
 			}
@@ -218,8 +218,8 @@ namespace L10NSharp.XLiffUtils
 
 		public static List<string> ExtractionExceptions = new List<string>();
 
-		public static IReadOnlyList<LocalizingInfo> ExtractStringsFromCode(string name,
-			IEnumerable<MethodInfo> additionalLocalizationMethods, string[] namespaceBeginnings)
+		public static IReadOnlyList<LocalizingInfo>? ExtractStringsFromCode(string name,
+			IEnumerable<MethodInfo>? additionalLocalizationMethods, string[] namespaceBeginnings)
 		{
 			try
 			{
@@ -276,7 +276,7 @@ namespace L10NSharp.XLiffUtils
 		/// set of localized strings.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string OriginalExecutableFile => Id + _origExeExtension;
+		public string OriginalExecutableFile => Id + (_origExeExtension ?? string.Empty);
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -300,16 +300,21 @@ namespace L10NSharp.XLiffUtils
 		/// <summary>
 		/// Full file name and path to the default string file (i.e. English strings).
 		/// </summary>
+		/// <remarks>Empty for instances created by the minimal constructor.</remarks>
 		/// ------------------------------------------------------------------------------------
-		internal string DefaultStringFilePath { get; }
+		internal string DefaultStringFilePath { get; } = string.Empty;
 
 		internal string DefaultInstalledStringFilePath =>
-			Path.Combine(_installedXliffFileFolder,
+			Path.Combine(
+				_installedXliffFileFolder ?? throw new InvalidOperationException(
+					$"{nameof(DefaultInstalledStringFilePath)} is not available on a localization manager created without a folder of installed XLIFF files."),
 				LocalizationManager.GetTranslationFileNameForLanguage(Id,
 					LocalizationManager.kDefaultLang));
 
 		/// ------------------------------------------------------------------------------------
-		public ILocalizedStringCache<XLiffDocument> StringCache { get; }
+		public ILocalizedStringCache<XLiffDocument> StringCache =>
+			_stringCache ?? throw new InvalidOperationException(
+				"There is no string cache on a localization manager created by the minimal constructor.");
 
 
 		/// ------------------------------------------------------------------------------------
@@ -328,7 +333,7 @@ namespace L10NSharp.XLiffUtils
 			get
 			{
 				HashSet<string> langIdsOfCustomizedLocales = new HashSet<string>();
-				string langId;
+				string? langId;
 				if (_customXliffFileFolder != null && Directory.Exists(_customXliffFileFolder))
 				{
 					if (LocalizationManager.UseLanguageCodeFolders)
@@ -340,7 +345,7 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							langIdsOfCustomizedLocales.Add(langId);
+							langIdsOfCustomizedLocales.Add(langId!);
 							yield return xliffFile;
 						}
 					}
@@ -350,10 +355,10 @@ namespace L10NSharp.XLiffUtils
 							$"{Id}.*{FileExtension}"))
 						{
 							langId = GetLangIdFromXliffFileName(xliffFile);
-							if (langId == LocalizationManager.kDefaultLang)
+							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							langIdsOfCustomizedLocales.Add(langId);
+							langIdsOfCustomizedLocales.Add(langId!);
 							yield return xliffFile;
 						}
 					}
@@ -369,9 +374,9 @@ namespace L10NSharp.XLiffUtils
 							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
 								continue;
 
-							if (!langIdsOfCustomizedLocales.Contains(langId))
+							if (!langIdsOfCustomizedLocales.Contains(langId!))
 							{
-								langIdsOfCustomizedLocales.Add(langId);
+								langIdsOfCustomizedLocales.Add(langId!);
 								yield return xliffFile;
 							}
 						}
@@ -382,9 +387,14 @@ namespace L10NSharp.XLiffUtils
 							$"{Id}.*{FileExtension}"))
 						{
 							langId = GetLangIdFromXliffFileName(xliffFile);
-							if (langId != LocalizationManager.kDefaultLang &&    //Don't return the english Xliff here because we separately process it first.
-								!langIdsOfCustomizedLocales.Contains(langId))
+							if (string.IsNullOrEmpty(langId) || langId == LocalizationManager.kDefaultLang)
+								continue;
+
+							if (!langIdsOfCustomizedLocales.Contains(langId!))
+							{
+								langIdsOfCustomizedLocales.Add(langId!);
 								yield return xliffFile;
+							}
 						}
 					}
 				}
@@ -394,7 +404,7 @@ namespace L10NSharp.XLiffUtils
 
 		#region Methods for caching and localizing objects.
 		/// ------------------------------------------------------------------------------------
-		public void SaveIfDirty(ICollection<string> langIdsToForceCreate)
+		public void SaveIfDirty(ICollection<string>? langIdsToForceCreate)
 		{
 			try
 			{
@@ -408,7 +418,7 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		internal static string GetLangIdFromXliffFileName(string fileName)
+		internal static string? GetLangIdFromXliffFileName(string fileName)
 		{
 			if (LocalizationManager.UseLanguageCodeFolders)
 			{
@@ -427,11 +437,11 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public string GetPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent)
+		public string? GetPathForLanguage(string langId, bool getCustomPathEvenIfNonexistent)
 		{
 			var filename = GetXliffFileNameForLanguage(langId);
 			if (langId == LocalizationManager.kDefaultLang)
-				return Path.Combine(_generatedDefaultXliffFileFolder, filename);
+				return Path.Combine(_generatedDefaultXliffFileFolder ?? throw new InvalidOperationException($"Generated default file path is null for language {langId}"), filename);
 			if (_customXliffFileFolder != null)
 			{
 				var customXliffFile = Path.Combine(_customXliffFileFolder, filename);
@@ -488,7 +498,7 @@ namespace L10NSharp.XLiffUtils
 		/// Gets the localized text for the specified id.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetLocalizedString(string id, string defaultText)
+		public string GetLocalizedString(string id, string? defaultText)
 		{
 			// For the pseudo-locale, pseudolocalize the English text (the code-supplied default
 			// wins over the cache, as for English).
@@ -496,16 +506,17 @@ namespace L10NSharp.XLiffUtils
 			{
 				return PseudoLocalization.Transform(
 					LocalizationManager.StripOffLocalizationInfoFromText(defaultText) ??
-					GetStringFromStringCache(LocalizationManager.kDefaultLang, id));
+					GetStringFromStringCache(LocalizationManager.kDefaultLang, id) ??
+					string.Empty);
 			}
 
 			var text = (UILanguageId != LocalizationManager.kDefaultLang ? GetStringFromStringCache(UILanguageId, id) : null);
 
-			return text ?? LocalizationManager.StripOffLocalizationInfoFromText(defaultText);
+			return text ?? LocalizationManager.StripOffLocalizationInfoFromText(defaultText) ?? string.Empty;
 		}
 
 		/// ------------------------------------------------------------------------------------
-		public string GetStringFromStringCache(string uiLangId, string id)
+		public string? GetStringFromStringCache(string uiLangId, string id)
 		{
 			// There is no cache for the pseudo-locale (no files exist for it), so derive it from
 			// the English entry. Doing it here rather than only in GetLocalizedString matters
@@ -522,7 +533,7 @@ namespace L10NSharp.XLiffUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		protected string GetTooltipFromStringCache(string uiLangId, string id)
+		protected string? GetTooltipFromStringCache(string uiLangId, string id)
 		{
 			// See GetStringFromStringCache: same story for the tooltips of designer-created
 			// controls.
@@ -622,22 +633,27 @@ namespace L10NSharp.XLiffUtils
 			foreach (var tu in xliffNew.File.Body.TransUnitsUnordered)
 			{
 				xliffOutput.File.Body.AddTransUnit(tu);
+				var id = tu.Id;
+				// AddTransUnit assigns an Id unless the unit is entirely empty.
+				if (id == null)
+					continue;
+
 				if (tu.Dynamic)
 					++newDynamicCount;
 				if (xliffOld != null)
 				{
-					var tuOld = xliffOld.File.Body.GetTransUnitForId(tu.Id);
+					var tuOld = xliffOld.File.Body.GetTransUnitForId(id);
 					if (tuOld == null)
 					{
 						++newStringCount;
-						newStringIds.Add(tu.Id);
+						newStringIds.Add(id);
 					}
 					else
 					{
 						foreach (var note in tuOld.Notes)
 						{
 							// Skip "Not found[...]" notes — the string IS found in this run.
-							if (note.Text.StartsWith("Not found"))
+							if (note.Text != null && note.Text.StartsWith("Not found"))
 								continue;
 							bool haveAlready = false;
 							foreach (var newNote in tu.Notes)
@@ -650,23 +666,23 @@ namespace L10NSharp.XLiffUtils
 							}
 							if (!haveAlready)
 							{
-								if (note.Text.StartsWith("[OLD NOTE]") || note.Text.StartsWith("OLD TEXT"))
+								if (note.Text != null && (note.Text.StartsWith("[OLD NOTE]") || note.Text.StartsWith("OLD TEXT")))
 									tu.AddNote(note.NoteLang, note.Text);
-								else
+								else if (note.Text != null)
 									tu.AddNote(note.NoteLang, "[OLD NOTE] " + note.Text);
 							}
 						}
 						if (tu.Source?.Value != tuOld.Source?.Value)
 						{
 							++changedStringCount;
-							changedStringIds.Add(tu.Id);
+							changedStringIds.Add(id);
 							if (!string.IsNullOrWhiteSpace(tuOld.Source?.Value))
-								tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source.Value}");
+								tu.AddNote("en", $"OLD TEXT (before {xliffNew.File.ProductVersion}): {tuOld.Source!.Value}");
 						}
 						if (tuOld.Dynamic && !tu.Dynamic)
 						{
 							++wrongDynamicFlagCount;
-							wrongDynamicStringIds.Add(tu.Id);
+							wrongDynamicStringIds.Add(id);
 							tu.AddNote("en", $"Not dynamic: found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
@@ -683,21 +699,26 @@ namespace L10NSharp.XLiffUtils
 					if (tuNew == null)
 					{
 						xliffOutput.File.Body.AddTransUnit(tu);
+						var id = tu.Id;
+						// AddTransUnit assigns an Id unless the unit is entirely empty.
+						if (id == null)
+							continue;
+
 						if (tu.Dynamic)
 						{
 							++missingDynamicStringCount;
-							missingDynamicStringIds.Add(tu.Id);
+							missingDynamicStringIds.Add(id);
 							if (newDynamicCount > 0) // note only if attempt made to collect dynamic strings
 							{
-								tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found"));
+								tu.Notes.RemoveAll(n => n.Text != null && n.Text.StartsWith("Not found"));
 								tu.AddNote("en", $"Not found when running compiled program (version {xliffNew.File.ProductVersion})");
 							}
 						}
 						else
 						{
 							++missingStringCount;
-							missingStringIds.Add(tu.Id);
-							tu.Notes.RemoveAll(n => n.Text.StartsWith("Not found"));
+							missingStringIds.Add(id);
+							tu.Notes.RemoveAll(n => n.Text != null && n.Text.StartsWith("Not found"));
 							tu.AddNote("en", $"Not found in static scan of compiled code (version {xliffNew.File.ProductVersion})");
 						}
 					}
@@ -772,7 +793,7 @@ namespace L10NSharp.XLiffUtils
 		/// If the given file exists, return its parent folder name as a language tag if it
 		/// appears to be valid (2 or 3 letters long or "zh-CN"). Otherwise, return <c>null</c>.
 		/// </summary>
-		private static string GetLanguageTagFromFilePath(string xliffFile)
+		private static string? GetLanguageTagFromFilePath(string xliffFile)
 		{
 			Debug.Assert(LocalizationManager.UseLanguageCodeFolders);
 			if (!File.Exists(xliffFile))
