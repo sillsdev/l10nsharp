@@ -393,7 +393,7 @@ namespace System.Web.Util
 			return output.ToString();
 		}
 
-        [return: NotNullIfNotNull("s")]
+		[return: NotNullIfNotNull("s")]
 		internal static string? HtmlDecode(string? s)
 		{
 			if (s == null)
@@ -661,7 +661,7 @@ namespace System.Web.Util
 				result.WriteByte((byte)c);
 		}
 
-        [MemberNotNull(nameof(entities))]
+		[MemberNotNull(nameof(entities))]
 		static void InitEntities()
 		{
 			// Build the hash table of HTML entity references.  This list comes

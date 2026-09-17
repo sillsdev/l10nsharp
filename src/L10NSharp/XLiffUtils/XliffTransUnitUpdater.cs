@@ -50,7 +50,7 @@ namespace L10NSharp.XLiffUtils
 				return _updated;
 
 			if (!_stringCache.TryGetDocument(_defaultLang, out var xliffSource))
-                throw new InvalidOperationException($"Source document for default language {_defaultLang} not found");
+				throw new InvalidOperationException($"Source document for default language {_defaultLang} not found");
 
 			if (!_stringCache.TryGetDocument(locInfo.LangId!, out var xliffTarget))
 			{

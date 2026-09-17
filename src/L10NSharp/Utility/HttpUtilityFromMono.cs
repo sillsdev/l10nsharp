@@ -99,7 +99,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 #endif
 		}
 
-        [return: NotNullIfNotNull("s")]
+		[return: NotNullIfNotNull("s")]
 		public static string? HtmlAttributeEncode (string? s)
 		{
 #if NET_4_0
@@ -115,7 +115,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 #endif
 		}
 
-        [return: NotNullIfNotNull("str")]
+		[return: NotNullIfNotNull("str")]
 		public static string? UrlDecode (string? str)
 		{
 			return UrlDecode(str, Encoding.UTF8);
@@ -135,7 +135,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 				buf.Add ((byte)ch);
 		}
 
-        [return: NotNullIfNotNull("s")]
+		[return: NotNullIfNotNull("s")]
 		public static string? UrlDecode (string? s, Encoding? e)
 		{
 			if (null == s)
@@ -184,7 +184,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static string? UrlDecode (byte []? bytes, Encoding e)
 		{
 			if (bytes == null)
@@ -240,7 +240,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return val;
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static string? UrlDecode (byte []? bytes, int offset, int count, Encoding e)
 		{
 			if (bytes == null)
@@ -302,7 +302,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return output.ToString ();
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static byte[]? UrlDecodeToBytes (byte []? bytes)
 		{
 			if (bytes == null)
@@ -311,13 +311,13 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlDecodeToBytes (bytes, 0, bytes.Length);
 		}
 
-        [return: NotNullIfNotNull("str")]
+		[return: NotNullIfNotNull("str")]
 		public static byte[]? UrlDecodeToBytes (string? str)
 		{
 			return UrlDecodeToBytes (str, Encoding.UTF8);
 		}
 
-        [return: NotNullIfNotNull("str")]
+		[return: NotNullIfNotNull("str")]
 		public static byte[]? UrlDecodeToBytes (string? str, Encoding e)
 		{
 			if (str == null)
@@ -329,7 +329,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return UrlDecodeToBytes (e.GetBytes (str));
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static byte[]? UrlDecodeToBytes (byte []? bytes, int offset, int count)
 		{
 			if (bytes == null)
@@ -363,13 +363,13 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return result.ToArray ();
 		}
 
-        [return: NotNullIfNotNull("str")]
+		[return: NotNullIfNotNull("str")]
 		public static string? UrlEncode(string? str)
 		{
 			return UrlEncode(str, Encoding.UTF8);
 		}
 
-        [return: NotNullIfNotNull("s")]
+		[return: NotNullIfNotNull("s")]
 		public static string? UrlEncode (string? s, Encoding Enc)
 		{
 			if (s == null)
@@ -400,7 +400,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, 0, realLen));
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static string? UrlEncode (byte []? bytes)
 		{
 			if (bytes == null)
@@ -412,7 +412,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, 0, bytes.Length));
 		}
 
-        [return: NotNullIfNotNull("bytes")]
+		[return: NotNullIfNotNull("bytes")]
 		public static string? UrlEncode (byte []? bytes, int offset, int count)
 		{
 			if (bytes == null)
@@ -424,7 +424,7 @@ Actually when we go to net 4, I (hatton) think we can get rid of this. .net 4 cl
 			return Encoding.ASCII.GetString (UrlEncodeToBytes (bytes, offset, count));
 		}
 
-        [return: NotNullIfNotNull("str")]
+		[return: NotNullIfNotNull("str")]
 		public static byte[]? UrlEncodeToBytes (string? str)
 		{
 			return UrlEncodeToBytes (str, Encoding.UTF8);

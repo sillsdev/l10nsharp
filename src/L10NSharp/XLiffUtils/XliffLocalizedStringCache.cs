@@ -196,8 +196,8 @@ namespace L10NSharp.XLiffUtils
 
 			// This might be different, typically more specific, than the name we deduced from the file path.
 			var targetLang = xliffDoc.File.TargetLang;
-            if (targetLang is null)
-                throw new InvalidOperationException($"Target language not found in {file}");
+			if (targetLang is null)
+				throw new InvalidOperationException($"Target language not found in {file}");
 
 			// Now we have some maintenance to do on MapToExistingLanguage, which does not yet contain data
 			// about this file. It is definitely the one to use for targetLanguage.
@@ -233,8 +233,8 @@ namespace L10NSharp.XLiffUtils
 			var defunctUnits = new List<XLiffTransUnit>();
 			foreach (var tu in xliffDoc.File.Body.TransUnitsUnordered.ToList()) // need a list here because we may modify it while enumerating
 			{
-                if (tu.Id is null)
-                    throw new InvalidOperationException($"Translation unit ID is null in {file}");
+				if (tu.Id is null)
+					throw new InvalidOperationException($"Translation unit ID is null in {file}");
 				// This block attempts to find 'orphans', that is, localizations that have been done using an obsolete ID.
 				// We assume the default language Xliff has only current IDs, and therefore don't look for orphans in that case.
 				// This guards against cases such as recently occurred in Bloom, where a dynamic ID EditTab.AddPageDialog.Title
@@ -403,7 +403,7 @@ namespace L10NSharp.XLiffUtils
 			}
 			var outputPath = OwningManager.GetPathForLanguage(langId, true);
 			if (outputPath == null)
-                throw new InvalidOperationException($"Output path is null for language {langId}");
+				throw new InvalidOperationException($"Output path is null for language {langId}");
 			xliffOutput.Save(outputPath);
 		}
 		#endregion
@@ -690,7 +690,7 @@ namespace L10NSharp.XLiffUtils
 		{
 			foreach (var tu in DefaultXliffDocument.File.Body.TransUnitsUnordered)
 			{
-                if (tu.Id is null)
+				if (tu.Id is null)
 					throw new InvalidOperationException("Translation unit ID is null in DefaultXliffDocument");
 				// If the translation unit is not for a tooltip or shortcutkey, then return it.
 				if (!tu.Id.EndsWith(kToolTipSuffix) && !tu.Id.EndsWith(kShortcutSuffix))
