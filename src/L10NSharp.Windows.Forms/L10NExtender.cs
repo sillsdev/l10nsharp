@@ -57,6 +57,7 @@ namespace L10NSharp.Windows.Forms
 		/// loaded localization managers stored in LocalizationManagerInternal{T}.LoadedManagers.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
+		[DefaultValue(null)]
 		public string LocalizationManagerId
 		{
 			get { return _locManagerId; }
@@ -92,6 +93,7 @@ namespace L10NSharp.Windows.Forms
 		/// </summary>
 		[Localizable(false)]
 		[Category("Localizing Properties")]
+		[DefaultValue(null)]
 		public string PrefixForNewItems{get;set;}
 
 		///// ------------------------------------------------------------------------------------

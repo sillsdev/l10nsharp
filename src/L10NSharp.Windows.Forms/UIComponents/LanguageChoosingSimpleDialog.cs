@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -17,6 +18,8 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			Icon = icon;
 		}
 
+		// Set when the user clicks OK; it is a dialog result, never a design-time setting.
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string SelectedLanguage { get; set; }
 
 		private void btnOk_Click(object sender, EventArgs e)

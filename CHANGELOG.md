@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- [L10NSharp.Windows.Forms] [SampleApp] [CheckOrFixXliff] [ExtractXliff] Added the `net10.0` and `net10.0-windows` target frameworks alongside the existing `net8.0`/`net8.0-windows` ones, rather than replacing them, and extended CI to build and test .NET 10 on both Windows and Linux. .NET 8 reaches end of support on 2026-11-10 and .NET 10 is the current LTS, but keeping both targets lets consumers migrate on their own schedule. The core `L10NSharp` package is unaffected: it remains `net462;net48;netstandard2.0`. See [#165](https://github.com/sillsdev/l10nsharp/issues/165).
+
+### Fixed
+
+- [L10NSharp.Windows.Forms] Declared designer serialization for `L10NSharpExtender.LocalizationManagerId`, `L10NSharpExtender.PrefixForNewItems` (both `[DefaultValue(null)]`) and `LanguageChoosingSimpleDialog.SelectedLanguage` (`[DesignerSerializationVisibility.Hidden]`, since it is a dialog result rather than a design-time setting). The Windows Forms analyzer rule `WFO1000` has reported these as errors since .NET 9, so they blocked the `net10.0-windows` build.
+
 ## [11.0.1] - 2026-09-17
 
 ### Security
