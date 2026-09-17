@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [L10NSharp] Enabled nullable reference types on the core project, with full CS86xx warning cleanup across all layers. `ILocalizationManager.GetLocalizedString` now declares its `defaultText` parameter nullable; the internal `ILocalizedStringCache`/`ILocalizationManagerInternal` interfaces gained nullable annotations and a `where T : class` constraint.
 
+## [11.0.1] - 2026-09-17
+
+### Security
+
+- [L10NSharp] [L10NSharp.Windows.Forms] [CheckOrFixXliff] [ExtractXliff] Upgraded `SIL.ReleaseTasks` from 3.3.0 to 4.0.0, which upgrades its own `SIL.Core` dependency to bring `Newtonsoft.Json` to 13.0.1 — past the previously-noted vulnerability (GHSA-5crp-9r3c-p9vr) — and no longer exports any transitive dependencies publicly. Neither issue was ever consumer-facing for L10nSharp, since every reference to `SIL.ReleaseTasks` here already uses `PrivateAssets="all"`.
+
 ## [11.0.0] - 2026-09-08
 
 ### Added
@@ -299,7 +305,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Create nuget package
 -   Strong-name assembly
 
-[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v11.0.0...HEAD
+[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v11.0.1...HEAD
+[11.0.1]: https://github.com/sillsdev/l10nsharp/compare/v11.0.0...v11.0.1
 [11.0.0]: https://github.com/sillsdev/l10nsharp/compare/v10.0.0...v11.0.0
 [10.0.0]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...v10.0.0
 [9.0.0]: https://github.com/sillsdev/l10nsharp/compare/v8.0.0.0...v9.0.0
