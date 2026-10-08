@@ -141,20 +141,6 @@ namespace L10NSharp.Tests
 		/// <summary>
 		/// Used to make a real file out of a resource for the purpose of testing
 		/// </summary>
-		/// <param name="resource">e.g., an audio resource</param>
-		/// <param name="extension">with or without '.', will work the same</param>
-		public static TempFile FromResource(Stream resource, string extension)
-		{
-			var f = WithExtension(extension);
-			byte[] buffer = new byte[resource.Length + 1];
-			resource.Read(buffer, 0, (int)resource.Length);
-			File.WriteAllBytes(f.Path, buffer);
-			return f;
-		}
-
-		/// <summary>
-		/// Used to make a real file out of a resource for the purpose of testing
-		/// </summary>
 		/// <param name="resource">e.g., a video resource</param>
 		/// <param name="extension">with or without '.', will work the same</param>
 		public static TempFile FromResource(byte[] resource, string extension)
