@@ -281,6 +281,21 @@ namespace L10NSharp.Tests
 		}
 
 		[Test]
+		public void AddTransUnit_NoId_GeneratesIdAndIndexesTranslation()
+		{
+			var body = new XLiffBody();
+			var tu = new XLiffTransUnit {
+				Source = new XLiffTransUnitVariant { Lang = "en", Value = "Text." }
+			};
+
+			Assert.That(body.AddTransUnit(tu), Is.True);
+
+			// AddTransUnit relies on the Id generated for an Id-less unit.
+			Assert.That(tu.Id, Is.Not.Null.And.Not.Empty);
+			Assert.That(body.TranslationsById[tu.Id], Is.EqualTo("Text."));
+		}
+
+		[Test]
 		public void MergeXliffDocuments_BaselineUnitHasNullSource_DoesNotThrow()
 		{
 			var newDoc = new XLiffDocument();

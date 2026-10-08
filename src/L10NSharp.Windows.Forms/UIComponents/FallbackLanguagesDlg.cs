@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace L10NSharp.Windows.Forms.UIComponents
 {
-	public class FallbackLanguagesDlg<T> : FallbackLanguagesDlgBase
+	public class FallbackLanguagesDlg<T> : FallbackLanguagesDlgBase where T : class
 	{
 		public FallbackLanguagesDlg()
 		{

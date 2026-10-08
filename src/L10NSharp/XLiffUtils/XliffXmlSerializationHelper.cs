@@ -126,7 +126,7 @@ namespace L10NSharp.XLiffUtils
 		/// <param name="filename">The filename from which to load</param>
 		/// <param name="e">The exception generated during the deserialization.</param>
 		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromFile<T>(string filename, out Exception e) where T : class
+		public static T? DeserializeFromFile<T>(string filename, out Exception? e) where T : class
 		{
 			return DeserializeFromFile<T>(filename, false, out e);
 		}
@@ -142,10 +142,10 @@ namespace L10NSharp.XLiffUtils
 		/// these elements will be ignored during a deserialization.</param>
 		/// <param name="e">The exception generated during the deserialization.</param>
 		/// ------------------------------------------------------------------------------------
-		public static T DeserializeFromFile<T>(string filename, bool fKeepWhitespaceInElements,
-			out Exception                             e) where T : class
+		public static T? DeserializeFromFile<T>(string filename, bool fKeepWhitespaceInElements,
+			out Exception?                             e) where T : class
 		{
-			T data = null;
+			T? data = null;
 			e = null;
 
 			try

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
@@ -86,9 +86,9 @@ namespace L10NSharp.Translators
 	internal class JSONResponse
 	{
 		/// ------------------------------------------------------------------------------------
-		public TranslationResponseData responseData = new TranslationResponseData();
+		public TranslationResponseData? responseData = new TranslationResponseData();
 		/// ------------------------------------------------------------------------------------
-		public string responseDetails;
+		public string? responseDetails;
 		/// ------------------------------------------------------------------------------------
 		public int responseStatus;
 		/// ------------------------------------------------------------------------------------
@@ -100,6 +100,6 @@ namespace L10NSharp.Translators
 	internal class TranslationResponseData
 	{
 		/// ------------------------------------------------------------------------------------
-		public string translatedText;
+		public string? translatedText;
 	}
 }

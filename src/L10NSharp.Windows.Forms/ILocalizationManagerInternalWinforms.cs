@@ -20,7 +20,7 @@ namespace L10NSharp.Windows.Forms
 			Action<ILocalizationManagerInternalWinforms, LocalizingInfoWinforms> successAction);
 	}
 
-	internal interface ILocalizationManagerInternalWinforms<T> : ILocalizationManagerInternalWinforms, ILocalizationManagerInternal<T>
+	internal interface ILocalizationManagerInternalWinforms<T> : ILocalizationManagerInternalWinforms, ILocalizationManagerInternal<T> where T : class
 	{
 		new ILocalizedStringCacheWinforms<T> StringCache { get; }
 	}

@@ -21,7 +21,7 @@ namespace L10NSharp.XLiffUtils
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
 		[XmlAttribute("xml:lang")]
-		public string Lang { get; set; }
+		public string? Lang { get; set; }
 
 		// Crowdin uses only "needs-translated" and "translated" as far as I can tell.  It appears to remove
 		// this attribute ("undefined") and use the "approved" attribute on the trans-unit element to
@@ -81,7 +81,7 @@ namespace L10NSharp.XLiffUtils
 		[XmlAttribute("state"), System.ComponentModel.DefaultValue(TranslationState.Undefined)]
 		public TranslationState TargetState;
 
-		private string _value;
+		private string? _value;
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
@@ -110,7 +110,7 @@ namespace L10NSharp.XLiffUtils
 					_deserializedFromElement = null;
 				}
 
-				return _value;
+				return _value ?? string.Empty;
 			}
 			set => _value = value;
 		}
@@ -119,7 +119,7 @@ namespace L10NSharp.XLiffUtils
 		/// This is a temp value that allows complex input strings (with xliff-style html markup)
 		/// to be deserialized properly.
 		/// </summary>
-		private string _deserializedFromElement;
+		private string? _deserializedFromElement;
 
 		/// <summary>
 		/// Save the value deserialized from an element (and anything preceding it), and clear

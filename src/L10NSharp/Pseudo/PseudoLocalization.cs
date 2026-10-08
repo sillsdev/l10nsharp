@@ -1,3 +1,5 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
 namespace L10NSharp.Pseudo
 {
 	/// <summary>
@@ -9,11 +11,12 @@ namespace L10NSharp.Pseudo
 	/// </summary>
 	internal static class PseudoLocalization
 	{
-		public static string Transform(string english)
+		[return: NotNullIfNotNull("english")]
+		public static string? Transform(string? english)
 		{
 			if (string.IsNullOrEmpty(english))
 				return english;
-			return "[" + VowelStretch.Transform(english) + "]";
+			return "[" + VowelStretch.Transform(english!) + "]";
 		}
 	}
 }

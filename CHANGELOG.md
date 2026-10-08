@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- [L10NSharp] Enabled nullable reference types on the core project, with full CS86xx warning cleanup across all layers. `ILocalizationManager.GetLocalizedString` now declares its `defaultText` parameter nullable; the internal `ILocalizedStringCache`/`ILocalizationManagerInternal` interfaces gained nullable annotations and a `where T : class` constraint.
+
 ## [11.0.1] - 2026-09-17
 
 ### Security

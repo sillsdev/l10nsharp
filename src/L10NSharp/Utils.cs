@@ -48,7 +48,7 @@ namespace L10NSharp
 		/// the method exists you should check first with HasProperty.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public static object GetProperty(object binding, string propertyName)
+		public static object? GetProperty(object binding, string propertyName)
 		{
 			// It's not clear why this is needed. There is some indication (http://stackoverflow.com/questions/3546580/why-is-it-not-possible-to-catch-missingmethodexception)
 			// that MissingMethodException cannot be caught. In one situation in Bloom, with a ToolStripButton (which does not implement ShortcutKeys),

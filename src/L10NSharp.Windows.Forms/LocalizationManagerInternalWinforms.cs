@@ -13,7 +13,7 @@ using L10NSharp.Windows.Forms.UIComponents;
 
 namespace L10NSharp.Windows.Forms
 {
-	internal class LocalizationManagerInternalWinforms<T> : LocalizationManagerInternal<T>
+	internal class LocalizationManagerInternalWinforms<T> : LocalizationManagerInternal<T> where T : class
 	{
 
 		/// <summary>

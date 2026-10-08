@@ -45,7 +45,7 @@ namespace L10NSharp.XLiffUtils
 		/// Adds a note to the notes list.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool AddNote(string lang, string text)
+		public bool AddNote(string? lang, string text)
 		{
 			return XLiffNote.AddNote(lang, text, _notes);
 		}
@@ -120,7 +120,7 @@ namespace L10NSharp.XLiffUtils
 		/// specified type doesn't exist, then null is returned.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetPropValue(string type)
+		public string? GetPropValue(string type)
 		{
 			return _props.Where(p => p.Type == type).Select(p => p.Value).FirstOrDefault();
 		}
@@ -130,7 +130,7 @@ namespace L10NSharp.XLiffUtils
 		/// Check whether the give comment already exists as a note.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public bool NotesContain(string comment)
+		public bool NotesContain(string? comment)
 		{
 			return _notes.Any(n => n.Text == comment);
 		}
@@ -142,9 +142,9 @@ namespace L10NSharp.XLiffUtils
 		/// "comment" if it exists.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		public string GetComment()
+		public string? GetComment()
 		{
-			var commentNote = _notes.FirstOrDefault(n => !string.IsNullOrEmpty(n.Text) && !n.Text.StartsWith("ID: "));
+			var commentNote = _notes.FirstOrDefault(n => !string.IsNullOrEmpty(n.Text) && !n.Text!.StartsWith("ID: "));
 			return commentNote?.Text;
 		}
 	}
