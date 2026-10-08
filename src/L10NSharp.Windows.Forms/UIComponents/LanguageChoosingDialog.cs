@@ -77,10 +77,10 @@ namespace L10NSharp.Windows.Forms.UIComponents
 			Close();
 		}
 
-		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+		protected override void OnFormClosing(FormClosingEventArgs e)
 		{
 			SelectedLanguage = uiLanguageComboBox1.SelectedLanguage;
-			base.OnClosing(e);
+			base.OnFormClosing(e);
 		}
 	}
 }
