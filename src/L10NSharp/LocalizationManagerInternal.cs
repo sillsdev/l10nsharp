@@ -768,7 +768,8 @@ namespace L10NSharp
 			{
 				return PseudoLocalization.Transform(
 					LocalizationManager.StripOffLocalizationInfoFromText(englishText) ??
-					MapToExistingLanguageOrAddMapping(stringId, LocalizationManager.kDefaultLang, out _))!;
+					MapToExistingLanguageOrAddMapping(stringId, LocalizationManager.kDefaultLang, out _) ??
+					string.Empty);
 			}
 			return GetStringFromAnyLocalizationManager(stringId) ??
 				LocalizationManager.StripOffLocalizationInfoFromText(englishText);
