@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [L10NSharp] Enabled nullable reference types on the core project, with full CS86xx warning cleanup across all layers. `ILocalizationManager.GetLocalizedString` now declares its `defaultText` parameter nullable; the internal `ILocalizedStringCache`/`ILocalizationManagerInternal` interfaces gained nullable annotations and a `where T : class` constraint.
 
+### Fixed
+
+- [L10NSharp.Windows.Forms] Fixed `XliffLocalizationManagerWinforms.ReapplyLocalizationsToAllComponents` (called on every UI language switch) aborting partway through, and continuing to abort on every subsequent switch, when a registered control had been disposed. A disposed control's stale cache entry is now skipped/removed instead of letting its `ObjectDisposedException` propagate; `RefreshToolTips` got the same fix for the same reason. See [#175](https://github.com/sillsdev/l10nsharp/issues/175).
+
 ## [11.0.1] - 2026-09-17
 
 ### Security
