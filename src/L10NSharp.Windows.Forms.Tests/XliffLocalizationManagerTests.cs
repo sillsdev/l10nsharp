@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 using L10NSharp.XLiffUtils;
 using L10NSharp.Windows.Forms.XLiffUtils;
 using NUnit.Framework;
@@ -262,6 +263,68 @@ namespace L10NSharp.Windows.Forms.Tests
 				var str = LocalizationManager.GetString("theId", ".", "", new[] { "zh" }, out var languageIdUsed);
 				Assert.That(str, Is.EqualTo("from Chinese (generic) Translation"));
 				Assert.That(languageIdUsed, Is.EqualTo("zh"));
+			}
+		}
+
+		/// <summary>
+		/// Mirrors SIL.Windows.Forms.Widgets.AutoHeightLabel, which reacts to a Text/Font change
+		/// by calling CreateGraphics() to remeasure itself. CreateGraphics() throws
+		/// ObjectDisposedException once the control has been disposed.
+		/// </summary>
+		private class ControlThatTouchesItsHandleOnTextChanged : Control
+		{
+			protected override void OnTextChanged(EventArgs e)
+			{
+				base.OnTextChanged(e);
+				using (CreateGraphics()) { }
+			}
+		}
+
+		[Test]
+		[Category("RequiresDisplay")]
+		public void ReapplyLocalizationsToAllComponents_OneRegisteredControlIsDisposed_DoesNotThrowAndStillLocalizesLaterComponents()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("disposed.id", false,
+					CreateTransUnitVariant("en", "original disposed text")));
+				englishDoc.AddTransUnit(CreateTransUnit("live.id", false,
+					CreateTransUnitVariant("en", "live label text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				// Registration happens the way it does in a real app -- after Create(), as each
+				// dialog/control is constructed over the app's lifetime -- not before it.
+				var disposedControl = new ControlThatTouchesItsHandleOnTextChanged();
+				manager.RegisterComponentForLocalizing(disposedControl, "disposed.id",
+					"original disposed text", null, null, null);
+				disposedControl.Dispose();
+
+				// Registered AFTER the disposed control, so it sits later in ComponentCache's
+				// enumeration order and would be the casualty of an aborted reapply pass.
+				var liveLabel = new Label();
+				manager.RegisterComponentForLocalizing(liveLabel, "live.id", "live label text", null, null, null);
+
+				Assert.That(() => manager.ReapplyLocalizationsToAllComponents(), Throws.Nothing,
+					"A disposed registered control should not abort the reapply pass for the rest of the components.");
+
+				Assert.That(liveLabel.Text, Is.EqualTo("live label text"),
+					"liveLabel was registered after the disposed control, so an aborted reapply loop " +
+					"would never have reached it.");
+
+				Assert.That(manager.ComponentCache.ContainsKey(disposedControl), Is.False,
+					"The disposed control's stale entry should be removed so later reapply passes don't keep hitting it.");
 			}
 		}
 	}

@@ -144,8 +144,28 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void ReapplyLocalizationsToAllComponents()
 		{
-			foreach (var component in ComponentCache.Keys)
-				ApplyLocalization(component);
+			foreach (var component in ComponentCache.Keys.ToArray())
+			{
+				if (component is Control ctrl && ctrl.IsDisposed)
+				{
+					ComponentCache.Remove(component);
+					continue;
+				}
+
+				try
+				{
+					ApplyLocalization(component);
+				}
+				catch (ObjectDisposedException)
+				{
+					// The control was disposed after the IsDisposed check above (or is a
+					// disposed IComponent, such as a ToolStripItem or DataGridViewColumn, that
+					// has no IsDisposed property to check in advance). Either way, don't let
+					// it abort localizing the rest of the components, and don't let it keep
+					// happening on every subsequent language switch.
+					ComponentCache.Remove(component);
+				}
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -168,9 +188,25 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 			var controls = ComponentCache.Where(x => x.Key is Control).ToArray();
 			foreach (var ctrl in controls)
 			{
+				var control = (Control)ctrl.Key;
+				if (control.IsDisposed)
+				{
+					ComponentCache.Remove(ctrl.Key);
+					continue;
+				}
+
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, ctrl.Value);
 				if (!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
-					ApplyLocalizedToolTipToControl((Control)ctrl.Key, toolTipText);
+				{
+					try
+					{
+						ApplyLocalizedToolTipToControl(control, toolTipText);
+					}
+					catch (ObjectDisposedException)
+					{
+						ComponentCache.Remove(ctrl.Key);
+					}
+				}
 			}
 		}
 
