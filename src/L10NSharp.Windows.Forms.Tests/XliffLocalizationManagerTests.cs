@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Windows.Forms;
 using L10NSharp.XLiffUtils;
 using L10NSharp.Windows.Forms.XLiffUtils;
 using NUnit.Framework;
+using CategoryAttribute = NUnit.Framework.CategoryAttribute;
 
 namespace L10NSharp.Windows.Forms.Tests
 {
@@ -311,8 +313,12 @@ namespace L10NSharp.Windows.Forms.Tests
 					"original disposed text", null, null, null);
 				disposedControl.Dispose();
 
-				// Registered AFTER the disposed control, so it sits later in ComponentCache's
-				// enumeration order and would be the casualty of an aborted reapply pass.
+				// Registered AFTER the disposed control. Dictionary<TKey,TValue> enumeration
+				// order isn't a documented guarantee, but as of the current implementation it
+				// follows insertion order, so this is what would make liveLabel the casualty of
+				// an aborted reapply pass if the fix regressed. The fix itself no longer depends
+				// on enumeration order at all (it doesn't abort regardless of order), so this
+				// ordering is a belt-and-suspenders check, not a requirement of the assertions.
 				var liveLabel = new Label();
 				manager.RegisterComponentForLocalizing(liveLabel, "live.id", "live label text", null, null, null);
 
@@ -325,6 +331,140 @@ namespace L10NSharp.Windows.Forms.Tests
 
 				Assert.That(manager.ComponentCache.ContainsKey(disposedControl), Is.False,
 					"The disposed control's stale entry should be removed so later reapply passes don't keep hitting it.");
+			}
+		}
+
+		/// <summary>
+		/// A fake ILocalizableComponent (also IComponent, as RegisterComponentForLocalizing
+		/// requires) whose ApplyLocalizationToString always throws ObjectDisposedException, even
+		/// though it is never disposed itself. This simulates a component kind that has no
+		/// IsDisposed-style property to check in advance (ColumnHeader, DataGridViewColumn, or
+		/// any caller-supplied ILocalizableComponent) throwing for a reason unrelated to its own
+		/// disposal.
+		/// </summary>
+		private class ThrowingButNeverDisposedLocalizableComponent : ILocalizableComponent, IComponent
+		{
+			public IEnumerable<LocalizingInfoWinforms> GetAllLocalizingInfoObjects(L10NSharpExtender extender) =>
+				Array.Empty<LocalizingInfoWinforms>();
+
+			public void ApplyLocalizationToString(object control, string id, string localization) =>
+				throw new ObjectDisposedException(nameof(ThrowingButNeverDisposedLocalizableComponent));
+
+#pragma warning disable CS0067 // event is never used
+			public event EventHandler Disposed;
+#pragma warning restore CS0067
+			public ISite Site { get; set; }
+			public void Dispose() { }
+		}
+
+		[Test]
+		public void ReapplyLocalizationsToAllComponents_ComponentThrowsObjectDisposedExceptionButIsNotDisposed_DoesNotEvictLiveComponent()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("throwing.id", false,
+					CreateTransUnitVariant("en", "some text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				var component = new ThrowingButNeverDisposedLocalizableComponent();
+				manager.RegisterComponentForLocalizing(component, "throwing.id", "some text", null, null, null);
+				manager.LocalizableComponents[component] = new Dictionary<string, LocalizingInfoWinforms>
+				{
+					["throwing.id"] = new LocalizingInfoWinforms(component, "throwing.id") { Text = "some text" }
+				};
+
+				Assert.That(() => manager.ReapplyLocalizationsToAllComponents(), Throws.Nothing,
+					"An ObjectDisposedException from a single component must not abort the reapply pass.");
+
+				Assert.That(manager.ComponentCache.ContainsKey(component), Is.True,
+					"A component that throws ObjectDisposedException for a reason unrelated to its own " +
+					"disposal (here, it is never disposed at all) must not be evicted from the cache, " +
+					"or it would silently stop being relocalized for the rest of the process.");
+			}
+		}
+
+		[Test]
+		[Category("RequiresDisplay")]
+		public void ReapplyLocalizationsToAllComponents_OneRegisteredToolStripItemIsDisposed_DoesNotThrowAndPrunesCacheEntry()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("menuItem.id", false,
+					CreateTransUnitVariant("en", "menu text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				// ToolStripItem.IsDisposed only reflects reality once the item belongs to a
+				// ToolStrip (the normal case in a real app, e.g. a menu item added to a
+				// MenuStrip); Dispose() on a bare, unparented item leaves IsDisposed false.
+				var toolStrip = new ToolStrip();
+				var menuItem = new ToolStripMenuItem();
+				toolStrip.Items.Add(menuItem);
+				manager.RegisterComponentForLocalizing(menuItem, "menuItem.id", "menu text", null, null, null);
+				menuItem.Dispose();
+
+				Assert.That(() => manager.ReapplyLocalizationsToAllComponents(), Throws.Nothing,
+					"A disposed registered ToolStripItem should not abort the reapply pass.");
+
+				Assert.That(manager.ComponentCache.ContainsKey(menuItem), Is.False,
+					"A disposed ToolStripItem should be pruned via its own IsDisposed pre-check, just like a disposed Control.");
+			}
+		}
+
+		[Test]
+		[Category("RequiresDisplay")]
+		public void RefreshToolTips_RegisteredControlIsDisposed_DoesNotThrowAndPrunesCacheEntry()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("tooltip.id", false,
+					CreateTransUnitVariant("en", "tip text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				var disposedControl = new Label();
+				manager.RegisterComponentForLocalizing(disposedControl, "tooltip.id", null, "tip text", null, null);
+				disposedControl.Dispose();
+
+				Assert.That(() => manager.RefreshToolTips(), Throws.Nothing,
+					"A disposed registered control should not abort RefreshToolTips.");
+
+				Assert.That(manager.ComponentCache.ContainsKey(disposedControl), Is.False,
+					"The disposed control's stale entry should be removed by RefreshToolTips's own IsDisposed pre-check.");
 			}
 		}
 	}

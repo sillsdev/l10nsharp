@@ -145,26 +145,67 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		public void ReapplyLocalizationsToAllComponents()
 		{
 			foreach (var component in ComponentCache.Keys.ToArray())
-			{
-				if (component is Control ctrl && ctrl.IsDisposed)
-				{
-					ComponentCache.Remove(component);
-					continue;
-				}
+				RunUnlessDisposed(component, () => ApplyLocalization(component));
+		}
 
-				try
-				{
-					ApplyLocalization(component);
-				}
-				catch (ObjectDisposedException)
-				{
-					// The control was disposed after the IsDisposed check above (or is a
-					// disposed IComponent, such as a ToolStripItem or DataGridViewColumn, that
-					// has no IsDisposed property to check in advance). Either way, don't let
-					// it abort localizing the rest of the components, and don't let it keep
-					// happening on every subsequent language switch.
-					ComponentCache.Remove(component);
-				}
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Returns whether the component (or, for a Control, its owning handle) is already
+		/// known to be disposed, without having to touch it and risk an ObjectDisposedException.
+		/// ColumnHeader and DataGridViewColumn expose no such property, and an
+		/// ILocalizableComponent is caller-supplied, so for those we can't tell in advance.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private static bool IsComponentDisposed(IComponent component)
+		{
+			switch (component)
+			{
+				case Control ctrl:
+					return ctrl.IsDisposed;
+				case ToolStripItem item:
+					return item.IsDisposed;
+				default:
+					return false;
+			}
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private bool PruneIfDisposed(IComponent component)
+		{
+			if (!IsComponentDisposed(component))
+				return false;
+
+			ComponentCache.Remove(component);
+			if (component is ILocalizableComponent locComponent)
+				LocalizableComponents.Remove(locComponent);
+			return true;
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Runs the given action for a cached component unless it is already known to be
+		/// disposed (in which case it is pruned from the cache instead). This guards against
+		/// the rare race where a component becomes disposed between that check and the action
+		/// (e.g. an earlier component's localization disposes a later one on the UI thread), or
+		/// where the action throws ObjectDisposedException for a reason unrelated to this
+		/// component's own disposal (e.g. an owning ToolTip, or caller-supplied code reached via
+		/// an ILocalizableComponent). Either way, don't let it abort localizing the rest of the
+		/// components; and only prune the cache entry if the component can actually be confirmed
+		/// disposed, so a live component isn't silently evicted and left unlocalized forever.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private void RunUnlessDisposed(IComponent component, Action action)
+		{
+			if (PruneIfDisposed(component))
+				return;
+
+			try
+			{
+				action();
+			}
+			catch (ObjectDisposedException)
+			{
+				PruneIfDisposed(component);
 			}
 		}
 
@@ -182,31 +223,21 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 			ToolTipCtrls.Clear();
 
-			// This used to be a for-each, but on rare occasions, a "Collection was
-			// modified; enumeration operation may not execute" exception would be
-			// thrown. This should solve the problem.
+			// This used to be a foreach on the IEnumerable, but on rare occasions, a "Collection
+			// was modified; enumeration operation may not execute" exception would be thrown. This
+			// should solve the problem.
 			var controls = ComponentCache.Where(x => x.Key is Control).ToArray();
 			foreach (var ctrl in controls)
 			{
 				var control = (Control)ctrl.Key;
-				if (control.IsDisposed)
-				{
-					ComponentCache.Remove(ctrl.Key);
+				if (PruneIfDisposed(control))
 					continue;
-				}
 
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, ctrl.Value);
-				if (!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
-				{
-					try
-					{
-						ApplyLocalizedToolTipToControl(control, toolTipText);
-					}
-					catch (ObjectDisposedException)
-					{
-						ComponentCache.Remove(ctrl.Key);
-					}
-				}
+				if (string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
+					continue;
+
+				RunUnlessDisposed(control, () => ApplyLocalizedToolTipToControl(control, toolTipText));
 			}
 		}
 
