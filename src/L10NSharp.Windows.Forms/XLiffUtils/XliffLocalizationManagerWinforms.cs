@@ -145,7 +145,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		public void ReapplyLocalizationsToAllComponents()
 		{
 			foreach (var component in ComponentCache.Keys.ToArray())
-				RunUnlessDisposed(component, () => ApplyLocalization(component));
+				RunLocalizationStepUnlessDisposed(component, () => ApplyLocalization(component));
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -183,25 +183,26 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 		/// ------------------------------------------------------------------------------------
 		/// <summary>
-		/// Runs the given action for a cached component unless it is already known to be
-		/// disposed (in which case it is pruned from the cache instead). This guards against
-		/// the rare race where a component becomes disposed between that check and the action
-		/// (e.g. an earlier component's localization disposes a later one on the UI thread), or
-		/// where the action throws ObjectDisposedException for a reason unrelated to this
-		/// component's own disposal (e.g. an owning ToolTip, or caller-supplied code reached via
-		/// an ILocalizableComponent). Either way, don't let it abort localizing the rest of the
-		/// components; and only prune the cache entry if the component can actually be confirmed
-		/// disposed, so a live component isn't silently evicted and left unlocalized forever.
+		/// Runs the given localization step for a cached component unless it is already known
+		/// to be disposed (in which case it is pruned from the cache instead). This guards
+		/// against the rare race where a component becomes disposed between that check and the
+		/// step (e.g. an earlier component's localization disposes a later one on the UI
+		/// thread), or where the step throws ObjectDisposedException for a reason unrelated to
+		/// this component's own disposal (e.g. an owning ToolTip, or caller-supplied code
+		/// reached via an ILocalizableComponent). Either way, don't let it abort localizing the
+		/// rest of the components; and only prune the cache entry if the component can actually
+		/// be confirmed disposed, so a live component isn't silently evicted and left
+		/// unlocalized forever.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		private void RunUnlessDisposed(IComponent component, Action action)
+		private void RunLocalizationStepUnlessDisposed(IComponent component, Action localizationStep)
 		{
 			if (PruneIfDisposed(component))
 				return;
 
 			try
 			{
-				action();
+				localizationStep();
 			}
 			catch (ObjectDisposedException)
 			{
@@ -237,7 +238,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 				if (string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
 					continue;
 
-				RunUnlessDisposed(control, () => ApplyLocalizedToolTipToControl(control, toolTipText));
+				RunLocalizationStepUnlessDisposed(control, () => ApplyLocalizedToolTipToControl(control, toolTipText));
 			}
 		}
 
