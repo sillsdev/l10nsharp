@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [12.0.0] - 2026-11-20
+
 ### Changed
 
 - [L10NSharp] Enabled nullable reference types on the core project, with full CS86xx warning cleanup across all layers. `ILocalizationManager.GetLocalizedString` now declares its `defaultText` parameter nullable; the internal `ILocalizedStringCache`/`ILocalizationManagerInternal` interfaces gained nullable annotations and a `where T : class` constraint.
@@ -309,7 +311,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Create nuget package
 -   Strong-name assembly
 
-[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v11.0.1...HEAD
+[Unreleased]: https://github.com/sillsdev/l10nsharp/compare/v12.0.0...HEAD
+[12.0.0]: https://github.com/sillsdev/l10nsharp/compare/v11.0.1...v12.0.0
 [11.0.1]: https://github.com/sillsdev/l10nsharp/compare/v11.0.0...v11.0.1
 [11.0.0]: https://github.com/sillsdev/l10nsharp/compare/v10.0.0...v11.0.0
 [10.0.0]: https://github.com/sillsdev/l10nsharp/compare/v9.0.0...v10.0.0
