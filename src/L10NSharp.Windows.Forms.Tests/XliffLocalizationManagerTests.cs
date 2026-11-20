@@ -395,6 +395,125 @@ namespace L10NSharp.Windows.Forms.Tests
 			}
 		}
 
+		/// <summary>
+		/// A fake Control that is also an ILocalizableComponent, so disposing it exercises the
+		/// IsDisposed pre-check (not the catch) while still letting us verify that pruning
+		/// removes it from both ComponentCache and LocalizableComponents.
+		/// </summary>
+		private class DisposableLocalizableControl : Control, ILocalizableComponent
+		{
+			public IEnumerable<LocalizingInfoWinforms> GetAllLocalizingInfoObjects(L10NSharpExtender extender) =>
+				Array.Empty<LocalizingInfoWinforms>();
+
+			public void ApplyLocalizationToString(object control, string id, string localization) { }
+		}
+
+		[Test]
+		[Category("RequiresDisplay")]
+		public void ReapplyLocalizationsToAllComponents_DisposedILocalizableComponent_PrunesBothComponentCacheAndLocalizableComponents()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("container.id", false,
+					CreateTransUnitVariant("en", "container text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				var component = new DisposableLocalizableControl();
+				manager.RegisterComponentForLocalizing(component, "container.id", "container text", null, null, null);
+				manager.LocalizableComponents[component] = new Dictionary<string, LocalizingInfoWinforms>
+				{
+					["container.id"] = new LocalizingInfoWinforms(component, "container.id") { Text = "container text" }
+				};
+				component.Dispose();
+
+				Assert.That(() => manager.ReapplyLocalizationsToAllComponents(), Throws.Nothing);
+
+				Assert.That(manager.ComponentCache.ContainsKey(component), Is.False,
+					"The disposed component's ComponentCache entry should be pruned.");
+				Assert.That(manager.LocalizableComponents.ContainsKey(component), Is.False,
+					"The disposed component's LocalizableComponents entry should also be pruned, " +
+					"not just its ComponentCache entry.");
+			}
+		}
+
+		/// <summary>
+		/// A fake ILocalizableComponent with several registered strings, one of which always
+		/// throws ObjectDisposedException (simulating a disposed sub-item owned by this
+		/// container), while the others succeed.
+		/// </summary>
+		private class PartiallyThrowingLocalizableComponent : ILocalizableComponent, IComponent
+		{
+			public List<string> AppliedIds { get; } = new List<string>();
+
+			public IEnumerable<LocalizingInfoWinforms> GetAllLocalizingInfoObjects(L10NSharpExtender extender) =>
+				Array.Empty<LocalizingInfoWinforms>();
+
+			public void ApplyLocalizationToString(object control, string id, string localization)
+			{
+				if (id == "disposedSubItem.id")
+					throw new ObjectDisposedException("fake disposed sub-item");
+				AppliedIds.Add(id);
+			}
+
+#pragma warning disable CS0067 // event is never used
+			public event EventHandler Disposed;
+#pragma warning restore CS0067
+			public ISite Site { get; set; }
+			public void Dispose() { }
+		}
+
+		[Test]
+		public void ReapplyLocalizationsToAllComponents_OneStringOfALocalizableComponentThrowsObjectDisposedException_StillLocalizesItsOtherStrings()
+		{
+			LocalizationManagerWinforms.SetUILanguage("en", true);
+			LocalizationManagerInternalWinforms<XLiffDocument>.LoadedManagers.Clear();
+			using (var folder = new L10NSharp.Tests.TempFolder())
+			{
+				var installedFolder = Path.Combine(folder.Path, "installed");
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var userRelativeFolder = Path.Combine("Temp", Path.GetFileName(Path.GetDirectoryName(folder.Path)),
+					Path.GetFileName(folder.Path), "user");
+
+				var englishDoc = CreateNewDocument(AppVersion, "en");
+				englishDoc.AddTransUnit(CreateTransUnit("disposedSubItem.id", false,
+					CreateTransUnitVariant("en", "disposed sub-item text")));
+				englishDoc.AddTransUnit(CreateTransUnit("liveSubItem.id", false,
+					CreateTransUnitVariant("en", "live sub-item text")));
+				englishDoc.Save(Path.Combine(installedFolder,
+					LocalizationManager.GetTranslationFileNameForLanguage(AppId, "en")));
+
+				var manager = (XliffLocalizationManagerWinforms)LocalizationManagerWinforms.Create("en", AppId,
+					AppName, AppVersion, installedFolder, userRelativeFolder, null, new string[] { });
+
+				var component = new PartiallyThrowingLocalizableComponent();
+				manager.RegisterComponentForLocalizing(component, "disposedSubItem.id", "disposed sub-item text", null, null, null);
+				manager.LocalizableComponents[component] = new Dictionary<string, LocalizingInfoWinforms>
+				{
+					["disposedSubItem.id"] = new LocalizingInfoWinforms(component, "disposedSubItem.id") { Text = "disposed sub-item text" },
+					["liveSubItem.id"] = new LocalizingInfoWinforms(component, "liveSubItem.id") { Text = "live sub-item text" }
+				};
+
+				Assert.That(() => manager.ReapplyLocalizationsToAllComponents(), Throws.Nothing,
+					"A disposed sub-item under one id must not abort localizing the container's other strings.");
+
+				Assert.That(component.AppliedIds, Does.Contain("liveSubItem.id"),
+					"The live sub-item's id should still be localized even though an earlier sub-item " +
+					"under the same container threw ObjectDisposedException.");
+			}
+		}
+
 		[Test]
 		[Category("RequiresDisplay")]
 		public void ReapplyLocalizationsToAllComponents_OneRegisteredToolStripItemIsDisposed_DoesNotThrowAndPrunesCacheEntry()

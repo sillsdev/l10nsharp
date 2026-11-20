@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -170,15 +171,11 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		}
 
 		/// ------------------------------------------------------------------------------------
-		private bool PruneIfDisposed(IComponent component)
+		private void PruneFromCache(IComponent component)
 		{
-			if (!IsComponentDisposed(component))
-				return false;
-
 			ComponentCache.Remove(component);
 			if (component is ILocalizableComponent locComponent)
 				LocalizableComponents.Remove(locComponent);
-			return true;
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -197,16 +194,26 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		private void RunLocalizationStepUnlessDisposed(IComponent component, Action localizationStep)
 		{
-			if (PruneIfDisposed(component))
+			if (IsComponentDisposed(component))
+			{
+				PruneFromCache(component);
 				return;
+			}
 
 			try
 			{
 				localizationStep();
 			}
-			catch (ObjectDisposedException)
+			catch (ObjectDisposedException ex)
 			{
-				PruneIfDisposed(component);
+				if (IsComponentDisposed(component))
+				{
+					PruneFromCache(component);
+					return;
+				}
+
+				// We couldn't confirm the component itself is disposed, so it stays in the cache.
+				Debug.WriteLine($"Swallowed exception while localizing {component}: {ex}");
 			}
 		}
 
@@ -231,8 +238,11 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 			foreach (var ctrl in controls)
 			{
 				var control = (Control)ctrl.Key;
-				if (PruneIfDisposed(control))
+				if (IsComponentDisposed(control))
+				{
+					PruneFromCache(control);
 					continue;
+				}
 
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, ctrl.Value);
 				if (string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
@@ -281,8 +291,8 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// Initializes the specified ILocalizableComponent.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalizationsToLocalizableComponent(
-			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfoWinforms> idToLocInfo)
+		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent locComponent,
+			Dictionary<string, LocalizingInfoWinforms> idToLocInfo)
 		{
 			if (locComponent == null)
 				return;
@@ -291,7 +301,20 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 			{
 				var id = kvp.Key;
 				var locInfo = kvp.Value;
-				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
+				try
+				{
+					locComponent.ApplyLocalizationToString(locInfo.Component, id,
+						GetLocalizedString(id, locInfo.Text));
+				}
+				catch (ObjectDisposedException ex)
+				{
+					// locInfo.Component is a sub-item owned by locComponent (e.g. a Control on
+					// a panel-like container); it can be disposed even while locComponent
+					// itself is still alive and has no cache entry of its own to prune. Don't
+					// let it block localizing the container's other strings.
+					Debug.WriteLine(
+						$"Swallowed exception while localizing {id} for {locComponent}: {ex}");
+				}
 			}
 		}
 
