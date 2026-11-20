@@ -213,7 +213,7 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 				}
 
 				// We couldn't confirm the component itself is disposed, so it stays in the cache.
-				Debug.WriteLine($"Swallowed exception while localizing {component}: {ex}");
+				Trace.WriteLine($"Swallowed exception while localizing {component}: {ex}");
 			}
 		}
 
@@ -308,11 +308,19 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 				}
 				catch (ObjectDisposedException ex)
 				{
-					// locInfo.Component is a sub-item owned by locComponent (e.g. a Control on
-					// a panel-like container); it can be disposed even while locComponent
-					// itself is still alive and has no cache entry of its own to prune. Don't
-					// let it block localizing the container's other strings.
-					Debug.WriteLine(
+					// If locComponent itself (not locInfo.Component, a sub-item it owns) can be
+					// confirmed disposed, rethrow so the outer RunLocalizationStepUnlessDisposed
+					// catch gets a chance to prune its ComponentCache entry -- otherwise that
+					// entry would never be pruned, since the pre-check can't detect disposal for
+					// an ILocalizableComponent either.
+					if (locComponent is IComponent component && IsComponentDisposed(component))
+						throw;
+
+					// locInfo.Component -- or, if it couldn't be confirmed above, possibly
+					// locComponent itself -- is disposed, but locComponent has no cache entry of
+					// its own to prune for this. Don't let it block localizing the container's
+					// other strings.
+					Trace.WriteLine(
 						$"Swallowed exception while localizing {id} for {locComponent}: {ex}");
 				}
 			}
