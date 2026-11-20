@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -144,8 +145,76 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// ------------------------------------------------------------------------------------
 		public void ReapplyLocalizationsToAllComponents()
 		{
-			foreach (var component in ComponentCache.Keys)
-				ApplyLocalization(component);
+			foreach (var component in ComponentCache.Keys.ToArray())
+				RunLocalizationStepUnlessDisposed(component, () => ApplyLocalization(component));
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Returns whether the component (or, for a Control, its owning handle) is already
+		/// known to be disposed, without having to touch it and risk an ObjectDisposedException.
+		/// ColumnHeader and DataGridViewColumn expose no such property, and an
+		/// ILocalizableComponent is caller-supplied, so for those we can't tell in advance.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private static bool IsComponentDisposed(IComponent component)
+		{
+			switch (component)
+			{
+				case Control ctrl:
+					return ctrl.IsDisposed;
+				case ToolStripItem item:
+					return item.IsDisposed;
+				default:
+					return false;
+			}
+		}
+
+		/// ------------------------------------------------------------------------------------
+		private void PruneFromCache(IComponent component)
+		{
+			ComponentCache.Remove(component);
+			if (component is ILocalizableComponent locComponent)
+				LocalizableComponents.Remove(locComponent);
+		}
+
+		/// ------------------------------------------------------------------------------------
+		/// <summary>
+		/// Runs the given localization step for a cached component unless it is already known
+		/// to be disposed (in which case it is pruned from the cache instead). This guards
+		/// against the rare race where a component becomes disposed between that check and the
+		/// step (e.g. an earlier component's localization disposes a later one on the UI
+		/// thread), or where the step throws ObjectDisposedException for a reason unrelated to
+		/// this component's own disposal (e.g. an owning ToolTip, or caller-supplied code
+		/// reached via an ILocalizableComponent). Either way, don't let it abort localizing the
+		/// rest of the components; and only prune the cache entry if the component can actually
+		/// be confirmed disposed, so a live component isn't silently evicted and left
+		/// unlocalized forever.
+		/// </summary>
+		/// ------------------------------------------------------------------------------------
+		private void RunLocalizationStepUnlessDisposed(IComponent component, Action localizationStep)
+		{
+			if (IsComponentDisposed(component))
+			{
+				PruneFromCache(component);
+				return;
+			}
+
+			try
+			{
+				localizationStep();
+			}
+			catch (ObjectDisposedException ex)
+			{
+				if (IsComponentDisposed(component))
+				{
+					PruneFromCache(component);
+					return;
+				}
+
+				// We couldn't confirm the component itself is disposed, so it stays in the cache.
+				Trace.WriteLine($"Swallowed exception while localizing {component}: {ex}");
+			}
 		}
 
 		/// ------------------------------------------------------------------------------------
@@ -162,15 +231,24 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 
 			ToolTipCtrls.Clear();
 
-			// This used to be a for-each, but on rare occasions, a "Collection was
-			// modified; enumeration operation may not execute" exception would be
-			// thrown. This should solve the problem.
+			// This used to be a foreach on the IEnumerable, but on rare occasions, a "Collection
+			// was modified; enumeration operation may not execute" exception would be thrown. This
+			// should solve the problem.
 			var controls = ComponentCache.Where(x => x.Key is Control).ToArray();
 			foreach (var ctrl in controls)
 			{
+				var control = (Control)ctrl.Key;
+				if (IsComponentDisposed(control))
+				{
+					PruneFromCache(control);
+					continue;
+				}
+
 				var toolTipText = GetTooltipFromStringCache(UILanguageId, ctrl.Value);
-				if (!string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
-					ApplyLocalizedToolTipToControl((Control)ctrl.Key, toolTipText);
+				if (string.IsNullOrEmpty(toolTipText)) //JH: hoping to speed this up a bit
+					continue;
+
+				RunLocalizationStepUnlessDisposed(control, () => ApplyLocalizedToolTipToControl(control, toolTipText));
 			}
 		}
 
@@ -213,8 +291,8 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 		/// Initializes the specified ILocalizableComponent.
 		/// </summary>
 		/// ------------------------------------------------------------------------------------
-		internal void ApplyLocalizationsToLocalizableComponent(
-			ILocalizableComponent locComponent, Dictionary<string, LocalizingInfoWinforms> idToLocInfo)
+		internal void ApplyLocalizationsToLocalizableComponent(ILocalizableComponent locComponent,
+			Dictionary<string, LocalizingInfoWinforms> idToLocInfo)
 		{
 			if (locComponent == null)
 				return;
@@ -223,7 +301,28 @@ namespace L10NSharp.Windows.Forms.XLiffUtils
 			{
 				var id = kvp.Key;
 				var locInfo = kvp.Value;
-				locComponent.ApplyLocalizationToString(locInfo.Component, id, GetLocalizedString(id, locInfo.Text));
+				try
+				{
+					locComponent.ApplyLocalizationToString(locInfo.Component, id,
+						GetLocalizedString(id, locInfo.Text));
+				}
+				catch (ObjectDisposedException ex)
+				{
+					// If locComponent itself (not locInfo.Component, a sub-item it owns) can be
+					// confirmed disposed, rethrow so the outer RunLocalizationStepUnlessDisposed
+					// catch gets a chance to prune its ComponentCache entry -- otherwise that
+					// entry would never be pruned, since the pre-check can't detect disposal for
+					// an ILocalizableComponent either.
+					if (locComponent is IComponent component && IsComponentDisposed(component))
+						throw;
+
+					// locInfo.Component -- or, if it couldn't be confirmed above, possibly
+					// locComponent itself -- is disposed, but locComponent has no cache entry of
+					// its own to prune for this. Don't let it block localizing the container's
+					// other strings.
+					Trace.WriteLine(
+						$"Swallowed exception while localizing {id} for {locComponent}: {ex}");
+				}
 			}
 		}
 
